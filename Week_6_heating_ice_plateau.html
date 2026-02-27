@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why Does Heating Stop? — States of Matter</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="presentation.css">
+<style>
+/* ── Three.js canvas containers ── */
+.particle-stage {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.1);
+  position: relative;
+  background: var(--navy2);
+}
+.particle-stage canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+.particle-label {
+  position: absolute;
+  top: 12px; left: 16px;
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--pink);
+  pointer-events: none;
+}
+.particle-temp {
+  position: absolute;
+  bottom: 12px; right: 16px;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.4);
+  pointer-events: none;
+}
+
+/* ── Heating curve SVG slide ── */
+.curve-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.curve-svg-container {
+  flex: 1;
+  min-height: 0;
+  background: var(--navy2);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  padding: 20px;
+  position: relative;
+}
+.curve-legend {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.6);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.legend-item.vis { opacity: 1; }
+.legend-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Region highlight panels beneath graph ── */
+.region-panels {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+.region-panel {
+  flex: 1;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 4px;
+  padding: 9px 12px;
+  font-size: clamp(0.65rem,1.1vw,0.78rem);
+  color: rgba(255,255,255,0.4);
+  text-align: center;
+  transition: all 0.4s ease;
+  opacity: 0;
+}
+.region-panel.lit {
+  opacity: 1;
+  border-color: rgba(235,0,139,0.3);
+  color: rgba(255,255,255,0.8);
+  background: rgba(235,0,139,0.06);
+}
+.region-panel .rp-state {
+  font-weight: 900;
+  color: var(--pink);
+  font-size: clamp(0.72rem,1.2vw,0.88rem);
+  display: block;
+  margin-bottom: 3px;
+}
+
+/* ── Energy split bar ── */
+.energy-bar-wrap {
+  margin-top: 10px;
+}
+.energy-track {
+  height: 22px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 3px;
+  overflow: hidden;
+  display: flex;
+}
+.energy-seg {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  transition: width 0.8s ease;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.energy-seg.kinetic  { background: var(--pink); color: white; }
+.energy-seg.latent   { background: rgba(80,160,255,0.7); color: white; }
+.energy-seg.none     { background: transparent; color: rgba(255,255,255,0.2); width: 100%; }
+.energy-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 0.62rem;
+  color: rgba(255,255,255,0.4);
+}
+
+/* ── Speculation value line slide ── */
+.vline-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+  margin-top: 20px;
+}
+.vline-track {
+  position: relative;
+  height: 6px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+}
+.vline-track::before {
+  content: 'NO';
+  position: absolute;
+  left: 0; top: 14px;
+  font-size: 0.65rem; font-weight: 700;
+  color: rgba(255,255,255,0.35);
+}
+.vline-track::after {
+  content: 'YES';
+  position: absolute;
+  right: 0; top: 14px;
+  font-size: 0.65rem; font-weight: 700;
+  color: var(--pink);
+}
+.vline-fill {
+  height: 100%;
+  background: linear-gradient(90deg, rgba(255,255,255,0.1), var(--pink));
+  border-radius: 3px;
+  width: 0;
+  transition: width 1s ease;
+}
+
+/* ── State badge ── */
+.state-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(235,0,139,0.12);
+  border: 1px solid rgba(235,0,139,0.3);
+  padding: 6px 14px;
+  border-radius: 3px;
+  font-weight: 700;
+  font-size: clamp(0.8rem,1.5vw,1rem);
+  margin-bottom: 8px;
+}
+.state-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--pink);
+}
+
+/* ── Latent heat big number ── */
+.big-stat {
+  font-weight: 900;
+  font-size: clamp(3rem,7vw,5.5rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--pink);
+}
+.big-stat-unit {
+  font-family: var(--mono);
+  font-size: clamp(0.8rem,1.5vw,1.1rem);
+  color: rgba(255,255,255,0.5);
+  margin-top: 4px;
+}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<!-- ══ S0: TITLE ══════════════════════════════════════════════ -->
+<div class="scene" id="s0" style="align-items:center; justify-content:center; text-align:center;">
+  <div class="eyebrow" style="text-align:center; align-self:center;">States of Matter: Phase Change</div>
+  <div class="scene-title" style="font-size:clamp(2.4rem,6vw,4.5rem);">Why does the temperature <span class="hl">stop rising?</span></div>
+  <div class="scene-rule" style="align-self:center;"></div>
+  <div class="reveal" id="s0-sub" style="font-size:clamp(0.9rem,1.8vw,1.2rem); color:var(--dim); max-width:560px; line-height:1.6;">
+    Your experiment showed something strange. Let's figure out what was really happening.
+  </div>
+</div>
+
+
+<!-- ══ S1: SPECULATION — VALUE LINE ══════════════════════════ -->
+<div class="scene" id="s1">
+  <div class="checks">
+    <img src="checksforunderstanding/valueline.png" alt="Value Line">
+    <img src="checksforunderstanding/turnandtalk.png" alt="Turn and Talk">
+  </div>
+  <div class="scene-title">What did <span class="hl">your data</span> show?</div>
+  <div class="scene-rule"></div>
+
+  <div class="reveal" id="s1-q" style="font-size:clamp(0.95rem,1.8vw,1.3rem); font-weight:700; margin-bottom:8px;">
+    Research question: <span class="hl">Does temperature continually increase as ice water is heated?</span>
+  </div>
+
+  <div class="reveal" id="s1-instr" style="color:var(--dim); font-size:clamp(0.8rem,1.3vw,0.9rem); margin-bottom:18px; font-style:italic;">
+    Stand on the value line: left = No, right = Yes. Turn and talk: what did your graph look like?
+  </div>
+
+  <div class="reveal" id="s1-prompts">
+    <div class="def-card">
+      <div class="def-label">Think about</div>
+      <div class="def-body" style="display:flex; flex-direction:column; gap:8px;">
+        <div>Did temperature rise the whole time, or did something unusual happen?</div>
+        <div>When did it plateau: was ice still present, or had it all melted?</div>
+        <div>Talk to your partner. What is your best explanation for <em>why</em> it stopped rising?</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="reveal" id="s1-hint" style="margin-top:12px;">
+    <div class="callout"><strong>Cold call coming:</strong> be ready to share your group's best explanation.</div>
+  </div>
+</div>
+
+
+<!-- ══ S2: THE HEATING CURVE — INTERACTIVE ═════════════════ -->
+<div class="scene" id="s2">
+  <div class="eyebrow">The Data Explained</div>
+  <div class="scene-title">The <span class="hl">Heating Curve</span></div>
+  <div class="scene-rule"></div>
+
+  <div class="curve-wrap">
+    <div class="curve-svg-container" style="position:relative; flex:1; min-height:0; padding:0;">
+      <canvas id="heatingChart"></canvas>
+    </div>
+
+    <div class="region-panels">
+      <div class="region-panel" id="rp1"><span class="rp-state">Solid</span>Temp rises as the solid warms toward 0&deg;C</div>
+      <div class="region-panel" id="rp2" style="border-color:rgba(235,0,139,0.4);"><span class="rp-state">Melting</span>Temp <em>stays flat</em>. This is the key.</div>
+      <div class="region-panel" id="rp3"><span class="rp-state">Liquid</span>Temp rises again through the liquid phase</div>
+      <div class="region-panel" id="rp4" style="border-color:rgba(235,0,139,0.4);"><span class="rp-state">Boiling</span>Another plateau at 100&deg;C</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ S3: PARTICLE VIEW — SOLID ═══════════════════════════ -->
+<div class="scene" id="s3">
+  <div class="checks"><img src="checksforunderstanding/silentsolo.png" alt="Silent Solo"></div>
+  <div class="scene-title">Particles in a <span class="hl">solid</span></div>
+  <div class="scene-rule"></div>
+
+  <div class="two-col" style="flex:1; min-height:0;">
+    <div class="col-l" style="gap:12px;">
+      <div class="state-badge"><div class="state-dot" style="background:#64b4ff;"></div> Solid: below 0&deg;C</div>
+
+      <div class="reveal" id="s3-d1">
+        <div class="def-card">
+          <div class="def-label">Particle arrangement</div>
+          <div class="def-body">Particles are locked in a <strong>regular lattice</strong>. They vibrate in place but cannot move past each other.</div>
+        </div>
+      </div>
+      <div class="reveal" id="s3-d2">
+        <div class="def-card">
+          <div class="def-label">Energy</div>
+          <div class="def-body">Heat energy → particles vibrate <strong>faster</strong> → temperature <strong>rises</strong>. All energy goes into kinetic energy.</div>
+        </div>
+      </div>
+      <div class="reveal" id="s3-callout">
+        <div class="callout">Temperature is a measure of the <strong>average kinetic energy</strong> of particles.</div>
+      </div>
+    </div>
+    <div class="col-r">
+      <div class="particle-stage" id="stage-solid">
+        <div class="particle-label">Solid lattice: vibrating</div>
+        <div class="particle-temp" id="solid-temp">T = −5°C</div>
+        <canvas id="canvas-solid"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ S4: THE PLATEAU — KEY CONCEPT ═══════════════════════ -->
+<div class="scene" id="s4">
+  <div class="checks">
+    <img src="checksforunderstanding/stopandjot.png" alt="Stop and Jot">
+    <img src="checksforunderstanding/coldcall.png" alt="Cold Call">
+  </div>
+  <div class="scene-title">The <span class="hl">plateau</span>: where does the energy go?</div>
+  <div class="scene-rule"></div>
+
+  <div class="two-col" style="flex:1; min-height:0;">
+    <div class="col-l" style="gap:12px;">
+      <div class="state-badge"><div class="state-dot"></div> Melting: at 0&deg;C</div>
+
+      <!-- Step 1: establish the puzzle, ask for prediction BEFORE revealing answer -->
+      <div class="reveal" id="s4-d1">
+        <div class="def-card">
+          <div class="def-label">The puzzle</div>
+          <div class="def-body">The Bunsen burner is still on. Heat energy is still entering the beaker. But the thermometer reading <strong>does not change</strong>. Jot your answer: where is that energy going?</div>
+        </div>
+      </div>
+
+      <!-- Step 2: answer revealed after jot -->
+      <div class="reveal" id="s4-d2">
+        <div class="def-card" style="border-left: 3px solid var(--pink); border-radius:0 4px 4px 0;">
+          <div class="def-label">Latent heat</div>
+          <div class="def-body">Energy is used to <strong>break the bonds</strong> between particles, not to speed them up. Because temperature measures particle speed, the thermometer shows no change. This hidden energy is called <strong>latent heat</strong>.</div>
+        </div>
+      </div>
+
+      <!-- Step 3: before/after comparison -->
+      <div class="reveal" id="s4-compare">
+        <div style="display:flex; gap:10px;">
+          <div style="flex:1; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:4px; padding:12px 14px;">
+            <div style="font-family:var(--mono); font-size:0.55rem; letter-spacing:0.14em; text-transform:uppercase; color:rgba(255,255,255,0.4); margin-bottom:8px;">Heating solid or liquid</div>
+            <div style="font-weight:900; font-size:clamp(0.85rem,1.4vw,1rem); margin-bottom:4px;">Energy <span style="color:var(--pink);">speeds up</span> particles</div>
+            <div style="font-size:0.78rem; color:var(--dim);">Temperature rises</div>
+          </div>
+          <div style="flex:1; background:rgba(235,0,139,0.06); border:1px solid rgba(235,0,139,0.3); border-radius:4px; padding:12px 14px;">
+            <div style="font-family:var(--mono); font-size:0.55rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--pink); margin-bottom:8px;">During melting</div>
+            <div style="font-weight:900; font-size:clamp(0.85rem,1.4vw,1rem); margin-bottom:4px;">Energy <span style="color:var(--pink);">breaks bonds</span> between particles</div>
+            <div style="font-size:0.78rem; color:var(--dim);">Temperature stays constant</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-r">
+      <div class="particle-stage" id="stage-melt">
+        <div class="particle-label">Melting: bonds breaking</div>
+        <div class="particle-temp">T = 0&deg;C (steady)</div>
+        <canvas id="canvas-melt"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ S5: PARTICLE VIEW — LIQUID ══════════════════════════ -->
+<div class="scene" id="s5">
+  <div class="scene-title">Particles in a <span class="hl">liquid</span></div>
+  <div class="scene-rule"></div>
+
+  <div class="two-col" style="flex:1; min-height:0;">
+    <div class="col-l" style="gap:12px;">
+      <div class="state-badge"><div class="state-dot" style="background:rgba(255,160,0,0.9);"></div> Liquid: above 0&deg;C</div>
+
+      <div class="reveal" id="s5-d1">
+        <div class="def-card">
+          <div class="def-label">Particle arrangement</div>
+          <div class="def-body">Bonds have broken. Particles move <strong>freely past each other</strong> but stay close, with no fixed positions.</div>
+        </div>
+      </div>
+      <div class="reveal" id="s5-d2">
+        <div class="def-card">
+          <div class="def-label">Energy</div>
+          <div class="def-body">Heat energy → particles move <strong>faster</strong> → temperature <strong>rises again.</strong></div>
+        </div>
+      </div>
+      <div class="reveal" id="s5-d3">
+        <div class="callout"><strong>Pattern:</strong> Temperature only rises when energy goes into kinetic energy (particle speed), not bond-breaking.</div>
+      </div>
+    </div>
+    <div class="col-r">
+      <div class="particle-stage" id="stage-liquid">
+        <div class="particle-label">Liquid: free-moving particles</div>
+        <div class="particle-temp" id="liquid-temp">T = 25°C</div>
+        <canvas id="canvas-liquid"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ S6: SYNTHESIS — THE BIG IDEA ════════════════════════ -->
+<div class="scene" id="s6">
+  <div class="eyebrow">Putting it together</div>
+  <div class="scene-title">Latent <span class="hl">heat</span></div>
+  <div class="scene-rule"></div>
+
+  <div class="two-col" style="flex:1; min-height:0; align-items:flex-start;">
+    <div class="col-l" style="gap:14px;">
+      <div class="reveal" id="s6-def">
+        <div class="def-card">
+          <div class="def-label">Definition: Latent Heat</div>
+          <div class="def-body">The energy <strong>absorbed or released</strong> during a change of state, at constant temperature. "Latent" means <em>hidden</em>: you cannot see it in the temperature reading.</div>
+        </div>
+      </div>
+
+      <div class="reveal" id="s6-rule">
+        <div class="callout">
+          <strong>Rule:</strong> During a phase change, all energy goes into changing the state. <strong>Zero</strong> goes into changing the temperature.
+        </div>
+      </div>
+
+      <div class="reveal" id="s6-compare">
+        <div class="concept-row" style="margin-top:0;">
+          <div class="concept-panel">
+            <div class="cp-label">Heating a solid/liquid</div>
+            <div class="cp-main" style="font-size:1.1rem;">Energy → <span style="color:var(--pink);">speed</span></div>
+            <div class="cp-sub">Temperature rises</div>
+          </div>
+          <div class="h-arrow">→</div>
+          <div class="concept-panel hi">
+            <div class="cp-label">During phase change</div>
+            <div class="cp-main" style="font-size:1.1rem;">Energy → <span style="color:var(--pink);">bonds</span></div>
+            <div class="cp-sub">Temperature stays flat</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-r" style="gap:14px; justify-content:center; align-items:center;">
+      <div class="reveal" id="s6-stat" style="text-align:center; padding: 20px;">
+        <div class="big-stat">334</div>
+        <div class="big-stat-unit">kJ of energy needed to melt 1 kg of ice</div>
+        <div style="font-size:0.72rem; color:rgba(255,255,255,0.3); margin-top:8px;">at 0&deg;C, with no temperature change</div>
+      </div>
+      <div class="reveal" id="s6-context" style="font-size:clamp(0.75rem,1.2vw,0.85rem); color:rgba(255,255,255,0.5); text-align:center; max-width:260px; line-height:1.6;">
+        That's enough energy to heat the same water from 0°C all the way to 80°C, all "hidden" in bond-breaking.
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ S7: CHECK FOR UNDERSTANDING ═════════════════════════ -->
+<div class="scene" id="s7">
+  <div class="checks">
+    <img src="checksforunderstanding/stopandjot.png" alt="Stop and Jot">
+    <img src="checksforunderstanding/coldcall.png" alt="Cold Call">
+  </div>
+  <div class="scene-title">Check: <span class="hl">jot your answer</span></div>
+  <div class="scene-rule"></div>
+
+  <div class="q-cards">
+    <div class="q-card reveal" id="s7-q1">
+      <div class="q-card-lbl">Question 1</div>
+      <div class="q-card-text">A student heats ice until it fully boils away. Sketch the shape of the temperature–time graph you'd expect. Label the two plateaus.</div>
+    </div>
+    <div class="q-card reveal" id="s7-q2">
+      <div class="q-card-lbl">Question 2</div>
+      <div class="q-card-text">During melting, energy is still entering the ice. In your own words: where does this energy go, and why doesn't the thermometer show it?</div>
+    </div>
+  </div>
+
+  <div class="reveal" id="s7-q3" style="margin-top:14px;">
+    <div class="q-card" style="border-color:rgba(235,0,139,0.3);">
+      <div class="q-card-lbl">Extension</div>
+      <div class="q-card-text">Using the particle model, predict what you'd see on the graph if you used a substance with <em>stronger</em> bonds between its particles. Would the plateau be longer or shorter? Why?</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ S8: CONFIDENCE ══════════════════════════════════════ -->
+<div class="scene" id="s8" style="align-items:center;">
+  <div class="checks" style="align-self:flex-start;">
+    <img src="checksforunderstanding/fingervote.png" alt="Finger Vote">
+  </div>
+  <div class="scene-title" style="align-self:center; text-align:center;">How <span class="hl">confident</span> are you?</div>
+  <div class="scene-rule" style="align-self:center;"></div>
+
+  <div style="display:flex; flex-direction:column; align-items:center; gap:12px; width:100%;">
+    <div class="reveal" id="s8-prompt" style="font-size:clamp(0.85rem,1.5vw,1.05rem); color:rgba(255,255,255,0.8); text-align:center;">
+      Show me on five fingers: can you explain why the temperature <span class="mono-pink">plateaus during melting</span>?
+    </div>
+    <div class="conf-scale">
+      <div class="conf-item" id="ci1"><div class="conf-num">1</div><div class="conf-lbl">Not sure at all</div></div>
+      <div class="conf-item" id="ci2"><div class="conf-num">2</div><div class="conf-lbl">Getting started</div></div>
+      <div class="conf-item" id="ci3"><div class="conf-num">3</div><div class="conf-lbl">Getting there</div></div>
+      <div class="conf-item" id="ci4"><div class="conf-num">4</div><div class="conf-lbl">Fairly solid</div></div>
+      <div class="conf-item hi" id="ci5"><div class="conf-num">5</div><div class="conf-lbl">I can explain it</div></div>
+    </div>
+    <div class="callout reveal" id="s8-note" style="border-left:none; border-top:3px solid var(--pink); border-radius:3px; text-align:center; max-width:620px;">
+      Showing <strong>1–2 fingers?</strong> We'll revisit the particle animation and try the jot again together.
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     THREE.JS PARTICLE SIMULATIONS
+═══════════════════════════════════════════════════════════ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ─── Utility: resize-aware renderer ───────────────────────
+function makeRenderer(canvas) {
+  const r = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  r.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  r.setClearColor(0x000000, 0);
+  return r;
+}
+
+function resizeRenderer(renderer, camera, canvas) {
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  if (canvas.width !== w || canvas.height !== h) {
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+}
+
+// ─── SOLID simulation ──────────────────────────────────────
+(function initSolid() {
+  const canvas = document.getElementById('canvas-solid');
+  const renderer = makeRenderer(canvas);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+  camera.position.set(0, 0, 14);
+
+  const geo = new THREE.SphereGeometry(0.38, 12, 12);
+  const mat = new THREE.MeshPhongMaterial({ color: 0x64b4ff, emissive: 0x1a3a6a, shininess: 60 });
+
+  const particles = [];
+  const origins = [];
+  const rows = 5, cols = 6, layers = 4;
+  const spacing = 1.5;
+
+  for (let z = 0; z < layers; z++) {
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const mesh = new THREE.Mesh(geo, mat.clone());
+        const ox = (x - cols/2 + 0.5) * spacing;
+        const oy = (y - rows/2 + 0.5) * spacing;
+        const oz = (z - layers/2 + 0.5) * spacing;
+        mesh.position.set(ox, oy, oz);
+        scene.add(mesh);
+        particles.push(mesh);
+        origins.push({ x: ox, y: oy, z: oz });
+      }
+    }
+  }
+
+  // Bonds (lines between neighbours)
+  const bondMat = new THREE.LineBasicMaterial({ color: 0x2a5a9f, transparent: true, opacity: 0.3 });
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i+1; j < particles.length; j++) {
+      const d = particles[i].position.distanceTo(particles[j].position);
+      if (d < spacing * 1.1) {
+        const geom = new THREE.BufferGeometry().setFromPoints([particles[i].position, particles[j].position]);
+        scene.add(new THREE.Line(geom, bondMat));
+      }
+    }
+  }
+
+  const ambLight = new THREE.AmbientLight(0x334466, 0.8);
+  const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+  dirLight.position.set(5, 10, 8);
+  scene.add(ambLight, dirLight);
+
+  const clock = new THREE.Clock();
+  let vibAmp = 0.04;
+
+  function animate() {
+    requestAnimationFrame(animate);
+    resizeRenderer(renderer, camera, canvas);
+    const t = clock.getElapsedTime();
+
+    particles.forEach((p, i) => {
+      const o = origins[i];
+      p.position.x = o.x + (Math.sin(t * 8 + i * 1.7) * vibAmp);
+      p.position.y = o.y + (Math.cos(t * 7 + i * 2.3) * vibAmp);
+      p.position.z = o.z + (Math.sin(t * 9 + i * 0.9) * vibAmp * 0.5);
+      // Warm up over time
+      if (vibAmp < 0.12) vibAmp += 0.00003;
+    });
+
+    scene.rotation.y = Math.sin(t * 0.15) * 0.3 + 0.5;
+    renderer.render(scene, camera);
+
+    // Update temp label
+    const tempEl = document.getElementById('solid-temp');
+    if (tempEl) {
+      const T = Math.round(-20 + (vibAmp - 0.04) / 0.08 * 20);
+      tempEl.textContent = `T = ${T}°C`;
+    }
+  }
+  animate();
+})();
+
+
+// ─── MELTING simulation ────────────────────────────────────
+(function initMelting() {
+  const canvas = document.getElementById('canvas-melt');
+  const renderer = makeRenderer(canvas);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+  camera.position.set(0, 0, 14);
+
+  const geo = new THREE.SphereGeometry(0.38, 12, 12);
+
+  const particles = [];
+  const origins = [];
+  const states = []; // 0=solid, 1=breaking, 2=free
+  const rows = 5, cols = 6, layers = 3;
+  const spacing = 1.5;
+
+  for (let z = 0; z < layers; z++) {
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const mat = new THREE.MeshPhongMaterial({ color: 0x64b4ff, emissive: 0x100020, shininess: 60 });
+        const mesh = new THREE.Mesh(geo, mat);
+        const ox = (x - cols/2 + 0.5) * spacing;
+        const oy = (y - rows/2 + 0.5) * spacing;
+        const oz = (z - layers/2 + 0.5) * spacing;
+        mesh.position.set(ox, oy, oz);
+
+        // velocity for when freed
+        mesh.userData.vel = new THREE.Vector3(
+          (Math.random()-0.5)*0.02,
+          (Math.random()-0.5)*0.02,
+          (Math.random()-0.5)*0.01
+        );
+        mesh.userData.breakTime = Math.random() * 12 + 2; // seconds until bond breaks
+        mesh.userData.freed = false;
+
+        scene.add(mesh);
+        particles.push(mesh);
+        origins.push(new THREE.Vector3(ox, oy, oz));
+        states.push(0);
+      }
+    }
+  }
+
+  const ambLight = new THREE.AmbientLight(0x334466, 0.8);
+  const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+  dirLight.position.set(5, 10, 8);
+  scene.add(ambLight, dirLight);
+
+  // Energy pulse particles (small glowing dots entering)
+  const pulses = [];
+  const pulseMat = new THREE.MeshBasicMaterial({ color: 0xffa500, transparent: true, opacity: 0.8 });
+  const pulseGeo = new THREE.SphereGeometry(0.12, 6, 6);
+  for (let i = 0; i < 8; i++) {
+    const pulse = new THREE.Mesh(pulseGeo, pulseMat.clone());
+    pulse.position.set((Math.random()-0.5)*10, -7, (Math.random()-0.5)*4);
+    pulse.userData.target = new THREE.Vector3((Math.random()-0.5)*8, (Math.random()-0.5)*6, (Math.random()-0.5)*3);
+    pulse.userData.speed = 0.04 + Math.random() * 0.03;
+    pulse.userData.active = false;
+    pulse.userData.delay = i * 1.2;
+    scene.add(pulse);
+    pulses.push(pulse);
+  }
+
+  const clock = new THREE.Clock();
+  let freedCount = 0;
+
+  function animate() {
+    requestAnimationFrame(animate);
+    resizeRenderer(renderer, camera, canvas);
+    const t = clock.getElapsedTime();
+
+    particles.forEach((p, i) => {
+      const o = origins[i];
+      if (!p.userData.freed && t > p.userData.breakTime) {
+        p.userData.freed = true;
+        freedCount++;
+        // Turn pink when freed
+        p.material.color.setHex(0xeb008b);
+        p.material.emissive.setHex(0x3a001a);
+      }
+
+      if (!p.userData.freed) {
+        // Vibrating solid
+        p.position.x = o.x + Math.sin(t * 8 + i * 1.7) * 0.08;
+        p.position.y = o.y + Math.cos(t * 7 + i * 2.3) * 0.08;
+        p.position.z = o.z + Math.sin(t * 9 + i * 0.9) * 0.04;
+      } else {
+        // Move freely
+        p.position.addScaledVector(p.userData.vel, 1);
+        // Bounce in box
+        if (Math.abs(p.position.x) > 5.5) p.userData.vel.x *= -1;
+        if (Math.abs(p.position.y) > 4.5) p.userData.vel.y *= -1;
+        if (Math.abs(p.position.z) > 3)   p.userData.vel.z *= -1;
+      }
+    });
+
+    // Animate energy pulses
+    pulses.forEach(pulse => {
+      if (t > pulse.userData.delay) {
+        if (!pulse.userData.active) pulse.userData.active = true;
+        const dir = pulse.userData.target.clone().sub(pulse.position);
+        if (dir.length() < 0.3) {
+          // Reset pulse
+          pulse.position.set((Math.random()-0.5)*10, -7, (Math.random()-0.5)*4);
+          pulse.userData.target = new THREE.Vector3((Math.random()-0.5)*8, (Math.random()-0.5)*6, (Math.random()-0.5)*3);
+          pulse.userData.delay = t + 1.5 + Math.random() * 2;
+          pulse.userData.active = false;
+        } else {
+          pulse.position.addScaledVector(dir.normalize(), pulse.userData.speed);
+        }
+      }
+    });
+
+    scene.rotation.y = t * 0.08;
+    renderer.render(scene, camera);
+  }
+  animate();
+})();
+
+
+// ─── LIQUID simulation ─────────────────────────────────────
+(function initLiquid() {
+  const canvas = document.getElementById('canvas-liquid');
+  const renderer = makeRenderer(canvas);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+  camera.position.set(0, 0, 14);
+
+  const geo = new THREE.SphereGeometry(0.35, 12, 12);
+  const count = 60;
+  const particles = [];
+
+  for (let i = 0; i < count; i++) {
+    const mat = new THREE.MeshPhongMaterial({
+      color: new THREE.Color().setHSL(0.55 + Math.random() * 0.15, 0.6, 0.5),
+      emissive: 0x0a0020,
+      shininess: 50
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set((Math.random()-0.5)*9, (Math.random()-0.5)*7, (Math.random()-0.5)*4);
+    mesh.userData.vel = new THREE.Vector3(
+      (Math.random()-0.5)*0.06,
+      (Math.random()-0.5)*0.06,
+      (Math.random()-0.5)*0.03
+    );
+    scene.add(mesh);
+    particles.push(mesh);
+  }
+
+  const ambLight = new THREE.AmbientLight(0x334466, 0.7);
+  const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+  dirLight.position.set(5, 10, 8);
+  scene.add(ambLight, dirLight);
+
+  const clock = new THREE.Clock();
+  let speed = 0.06;
+
+  function animate() {
+    requestAnimationFrame(animate);
+    resizeRenderer(renderer, camera, canvas);
+    const t = clock.getElapsedTime();
+
+    // Speed up over time (getting hotter)
+    if (speed < 0.13) speed += 0.0001;
+
+    particles.forEach(p => {
+      p.position.add(p.userData.vel);
+      // Soft boundary
+      if (Math.abs(p.position.x) > 5.5) p.userData.vel.x *= -0.95;
+      if (Math.abs(p.position.y) > 4.5) p.userData.vel.y *= -0.95;
+      if (Math.abs(p.position.z) > 3)   p.userData.vel.z *= -0.95;
+
+      // Gradual speed increase
+      const s = p.userData.vel.length();
+      if (s < speed) {
+        p.userData.vel.multiplyScalar(1.001);
+      }
+    });
+
+    const tempEl = document.getElementById('liquid-temp');
+    if (tempEl) {
+      const T = Math.round(5 + (speed - 0.06) / 0.07 * 90);
+      tempEl.textContent = `T ≈ ${T}°C`;
+    }
+
+    renderer.render(scene, camera);
+  }
+  animate();
+})();
+</script>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     HEATING CURVE — Chart.js
+═══════════════════════════════════════════════════════════ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+// ── Full dataset — all 4 segments pre-defined ─────────────
+// x = time (arbitrary units), y = temperature °C
+// Segments: solid warm | melt plateau | liquid warm | boil plateau
+const FULL_DATA = [
+  // Segment 1: solid warming (-18 → 0)
+  {x:0,  y:-18}, {x:1,  y:-14}, {x:2,  y:-10}, {x:3,  y:-6},
+  {x:4,  y:-3},  {x:5,  y:0},
+  // Segment 2: melting plateau (0°C flat)
+  {x:6,  y:0},   {x:7,  y:0},   {x:8,  y:0},   {x:9,  y:0},
+  {x:10, y:0},
+  // Segment 3: liquid warming (0 → 100)
+  {x:11, y:5},   {x:12, y:16},  {x:13, y:28},  {x:14, y:42},
+  {x:15, y:57},  {x:16, y:70},  {x:17, y:82},  {x:18, y:91},
+  {x:19, y:98},  {x:20, y:100},
+  // Segment 4: boiling plateau (100°C flat)
+  {x:21, y:100}, {x:22, y:100}, {x:23, y:100}, {x:24, y:100},
+];
+
+// Colour per point matching segment
+const SEG_COLORS = [
+  // solid (6 pts)
+  ...[...Array(6)].map(() => 'rgba(100,180,255,1)'),
+  // melt (5 pts)
+  ...[...Array(5)].map(() => 'rgba(235,0,139,1)'),
+  // liquid (10 pts)
+  ...[...Array(10)].map(() => 'rgba(255,160,60,1)'),
+  // boil (4 pts)
+  ...[...Array(4)].map(() => 'rgba(235,0,139,1)'),
+];
+
+// Segment boundary indices (inclusive end)
+const SEG_END = [5, 10, 20, 24];
+
+// How many points are currently visible
+let visiblePoints = 0;
+
+// Region background plugin — draws coloured bands behind the chart
+const regionPlugin = {
+  id: 'regionBands',
+  _bands: [],
+  addBand(xMin, xMax, color) { this._bands.push({xMin, xMax, color}); },
+  beforeDatasetsDraw(chart) {
+    const {ctx, scales: {x, y}} = chart;
+    this._bands.forEach(b => {
+      const x1 = x.getPixelForValue(b.xMin);
+      const x2 = x.getPixelForValue(b.xMax);
+      const y1 = y.top;
+      const h  = y.bottom - y.top;
+      ctx.save();
+      ctx.fillStyle = b.color;
+      ctx.fillRect(x1, y1, x2-x1, h);
+      ctx.restore();
+    });
+  }
+};
+
+// State label plugin — draws text labels mid-region
+const labelPlugin = {
+  id: 'segLabels',
+  _labels: [],
+  add(xMid, text, color) { this._labels.push({xMid, text, color}); },
+  afterDatasetsDraw(chart) {
+    const {ctx, scales: {x, y}} = chart;
+    this._labels.forEach(l => {
+      ctx.save();
+      ctx.fillStyle = l.color;
+      ctx.font = '700 11px "IBM Plex Mono", monospace';
+      ctx.letterSpacing = '0.12em';
+      ctx.textAlign = 'center';
+      ctx.fillText(l.text, x.getPixelForValue(l.xMid), y.top + 20);
+      ctx.restore();
+    });
+  }
+};
+
+Chart.register(regionPlugin, labelPlugin);
+
+let heatingChart = null;
+
+function initHeatingChart() {
+  const canvas = document.getElementById('heatingChart');
+  if (!canvas || heatingChart) return;
+
+  // Size canvas to container
+  const container = canvas.parentElement;
+  canvas.style.width  = '100%';
+  canvas.style.height = '100%';
+
+  heatingChart = new Chart(canvas, {
+    type: 'line',
+    plugins: [regionPlugin, labelPlugin],
+    data: {
+      datasets: [{
+        data: [],
+        borderColor: ctx => SEG_COLORS[ctx.dataIndex] || 'white',
+        borderWidth: 3,
+        pointRadius: 0,
+        tension: 0.35,
+        segment: {
+          borderColor: ctx => SEG_COLORS[ctx.p0DataIndex] || 'white',
+        },
+        fill: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 600, easing: 'easeInOutQuart' },
+      plugins: {
+        legend: { display: false },
+        tooltip: { enabled: false },
+      },
+      scales: {
+        x: {
+          type: 'linear',
+          title: {
+            display: true,
+            text: 'Time (min)',
+            color: 'rgba(255,255,255,0.4)',
+            font: { family: "'IBM Plex Mono', monospace", size: 11 },
+          },
+          min: 0, max: 25,
+          ticks: { display: false },
+          grid: { color: 'rgba(255,255,255,0.05)' },
+          border: { color: 'rgba(255,255,255,0.2)' },
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'Temperature (°C)',
+            color: 'rgba(255,255,255,0.4)',
+            font: { family: "'IBM Plex Mono', monospace", size: 11 },
+          },
+          min: -25, max: 115,
+          ticks: {
+            color: 'rgba(255,255,255,0.35)',
+            font: { family: "'IBM Plex Mono', monospace", size: 10 },
+            callback: v => (v === 0 || v === 100) ? v + '°' : null,
+            stepSize: 25,
+          },
+          grid: {
+            color: ctx => (ctx.tick.value === 0 || ctx.tick.value === 100)
+              ? 'rgba(255,255,255,0.12)'
+              : 'rgba(255,255,255,0.04)',
+          },
+          border: { color: 'rgba(255,255,255,0.2)' },
+        }
+      }
+    }
+  });
+}
+
+// Reveal points up through the end of a segment index (0–3)
+function revealSegment(segIdx) {
+  if (!heatingChart) initHeatingChart();
+  const endPt = SEG_END[segIdx];
+  heatingChart.data.datasets[0].data = FULL_DATA.slice(0, endPt + 1);
+  heatingChart.update();
+
+  // Add region band + label for this segment
+  const bands = [
+    { xMin:0,  xMax:5.5,  color:'rgba(100,180,255,0.07)', label:'SOLID',   lx:2.75,  lc:'rgba(100,180,255,0.8)' },
+    { xMin:5.5,xMax:10.5, color:'rgba(235,0,139,0.10)',   label:'MELTING', lx:8,     lc:'rgba(235,0,139,0.9)' },
+    { xMin:10.5,xMax:20.5,color:'rgba(255,160,60,0.07)',  label:'LIQUID',  lx:15.5,  lc:'rgba(255,160,60,0.8)' },
+    { xMin:20.5,xMax:25,  color:'rgba(235,0,139,0.10)',   label:'BOILING', lx:22.75, lc:'rgba(235,0,139,0.9)' },
+  ];
+  const b = bands[segIdx];
+  regionPlugin.addBand(b.xMin, b.xMax, b.color);
+  labelPlugin.add(b.lx, b.label, b.lc);
+  heatingChart.update('none'); // re-render plugins without re-animating data
+
+  // Light the bottom panel
+  lightPanel('rp' + (segIdx + 1));
+}
+
+function lightPanel(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.add('lit');
+}
+</script>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     SCENES
+═══════════════════════════════════════════════════════════ -->
+<script src="presentation.js"></script>
+<script>
+const SCENES = [
+
+  { id:'s0', steps:[
+    () => vis('s0-sub'),
+  ]},
+
+  { id:'s1', steps:[
+    () => vis('s1-q'),
+    () => vis('s1-instr'),
+    () => vis('s1-prompts'),
+    () => vis('s1-hint'),
+  ]},
+
+  { id:'s2', steps:[
+    () => { initHeatingChart(); revealSegment(0); },
+    () => revealSegment(1),
+    () => revealSegment(2),
+    () => revealSegment(3),
+  ]},
+
+  { id:'s3', steps:[
+    () => vis('s3-d1'),
+    () => vis('s3-d2'),
+    () => vis('s3-callout'),
+  ]},
+
+  { id:'s4', steps:[
+    () => vis('s4-d1'),
+    () => vis('s4-d2'),
+    () => vis('s4-compare'),
+  ]},
+
+  { id:'s5', steps:[
+    () => vis('s5-d1'),
+    () => vis('s5-d2'),
+    () => vis('s5-d3'),
+  ]},
+
+  { id:'s6', steps:[
+    () => vis('s6-def'),
+    () => vis('s6-rule'),
+    () => vis('s6-compare'),
+    () => vis('s6-stat'),
+    () => vis('s6-context'),
+  ]},
+
+  { id:'s7', steps:[
+    () => vis('s7-q1'),
+    () => vis('s7-q2'),
+    () => vis('s7-q3'),
+  ]},
+
+  { id:'s8', steps:[
+    () => vis('s8-prompt'),
+    () => stagger(['ci1','ci2','ci3','ci4','ci5']),
+    () => vis('s8-note'),
+  ],
+  fullFn: () => ['ci1','ci2','ci3','ci4','ci5'].forEach(id => vis(id))
+  },
+
+];
+
+initPresentation(SCENES);
+</script>
+</body>
+</html>
