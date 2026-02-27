@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculating Density</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="presentation.css">
+</head>
+<body>
+
+<div id="progress"></div>
+
+<!-- ── s0: TITLE ─────────────────────────────────────────── -->
+<div class="scene" id="s0" style="align-items:center; justify-content:center; text-align:center;">
+  <div class="eyebrow" style="text-align:center; align-self:center;">Science &mdash; Properties of Matter</div>
+  <div class="scene-title" style="font-size:clamp(2.4rem,6vw,4.5rem);">Calculating <span class="hl">Density</span></div>
+  <div class="scene-rule" style="align-self:center;"></div>
+  <div class="reveal" id="s0-sub" style="font-size:clamp(0.9rem,1.8vw,1.2rem); color:var(--dim); max-width:560px; line-height:1.6;">
+    Using mass and volume to understand how matter is packed together
+  </div>
+</div>
+
+
+<!-- ── s1: LEARNING INTENTION ─────────────────────────────── -->
+<div class="scene" id="s1">
+  <div class="eyebrow">Learning Intention</div>
+  <div class="scene-title">What are we learning <span class="hl">today?</span></div>
+  <div class="scene-rule"></div>
+
+  <div class="reveal" id="s1-li">
+    <div class="def-card">
+      <div class="def-label">Learning Intention</div>
+      <div class="def-body">Understand how to calculate the density of regular-shaped objects (rectangular prisms and cubes) using the formula: <strong style="color:var(--pink);">Density = Mass ÷ Volume</strong></div>
+    </div>
+  </div>
+
+  <div class="reveal" id="s1-sc" style="margin-top:10px;">
+    <div class="def-card" style="border-left:3px solid var(--pink); border-radius:0 4px 4px 0;">
+      <div class="def-label">Success Criteria</div>
+      <div class="def-body" style="display:flex; flex-direction:column; gap:8px;">
+        <div class="reveal" id="s1-sc1" style="color:var(--pink);">I can define mass, volume, and density and state their units.</div>
+        <div class="reveal" id="s1-sc2" style="color:var(--pink);">I can calculate the volume of a rectangular prism using L × W × H.</div>
+        <div class="reveal" id="s1-sc3" style="color:var(--pink);">I can apply the density formula to solve problems and predict whether an object will float or sink.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── s2: WHAT IS MASS? (retrieval) ──────────────────────── -->
+<div class="scene" id="s2">
+  <div class="checks">
+    <img src="checksforunderstanding/stopandjot.png" alt="Stop and Jot">
+    <img src="checksforunderstanding/coldcall.png" alt="Cold Call">
+  </div>
+  <div class="scene-title">Let&rsquo;s recall: <span class="hl">Mass</span></div>
+  <div class="scene-rule"></div>
+
+  <div class="reveal" id="s2-prompt">
+    <div class="callout" style="font-size:clamp(1rem,1.8vw,1.3rem); font-weight:700;">
+      On your whiteboard — <strong>what is mass and how do we measure it?</strong>
+    </div>
+  </div>
+
+  <div class="reveal" id="s2-think" style="font-style:italic; color:var(--dim); font-size:clamp(0.8rem,1.3vw,0.92rem); margin-top:10px;">
+    30 seconds thinking time, then chin your boards.
+  </div>
+
+  <div class="reveal" id="s2-ans" style="margin-top:18px;">
+    <div class="def-card">
+      <div class="def-label">Mass</div>
+      <div class="def-body">
+        <strong style="color:var(--pink);">Mass</strong> is the amount of matter in an object.<br>
+        It is measured using a <strong>digital scale</strong> and recorded in <span class="mono-pink">grams (g)</span>.
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── s3: WHAT IS VOLUME? (retrieval) ────────────────────── -->
+<div class="scene" id="s3">
+  <div class="checks">
+    <img src="checksforunderstanding/stopandjot.png" alt="Stop and Jot">
+    <img src="checksforunderstanding/coldcall.png" alt="Cold Call">
+  </div>
+  <div class="scene-title">Let&rsquo;s recall: <span class="hl">Volume</span></div>
+  <div class="scene-rule"></div>
+
+  <div class="reveal" id="s3-prompt">
+    <div class="callout" style="font-size:clamp(1rem,1.8vw,1.3rem); font-weight:700;">
+      On your whiteboard — <strong>what is volume and how do we calculate it for a rectangular prism?</strong>
+    </div>
+  </div>
+
+  <div class="reveal" id="s3-think" style="font-style:italic; color:var(--dim); font-size:clamp(0.8rem,1.3vw,0.92rem); margin-top:10px;">
+    30 seconds thinking time, then chin your boards.
+  </div>
+
+  <div class="reveal" id="s3-ans" style="margin-top:18px;">
+    <div class="def-card">
+      <div class="def-label">Volume</div>
+      <div class="def-body">
+        <strong style="color:var(--pink);">Volume</strong> is the amount of space an object occupies.<br>
+        It is measured in <span class="mono-pink">cm³</span>.
+      </div>
+    </div>
+  </div>
+
+  <div class="reveal" id="s3-formula" style="margin-top:10px;">
+    <div class="def-card" style="border-left:3px solid var(--pink); border-radius:0 4px 4px 0;">
+      <div class="def-label">Formula</div>
+      <div class="def-body" style="font-size:clamp(1rem,2vw,1.4rem); font-weight:900; color:var(--pink);">
+        Volume = Length × Width × Height
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── s4: WHAT IS DENSITY? ───────────────────────────────── -->
+<div class="scene" id="s4">
+  <div class="eyebrow">Key Concept</div>
+  <div class="scene-title">What is <span class="hl">Density?</span></div>
+  <div class="scene-rule"></div>
+
+  <div class="two-col" style="flex:1; min-height:0;">
+    <div class="col-l" style="gap:12px;">
+
+      <div class="reveal" id="s4-def">
+        <div class="def-card">
+          <div class="def-label">Definition</div>
+          <div class="def-body"><strong style="color:var(--pink);">Density</strong> is how much mass is packed into a given volume. It tells us how tightly matter is squished together.</div>
+        </div>
+      </div>
+
+      <div class="reveal" id="s4-unit">
+        <div class="def-card">
+          <div class="def-label">Unit</div>
+          <div class="def-body">Density is measured in <span class="mono-pink">grams per cubic centimetre (g/cm³)</span>.</div>
+        </div>
+      </div>
+
+      <div class="reveal" id="s4-callout">
+        <div class="callout"><strong>Think of it this way:</strong> a brick and a sponge can be the same size — but the brick has much more mass packed in. The brick is <em>denser</em>.</div>
+      </div>
+
+    </div>
+    <div class="col-r" style="gap:12px; justify-content:center;">
+      <div class="reveal" id="s4-formula">
+        <div class="def-card" style="text-align:center; padding:32px 24px;">
+          <div class="def-label" style="text-align:center;">The Formula</div>
+          <div style="font-weight:900; font-size:clamp(1.4rem,3vw,2.2rem); color:var(--pink); margin-bottom:16px; line-height:1.3;">
+            Density = <span style="color:white;">Mass</span> ÷ <span style="color:white;">Volume</span>
+          </div>
+          <div style="font-family:var(--mono); font-size:clamp(0.9rem,1.5vw,1.1rem); color:var(--dim);">
+            g/cm³ &nbsp;=&nbsp; g &nbsp;÷&nbsp; cm³
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── s5: THREE STEPS ─────────────────────────────────────── -->
+<div class="scene" id="s5">
+  <div class="checks">
+    <img src="checksforunderstanding/silentsolo.png" alt="Silent Solo">
+    <img src="checksforunderstanding/choralreading.png" alt="Choral Reading">
+  </div>
+  <div class="scene-title">Three steps to find <span class="hl">density</span></div>
+  <div class="scene-rule"></div>
+
+  <div class="three-col" style="margin-top:8px; flex:1; align-items:stretch;">
+    <div class="tcol reveal" id="s5-s1">
+      <div class="def-card" style="height:100%;">
+        <div style="background:var(--pink); color:white; font-weight:900; font-size:1.8rem; width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-bottom:14px;">1</div>
+        <div class="tcol-title">Measure Mass</div>
+        <div class="tcol-body">Place the object on a <strong>digital scale</strong>. Record the mass in <span class="mono-pink">grams (g)</span>.</div>
+      </div>
+    </div>
+    <div class="tcol reveal" id="s5-s2">
+      <div class="def-card" style="height:100%;">
+        <div style="background:var(--pink); color:white; font-weight:900; font-size:1.8rem; width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-bottom:14px;">2</div>
+        <div class="tcol-title">Calculate Volume</div>
+        <div class="tcol-body">Measure <strong>length, width, and height</strong> in cm. Multiply them together: <span class="mono-pink">L × W × H</span></div>
+      </div>
+    </div>
+    <div class="tcol reveal" id="s5-s3">
+      <div class="def-card" style="height:100%;">
+        <div style="background:var(--pink); color:white; font-weight:900; font-size:1.8rem; width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-bottom:14px;">3</div>
+        <div class="tcol-title">Calculate Density</div>
+        <div class="tcol-body">Divide mass by volume: <span class="mono-pink">Density = Mass ÷ Volume</span>. Record your answer in <span class="mono-pink">g/cm³</span>.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── s6: WORKED EXAMPLE (I Do) ─────────────────────────── -->
+<div class="scene" id="s6">
+  <div class="header-row">
+    <div>
+      <div class="eyebrow">Worked Example</div>
+      <div class="scene-title">Finding <span class="hl">density</span> step by step</div>
+    </div>
+    <div class="phase-pill" style="margin-top:8px;">I Do</div>
+  </div>
+  <div class="scene-rule"></div>
+
+  <div class="two-col" style="align-items:flex-start; flex:1; min-height:0;">
+    <div class="col-l" style="gap:14px; justify-content:center;">
+
+      <!-- SVG: rectangular prism 7×5×3 -->
+      <div class="reveal" id="s6-img">
+        <svg viewBox="0 0 420 290" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:420px; display:block;">
+          <!--
+            Front: TL=70,100 TR=220,100 BR=220,210 BL=70,210
+            Back:  TL=145,45 TR=295,45  BR=295,155 BL=145,155
+            Oblique edge (depth): Front-TR(220,100) → Back-TR(295,45)
+            Angle = atan2(-55,75) ≈ -36°
+            Midpoint of edge ≈ (257,72)
+          -->
+          <polygon points="70,100 220,100 220,210 70,210" fill="#0e2849" stroke="white" stroke-width="2"/>
+          <polygon points="70,100 145,45 295,45 220,100" fill="#122d55" stroke="white" stroke-width="2"/>
+          <polygon points="220,100 295,45 295,155 220,210" fill="#0a1a33" stroke="white" stroke-width="2"/>
+          <line x1="70" y1="210" x2="145" y2="155" stroke="white" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.4"/>
+          <line x1="145" y1="155" x2="295" y2="155" stroke="white" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.4"/>
+          <line x1="145" y1="45" x2="145" y2="155" stroke="white" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.4"/>
+          <!-- Width: 7 cm — below front face, centred on front face x midpoint (70+220)/2=145 -->
+          <text x="145" y="235" fill="var(--pink)" font-family="IBM Plex Mono, monospace" font-size="14" font-weight="700" text-anchor="middle">7 cm</text>
+          <!-- Height: 3 cm — right of right-face vertical, midpoint y=(45+155)/2=100 on right edge x=295 -->
+          <text x="308" y="108" fill="var(--pink)" font-family="IBM Plex Mono, monospace" font-size="14" font-weight="700" text-anchor="start">3 cm</text>
+          <!-- Depth: 5 cm — along oblique edge Front-TR→Back-TR, rotated -36°, centred at midpoint (257,72), offset above edge -->
+          <text x="257" y="62" fill="var(--pink)" font-family="IBM Plex Mono, monospace" font-size="14" font-weight="700" text-anchor="middle" transform="rotate(-36,257,62)">5 cm</text>
+          <!-- Mass — centred on top face (centre ≈ 182,72) -->
+          <text x="182" y="72" fill="white" font-family="IBM Plex Mono, monospace" font-size="12" font-weight="700" text-anchor="middle" opacity="0.85">mass = 210 g</text>
+        </svg>
+      </div>
+
+      <div class="reveal" id="s6-given">
+        <div class="steps-box">
+          <div class="step-row reveal" id="s6-s1">
+            <div class="step-num">1</div>
+            <div>Mass is already measured: <span class="mono-pink">210 g</span></div>
+          </div>
+          <div class="step-row reveal" id="s6-s2">
+            <div class="step-num">2</div>
+            <div>Volume = L × W × H = <span class="mono-pink">7 × 5 × 3</span></div>
+          </div>
+          <div class="step-row reveal" id="s6-s2b">
+            <div class="step-num">↳</div>
+            <div>= <span class="mono-pink">105 cm³</span></div>
+          </div>
+          <div class="step-row reveal" id="s6-s3">
+            <div class="step-num">3</div>
+            <div>Density = 210 ÷ 105 = <span class="mono-pink">2 g/cm³</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal" id="s6-note">
+        <div class="callout"><strong>Don't forget:</strong> always include the unit <span class="mono-pink">g/cm³</span> in your answer.</div>
+      </div>
+    </div>
+
+    <!-- Answer panel — big centred reveal -->
+    <div class="col-r" style="justify-content:center; align-items:center;">
+      <div id="s6-ans" style="opacity:0; transform:scale(0.85); transition:opacity 0.5s ease, transform 0.5s ease; text-align:center; padding:32px; background:rgba(235,0,139,0.08); border:2px solid rgba(235,0,139,0.3); border-radius:8px;">
+        <div style="font-family:var(--mono); font-size:0.7rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--pink); margin-bottom:16px;">Density</div>
+        <div style="font-weight:900; font-size:clamp(3rem,7vw,5.5rem); line-height:1; color:var(--pink);">2</div>
+        <div style="font-family:var(--mono); font-weight:700; font-size:clamp(1.4rem,3vw,2.2rem); color:white; margin-top:8px;">g/cm³</div>
+        <div style="margin-top:20px; font-size:0.8rem; color:var(--dim); font-family:var(--mono);">210 ÷ 105</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── s7: WE DO — Problem A ──────────────────────────────── -->
+<div class="scene" id="s7">
+  <div class="checks">
+    <img src="checksforunderstanding/stopandjot.png" alt="Stop and Jot">
+    <img src="checksforunderstanding/coldcall.png" alt="Cold Call">
+  </div>
+  <div class="header-row">
+    <div class="scene-title">Let&rsquo;s try <span class="hl">together</span></div>
+    <div class="phase-pill">We Do</div>
+  </div>
+  <div class="scene-rule"></div>
+
+  <div class="reveal" id="s7-instr" style="font-style:italic; color:var(--dim); font-size:clamp(0.8rem,1.3vw,0.92rem); margin-bottom:14px;">
+    Work through each step on your whiteboard. We&rsquo;ll share answers as a class.
+  </div>
+
+  <div class="two-col" style="flex:1; min-height:0; align-items:flex-start;">
+    <div class="col-l" style="gap:14px;">
+      <!-- SVG wooden block 10×5×3 — wider/flatter than worked example -->
+      <div class="reveal" id="s7-q">
+        <svg viewBox="0 0 470 240" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:430px; display:block;">
+          <!--
+            Front: TL=60,90 TR=310,90 BR=310,185 BL=60,185
+            Back:  TL=130,40 TR=380,40 BR=380,135 BL=130,135
+            Oblique edge (depth): Front-TR(310,90)→Back-TR(380,40)
+            Angle = atan2(-50,70) ≈ -35°
+            Midpoint ≈ (345,65)
+          -->
+          <polygon points="60,90 310,90 310,185 60,185" fill="#0e2849" stroke="white" stroke-width="2"/>
+          <polygon points="60,90 130,40 380,40 310,90" fill="#122d55" stroke="white" stroke-width="2"/>
+          <polygon points="310,90 380,40 380,135 310,185" fill="#0a1a33" stroke="white" stroke-width="2"/>
+          <line x1="60" y1="185" x2="130" y2="135" stroke="white" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.4"/>
+          <line x1="130" y1="135" x2="380" y2="135" stroke="white" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.4"/>
+          <line x1="130" y1="40" x2="130" y2="135" stroke="white" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.4"/>
+          <!-- Width: 10 cm — below front face, centred (60+310)/2=185 -->
+          <text x="185" y="210" fill="var(--pink)" font-family="IBM Plex Mono, monospace" font-size="13" font-weight="700" text-anchor="middle">10 cm</text>
+          <!-- Height: 3 cm — right of right edge, midpoint y=(40+135)/2=87 at x=380 -->
+          <text x="393" y="95" fill="var(--pink)" font-family="IBM Plex Mono, monospace" font-size="13" font-weight="700" text-anchor="start">3 cm</text>
+          <!-- Depth: 5 cm — midpoint of oblique edge (345,65), rotated -35° -->
+          <text x="345" y="55" fill="var(--pink)" font-family="IBM Plex Mono, monospace" font-size="13" font-weight="700" text-anchor="middle" transform="rotate(-35,345,55)">5 cm</text>
+          <!-- Mass — centred on top face -->
+          <text x="220" y="68" fill="white" font-family="IBM Plex Mono, monospace" font-size="12" font-weight="700" text-anchor="middle" opacity="0.85">mass = 150 g</text>
+        </svg>
+      </div>
+
+      <div class="reveal" id="s7-vol-q" style="font-weight:700; color:white; font-size:clamp(0.9rem,1.5vw,1.05rem);">
+        Step 1: What is the volume?
+      </div>
+      <div class="reveal" id="s7-vol-formula" style="font-family:var(--mono); font-size:clamp(0.85rem,1.4vw,1rem); color:white; padding:8px 0;">
+        V = 10 × 5 × 3 = <span style="color:var(--pink);">150 cm³</span>
+      </div>
+      <div class="we-answer" id="s7-vol-ans" style="text-align:left; font-size:clamp(1rem,2vw,1.5rem);">Volume &nbsp;=&nbsp; <span style="color:white;">150 cm³</span></div>
+    </div>
+
+    <div class="col-r" style="justify-content:center; align-items:center;">
+      <div id="s7-den-q" style="font-weight:700; color:white; font-size:clamp(0.9rem,1.5vw,1.05rem); margin-bottom:16px; opacity:0; transition:opacity 0.3s ease; text-align:center;">
+        Step 2: What is the density?
+      </div>
+      <div id="s7-den-ans" style="opacity:0; transform:scale(0.85); transition:opacity 0.5s ease, transform 0.5s ease; text-align:center; padding:28px 32px; background:rgba(235,0,139,0.08); border:2px solid rgba(235,0,139,0.3); border-radius:8px;">
+        <div style="font-family:var(--mono); font-size:0.7rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--pink); margin-bottom:12px;">Density</div>
+        <div style="font-weight:900; font-size:clamp(3rem,6vw,5rem); line-height:1; color:var(--pink);">1</div>
+        <div style="font-family:var(--mono); font-weight:700; font-size:clamp(1.2rem,2.5vw,2rem); color:white; margin-top:8px;">g/cm³</div>
+        <div style="margin-top:16px; font-size:0.78rem; color:var(--dim); font-family:var(--mono);">150 ÷ 150</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── s8: WE DO — Problem B ──────────────────────────────── -->
+<div class="scene" id="s8">
+  <div class="checks">
+    <img src="checksforunderstanding/stopandjot.png" alt="Stop and Jot">
+    <img src="checksforunderstanding/turnandtalk.png" alt="Turn and Talk">
+  </div>
+  <div class="header-row">
+    <div class="scene-title">Another one — <span class="hl">together</span></div>
+    <div class="phase-pill">We Do</div>
+  </div>
+  <div class="scene-rule"></div>
+
+  <div class="reveal" id="s8-instr" style="font-style:italic; color:var(--dim); font-size:clamp(0.8rem,1.3vw,0.92rem); margin-bottom:14px;">
+    Try this one with your partner first, then we&rsquo;ll share.
+  </div>
+
+  <div class="two-col" style="flex:1; min-height:0; align-items:flex-start;">
+    <div class="col-l" style="gap:14px;">
+      <!-- SVG cube 4×4×4 — equal dimensions, more cubic appearance -->
+      <div class="reveal" id="s8-q">
+        <svg viewBox="0 0 380 275" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:300px; display:block;">
+          <!--
+            Front: TL=70,90 TR=210,90 BR=210,210 BL=70,210
+            Back:  TL=140,30 TR=280,30 BR=280,150 BL=140,150
+            Oblique edge (depth): Front-TR(210,90)→Back-TR(280,30)
+            Angle = atan2(-60,70) ≈ -41°
+            Midpoint ≈ (245,60)
+          -->
+          <polygon points="70,90 210,90 210,210 70,210" fill="#0e2849" stroke="white" stroke-width="2"/>
+          <polygon points="70,90 140,30 280,30 210,90" fill="#122d55" stroke="white" stroke-width="2"/>
+          <polygon points="210,90 280,30 280,150 210,210" fill="#0a1a33" stroke="white" stroke-width="2"/>
+          <line x1="70" y1="210" x2="140" y2="150" stroke="white" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.4"/>
+          <line x1="140" y1="150" x2="280" y2="150" stroke="white" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.4"/>
+          <line x1="140" y1="30" x2="140" y2="150" stroke="white" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.4"/>
+          <!-- Width: 4 cm — below front face, centred (70+210)/2=140 -->
+          <text x="140" y="233" fill="var(--pink)" font-family="IBM Plex Mono, monospace" font-size="13" font-weight="700" text-anchor="middle">4 cm</text>
+          <!-- Height: 4 cm — right of right edge, midpoint y=(30+150)/2=90 at x=280 -->
+          <text x="293" y="98" fill="var(--pink)" font-family="IBM Plex Mono, monospace" font-size="13" font-weight="700" text-anchor="start">4 cm</text>
+          <!-- Depth: 4 cm — midpoint of oblique edge (245,60), rotated -41° -->
+          <text x="245" y="50" fill="var(--pink)" font-family="IBM Plex Mono, monospace" font-size="13" font-weight="700" text-anchor="middle" transform="rotate(-41,245,50)">4 cm</text>
+          <!-- Mass — centred on top face -->
+          <text x="175" y="62" fill="white" font-family="IBM Plex Mono, monospace" font-size="12" font-weight="700" text-anchor="middle" opacity="0.85">mass = 200 g</text>
+        </svg>
+      </div>
+
+      <div class="reveal" id="s8-vol-q" style="font-weight:700; color:white; font-size:clamp(0.9rem,1.5vw,1.05rem);">
+        Step 1: What is the volume?
+      </div>
+      <div class="reveal" id="s8-vol-formula" style="font-family:var(--mono); font-size:clamp(0.85rem,1.4vw,1rem); color:white; padding:8px 0;">
+        V = 4 × 4 × 4 = <span style="color:var(--pink);">64 cm³</span>
+      </div>
+      <div class="we-answer" id="s8-vol-ans" style="text-align:left; font-size:clamp(1rem,2vw,1.5rem);">Volume &nbsp;=&nbsp; <span style="color:white;">64 cm³</span></div>
+    </div>
+
+    <div class="col-r" style="justify-content:center; align-items:center;">
+      <div id="s8-den-q" style="font-weight:700; color:white; font-size:clamp(0.9rem,1.5vw,1.05rem); margin-bottom:16px; opacity:0; transition:opacity 0.3s ease; text-align:center;">
+        Step 2: What is the density?
+      </div>
+      <div id="s8-den-ans" style="opacity:0; transform:scale(0.85); transition:opacity 0.5s ease, transform 0.5s ease; text-align:center; padding:28px 32px; background:rgba(235,0,139,0.08); border:2px solid rgba(235,0,139,0.3); border-radius:8px;">
+        <div style="font-family:var(--mono); font-size:0.7rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--pink); margin-bottom:12px;">Density</div>
+        <div style="font-weight:900; font-size:clamp(3rem,6vw,5rem); line-height:1; color:var(--pink);">3.125</div>
+        <div style="font-family:var(--mono); font-weight:700; font-size:clamp(1.2rem,2.5vw,2rem); color:white; margin-top:8px;">g/cm³</div>
+        <div style="margin-top:16px; font-size:0.78rem; color:var(--dim); font-family:var(--mono);">200 ÷ 64</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── s9: YOU DO (Set A) ──────────────────────────────────── -->
+<div class="scene" id="s9">
+  <div class="checks"><img src="checksforunderstanding/silentsolo.png" alt="Silent Solo"></div>
+  <div class="header-row">
+    <div class="scene-title">Your turn <span class="hl">&mdash; Set A</span></div>
+    <div class="phase-pill">You Do</div>
+  </div>
+  <div class="scene-rule"></div>
+
+  <div class="reveal" id="s9-instr" style="font-style:italic; color:var(--dim); font-size:clamp(0.8rem,1.3vw,0.92rem); margin-bottom:14px;">
+    Work silently on your whiteboard. Show all working. Chin your board when you&rsquo;re done.
+  </div>
+
+  <div class="reveal" id="s9-q" style="display:flex; flex-direction:column; gap:12px;">
+    <div class="def-card">
+      <div class="def-label">Problem C — Plastic Block</div>
+      <div class="def-body" style="font-size:clamp(0.9rem,1.5vw,1.05rem);">
+        A plastic block has a <strong>mass of 90 g</strong>.<br>
+        Dimensions: <span class="mono-pink">6 cm × 3 cm × 2 cm</span><br><br>
+        <span style="color:var(--pink); font-weight:700;">Calculate: (a) the volume &nbsp; (b) the density</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-bar reveal" id="s9-bottom">
+    <div class="bottom-bar-text">Show all three steps: mass → volume → density</div>
+  </div>
+</div>
+
+
+<!-- ── s10: FLOAT OR SINK? ─────────────────────────────────── -->
+<div class="scene" id="s10">
+  <div class="eyebrow">Extending the Concept</div>
+  <div class="scene-title">Float <span class="hl">or</span> Sink?</div>
+  <div class="scene-rule"></div>
+
+  <div class="two-col" style="flex:1; min-height:0; align-items:stretch;">
+    <div class="col-l" style="gap:12px;">
+      <div class="reveal" id="s10-rule">
+        <div class="def-card" style="border-left:3px solid var(--pink); border-radius:0 4px 4px 0;">
+          <div class="def-label">The Rule</div>
+          <div class="def-body">Water has a density of <span class="mono-pink">1 g/cm³</span>.</div>
+        </div>
+      </div>
+
+      <div class="concept-row reveal" id="s10-compare" style="margin-top:0;">
+        <div class="concept-panel" style="text-align:center; padding:22px;">
+          <div class="cp-label">Density &gt; 1 g/cm³</div>
+          <div class="cp-main" style="font-size:clamp(1.5rem,2.8vw,2.2rem);">Sink</div>
+          <div class="cp-sub">Denser than water — it goes down.</div>
+        </div>
+        <div class="h-arrow">&#8596;</div>
+        <div class="concept-panel hi" style="text-align:center; padding:22px;">
+          <div class="cp-label" style="color:var(--pink);">Density &lt; 1 g/cm³</div>
+          <div class="cp-main" style="color:var(--pink); font-size:clamp(1.5rem,2.8vw,2.2rem);">Float</div>
+          <div class="cp-sub">Less dense than water — it rises.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-r" style="gap:12px;">
+      <div class="reveal" id="s10-check">
+        <div class="checks" style="margin-bottom:10px;">
+          <img src="checksforunderstanding/stopandjot.png" alt="Stop and Jot">
+          <img src="checksforunderstanding/coldcall.png" alt="Cold Call">
+        </div>
+        <div class="callout" style="font-size:clamp(0.88rem,1.5vw,1.05rem);">
+          <strong>On your whiteboard:</strong> look back at our three practice problems. Which objects would float? Which would sink? Write down the density and your prediction for each.
+        </div>
+      </div>
+
+      <div class="reveal" id="s10-ans">
+        <div class="def-card">
+          <div class="def-label">Answers</div>
+          <div class="def-body" style="display:flex; flex-direction:column; gap:6px;">
+            <div>Wooden block: <span class="mono-pink">1 g/cm³</span> &nbsp;→&nbsp; <strong style="color:var(--pink);">exactly at water density</strong></div>
+            <div>Metal cube: <span class="mono-pink">3.125 g/cm³</span> &nbsp;→&nbsp; <strong style="color:var(--dim);">sinks</strong></div>
+            <div>Plastic block: <span class="mono-pink">2.5 g/cm³</span> &nbsp;→&nbsp; <strong style="color:var(--dim);">sinks</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── s11: CONFIDENCE CHECK ───────────────────────────────── -->
+<div class="scene" id="s11" style="align-items:center;">
+  <div class="checks" style="align-self:flex-start;">
+    <img src="checksforunderstanding/fingervote.png" alt="Finger Vote">
+  </div>
+  <div class="scene-title" style="align-self:center; text-align:center;">How <span class="hl">confident</span> are you?</div>
+  <div class="scene-rule" style="align-self:center;"></div>
+
+  <div style="display:flex; flex-direction:column; align-items:center; gap:12px; width:100%;">
+    <div class="reveal" id="s11-prompt" style="font-size:clamp(0.85rem,1.5vw,1.05rem); color:rgba(255,255,255,0.8); text-align:center;">
+      Show me on five fingers &mdash; how confident are you calculating <span class="mono-pink">density</span>?
+    </div>
+
+    <div class="conf-scale">
+      <div class="conf-item" id="ci1"><div class="conf-num">1</div><div class="conf-lbl">Not sure at all</div></div>
+      <div class="conf-item" id="ci2"><div class="conf-num">2</div><div class="conf-lbl">Need more practice</div></div>
+      <div class="conf-item" id="ci3"><div class="conf-num">3</div><div class="conf-lbl">Getting there</div></div>
+      <div class="conf-item" id="ci4"><div class="conf-num">4</div><div class="conf-lbl">Fairly confident</div></div>
+      <div class="conf-item hi" id="ci5"><div class="conf-num">5</div><div class="conf-lbl">I&rsquo;ve got this</div></div>
+    </div>
+
+    <div class="callout reveal" id="s11-note" style="border-left:none; border-top:3px solid var(--pink); border-radius:3px; text-align:center; max-width:600px;">
+      If you&rsquo;re showing <strong>1&ndash;2 fingers</strong> &mdash; that&rsquo;s okay, we&rsquo;ll work through more examples together.
+    </div>
+  </div>
+</div>
+
+
+<script src="presentation.js"></script>
+<script>
+const SCENES = [
+
+  { id:'s0', steps:[
+    () => vis('s0-sub'),
+  ]},
+
+  { id:'s1', steps:[
+    () => vis('s1-li'),
+    () => vis('s1-sc'),
+    () => vis('s1-sc1'),
+    () => vis('s1-sc2'),
+    () => vis('s1-sc3'),
+  ]},
+
+  // MASS retrieval check
+  { id:'s2', steps:[
+    () => vis('s2-prompt'),
+    () => vis('s2-think'),
+    () => vis('s2-ans'),
+  ]},
+
+  // VOLUME retrieval check
+  { id:'s3', steps:[
+    () => vis('s3-prompt'),
+    () => vis('s3-think'),
+    () => vis('s3-ans'),
+    () => vis('s3-formula'),
+  ]},
+
+  // Density concept
+  { id:'s4', steps:[
+    () => vis('s4-def'),
+    () => vis('s4-unit'),
+    () => vis('s4-formula'),
+    () => vis('s4-callout'),
+  ]},
+
+  // Three steps
+  { id:'s5', steps:[
+    () => vis('s5-s1'),
+    () => vis('s5-s2'),
+    () => vis('s5-s3'),
+  ]},
+
+  // Worked example I Do
+  { id:'s6', steps:[
+    () => { vis('s6-img'); vis('s6-given'); },
+    () => { vis('s6-s1'); act('s6-s1'); },
+    () => { vis('s6-s2'); act('s6-s2'); },
+    () => { vis('s6-s2b'); act('s6-s2b'); },
+    () => { vis('s6-s3'); act('s6-s3'); vis('s6-note'); },
+    () => { const el=document.getElementById('s6-ans'); if(el){el.style.opacity='1'; el.style.transform='scale(1)';} },
+  ],
+  fullFn: () => {
+    ['s6-s1','s6-s2','s6-s2b','s6-s3'].forEach(id => { vis(id); act(id); });
+    vis('s6-note');
+    const el=document.getElementById('s6-ans'); if(el){el.style.opacity='1'; el.style.transform='scale(1)';}
+  }
+  },
+
+  // We Do — Problem A (wooden block)
+  { id:'s7', steps:[
+    () => vis('s7-instr'),
+    () => vis('s7-q'),
+    () => vis('s7-vol-q'),
+    () => vis('s7-vol-formula'),
+    () => visAns('s7-vol-ans'),
+    () => { const el=document.getElementById('s7-den-q'); if(el) el.style.opacity='1'; },
+    () => { const el=document.getElementById('s7-den-ans'); if(el){el.style.opacity='1'; el.style.transform='scale(1)';} },
+  ],
+  fullFn: () => {
+    vis('s7-vol-formula'); visAns('s7-vol-ans');
+    const dq=document.getElementById('s7-den-q'); if(dq) dq.style.opacity='1';
+    const da=document.getElementById('s7-den-ans'); if(da){da.style.opacity='1'; da.style.transform='scale(1)';}
+  }
+  },
+
+  // We Do — Problem B (metal cube)
+  { id:'s8', steps:[
+    () => vis('s8-instr'),
+    () => vis('s8-q'),
+    () => vis('s8-vol-q'),
+    () => vis('s8-vol-formula'),
+    () => visAns('s8-vol-ans'),
+    () => { const el=document.getElementById('s8-den-q'); if(el) el.style.opacity='1'; },
+    () => { const el=document.getElementById('s8-den-ans'); if(el){el.style.opacity='1'; el.style.transform='scale(1)';} },
+  ],
+  fullFn: () => {
+    vis('s8-vol-formula'); visAns('s8-vol-ans');
+    const dq=document.getElementById('s8-den-q'); if(dq) dq.style.opacity='1';
+    const da=document.getElementById('s8-den-ans'); if(da){da.style.opacity='1'; da.style.transform='scale(1)';}
+  }
+  },
+
+  // You Do (plastic block)
+  { id:'s9', steps:[
+    () => vis('s9-instr'),
+    () => vis('s9-q'),
+    () => vis('s9-bottom'),
+  ]},
+
+  // Float or sink
+  { id:'s10', steps:[
+    () => vis('s10-rule'),
+    () => vis('s10-compare'),
+    () => vis('s10-check'),
+    () => vis('s10-ans'),
+  ]},
+
+  // Confidence check
+  { id:'s11', steps:[
+    () => vis('s11-prompt'),
+    () => stagger(['ci1','ci2','ci3','ci4','ci5']),
+    () => vis('s11-note'),
+  ],
+  fullFn: () => ['ci1','ci2','ci3','ci4','ci5'].forEach(id => vis(id))
+  },
+
+];
+
+initPresentation(SCENES);
+</script>
+</body>
+</html>
