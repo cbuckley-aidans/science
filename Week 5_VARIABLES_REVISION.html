@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Variables in Experiments</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="presentation.css">
+</head>
+<body>
+
+<div id="progress"></div>
+
+
+<!-- ── TITLE ─────────────────────────────────────────────── -->
+<div class="scene" id="s0" style="align-items:center; justify-content:center; text-align:center;">
+  <div class="eyebrow" style="text-align:center; align-self:center;">Science - Scientific Investigations</div>
+  <div class="scene-title" style="font-size:clamp(2.4rem,6vw,4.5rem);">Identifying <span class="hl">Variables</span></div>
+  <div class="scene-rule" style="align-self:center;"></div>
+  <div class="reveal" id="s0-sub" style="font-size:clamp(0.9rem,1.8vw,1.2rem); color:var(--dim); max-width:560px; line-height:1.6;">
+    Independent, dependent, and controlled variables across three experiments
+  </div>
+</div>
+
+
+<!-- ── LEARNING INTENTION ─────────────────────────────────── -->
+<div class="scene" id="s1">
+  <div class="eyebrow">Learning Intention</div>
+  <div class="scene-title">What are we learning <span class="hl">today?</span></div>
+  <div class="scene-rule"></div>
+
+  <div class="reveal" id="s1-li">
+    <div class="def-card">
+      <div class="def-label">Learning Intention</div>
+      <div class="def-body">I am learning to identify the independent, dependent, and controlled variables in a scientific experiment.</div>
+    </div>
+  </div>
+
+  <div class="reveal" id="s1-sc">
+    <div class="def-card" style="border-left:3px solid var(--pink); border-radius:0 4px 4px 0;">
+      <div class="def-label">Success Criteria</div>
+      <div class="def-body">
+        <div class="reveal" id="s1-sc1" style="color:var(--pink); margin-bottom:5px;">I can define independent, dependent, and controlled variables.</div>
+        <div class="reveal" id="s1-sc2" style="color:var(--pink); margin-bottom:5px;">I can correctly identify each type of variable when given an experiment description.</div>
+        <div class="reveal" id="s1-sc3" style="color:var(--pink);">I can explain why the independent variable is plotted on the x-axis and the dependent variable on the y-axis.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── THREE VARIABLE TYPES ──────────────────────────────── -->
+<div class="scene" id="s2">
+  <div class="checks">
+    <img src="checksforunderstanding/silentsolo.png" alt="Silent Solo">
+    <img src="checksforunderstanding/choralreading.png" alt="Choral Reading">
+  </div>
+  <div class="scene-title">Three types of <span class="hl">variable</span></div>
+  <div class="scene-rule"></div>
+
+  <div class="reveal" id="s2-intro">
+    <div class="def-card">
+      <div class="def-label">Key idea</div>
+      <div class="def-body">In a fair test, we carefully control which things change and which things stay the same. Each variable in an experiment has a specific role.</div>
+    </div>
+  </div>
+
+  <div class="three-col">
+    <div class="tcol reveal" id="s2-c1">
+      <div class="tcol-title">Independent</div>
+      <div class="tcol-body">The variable you <strong>deliberately change</strong>. It is the thing being tested. There is only ever one independent variable in a fair test.</div>
+    </div>
+    <div class="tcol reveal" id="s2-c2">
+      <div class="tcol-title">Dependent</div>
+      <div class="tcol-body">The variable you <strong>measure or observe</strong>. It is the result. It depends on what you changed - hence the name.</div>
+    </div>
+    <div class="tcol reveal" id="s2-c3">
+      <div class="tcol-title">Controlled</div>
+      <div class="tcol-body">Everything you <strong>keep the same</strong> each trial. These make the test fair and ensure your results are actually caused by the independent variable.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── I DO: EXPERIMENT 1 ─────────────────────────────────── -->
+<div class="scene" id="s3">
+  <div class="header-row">
+    <div>
+      <div class="eyebrow">Experiment 1 - Toy Car &amp; Surfaces</div>
+      <div class="scene-title">Let me <span class="hl">walk through</span> this one.</div>
+    </div>
+    <div class="phase-pill" style="margin-top:8px;">I Do</div>
+  </div>
+  <div class="scene-rule"></div>
+
+  <div class="two-col" style="align-items:flex-start; flex:1; min-height:0;">
+    <div class="col-l" style="gap:12px;">
+      <div class="reveal" id="s3-scenario">
+        <div class="def-card">
+          <div class="def-label">Scenario</div>
+          <div class="def-body">A student wants to know if the type of surface affects how far a toy car travels after rolling down a ramp. She rolls the same car down the same ramp at the same angle, but places different surfaces at the bottom: carpet, tiles, and sandpaper. She measures the distance the car travels after leaving the ramp.</div>
+        </div>
+      </div>
+      <div class="reveal" id="s3-q">
+        <div class="callout"><strong>Think:</strong> what is she deliberately changing? what is she measuring? what must stay the same to make it a fair test?</div>
+      </div>
+    </div>
+    <div class="col-r" style="gap:10px;">
+      <div class="steps-box">
+        <div class="step-row reveal" id="s3-s1">
+          <div class="step-num">IV</div>
+          <div><strong style="color:var(--pink);">Type of surface at the bottom of the ramp</strong> - she deliberately changes this each trial: carpet, tiles, sandpaper.</div>
+        </div>
+        <div class="step-row reveal" id="s3-s2">
+          <div class="step-num">DV</div>
+          <div><strong style="color:var(--pink);">Distance the car travels after leaving the ramp</strong> - this is what she measures and records as the result.</div>
+        </div>
+        <div class="step-row reveal" id="s3-s3">
+          <div class="step-num">CV</div>
+          <div><strong style="color:var(--pink);">Controlled:</strong> same car, same ramp, same angle, same ramp height, same starting position, same length of surface being tested.</div>
+        </div>
+      </div>
+      <div class="reveal" id="s3-tip">
+        <div class="callout"><strong>Strategy:</strong> ask yourself "what else could affect the result?" - everything on that list is a controlled variable.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── GRAPH: EXPERIMENT 1 ────────────────────────────────── -->
+<div class="scene" id="s4">
+  <div class="scene-title">Putting it on a <span class="hl">graph</span></div>
+  <div class="scene-rule"></div>
+
+  <div class="two-col" style="flex:1; min-height:0; align-items:flex-start;">
+    <div class="col-l" style="gap:14px; justify-content:center;">
+      <div class="reveal" id="s4-rule">
+        <div class="def-card" style="border-left:3px solid var(--pink); border-radius:0 4px 4px 0;">
+          <div class="def-label">The Rule</div>
+          <div class="def-body">
+            <div style="margin-bottom:10px;"><strong style="color:var(--pink);">X-axis (horizontal)</strong><br>Independent variable - what you controlled and changed.</div>
+            <div><strong style="color:var(--pink);">Y-axis (vertical)</strong><br>Dependent variable - what you measured as a result.</div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal" id="s4-why">
+        <div class="callout">The surface type is a <strong>category</strong>, not a number, so we use a <strong>bar chart</strong>. Each bar shows what happened on that surface.</div>
+      </div>
+      <div class="reveal" id="s4-memory">
+        <div class="def-card">
+          <div class="def-label">Memory hook</div>
+          <div class="def-body"><strong style="color:var(--pink);">D</strong>ependent goes on the <strong style="color:var(--pink);">D</strong>own axis (vertical). It <em>depends on</em> what you put on the x-axis.</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-r" style="justify-content:center; align-items:center;">
+      <div style="position:relative; width:100%;">
+        <div class="reveal" id="s4-img" style="width:100%;">
+          <img src="graph.png" alt="Student graph example" style="width:100%; border-radius:4px; border:1px solid rgba(255,255,255,0.1); display:block;">
+        </div>
+        <div id="s4-graph" style="position:absolute; inset:0; opacity:0; transition:opacity 0.4s ease; pointer-events:none;">
+        <!--
+          Bar chart: type of surface vs distance (cm)
+          Chart area: x 60–380, y 20–240 (height 220px = 50cm scale)
+          Scale: 1cm = 220/50 = 4.4px  →  y = 240 - (val * 4.4)
+          carpet  = 18cm → h=79.2  y=161  bar x=75
+          tiles   = 45cm → h=198   y=42   bar x=185
+          sandpaper= 8cm → h=35.2  y=205  bar x=295
+          Grid at 10,20,30,40,50cm:
+            10: y=196  20: y=152  30: y=108  40: y=64  50: y=20
+        -->
+        <svg viewBox="0 0 420 300" style="width:100%; background:rgba(14,40,73,0.6); border-radius:4px; border:1px solid rgba(255,255,255,0.1);" xmlns="http://www.w3.org/2000/svg">
+          <!-- Axes -->
+          <line x1="60" y1="20" x2="60" y2="240" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+          <line x1="60" y1="240" x2="395" y2="240" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+          <!-- Horizontal grid lines -->
+          <line x1="60" y1="196" x2="395" y2="196" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="60" y1="152" x2="395" y2="152" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="60" y1="108" x2="395" y2="108" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="60" y1="64"  x2="395" y2="64"  stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="60" y1="20"  x2="395" y2="20"  stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="4,4"/>
+          <!-- Y axis labels -->
+          <text x="54" y="244" fill="rgba(255,255,255,0.4)" font-size="10" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">0</text>
+          <text x="54" y="200" fill="rgba(255,255,255,0.4)" font-size="10" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">10</text>
+          <text x="54" y="156" fill="rgba(255,255,255,0.4)" font-size="10" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">20</text>
+          <text x="54" y="112" fill="rgba(255,255,255,0.4)" font-size="10" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">30</text>
+          <text x="54" y="68"  fill="rgba(255,255,255,0.4)" font-size="10" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">40</text>
+          <text x="54" y="24"  fill="rgba(255,255,255,0.4)" font-size="10" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">50</text>
+          <!-- Bars -->
+          <!-- Carpet: 18cm → h=79.2, y=160.8 ≈ 161 -->
+          <rect x="80"  y="161" width="68" height="79" fill="rgba(235,0,139,0.4)" rx="2"/>
+          <rect x="80"  y="161" width="68" height="79" fill="none" stroke="var(--pink)" stroke-width="1.5" rx="2"/>
+          <!-- Tiles: 45cm → h=198, y=42 -->
+          <rect x="190" y="42"  width="68" height="198" fill="rgba(235,0,139,0.75)" rx="2"/>
+          <rect x="190" y="42"  width="68" height="198" fill="none" stroke="var(--pink)" stroke-width="1.5" rx="2"/>
+          <!-- Sandpaper: 8cm → h=35.2, y=204.8 ≈ 205 -->
+          <rect x="300" y="205" width="68" height="35" fill="rgba(235,0,139,0.25)" rx="2"/>
+          <rect x="300" y="205" width="68" height="35" fill="none" stroke="var(--pink)" stroke-width="1.5" rx="2"/>
+          <!-- X axis category labels -->
+          <text x="114" y="256" fill="rgba(255,255,255,0.7)" font-size="10" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">Carpet</text>
+          <text x="224" y="256" fill="rgba(255,255,255,0.7)" font-size="10" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">Tiles</text>
+          <text x="334" y="256" fill="rgba(255,255,255,0.7)" font-size="10" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">Sandpaper</text>
+          <!-- Axis titles -->
+          <text x="228" y="274" fill="#eb008b" font-size="11" font-weight="700" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">Type of surface - independent variable (x-axis)</text>
+          <!-- Y axis title (rotated) -->
+          <text x="13" y="130" fill="#eb008b" font-size="11" font-weight="700" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" transform="rotate(-90,13,130)">Distance in cm - dependent variable (y-axis)</text>
+        </svg>
+        </div><!-- end s4-graph -->
+      </div><!-- end relative wrapper -->
+    </div>
+  </div>
+</div>
+
+
+<!-- ── WE DO: EXPERIMENT 2 ────────────────────────────────── -->
+<div class="scene" id="s5">
+  <div class="checks">
+    <img src="checksforunderstanding/stopandjot.png" alt="Stop and Jot">
+    <img src="checksforunderstanding/turnandtalk.png" alt="Turn and Talk">
+    <img src="checksforunderstanding/coldcall.png" alt="Cold Call">
+  </div>
+  <div class="header-row">
+    <div>
+      <div class="eyebrow">Experiment 2 - Berocca &amp; Water Temperature</div>
+      <div class="scene-title">Your turn to <span class="hl">have a go.</span></div>
+    </div>
+    <div class="phase-pill" style="margin-top:8px;">We Do</div>
+  </div>
+  <div class="scene-rule"></div>
+
+  <div class="two-col" style="align-items:flex-start; flex:1; min-height:0;">
+    <div class="col-l" style="gap:12px;">
+      <div class="reveal" id="s5-scenario">
+        <div class="def-card">
+          <div class="def-label">Scenario</div>
+          <div class="def-body">A student is investigating whether the temperature of water affects how quickly an effervescent tablet dissolves. She drops one tablet into cups of water at 10°C, 25°C, and 50°C and times how long it takes for each tablet to fully dissolve. She uses the same brand of tablet and the same volume of water each time.</div>
+        </div>
+      </div>
+      <div class="reveal" id="s5-task" style="font-size:clamp(0.82rem,1.4vw,0.95rem); color:var(--dim); font-style:italic;">
+        On your whiteboard: write down the IV, DV, and at least two controlled variables. You have 90 seconds.
+      </div>
+    </div>
+    <div class="col-r" style="gap:10px;">
+      <div class="steps-box">
+        <div class="step-row reveal" id="s5-s1">
+          <div class="step-num">IV</div>
+          <div><strong style="color:var(--pink);">Temperature of the water</strong> - she deliberately tests three values: 10°C, 25°C, and 50°C.</div>
+        </div>
+        <div class="step-row reveal" id="s5-s2">
+          <div class="step-num">DV</div>
+          <div><strong style="color:var(--pink);">Time taken for the tablet to fully dissolve</strong> - timed and recorded as the result for each trial.</div>
+        </div>
+        <div class="step-row reveal" id="s5-s3">
+          <div class="step-num">CV</div>
+          <div><strong style="color:var(--pink);">Controlled:</strong> brand and size of tablet, volume of water, container used, whether the water is stirred.</div>
+        </div>
+      </div>
+      <div class="reveal" id="s5-discuss">
+        <div class="callout"><strong>Discussion:</strong> is stirring a controlled variable here? What would happen to your results if one cup was stirred and another was not?</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── GRAPH SPECULATION: EXPERIMENT 2 ───────────────────── -->
+<div class="scene" id="s6">
+  <div class="checks">
+    <img src="checksforunderstanding/stopandjot.png" alt="Stop and Jot">
+    <img src="checksforunderstanding/coldcall.png" alt="Cold Call">
+  </div>
+  <div class="scene-title">Before the graph - <span class="hl">which axis?</span></div>
+  <div class="scene-rule"></div>
+
+  <div class="two-col" style="flex:1; min-height:0; align-items:flex-start;">
+    <div class="col-l" style="gap:14px;">
+
+      <div class="reveal" id="s6-vars">
+        <div class="q-cards">
+          <div class="q-card">
+            <div class="q-card-lbl">Variable A</div>
+            <div class="q-card-text">Temperature of the water<br><span style="font-size:0.78rem; color:var(--dim);">(10°C, 25°C, 50°C)</span></div>
+          </div>
+          <div class="q-card">
+            <div class="q-card-lbl">Variable B</div>
+            <div class="q-card-text">Time taken to dissolve<br><span style="font-size:0.78rem; color:var(--dim);">(measured in seconds)</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal" id="s6-prompt" style="font-size:clamp(0.85rem,1.5vw,1rem); color:var(--dim); font-style:italic;">
+        On your whiteboard: draw two labelled axes and decide which variable belongs on each one. Be ready to explain your reasoning.
+      </div>
+
+      <div class="reveal" id="s6-ans">
+        <div class="def-card" style="border-left:3px solid var(--pink); border-radius:0 4px 4px 0;">
+          <div class="def-label">Axes</div>
+          <div class="def-body">
+            <div style="margin-bottom:8px;"><strong style="color:var(--pink);">X-axis:</strong> Water temperature (°C) - the independent variable. We chose these values.</div>
+            <div style="margin-bottom:8px;"><strong style="color:var(--pink);">Y-axis:</strong> Time to dissolve (s) - the dependent variable. It changed in response.</div>
+            <div style="color:var(--dim); font-size:0.85em;">Temperature is a number, so we use a <strong style="color:white;">line graph</strong>.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="col-r" style="justify-content:center; align-items:center;">
+      <div class="reveal" id="s6-graph" style="width:100%;">
+        <!--
+          Line graph: water temperature vs time to dissolve
+          Y scale: 0-100s, 220px height → y = 240 - (val * 2.2)
+          10°C → 90s → y=42  |  25°C → 45s → y=141  |  50°C → 12s → y=214
+        -->
+        <svg viewBox="0 0 420 300" style="width:100%; background:rgba(14,40,73,0.6); border-radius:4px; border:1px solid rgba(255,255,255,0.1);" xmlns="http://www.w3.org/2000/svg">
+          <line x1="60" y1="20" x2="60" y2="240" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+          <line x1="60" y1="240" x2="395" y2="240" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+          <line x1="60" y1="196" x2="395" y2="196" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="60" y1="152" x2="395" y2="152" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="60" y1="108" x2="395" y2="108" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="60" y1="64"  x2="395" y2="64"  stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="60" y1="20"  x2="395" y2="20"  stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="4,4"/>
+          <text x="54" y="244" fill="rgba(255,255,255,0.4)" font-size="10" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">0</text>
+          <text x="54" y="200" fill="rgba(255,255,255,0.4)" font-size="10" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">20</text>
+          <text x="54" y="156" fill="rgba(255,255,255,0.4)" font-size="10" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">40</text>
+          <text x="54" y="112" fill="rgba(255,255,255,0.4)" font-size="10" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">60</text>
+          <text x="54" y="68"  fill="rgba(255,255,255,0.4)" font-size="10" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">80</text>
+          <text x="54" y="24"  fill="rgba(255,255,255,0.4)" font-size="10" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">100</text>
+          <polyline points="110,42 225,141 340,214" fill="none" stroke="rgba(235,0,139,0.35)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="110,42 225,141 340,214" fill="none" stroke="var(--pink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="110" cy="42"  r="5" fill="var(--pink)" stroke="var(--navy)" stroke-width="2"/>
+          <circle cx="225" cy="141" r="5" fill="var(--pink)" stroke="var(--navy)" stroke-width="2"/>
+          <circle cx="340" cy="214" r="5" fill="var(--pink)" stroke="var(--navy)" stroke-width="2"/>
+          <text x="110" y="256" fill="rgba(255,255,255,0.7)" font-size="10" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">10°C</text>
+          <text x="225" y="256" fill="rgba(255,255,255,0.7)" font-size="10" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">25°C</text>
+          <text x="340" y="256" fill="rgba(255,255,255,0.7)" font-size="10" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">50°C</text>
+          <text x="228" y="274" fill="#eb008b" font-size="11" font-weight="700" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">Water temperature (°C) - independent variable (x-axis)</text>
+          <text x="13" y="130" fill="#eb008b" font-size="11" font-weight="700" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" transform="rotate(-90,13,130)">Time to dissolve (s) - dependent variable (y-axis)</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── YOU DO: EXPERIMENT 3 ───────────────────────────────── -->
+<div class="scene" id="s7">
+  <div class="checks">
+    <img src="checksforunderstanding/stopandjot.png" alt="Stop and Jot">
+    <img src="checksforunderstanding/coldcall.png" alt="Cold Call">
+  </div>
+  <div class="header-row">
+    <div>
+      <div class="eyebrow">Experiment 3 - Plants &amp; Light Hours</div>
+      <div class="scene-title">Now you <span class="hl">apply</span> it.</div>
+    </div>
+    <div class="phase-pill" style="margin-top:8px;">You Do</div>
+  </div>
+  <div class="scene-rule"></div>
+
+  <div class="two-col" style="align-items:flex-start; flex:1; min-height:0;">
+    <div class="col-l" style="gap:12px;">
+      <div class="reveal" id="s7-scenario">
+        <div class="def-card">
+          <div class="def-label">Scenario</div>
+          <div class="def-body">A group of students wants to find out if the amount of light a plant receives affects how much it grows in two weeks. They set up five identical pots with the same type of seedling and the same amount of soil and water. Each pot is placed under a lamp for a different number of hours each day: 0, 4, 8, 12, and 16 hours. After two weeks they measure the height of each plant.</div>
+        </div>
+      </div>
+      <div class="reveal" id="s7-task" style="font-size:clamp(0.82rem,1.4vw,0.95rem); color:var(--dim); font-style:italic;">
+        On your whiteboard: write the IV, DV, and as many controlled variables as you can find. You have two minutes.
+      </div>
+    </div>
+    <div class="col-r" style="gap:10px;">
+      <div class="steps-box">
+        <div class="step-row reveal" id="s7-s1">
+          <div class="step-num">IV</div>
+          <div><strong style="color:var(--pink);">Number of hours of light per day</strong> - five conditions: 0, 4, 8, 12, and 16 hours.</div>
+        </div>
+        <div class="step-row reveal" id="s7-s2">
+          <div class="step-num">DV</div>
+          <div><strong style="color:var(--pink);">Height of the plant after two weeks</strong> - measured in cm and recorded as the result.</div>
+        </div>
+        <div class="step-row reveal" id="s7-s3">
+          <div class="step-num">CV</div>
+          <div><strong style="color:var(--pink);">Controlled:</strong> type of seedling, amount of soil, amount of water, type of lamp, pot size, room temperature.</div>
+        </div>
+      </div>
+      <div class="reveal" id="s7-note">
+        <div class="callout"><strong>Notice:</strong> five conditions instead of three. More conditions gives a clearer picture of the relationship - but there is still only one independent variable being changed.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── GRAPH: EXPERIMENT 3 ────────────────────────────────── -->
+<div class="scene" id="s8">
+  <div class="scene-title">What does this look like as a <span class="hl">graph?</span></div>
+  <div class="scene-rule"></div>
+
+  <div class="two-col" style="flex:1; min-height:0; align-items:flex-start;">
+    <div class="col-l" style="gap:14px; justify-content:center;">
+      <div class="reveal" id="s8-r1">
+        <div class="def-card" style="border-left:3px solid var(--pink); border-radius:0 4px 4px 0;">
+          <div class="def-label">X-axis</div>
+          <div class="def-body"><strong style="color:var(--pink);">Hours of light per day</strong> - the independent variable. We chose these values, so they go on the horizontal axis.</div>
+        </div>
+      </div>
+      <div class="reveal" id="s8-r2">
+        <div class="def-card">
+          <div class="def-label">Y-axis</div>
+          <div class="def-body"><strong style="color:var(--pink);">Plant height after two weeks (cm)</strong> - the dependent variable. It changed in response to the light, so it goes on the vertical axis.</div>
+        </div>
+      </div>
+      <div class="reveal" id="s8-r3">
+        <div class="callout">Because the independent variable is a <strong>number</strong> (continuous), not a category, we use a <strong>line graph</strong> rather than a bar chart.</div>
+      </div>
+    </div>
+    <div class="col-r" style="justify-content:center; align-items:center;">
+      <div class="reveal" id="s8-graph" style="width:100%;">
+        <!--
+          Line graph: hours of light vs plant height
+          Chart area: x 60–390, y 20–240 (height 220px = 25cm scale)
+          Scale: 1cm = 220/25 = 8.8px  →  y = 240 - (val * 8.8)
+          Data points (illustrative):
+            0h  = 3cm   → x=60,  y=240-(3*8.8)=213.6  ≈213
+            4h  = 8cm   → x=135, y=240-(8*8.8)=169.6  ≈170
+            8h  = 15cm  → x=210, y=240-(15*8.8)=108   ≈108
+            12h = 22cm  → x=285, y=240-(22*8.8)=46.4  ≈46
+            16h = 20cm  → x=360, y=240-(20*8.8)=64    ≈64
+          Grid at 5,10,15,20,25:
+            5:  y=196  10: y=152  15: y=108  20: y=64  25: y=20
+        -->
+        <svg viewBox="0 0 420 300" style="width:100%; background:rgba(14,40,73,0.6); border-radius:4px; border:1px solid rgba(255,255,255,0.1);" xmlns="http://www.w3.org/2000/svg">
+          <!-- Axes -->
+          <line x1="60" y1="20" x2="60" y2="240" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+          <line x1="60" y1="240" x2="395" y2="240" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+          <!-- Horizontal grid lines -->
+          <line x1="60" y1="196" x2="395" y2="196" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="60" y1="152" x2="395" y2="152" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="60" y1="108" x2="395" y2="108" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="60" y1="64"  x2="395" y2="64"  stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="60" y1="20"  x2="395" y2="20"  stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="4,4"/>
+          <!-- Y axis labels -->
+          <text x="54" y="244" fill="rgba(255,255,255,0.4)" font-size="10" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">0</text>
+          <text x="54" y="200" fill="rgba(255,255,255,0.4)" font-size="10" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">5</text>
+          <text x="54" y="156" fill="rgba(255,255,255,0.4)" font-size="10" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">10</text>
+          <text x="54" y="112" fill="rgba(255,255,255,0.4)" font-size="10" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">15</text>
+          <text x="54" y="68"  fill="rgba(255,255,255,0.4)" font-size="10" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">20</text>
+          <text x="54" y="24"  fill="rgba(255,255,255,0.4)" font-size="10" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">25</text>
+          <!-- Line of best fit (slightly smoothed) -->
+          <polyline points="60,213 135,170 210,108 285,46 360,64" fill="none" stroke="rgba(235,0,139,0.35)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="60,213 135,170 210,108 285,46 360,64" fill="none" stroke="var(--pink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- Data points -->
+          <circle cx="60"  cy="213" r="5" fill="var(--pink)" stroke="var(--navy)" stroke-width="2"/>
+          <circle cx="135" cy="170" r="5" fill="var(--pink)" stroke="var(--navy)" stroke-width="2"/>
+          <circle cx="210" cy="108" r="5" fill="var(--pink)" stroke="var(--navy)" stroke-width="2"/>
+          <circle cx="285" cy="46"  r="5" fill="var(--pink)" stroke="var(--navy)" stroke-width="2"/>
+          <circle cx="360" cy="64"  r="5" fill="var(--pink)" stroke="var(--navy)" stroke-width="2"/>
+          <!-- X axis labels -->
+          <text x="60"  y="256" fill="rgba(255,255,255,0.7)" font-size="10" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">0</text>
+          <text x="135" y="256" fill="rgba(255,255,255,0.7)" font-size="10" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">4</text>
+          <text x="210" y="256" fill="rgba(255,255,255,0.7)" font-size="10" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">8</text>
+          <text x="285" y="256" fill="rgba(255,255,255,0.7)" font-size="10" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">12</text>
+          <text x="360" y="256" fill="rgba(255,255,255,0.7)" font-size="10" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">16</text>
+          <!-- Axis titles -->
+          <text x="228" y="274" fill="#eb008b" font-size="11" font-weight="700" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">Hours of light per day - independent variable (x-axis)</text>
+          <text x="13" y="130" fill="#eb008b" font-size="11" font-weight="700" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" transform="rotate(-90,13,130)">Plant height in cm - dependent variable (y-axis)</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── CONFIDENCE CHECK ─────────────────────────────────────── -->
+<div class="scene" id="s9" style="align-items:center;">
+  <div class="checks" style="align-self:flex-start;">
+    <img src="checksforunderstanding/fingervote.png" alt="Finger Vote">
+  </div>
+  <div class="scene-title" style="align-self:center; text-align:center;">How <span class="hl">confident</span> are you?</div>
+  <div class="scene-rule" style="align-self:center;"></div>
+
+  <div style="display:flex; flex-direction:column; align-items:center; gap:12px; width:100%;">
+    <div class="reveal" id="s9-prompt" style="font-size:clamp(0.85rem,1.5vw,1.05rem); color:rgba(255,255,255,0.8); text-align:center;">
+      Show me on five fingers - how confident are you identifying <span class="mono-pink">independent</span>, <span class="mono-pink">dependent</span>, and <span class="mono-pink">controlled</span> variables?
+    </div>
+
+    <div class="conf-scale">
+      <div class="conf-item" id="ci1"><div class="conf-num">1</div><div class="conf-lbl">Not sure at all</div></div>
+      <div class="conf-item" id="ci2"><div class="conf-num">2</div><div class="conf-lbl">Need more practice</div></div>
+      <div class="conf-item" id="ci3"><div class="conf-num">3</div><div class="conf-lbl">Getting there</div></div>
+      <div class="conf-item" id="ci4"><div class="conf-num">4</div><div class="conf-lbl">Fairly confident</div></div>
+      <div class="conf-item hi" id="ci5"><div class="conf-num">5</div><div class="conf-lbl">I've got this</div></div>
+    </div>
+
+    <div class="callout reveal" id="s9-note" style="border-left:none; border-top:3px solid var(--pink); border-radius:3px; text-align:center; max-width:600px;">
+      Showing <strong>1–2 fingers?</strong> Check in before moving on to the next activity.
+    </div>
+  </div>
+</div>
+
+
+<script src="presentation.js"></script>
+<script>
+const SCENES = [
+
+  { id:'s0', steps:[
+    () => vis('s0-sub'),
+  ]},
+
+  { id:'s1', steps:[
+    () => vis('s1-li'),
+    () => vis('s1-sc'),
+    () => vis('s1-sc1'),
+    () => vis('s1-sc2'),
+    () => vis('s1-sc3'),
+  ]},
+
+  { id:'s2', steps:[
+    () => vis('s2-intro'),
+    () => vis('s2-c1'),
+    () => vis('s2-c2'),
+    () => vis('s2-c3'),
+  ]},
+
+  { id:'s3', steps:[
+    () => vis('s3-scenario'),
+    () => vis('s3-q'),
+    () => { vis('s3-s1'); act('s3-s1'); },
+    () => { vis('s3-s2'); act('s3-s2'); },
+    () => { vis('s3-s3'); act('s3-s3'); },
+    () => vis('s3-tip'),
+  ],
+  fullFn: () => { ['s3-s1','s3-s2','s3-s3'].forEach(id => { vis(id); act(id); }); }
+  },
+
+  { id:'s4', steps:[
+    () => vis('s4-rule'),
+    () => vis('s4-why'),
+    () => vis('s4-memory'),
+    () => vis('s4-img'),
+    () => {
+      const graph = document.getElementById('s4-graph');
+      const img   = document.getElementById('s4-img');
+      graph.style.opacity = '1';
+      graph.style.pointerEvents = 'all';
+      img.style.opacity = '0';
+    },
+  ],
+  fullFn: () => {
+    const graph = document.getElementById('s4-graph');
+    const img   = document.getElementById('s4-img');
+    graph.style.opacity = '1';
+    graph.style.pointerEvents = 'all';
+    img.style.opacity = '0';
+  }
+  },
+
+  { id:'s5', steps:[
+    () => vis('s5-scenario'),
+    () => vis('s5-task'),
+    () => { vis('s5-s1'); act('s5-s1'); },
+    () => { vis('s5-s2'); act('s5-s2'); },
+    () => { vis('s5-s3'); act('s5-s3'); },
+    () => vis('s5-discuss'),
+  ],
+  fullFn: () => { ['s5-s1','s5-s2','s5-s3'].forEach(id => { vis(id); act(id); }); }
+  },
+
+  { id:'s6', steps:[
+    () => vis('s6-vars'),
+    () => vis('s6-prompt'),
+    () => vis('s6-ans'),
+    () => vis('s6-graph'),
+  ]},
+
+  { id:'s7', steps:[
+    () => vis('s7-scenario'),
+    () => vis('s7-task'),
+    () => { vis('s7-s1'); act('s7-s1'); },
+    () => { vis('s7-s2'); act('s7-s2'); },
+    () => { vis('s7-s3'); act('s7-s3'); },
+    () => vis('s7-note'),
+  ],
+  fullFn: () => { ['s6-s1','s6-s2','s6-s3'].forEach(id => { vis(id); act(id); }); }
+  },
+
+  { id:'s8', steps:[
+    () => vis('s8-r1'),
+    () => vis('s8-r2'),
+    () => vis('s8-r3'),
+    () => vis('s8-graph'),
+  ]},
+
+  { id:'s9', steps:[
+    () => vis('s9-prompt'),
+    () => stagger(['ci1','ci2','ci3','ci4','ci5']),
+    () => vis('s9-note'),
+  ],
+  fullFn: () => ['ci1','ci2','ci3','ci4','ci5'].forEach(id => vis(id))
+  },
+
+];
+
+initPresentation(SCENES);
+</script>
+</body>
+</html>
