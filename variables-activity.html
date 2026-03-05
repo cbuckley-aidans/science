@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Identifying Variables Activity</title>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #1b1f45;
+            --pink: #ea008a;
+            --white: #ffffff;
+            --off-white: #f5f5f5;
+            --light-grey: #e8e8e8;
+            --mid-grey: #9a9a9a;
+            --green: #10b981;
+            --red: #ef4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Barlow', Arial, sans-serif;
+            background-color: var(--off-white);
+            color: var(--navy);
+            min-height: 100vh;
+            font-size: 19px;
+        }
+
+        .app-header { background-color: var(--navy); }
+
+        .header-inner {
+            padding: 14px 24px 0 24px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .header-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--pink);
+            margin-bottom: 6px;
+        }
+
+        .header-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--white);
+            text-transform: uppercase;
+            letter-spacing: -0.01em;
+            line-height: 1;
+        }
+
+        .header-meta {
+            text-align: right;
+            padding-bottom: 14px;
+            color: rgba(255,255,255,0.55);
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .header-accent { height: 5px; background-color: var(--pink); }
+
+        .progress-bar-wrap {
+            background: var(--navy);
+            padding: 0 24px 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .progress-track { flex: 1; height: 4px; background: rgba(255,255,255,0.15); }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--pink);
+            transition: width 0.4s ease;
+        }
+
+        .progress-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.5);
+            white-space: nowrap;
+        }
+
+        .main {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 16px 16px 40px;
+        }
+
+        /* ── GUIDE PANEL ── */
+        .guide-panel {
+            background: var(--white);
+            border-top: 3px solid var(--navy);
+            border-left: 1px solid var(--light-grey);
+            border-right: 1px solid var(--light-grey);
+            border-bottom: 1px solid var(--light-grey);
+            margin-bottom: 20px;
+        }
+
+        .guide-header {
+            background: var(--navy);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .guide-header-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--white);
+        }
+
+        .guide-toggle {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .guide-header:hover .guide-toggle { color: var(--pink); }
+
+        .guide-body { padding: 20px; display: block; }
+        .guide-body.collapsed { display: none; }
+
+        .guide-step {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            margin-bottom: 18px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--light-grey);
+        }
+
+        .guide-step:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+
+        .guide-step-num {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 36px;
+            font-weight: 900;
+            color: var(--light-grey);
+            line-height: 1;
+            min-width: 32px;
+        }
+
+        .guide-step-content h4 {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 20px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--navy);
+            margin-bottom: 6px;
+        }
+
+        .guide-step-content p {
+            font-size: 17px;
+            line-height: 1.6;
+            color: var(--navy);
+            margin-bottom: 8px;
+        }
+
+        .guide-step-content p:last-child { margin-bottom: 0; }
+
+        .mnemonic {
+            display: inline-block;
+            background: var(--navy);
+            color: var(--white);
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 7px 16px;
+            border-left: 4px solid var(--pink);
+            margin-top: 2px;
+        }
+
+        .worked-example {
+            background: var(--off-white);
+            border-left: 4px solid var(--pink);
+            padding: 14px 16px;
+            margin-top: 10px;
+        }
+
+        .worked-example .we-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--pink);
+            margin-bottom: 6px;
+        }
+
+        .worked-example .we-q {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--navy);
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+
+        .we-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .we-var {
+            background: var(--white);
+            border: 1px solid var(--light-grey);
+            padding: 10px 12px;
+        }
+
+        .we-var-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--mid-grey);
+            margin-bottom: 4px;
+        }
+
+        .we-var-value { font-size: 15px; font-weight: 700; color: var(--navy); }
+
+        .we-var-axis {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--pink);
+            margin-top: 4px;
+        }
+
+        .hl-ind {
+            background: var(--navy);
+            color: var(--white);
+            padding: 1px 6px;
+            font-weight: 700;
+        }
+
+        .hl-dep {
+            background: var(--pink);
+            color: var(--white);
+            padding: 1px 6px;
+            font-weight: 700;
+        }
+
+        /* ── SCENARIO CARD ── */
+        .scenario-card {
+            background: var(--white);
+            border-top: 3px solid var(--navy);
+            border-left: 1px solid var(--light-grey);
+            border-right: 1px solid var(--light-grey);
+            border-bottom: 1px solid var(--light-grey);
+            margin-bottom: 20px;
+            padding: 20px 24px;
+        }
+
+        .scenario-number {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--pink);
+            margin-bottom: 6px;
+        }
+
+        .scenario-question {
+            font-size: 22px;
+        }
+
+        .breakdown-strip {
+            background: var(--off-white);
+            border: 1px solid var(--light-grey);
+            padding: 12px 14px;
+            font-size: 17px;
+            line-height: 1.7;
+        }
+
+        .breakdown-strip .bs-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--mid-grey);
+            margin-bottom: 6px;
+        }
+
+        /* ── INSTRUCTION ── */
+        .instruction {
+            background: var(--off-white);
+            border-left: 4px solid var(--navy);
+            padding: 10px 14px;
+            font-size: 17px;
+            margin-bottom: 20px;
+        }
+
+        /* ── TOKENS ── */
+        .tokens-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--mid-grey);
+            margin-bottom: 10px;
+        }
+
+        .tokens-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 28px;
+            min-height: 50px;
+        }
+
+        .token {
+            background: var(--navy);
+            color: var(--white);
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 14px 26px;
+            cursor: grab;
+            user-select: none;
+            border: 2px solid var(--navy);
+            transition: opacity 0.15s;
+        }
+
+        .token:active { cursor: grabbing; }
+        .token.dragging { opacity: 0.3; }
+        .token.placed { display: none; }
+
+        /* ── GRAPH ── */
+        .graph-area {
+            position: relative;
+            width: 100%;
+            height: 280px;
+            margin-bottom: 24px;
+        }
+
+        .graph-inner {
+            position: absolute;
+            left: 60px; right: 20px;
+            top: 10px; bottom: 50px;
+            border-left: 2.5px solid var(--navy);
+            border-bottom: 2.5px solid var(--navy);
+        }
+
+        .graph-inner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                repeating-linear-gradient(to right, var(--light-grey) 0, var(--light-grey) 1px, transparent 1px, transparent 25%),
+                repeating-linear-gradient(to bottom, var(--light-grey) 0, var(--light-grey) 1px, transparent 1px, transparent 25%);
+        }
+
+        .graph-inner::after {
+            content: '';
+            position: absolute;
+            top: -7px; left: -5px;
+            width: 0; height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 8px solid var(--navy);
+        }
+
+        .x-arrow {
+            position: absolute;
+            right: 13px; bottom: 52px;
+            width: 0; height: 0;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            border-left: 8px solid var(--navy);
+        }
+
+        .drop-zone {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed var(--light-grey);
+            background: var(--off-white);
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        .drop-zone.drag-over { border-color: var(--pink); background: #fff0f8; }
+        .drop-zone.filled { border-style: solid; }
+        .drop-zone.correct { border-color: var(--green); background: #f0fdf4; }
+        .drop-zone.incorrect {
+            border-color: var(--red); background: #fef2f2;
+            animation: shake 0.35s ease;
+        }
+
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+
+        .drop-y {
+            top: 10px; left: 0;
+            width: 52px; bottom: 50px;
+            flex-direction: column;
+        }
+
+        .drop-x {
+            bottom: 0; left: 60px; right: 20px;
+            height: 44px;
+        }
+
+        .drop-hint {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--mid-grey);
+            text-align: center;
+        }
+
+        .drop-y .drop-hint {
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+        }
+
+        .drop-zone .placed-token {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--navy);
+            text-align: center;
+            padding: 4px;
+        }
+
+        .drop-y .placed-token {
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+        }
+
+        /* ── FEEDBACK ── */
+        .feedback-row {
+            min-height: 36px;
+            margin-bottom: 16px;
+        }
+
+        .feedback-msg {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .feedback-msg.correct { color: var(--green); }
+        .feedback-msg.incorrect { color: var(--red); }
+
+        .feedback-explanation {
+            font-size: 17px;
+            line-height: 1.6;
+            color: var(--navy);
+            margin-top: 6px;
+        }
+
+        /* ── BUTTONS ── */
+        .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+        .btn {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 19px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            border: none;
+            padding: 13px 28px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .btn-primary { background: var(--pink); color: var(--white); }
+        .btn-primary:hover { background: #c40078; }
+        .btn-primary:disabled { background: var(--light-grey); color: var(--mid-grey); cursor: not-allowed; }
+        .btn-secondary { background: transparent; color: var(--navy); border: 2px solid var(--navy); }
+        .btn-secondary:hover { background: var(--off-white); }
+
+        /* ── COMPLETE ── */
+        .complete-screen { display: none; text-align: center; padding: 48px 24px; }
+        .complete-screen.visible { display: block; }
+
+        .complete-icon {
+            width: 64px; height: 64px;
+            background: var(--navy);
+            margin: 0 auto 20px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .complete-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 36px; font-weight: 900;
+            text-transform: uppercase;
+            color: var(--navy);
+            margin-bottom: 10px;
+        }
+
+        .complete-subtitle { font-size: 15px; color: var(--mid-grey); margin-bottom: 28px; }
+
+        .score-badge {
+            display: inline-block;
+            background: var(--navy);
+            color: var(--white);
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 48px; font-weight: 900;
+            padding: 20px 40px;
+            border-left: 6px solid var(--pink);
+            margin-bottom: 28px;
+        }
+
+        .score-badge span { color: var(--pink); }
+
+        .summary-rule { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+        .summary-rule-line { flex: 1; height: 1px; background: var(--light-grey); }
+        .summary-rule-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--mid-grey);
+        }
+
+        .takeaway-box {
+            background: var(--off-white);
+            border-left: 4px solid var(--pink);
+            padding: 14px 18px;
+            text-align: left;
+            font-size: 15px; line-height: 1.6;
+            color: var(--navy);
+            max-width: 560px;
+            margin: 0 auto 28px;
+        }
+
+        .takeaway-box .tk-heading {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px; font-weight: 700;
+            letter-spacing: 0.14em; text-transform: uppercase;
+            color: var(--pink);
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .drag-clone {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.92;
+            transform: rotate(-2deg) scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-header">
+    <div class="header-inner">
+        <div>
+            <p class="header-label">Science Skills Practice</p>
+            <h1 class="header-title">Identifying Variables</h1>
+        </div>
+        <div class="header-meta">
+            <p>Guided Drag and Drop Activity</p>
+            <p>4 Practice Scenarios</p>
+        </div>
+    </div>
+    <div class="progress-bar-wrap">
+        <span class="progress-label" id="progress-text">Step 1 of 2: Learn the Strategy</span>
+        <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div class="header-accent"></div>
+</div>
+
+<div class="main">
+
+    <!-- GUIDE SECTION -->
+    <div id="guide-section">
+
+        <div class="guide-panel">
+            <div class="guide-header" onclick="toggleGuide()">
+                <span class="guide-header-title">How to Find the Variables in a Research Question</span>
+                <span class="guide-toggle" id="guide-toggle-label">Hide</span>
+            </div>
+            <div class="guide-body" id="guide-body">
+
+                <div class="guide-step">
+                    <div class="guide-step-num">1</div>
+                    <div class="guide-step-content">
+                        <h4>Find the Independent Variable</h4>
+                        <p>The <strong>independent variable</strong> is the thing you are deliberately <strong>changing or controlling</strong>. You decide what it will be before the experiment begins.</p>
+                        <p>Ask yourself: <em>"What am I changing or setting up in this experiment?"</em></p>
+                        <div class="mnemonic">I control it &rarr; Independent &rarr; X-Axis (across the bottom)</div>
+                    </div>
+                </div>
+
+                <div class="guide-step">
+                    <div class="guide-step-num">2</div>
+                    <div class="guide-step-content">
+                        <h4>Find the Dependent Variable</h4>
+                        <p>The <strong>dependent variable</strong> is what you <strong>measure or observe</strong> during the experiment. You do not know what it will be until you run the experiment. It <em>depends on</em> the independent variable.</p>
+                        <p>Ask yourself: <em>"What am I measuring or recording as a result?"</em></p>
+                        <div class="mnemonic">It depends on the other one &rarr; Dependent &rarr; Y-Axis (up the side)</div>
+                        <p style="margin-top: 10px; font-size: 13px;">Quick memory trick: <strong>D</strong>ependent goes <strong>D</strong>own the side of the graph (the Y-axis runs vertically).</p>
+                    </div>
+                </div>
+
+                <div class="guide-step">
+                    <div class="guide-step-num">3</div>
+                    <div class="guide-step-content">
+                        <h4>Worked Example</h4>
+                        <p>Use the two questions above to work through this example before you practise.</p>
+                        <div class="worked-example">
+                            <p class="we-label">Research Question</p>
+                            <p class="we-q">"Does a candle burn down faster when it is placed in a smaller container?"</p>
+                            <p style="font-size:13px; margin-bottom:8px;"><strong>Step 1 (what am I changing?):</strong> <span class="hl-ind">The size of the container.</span> That is the independent variable.</p>
+                            <p style="font-size:13px; margin-bottom:8px;"><strong>Step 2 (what am I measuring?):</strong> <span class="hl-dep">How fast the candle burns down.</span> That is the dependent variable.</p>
+                            <div class="we-row">
+                                <div class="we-var">
+                                    <div class="we-var-label">Independent Variable</div>
+                                    <div class="we-var-value">Container size</div>
+                                    <div class="we-var-axis">X-Axis (horizontal)</div>
+                                </div>
+                                <div class="we-var">
+                                    <div class="we-var-label">Dependent Variable</div>
+                                    <div class="we-var-value">Burn time (seconds)</div>
+                                    <div class="we-var-axis">Y-Axis (vertical)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 28px;">
+            <button class="btn btn-primary" onclick="startPractice()">Start Practice Scenarios &rarr;</button>
+        </div>
+
+    </div>
+
+    <!-- ACTIVITY SECTION -->
+    <div id="activity-area" style="display:none;">
+
+        <!-- Collapsible reminder -->
+        <div class="guide-panel" style="margin-bottom:20px;">
+            <div class="guide-header" onclick="toggleReminder()" style="padding:8px 20px;">
+                <span class="guide-header-title" style="font-size:12px;">Need a reminder? View the strategy guide.</span>
+                <span class="guide-toggle" id="reminder-toggle-label">Show</span>
+            </div>
+            <div class="guide-body collapsed" id="guide-reminder-body">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                    <div>
+                        <div class="we-var-label" style="margin-bottom:6px;">Independent Variable</div>
+                        <p style="font-size:13px; margin-bottom:6px;">What you are <strong>changing or controlling</strong>. Ask: "What am I changing?"</p>
+                        <div class="mnemonic">I control it &rarr; X-Axis</div>
+                    </div>
+                    <div>
+                        <div class="we-var-label" style="margin-bottom:6px;">Dependent Variable</div>
+                        <p style="font-size:13px; margin-bottom:6px;">What you are <strong>measuring</strong> in response. Ask: "What am I recording?"</p>
+                        <div class="mnemonic">It depends &rarr; Y-Axis</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="scenario-card">
+            <p class="scenario-number" id="scenario-number">Scenario 01</p>
+            <p class="scenario-question" id="scenario-question"></p>
+            <div class="breakdown-strip">
+                <p class="bs-label">Use the strategy</p>
+                <p id="breakdown-text"></p>
+            </div>
+        </div>
+
+        <div class="instruction">
+            Drag each variable to the correct axis on the graph below. The <strong>independent variable</strong> goes on the X-axis (bottom). The <strong>dependent variable</strong> goes on the Y-axis (side).
+        </div>
+
+        <p class="tokens-label">Variables to place</p>
+        <div class="tokens-row" id="tokens-row"></div>
+
+        <div class="graph-area">
+            <div class="drop-zone drop-y" id="drop-y">
+                <span class="drop-hint" id="drop-y-hint" style="writing-mode:vertical-rl; transform:rotate(180deg); text-align:center;">Y-Axis<br>Dependent</span>
+            </div>
+            <div class="drop-zone drop-x" id="drop-x">
+                <span class="drop-hint" id="drop-x-hint">X-Axis | Independent</span>
+            </div>
+            <div class="graph-inner"></div>
+            <div class="x-arrow"></div>
+        </div>
+
+        <div class="feedback-row" id="feedback-row"></div>
+
+        <div class="btn-row">
+            <button class="btn btn-primary" id="btn-check" onclick="checkAnswer()" disabled>Check Answer</button>
+            <button class="btn btn-secondary" id="btn-reset" onclick="resetCurrent()" style="display:none;">Try Again</button>
+            <button class="btn btn-primary" id="btn-next" onclick="nextScenario()" style="display:none;">Next Scenario</button>
+        </div>
+
+    </div>
+
+    <!-- COMPLETE SCREEN -->
+    <div class="complete-screen" id="complete-screen">
+        <div class="complete-icon">
+            <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7 18L14 25L29 10" stroke="#ea008a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <h2 class="complete-title">Activity Complete</h2>
+        <p class="complete-subtitle">Here is how you went across all four scenarios.</p>
+        <div class="score-badge" id="score-badge">0<span>/4</span></div>
+
+        <div class="summary-rule">
+            <div class="summary-rule-line"></div>
+            <span class="summary-rule-label">Key Takeaways</span>
+            <div class="summary-rule-line"></div>
+        </div>
+
+        <div class="takeaway-box">
+            <span class="tk-heading">Remember These Rules</span>
+            <strong>Independent Variable:</strong> What you change or control. Goes on the X-axis. Ask: "What am I changing?"<br><br>
+            <strong>Dependent Variable:</strong> What you measure in response. Goes on the Y-axis. Ask: "What am I recording?" Remember: <em>Dependent starts with D, and so does Down the side of the graph.</em>
+        </div>
+
+        <div class="btn-row" style="justify-content:center;">
+            <button class="btn btn-secondary" onclick="restartAll()">Restart Activity</button>
+        </div>
+    </div>
+
+</div>
+
+<div class="drag-clone token" id="drag-clone" style="display:none;"></div>
+
+<script>
+    const scenarios = [
+        {
+            number: "01",
+            question: "Does a plant grow taller the more fertiliser it is given each week?",
+            breakdown: 'Ask: "What am I <span class="hl-ind">changing</span>?" The amount of fertiliser. Ask: "What am I <span class="hl-dep">measuring</span>?" How tall the plant grows.',
+            tokens: ["Fertiliser amount (g/week)", "Plant height (cm)"],
+            x: "Fertiliser amount (g/week)",
+            y: "Plant height (cm)",
+            explanation: "The amount of fertiliser is the independent variable because the experimenter decides how much to give. Plant height is the dependent variable because it is what changes in response to the fertiliser, and is what gets measured."
+        },
+        {
+            number: "02",
+            question: "Does a ball roll further when dropped from a greater height?",
+            breakdown: 'Ask: "What am I <span class="hl-ind">changing</span>?" The drop height. Ask: "What am I <span class="hl-dep">measuring</span>?" How far the ball rolls.',
+            tokens: ["Drop height (cm)", "Distance rolled (cm)"],
+            x: "Drop height (cm)",
+            y: "Distance rolled (cm)",
+            explanation: "Drop height is the independent variable because you are deliberately setting it each trial. Distance rolled is the dependent variable because you are measuring it to see how it responds to the height."
+        },
+        {
+            number: "03",
+            question: "Does food colouring spread through water more quickly when the water is warmer?",
+            breakdown: 'Ask: "What am I <span class="hl-ind">changing</span>?" The temperature of the water. Ask: "What am I <span class="hl-dep">measuring</span>?" How quickly the colour spreads.',
+            tokens: ["Water temperature (deg C)", "Spread time (seconds)"],
+            x: "Water temperature (deg C)",
+            y: "Spread time (seconds)",
+            explanation: "Water temperature is the independent variable because you are setting it before each trial. Spread time is the dependent variable because you are recording how long the colour takes to disperse through the water."
+        },
+        {
+            number: "04",
+            question: "Does a sugar cube dissolve faster in water when the water is stirred more quickly?",
+            breakdown: 'Ask: "What am I <span class="hl-ind">changing</span>?" The speed of stirring. Ask: "What am I <span class="hl-dep">measuring</span>?" How long the sugar takes to dissolve.',
+            tokens: ["Stirring speed (rpm)", "Dissolve time (seconds)"],
+            x: "Stirring speed (rpm)",
+            y: "Dissolve time (seconds)",
+            explanation: "Stirring speed is the independent variable because it is what you are controlling and deliberately changing. Dissolve time is the dependent variable because you are measuring how long the sugar takes to disappear as a result."
+        }
+    ];
+
+    let currentIndex = 0, score = 0;
+    let xPlaced = null, yPlaced = null, answered = false;
+    let dragging = null, clone = null, offsetX = 0, offsetY = 0;
+
+    function toggleGuide() {
+        const b = document.getElementById('guide-body');
+        const l = document.getElementById('guide-toggle-label');
+        b.classList.toggle('collapsed');
+        l.textContent = b.classList.contains('collapsed') ? 'Show' : 'Hide';
+    }
+
+    function toggleReminder() {
+        const b = document.getElementById('guide-reminder-body');
+        const l = document.getElementById('reminder-toggle-label');
+        b.classList.toggle('collapsed');
+        l.textContent = b.classList.contains('collapsed') ? 'Show' : 'Hide';
+    }
+
+    function startPractice() {
+        document.getElementById('guide-section').style.display = 'none';
+        document.getElementById('activity-area').style.display = '';
+        loadScenario(0);
+    }
+
+    function loadScenario(index) {
+        const s = scenarios[index];
+        answered = false; xPlaced = null; yPlaced = null;
+
+        document.getElementById('scenario-number').textContent = `Scenario ${s.number}`;
+        document.getElementById('scenario-question').textContent = s.question;
+        document.getElementById('breakdown-text').innerHTML = s.breakdown;
+
+        const pct = 25 + (index / scenarios.length) * 75;
+        document.getElementById('progress-fill').style.width = pct + '%';
+        document.getElementById('progress-text').textContent = `Step 2: Practice | Question ${index + 1} of ${scenarios.length}`;
+
+        const row = document.getElementById('tokens-row');
+        row.innerHTML = '';
+        s.tokens.forEach(t => {
+            const el = document.createElement('div');
+            el.className = 'token';
+            if (index === 0) {
+                if (t === s.y) {
+                    el.style.background = '#ea008a';
+                    el.style.borderColor = '#ea008a';
+                } else {
+                    el.style.background = '#1b1f45';
+                    el.style.borderColor = '#1b1f45';
+                }
+            }
+            el.textContent = t;
+            el.dataset.value = t;
+            addDragListeners(el);
+            row.appendChild(el);
+        });
+
+        const dy = document.getElementById('drop-y');
+        dy.className = 'drop-zone drop-y';
+        if (index === 0) {
+            dy.innerHTML = '<span class="drop-hint" style="writing-mode:vertical-rl;transform:rotate(180deg);text-align:center;color:#ea008a;font-size:15px;font-weight:800;">Y-Axis<br>Dependent</span>';
+        } else {
+            dy.innerHTML = '<span class="drop-hint" style="writing-mode:vertical-rl;transform:rotate(180deg);text-align:center;">Y-Axis<br>Dependent</span>';
+        }
+
+        const dx = document.getElementById('drop-x');
+        dx.className = 'drop-zone drop-x';
+        if (index === 0) {
+            dx.innerHTML = '<span class="drop-hint" style="color:#1b1f45;font-size:15px;font-weight:800;">X-Axis | Independent</span>';
+        } else {
+            dx.innerHTML = '<span class="drop-hint">X-Axis | Independent</span>';
+        }
+
+        document.getElementById('btn-check').disabled = true;
+        document.getElementById('btn-check').style.display = '';
+        document.getElementById('btn-reset').style.display = 'none';
+        document.getElementById('btn-next').style.display = 'none';
+        document.getElementById('feedback-row').innerHTML = '';
+    }
+
+    function addDragListeners(el) {
+        el.addEventListener('mousedown', startDrag);
+        el.addEventListener('touchstart', startDragTouch, { passive: false });
+    }
+
+    function startDrag(e) {
+        if (answered) return;
+        e.preventDefault();
+        initDrag(e.currentTarget, e.clientX, e.clientY);
+        document.addEventListener('mousemove', onDrag);
+        document.addEventListener('mouseup', endDrag);
+    }
+
+    function startDragTouch(e) {
+        if (answered) return;
+        e.preventDefault();
+        const t = e.touches[0];
+        initDrag(e.currentTarget, t.clientX, t.clientY);
+        document.addEventListener('touchmove', onDragTouch, { passive: false });
+        document.addEventListener('touchend', endDragTouch);
+    }
+
+    function initDrag(token, cx, cy) {
+        dragging = token;
+        const r = token.getBoundingClientRect();
+        offsetX = cx - r.left; offsetY = cy - r.top;
+        clone = document.getElementById('drag-clone');
+        clone.textContent = token.textContent;
+        clone.style.display = '';
+        clone.style.width = r.width + 'px';
+        clone.style.left = (cx - offsetX) + 'px';
+        clone.style.top = (cy - offsetY) + 'px';
+        token.classList.add('dragging');
+    }
+
+    function onDrag(e) { moveClone(e.clientX, e.clientY); }
+    function onDragTouch(e) { e.preventDefault(); moveClone(e.touches[0].clientX, e.touches[0].clientY); }
+
+    function moveClone(cx, cy) {
+        if (!clone) return;
+        clone.style.left = (cx - offsetX) + 'px';
+        clone.style.top = (cy - offsetY) + 'px';
+        ['drop-y','drop-x'].forEach(id => {
+            const el = document.getElementById(id);
+            const r = el.getBoundingClientRect();
+            el.classList.toggle('drag-over', cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom);
+        });
+    }
+
+    function endDrag(e) {
+        document.removeEventListener('mousemove', onDrag);
+        document.removeEventListener('mouseup', endDrag);
+        finishDrop(e.clientX, e.clientY);
+    }
+
+    function endDragTouch(e) {
+        document.removeEventListener('touchmove', onDragTouch);
+        document.removeEventListener('touchend', endDragTouch);
+        finishDrop(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+    }
+
+    function finishDrop(cx, cy) {
+        if (!dragging) return;
+        const value = dragging.dataset.value;
+        ['drop-y','drop-x'].forEach(id => {
+            const el = document.getElementById(id);
+            el.classList.remove('drag-over');
+            const r = el.getBoundingClientRect();
+            if (cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom) placeToken(id, value);
+        });
+        dragging.classList.remove('dragging');
+        dragging = null;
+        document.getElementById('drag-clone').style.display = 'none';
+    }
+
+    function placeToken(zoneId, value) {
+        returnFromZone(zoneId);
+        const zone = document.getElementById(zoneId);
+        const isY = zoneId === 'drop-y';
+        document.querySelectorAll('.token').forEach(t => { if (t.dataset.value === value) t.classList.add('placed'); });
+        zone.innerHTML = `<span class="placed-token" style="${isY ? 'writing-mode:vertical-rl;transform:rotate(180deg);' : ''}">${value}</span>`;
+        zone.classList.add('filled');
+        if (isY) yPlaced = value; else xPlaced = value;
+        document.getElementById('btn-check').disabled = !(xPlaced && yPlaced);
+    }
+
+    function returnFromZone(zoneId) {
+        const zone = document.getElementById(zoneId);
+        const existing = zone.querySelector('.placed-token');
+        if (existing) {
+            const val = existing.textContent;
+            document.querySelectorAll('.token').forEach(t => { if (t.dataset.value === val) t.classList.remove('placed'); });
+            if (zoneId === 'drop-y') yPlaced = null; else xPlaced = null;
+        }
+    }
+
+    function checkAnswer() {
+        const s = scenarios[currentIndex];
+        answered = true;
+        const xOk = xPlaced === s.x, yOk = yPlaced === s.y, allOk = xOk && yOk;
+        if (allOk) score++;
+        document.getElementById('drop-x').classList.remove('filled');
+        document.getElementById('drop-y').classList.remove('filled');
+        document.getElementById('drop-x').classList.add(xOk ? 'correct' : 'incorrect');
+        document.getElementById('drop-y').classList.add(yOk ? 'correct' : 'incorrect');
+        document.getElementById('feedback-row').innerHTML = `
+            <div class="feedback-msg ${allOk ? 'correct' : 'incorrect'}">${allOk ? 'Correct!' : 'Not quite.'}</div>
+            <p class="feedback-explanation">${s.explanation}</p>`;
+        document.getElementById('btn-check').style.display = 'none';
+        document.getElementById('btn-reset').style.display = '';
+        document.getElementById('btn-next').style.display = '';
+        document.getElementById('btn-next').textContent = currentIndex < scenarios.length - 1 ? 'Next Scenario' : 'See Results';
+    }
+
+    function resetCurrent() { loadScenario(currentIndex); }
+
+    function nextScenario() {
+        currentIndex++;
+        if (currentIndex >= scenarios.length) showComplete();
+        else loadScenario(currentIndex);
+    }
+
+    function showComplete() {
+        document.getElementById('activity-area').style.display = 'none';
+        document.getElementById('complete-screen').classList.add('visible');
+        document.getElementById('score-badge').innerHTML = `${score}<span>/${scenarios.length}</span>`;
+        document.getElementById('progress-fill').style.width = '100%';
+        document.getElementById('progress-text').textContent = 'Complete';
+    }
+
+    function restartAll() {
+        currentIndex = 0; score = 0;
+        document.getElementById('complete-screen').classList.remove('visible');
+        document.getElementById('guide-section').style.display = '';
+        document.getElementById('activity-area').style.display = 'none';
+        document.getElementById('guide-body').classList.remove('collapsed');
+        document.getElementById('guide-toggle-label').textContent = 'Hide';
+        document.getElementById('progress-fill').style.width = '0%';
+        document.getElementById('progress-text').textContent = 'Step 1 of 2: Learn the Strategy';
+    }
+</script>
+</body>
+</html>
