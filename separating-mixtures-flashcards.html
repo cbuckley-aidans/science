@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Separating Mixtures — Flashcards</title>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #1b1f45;
+            --pink: #ea008a;
+            --white: #ffffff;
+            --off-white: #f5f5f5;
+            --light-grey: #e8e8e8;
+            --mid-grey: #9a9a9a;
+            --text: #1b1f45;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Barlow', Helvetica Neue, Helvetica, Arial, sans-serif;
+            color: var(--text);
+            background: var(--off-white);
+            min-height: 100vh;
+            zoom: 1.5;
+        }
+
+        .site-header {
+            background: var(--navy);
+            padding: 0 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 60px;
+            border-bottom: 4px solid var(--pink);
+        }
+        .site-header-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--pink);
+            margin-bottom: 3px;
+        }
+        .site-header-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--white);
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+        .site-header-right {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.35);
+        }
+
+        .container { max-width: 860px; margin: 0 auto; padding: 32px 24px 64px; }
+        .view { display: none; }
+        .view.active { display: block; }
+
+        .section-header {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 2.5px solid var(--navy);
+        }
+        .section-eyebrow {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--pink);
+            white-space: nowrap;
+        }
+        .section-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--navy);
+            text-transform: uppercase;
+        }
+
+        .definitions-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px; }
+        .def-card {
+            border-top: 4px solid var(--navy);
+            border-left: 1px solid var(--light-grey);
+            border-right: 1px solid var(--light-grey);
+            border-bottom: 1px solid var(--light-grey);
+            background: var(--white);
+            padding: 18px 20px;
+        }
+        .def-card-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--pink); margin-bottom: 6px;
+        }
+        .def-card h3 {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 18px; font-weight: 900;
+            text-transform: uppercase; color: var(--navy); margin-bottom: 8px;
+        }
+        .def-card p { font-size: 13px; line-height: 1.6; color: #444; }
+
+        .decks-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 40px; }
+        .deck-btn {
+            border: 3px solid var(--pink);
+            cursor: pointer; text-align: left;
+            padding: 24px 24px 20px;
+            background: var(--navy);
+            border-left: 8px solid var(--pink);
+            transition: background 0.15s, transform 0.12s, box-shadow 0.12s;
+            display: block; width: 100%;
+            box-shadow: 0 4px 0 rgba(234,0,138,0.4);
+        }
+        .deck-btn:hover { background: #252a5c; transform: translateY(-2px); box-shadow: 0 6px 0 rgba(234,0,138,0.5); }
+        .deck-btn:active { transform: translateY(1px); box-shadow: 0 2px 0 rgba(234,0,138,0.4); }
+        .deck-btn-eyebrow {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--pink); margin-bottom: 5px;
+        }
+        .deck-btn-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 24px; font-weight: 900;
+            color: var(--white); text-transform: uppercase;
+            display: block; margin-bottom: 6px; line-height: 1.1;
+        }
+        .deck-btn-count { font-size: 12px; color: rgba(255,255,255,0.45); }
+
+        .question-card {
+            background: var(--white);
+            border-left: 3px solid var(--navy);
+            border-top: 1px solid var(--light-grey);
+            border-right: 1px solid var(--light-grey);
+            border-bottom: 1px solid var(--light-grey);
+            padding: 16px 18px; margin-bottom: 12px;
+        }
+        .question-text { font-size: 14px; font-weight: 600; color: var(--navy); margin-bottom: 12px; line-height: 1.5; }
+        .mcq-options { display: flex; flex-direction: column; gap: 7px; }
+        .mcq-option {
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 9px 12px; border: 1.5px solid var(--light-grey);
+            cursor: pointer; font-size: 13px; background: var(--white);
+            transition: border-color 0.12s, background 0.12s;
+            text-align: left; width: 100%;
+            font-family: 'Barlow', sans-serif; color: var(--text); line-height: 1.45;
+        }
+        .mcq-option:hover:not(:disabled) { border-color: var(--navy); background: var(--off-white); }
+        .mcq-option.correct { border-color: #10b981; background: #f0fdf4; color: #065f46; font-weight: 600; }
+        .mcq-option.incorrect { border-color: #ef4444; background: #fef2f2; color: #991b1b; }
+        .option-letter { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 12px; color: var(--mid-grey); min-width: 16px; padding-top: 1px; }
+
+        .tf-row { display: flex; gap: 8px; margin-top: 4px; }
+        .tf-btn {
+            flex: 1; padding: 9px; border: 1.5px solid var(--light-grey);
+            cursor: pointer; font-family: 'Barlow Condensed', sans-serif;
+            font-size: 15px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 0.08em; background: var(--white); color: var(--navy);
+            transition: all 0.12s;
+        }
+        .tf-btn:hover:not(:disabled) { background: var(--off-white); border-color: var(--navy); }
+        .tf-btn.correct { background: #10b981; border-color: #10b981; color: white; }
+        .tf-btn.incorrect { background: #ef4444; border-color: #ef4444; color: white; }
+        .feedback-msg {
+            margin-top: 10px; font-size: 12.5px; line-height: 1.55;
+            color: #555; font-style: italic; display: none;
+            border-left: 3px solid var(--light-grey); padding-left: 10px;
+        }
+        .feedback-msg.visible { display: block; }
+
+        /* DECK VIEW */
+        .deck-nav-bar { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+        .back-btn {
+            border: none; background: none; cursor: pointer;
+            display: flex; align-items: center; gap: 5px;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 12px; font-weight: 700;
+            letter-spacing: 0.12em; text-transform: uppercase;
+            color: var(--pink); padding: 0;
+        }
+        .back-btn:hover { opacity: 0.65; }
+        .deck-view-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 22px; font-weight: 900;
+            text-transform: uppercase; color: var(--navy);
+        }
+        .deck-progress {
+            margin-left: auto;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px; font-weight: 700;
+            letter-spacing: 0.1em; text-transform: uppercase; color: var(--mid-grey);
+        }
+
+        .progress-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 14px; flex-wrap: wrap; }
+        .progress-dot { width: 8px; height: 8px; background: var(--light-grey); transition: background 0.2s; }
+        .progress-dot.active { background: var(--pink); }
+        .progress-dot.correct { background: #10b981; }
+        .progress-dot.incorrect { background: #ef4444; }
+
+        .flip-hint {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px; font-weight: 700;
+            letter-spacing: 0.14em; text-transform: uppercase;
+            color: var(--mid-grey); text-align: center; margin-bottom: 12px;
+        }
+
+        /* FLASHCARD */
+        .flashcard-scene {
+            perspective: 1200px;
+            margin: 0 auto 20px;
+            width: 100%; height: 380px;
+        }
+        .flashcard {
+            width: 100%; height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .flashcard.flipped { transform: rotateY(180deg); }
+        .card-face {
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        /* FRONT */
+        .card-front {
+            background: var(--navy);
+            border-left: 8px solid var(--pink);
+            display: flex; flex-direction: column;
+            justify-content: center; padding: 32px 36px;
+        }
+        .card-front-eyebrow {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--pink); margin-bottom: 10px;
+        }
+        .card-front-term {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 44px; font-weight: 900;
+            color: var(--white); text-transform: uppercase; line-height: 1.05;
+        }
+        .card-front-subtext {
+            font-size: 12px; color: rgba(255,255,255,0.35);
+            margin-top: 14px; font-style: italic;
+        }
+
+        /* BACK: full-width image on top, definition below */
+        .card-back {
+            background: var(--white);
+            border-top: 4px solid var(--navy);
+            border-left: 1px solid var(--light-grey);
+            border-right: 1px solid var(--light-grey);
+            border-bottom: 1px solid var(--light-grey);
+            transform: rotateY(180deg);
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+        .card-back-image-col {
+            width: 100%; flex-shrink: 0;
+            background: #f0f0f0;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+        .card-back-image-col img {
+            width: 100%; height: auto;
+            max-height: 210px;
+            object-fit: contain; object-position: center; display: block;
+        }
+        .card-back-text-col {
+            flex: 1; padding: 14px 20px;
+            display: flex; flex-direction: column;
+            justify-content: center; overflow: hidden;
+            border-top: 1px solid var(--light-grey);
+        }
+        .card-back-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--pink); margin-bottom: 5px;
+        }
+        .card-back-term {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 17px; font-weight: 900;
+            text-transform: uppercase; color: var(--navy); margin-bottom: 9px;
+        }
+        .card-back-def { font-size: 12.5px; line-height: 1.65; color: var(--text); }
+
+        /* ANSWER OPTIONS */
+        .answer-options {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 8px; margin-bottom: 20px;
+        }
+        .answer-btn {
+            background: var(--white);
+            border: 2px solid var(--navy);
+            cursor: pointer; text-align: left;
+            padding: 11px 14px;
+            font-family: 'Barlow', sans-serif;
+            font-size: 12.5px; color: var(--navy); font-weight: 500;
+            line-height: 1.4;
+            transition: background 0.12s, border-color 0.12s, transform 0.1s;
+            display: flex; align-items: flex-start; gap: 10px;
+        }
+        .answer-btn:hover:not(:disabled) {
+            background: var(--off-white); border-color: var(--pink);
+            transform: translateY(-1px);
+        }
+        .answer-btn .ans-letter {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px; font-weight: 900;
+            color: var(--pink); min-width: 16px; padding-top: 1px; flex-shrink: 0;
+        }
+        .answer-btn.correct { background: #f0fdf4; border-color: #10b981; color: #065f46; }
+        .answer-btn.incorrect { background: #fef2f2; border-color: #ef4444; color: #991b1b; }
+        .answer-btn:disabled { cursor: default; }
+
+        .card-controls { display: flex; align-items: center; justify-content: center; gap: 12px; }
+        .nav-btn {
+            background: var(--navy); color: var(--white); border: none;
+            cursor: pointer; font-family: 'Barlow Condensed', sans-serif;
+            font-size: 14px; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; padding: 10px 28px; transition: background 0.15s;
+        }
+        .nav-btn:hover:not(:disabled) { background: #252a5c; }
+        .nav-btn:disabled { opacity: 0.3; cursor: default; }
+
+        .score-badge {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px; font-weight: 700;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            color: var(--white);
+            background: var(--pink);
+            padding: 4px 12px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .score-badge-label { color: rgba(255,255,255,0.65); font-size: 10px; }
+
+        /* RESULTS SCREEN */
+        .results-screen {
+            background: var(--white);
+            border-top: 4px solid var(--navy);
+            border-left: 1px solid var(--light-grey);
+            border-right: 1px solid var(--light-grey);
+            border-bottom: 1px solid var(--light-grey);
+            padding: 40px 36px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .results-eyebrow {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--pink); margin-bottom: 10px;
+        }
+        .results-score {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 80px; font-weight: 900;
+            color: var(--navy); line-height: 1;
+            margin-bottom: 6px;
+        }
+        .results-score span { color: var(--pink); }
+        .results-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 22px; font-weight: 900;
+            text-transform: uppercase; color: var(--navy);
+            margin-bottom: 14px;
+        }
+        .results-message {
+            font-size: 14px; color: #555; line-height: 1.6;
+            max-width: 480px; margin: 0 auto 28px;
+        }
+        .results-dots {
+            display: flex; gap: 8px; justify-content: center;
+            margin-bottom: 28px; flex-wrap: wrap;
+        }
+        .results-dot {
+            width: 10px; height: 10px;
+        }
+        .results-dot.correct { background: #10b981; }
+        .results-dot.incorrect { background: #ef4444; }
+        .results-dot.unanswered { background: var(--light-grey); }
+        .results-btn-row { display: flex; gap: 10px; justify-content: center; }
+        .results-btn {
+            background: var(--navy); color: var(--white); border: none;
+            cursor: pointer; font-family: 'Barlow Condensed', sans-serif;
+            font-size: 14px; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; padding: 11px 28px;
+            transition: background 0.15s;
+        }
+        .results-btn:hover { background: #252a5c; }
+        .results-btn.outline {
+            background: var(--white); color: var(--navy);
+            border: 2px solid var(--navy);
+        }
+        .results-btn.outline:hover { background: var(--off-white); }
+
+        .quiz-section { margin-bottom: 32px; }
+        strong { font-weight: 700; }
+    </style>
+</head>
+<body>
+
+<header class="site-header">
+    <div>
+        <div class="site-header-label">Science &middot; Year 7</div>
+        <div class="site-header-title">Separating Mixtures</div>
+    </div>
+    <div class="site-header-right">Flashcard Review</div>
+</header>
+
+<!-- HOME VIEW -->
+<div id="home-view" class="view active">
+    <div class="container">
+
+        <div class="section-header" style="margin-bottom: 16px;">
+            <span class="section-eyebrow">Start Here</span>
+            <h2 class="section-title">Choose a Flashcard Deck</h2>
+        </div>
+        <div class="decks-row">
+            <button class="deck-btn" onclick="openDeck('insoluble')">
+                <div class="deck-btn-eyebrow">Deck 01</div>
+                <span class="deck-btn-title">Insoluble Substances</span>
+                <div class="deck-btn-count">7 methods &rarr; Click to begin</div>
+            </button>
+            <button class="deck-btn" onclick="openDeck('soluble')">
+                <div class="deck-btn-eyebrow">Deck 02</div>
+                <span class="deck-btn-title">Soluble Substances</span>
+                <div class="deck-btn-count">4 methods &rarr; Click to begin</div>
+            </button>
+        </div>
+
+        <div class="section-header" style="margin-bottom: 16px;">
+            <span class="section-eyebrow">Key Concepts</span>
+            <h2 class="section-title">What Are We Separating?</h2>
+        </div>
+        <div class="definitions-row">
+            <div class="def-card">
+                <div class="def-card-label">Definition</div>
+                <h3>Soluble Substance</h3>
+                <p>A substance that <strong>dissolves</strong> in a solvent (such as water) to form a solution. Once dissolved, the substance cannot be seen. Example: salt dissolved in water.</p>
+            </div>
+            <div class="def-card">
+                <div class="def-card-label">Definition</div>
+                <h3>Insoluble Substance</h3>
+                <p>A substance that does <strong>not dissolve</strong> in a solvent. It remains as a visible solid that can be seen in the liquid. Example: sand mixed with water.</p>
+            </div>
+        </div>
+
+        <!-- MULTIPLE CHOICE -->
+        <div class="quiz-section">
+            <div class="section-header">
+                <span class="section-eyebrow">Check Your Understanding</span>
+                <h2 class="section-title">Multiple Choice</h2>
+            </div>
+            <div class="question-card" id="mcq1">
+                <div class="question-text">1. Which separation method uses a magnet to remove certain materials from a mixture?</div>
+                <div class="mcq-options">
+                    <button class="mcq-option" onclick="checkMCQ('mcq1', this, false)"><span class="option-letter">A</span> Filtration</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq1', this, true)"><span class="option-letter">B</span> Magnetic separation</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq1', this, false)"><span class="option-letter">C</span> Sieving</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq1', this, false)"><span class="option-letter">D</span> Centrifuging</button>
+                </div>
+                <div class="feedback-msg" id="mcq1-fb"></div>
+            </div>
+            <div class="question-card" id="mcq2">
+                <div class="question-text">2. A student pours a mixture of sand and water through filter paper in a funnel. What is the liquid that passes through the paper called?</div>
+                <div class="mcq-options">
+                    <button class="mcq-option" onclick="checkMCQ('mcq2', this, false)"><span class="option-letter">A</span> Residue</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq2', this, false)"><span class="option-letter">B</span> Solvent</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq2', this, true)"><span class="option-letter">C</span> Filtrate</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq2', this, false)"><span class="option-letter">D</span> Solute</button>
+                </div>
+                <div class="feedback-msg" id="mcq2-fb"></div>
+            </div>
+            <div class="question-card" id="mcq3">
+                <div class="question-text">3. Which method would best separate dissolved salt from water if you wanted to collect the salt crystals?</div>
+                <div class="mcq-options">
+                    <button class="mcq-option" onclick="checkMCQ('mcq3', this, false)"><span class="option-letter">A</span> Filtration</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq3', this, false)"><span class="option-letter">B</span> Sieving</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq3', this, true)"><span class="option-letter">C</span> Evaporation</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq3', this, false)"><span class="option-letter">D</span> Magnetic separation</button>
+                </div>
+                <div class="feedback-msg" id="mcq3-fb"></div>
+            </div>
+            <div class="question-card" id="mcq4">
+                <div class="question-text">4. Distillation can separate two liquids mixed together. What property of the liquids makes this possible?</div>
+                <div class="mcq-options">
+                    <button class="mcq-option" onclick="checkMCQ('mcq4', this, false)"><span class="option-letter">A</span> Their different colours</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq4', this, true)"><span class="option-letter">B</span> Their different boiling points</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq4', this, false)"><span class="option-letter">C</span> Their different masses</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq4', this, false)"><span class="option-letter">D</span> Their different electric charges</button>
+                </div>
+                <div class="feedback-msg" id="mcq4-fb"></div>
+            </div>
+            <div class="question-card" id="mcq5">
+                <div class="question-text">5. In chromatography, what causes different substances to separate on the paper?</div>
+                <div class="mcq-options">
+                    <button class="mcq-option" onclick="checkMCQ('mcq5', this, false)"><span class="option-letter">A</span> They have different colours</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq5', this, false)"><span class="option-letter">B</span> They have different magnetic properties</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq5', this, true)"><span class="option-letter">C</span> They travel at different speeds through the paper</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq5', this, false)"><span class="option-letter">D</span> They evaporate at different rates</button>
+                </div>
+                <div class="feedback-msg" id="mcq5-fb"></div>
+            </div>
+        </div>
+
+        <!-- TRUE / FALSE -->
+        <div class="quiz-section">
+            <div class="section-header">
+                <span class="section-eyebrow">Check Your Understanding</span>
+                <h2 class="section-title">True or False</h2>
+            </div>
+            <div class="question-card" id="tf1">
+                <div class="question-text">1. Sieving can be used to separate a substance that is dissolved in water.</div>
+                <div class="tf-row">
+                    <button class="tf-btn" onclick="checkTF('tf1', this, false, 'Not quite. Sieving only separates particles of different sizes. A dissolved substance cannot be caught by a sieve because it has mixed into the liquid itself.')">True</button>
+                    <button class="tf-btn" onclick="checkTF('tf1', this, true, 'Correct! Sieving only works for particles of different sizes. A dissolved substance has mixed into the liquid and cannot be separated this way.')">False</button>
+                </div>
+                <div class="feedback-msg" id="tf1-fb"></div>
+            </div>
+            <div class="question-card" id="tf2">
+                <div class="question-text">2. Both evaporation and distillation involve heating a solution.</div>
+                <div class="tf-row">
+                    <button class="tf-btn" onclick="checkTF('tf2', this, true, 'Correct! Both methods use heat to turn the solvent into a vapour. The key difference is that distillation also cools and collects that vapour as a separate liquid.')">True</button>
+                    <button class="tf-btn" onclick="checkTF('tf2', this, false, 'Not quite. Both methods do involve heating. The key difference is that distillation also cools the vapour and collects it as a liquid.')">False</button>
+                </div>
+                <div class="feedback-msg" id="tf2-fb"></div>
+            </div>
+            <div class="question-card" id="tf3">
+                <div class="question-text">3. In filtration, the solid left behind on the filter paper is called the residue.</div>
+                <div class="tf-row">
+                    <button class="tf-btn" onclick="checkTF('tf3', this, true, 'Correct! The solid trapped on the filter paper is the residue. The liquid that passes through is called the filtrate.')">True</button>
+                    <button class="tf-btn" onclick="checkTF('tf3', this, false, 'Not quite. The solid left on the filter paper is called the residue. The liquid that passes through is the filtrate.')">False</button>
+                </div>
+                <div class="feedback-msg" id="tf3-fb"></div>
+            </div>
+            <div class="question-card" id="tf4">
+                <div class="question-text">4. Chromatography is a method used to separate insoluble substances.</div>
+                <div class="tf-row">
+                    <button class="tf-btn" onclick="checkTF('tf4', this, false, 'Not quite. Chromatography is used for soluble substances. The substances must dissolve in the solvent so they can be carried through the paper.')">True</button>
+                    <button class="tf-btn" onclick="checkTF('tf4', this, true, 'Correct! Chromatography separates dissolved (soluble) substances. The solvent carries them through the paper at different speeds, causing them to separate.')">False</button>
+                </div>
+                <div class="feedback-msg" id="tf4-fb"></div>
+            </div>
+            <div class="question-card" id="tf5">
+                <div class="question-text">5. Gravity separation works because heavier particles sink to the bottom of a liquid over time.</div>
+                <div class="tf-row">
+                    <button class="tf-btn" onclick="checkTF('tf5', this, true, 'Correct! Gravity pulls denser, heavier particles downward. The clear liquid above can then be carefully poured off in a process called decanting.')">True</button>
+                    <button class="tf-btn" onclick="checkTF('tf5', this, false, 'Not quite. Gravity does pull heavier particles to the bottom. The clear liquid above can then be removed by decanting.')">False</button>
+                </div>
+                <div class="feedback-msg" id="tf5-fb"></div>
+            </div>
+            <div class="question-card" id="tf6">
+                <div class="question-text">6. Centrifuging separates particles by spinning a mixture at high speed.</div>
+                <div class="tf-row">
+                    <button class="tf-btn" onclick="checkTF('tf6', this, true, 'Correct! A centrifuge spins the mixture rapidly. The spinning force pushes denser particles to the bottom of the tube, separating them from the liquid.')">True</button>
+                    <button class="tf-btn" onclick="checkTF('tf6', this, false, 'Not quite. Centrifuging does use high-speed spinning to push denser particles to the bottom of the tube.')">False</button>
+                </div>
+                <div class="feedback-msg" id="tf6-fb"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- DECK VIEW -->
+<div id="deck-view" class="view">
+    <div class="container">
+        <div class="deck-nav-bar">
+            <button class="back-btn" onclick="goHome()">&#8592; Home</button>
+            <div class="deck-view-title" id="deck-view-title"></div>
+            <div style="margin-left:auto; display:flex; align-items:center; gap:10px;">
+                <div class="score-badge" id="score-badge">
+                    <span class="score-badge-label">Score</span>
+                    <span id="score-display">0</span>
+                </div>
+                <div class="deck-progress" id="deck-progress"></div>
+            </div>
+        </div>
+
+        <div class="progress-dots" id="progress-dots"></div>
+        <div class="flip-hint" id="flip-hint">Select the correct definition below</div>
+
+        <div id="card-area">
+        <div class="flashcard-scene">
+            <div class="flashcard" id="flashcard">
+                <div class="card-face card-front">
+                    <div class="card-front-eyebrow" id="card-eyebrow"></div>
+                    <div class="card-front-term" id="card-term"></div>
+                    <div class="card-front-subtext">Which definition matches this method?</div>
+                </div>
+                <div class="card-face card-back">
+                    <div class="card-back-image-col">
+                        <img id="card-back-img" src="" alt="">
+                    </div>
+                    <div class="card-back-text-col">
+                        <div class="card-back-label">Definition</div>
+                        <div class="card-back-term" id="card-back-term"></div>
+                        <div class="card-back-def" id="card-def"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="answer-options" id="answer-options"></div>
+
+        <div class="card-controls">
+            <button class="nav-btn" id="prev-btn" onclick="prevCard()">&#8592; Previous</button>
+            <button class="nav-btn" id="next-btn" onclick="nextCard()">Next &#8594;</button>
+        </div>
+        </div>
+
+        <!-- RESULTS SCREEN (hidden until deck complete) -->
+        <div id="results-screen" style="display:none;">
+            <div class="results-screen">
+                <div class="results-eyebrow">Deck Complete</div>
+                <div class="results-score" id="results-score-num">0<span id="results-total">/7</span></div>
+                <div class="results-label" id="results-label"></div>
+                <div class="results-message" id="results-message"></div>
+                <div class="results-dots" id="results-dots"></div>
+                <div class="results-btn-row">
+                    <button class="results-btn outline" onclick="retryDeck()">Try Again</button>
+                    <button class="results-btn" onclick="goHome()">&#8592; Choose Another Deck</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const decks = {
+        insoluble: {
+            title: 'Insoluble Substances',
+            cards: [
+                { term: 'Magnetic Separation', image: 'https://www.minejxsc.com/wp-content/uploads/2025/01/istockphoto-1464562835-612x612-1.webp', def: 'Uses a magnet to attract magnetic materials (such as iron, nickel, and cobalt) and pull them away from non-magnetic materials in a mixture.' },
+                { term: 'Gravity Separation', image: 'https://media.istockphoto.com/id/1426296958/vector/structure-of-gravity-separation-method.jpg?s=1024x1024&w=is&k=20&c=GTuTdJ0l7TpWQ3gYkbHnGeq-D8AFBYVy3zpQpulVBWk=', def: 'Allows heavier particles to sink to the bottom of a suspension over time. The clear liquid sitting above the settled solid can then be removed.' },
+                { term: 'Decanting', image: 'https://upload.wikimedia.org/wikipedia/commons/9/9a/Dekantieren.svg', def: 'Carefully pouring a liquid away from a settled solid at the bottom of a container, so the two parts are separated without disturbing the solid.' },
+                { term: 'Sieving', image: 'https://k8schoollessons.com/wp-content/uploads/2013/02/separating-sand-and-gravel.jpg', def: 'Passes a mixture through a mesh (sieve). Smaller particles fall through the holes while larger particles are retained on top.' },
+                { term: 'Centrifuging', image: 'https://c8.alamy.com/comp/TDD17K/centrifuging-blood-samples-illustration-TDD17K.jpg', def: 'Spins a mixture at very high speed inside a tube. The spinning force pushes denser particles to the bottom of the tube, separating them from the lighter liquid above.' },
+                { term: 'Electrostatic Separation', image: 'https://media.springernature.com/lw685/springer-static/image/chp%3A10.1007%2F978-3-030-93750-8_4/MediaObjects/523023_1_En_4_Fig1_HTML.png', def: 'Gives particles an electric charge and passes them between two charged plates. Particles are attracted or repelled based on their charge, causing them to separate.' },
+                { term: 'Filtration', image: 'https://cdn1.byjus.com/wp-content/uploads/2016/01/Filtration-Process-along-with-Example-700x327.png', def: 'Pours a mixture through filter paper held in a funnel. The insoluble solid is trapped on the paper as the residue, while the liquid filtrate passes through.' }
+            ]
+        },
+        soluble: {
+            title: 'Soluble Substances',
+            cards: [
+                { term: 'Evaporation', image: 'https://www.hrs-heatexchangers.com/wp-content/uploads/2023/07/HRS-Best-Practice-fo-Evaporation-1140x600-1.jpg', def: 'Heats a solution so the solvent (such as water) turns into a gas and escapes into the air, leaving the dissolved solid behind as crystals.' },
+                { term: 'Distillation', image: 'https://www.shalom-education.com/wp-content/uploads/2023/01/Shutterstock_604669949-1.jpg', def: 'Combines evaporation and condensation. The solution is heated so the solvent becomes a vapour, which is then cooled back into a liquid in a condenser and collected separately from the dissolved solid.' },
+                { term: 'Chromatography', image: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiRIPPYPrrtOSj9eg3D4BHor-DQcplCIgjDst46qJ72cb3h0_0NLOlpmize8HGkmV6r_Y8yaOZfBD7kZOcdE5MpoipHIREmhDuahPXu4C5FaHTFS62J6jaVHy810wXg99InN1_Ti1nl9-GVSqXRbkHlAfnQwEuVSbj8bhg6NGz3NtwQBy8oYC56-d8ruk7_/w1200-h630-p-k-no-nu/Chromatography%20blog%20impages.001.jpeg', def: 'Moves a dissolved mixture through paper using a solvent. Different substances travel at different speeds through the paper, causing them to separate into distinct spots or bands.' },
+                { term: 'Absorption', image: 'https://d1ymz67w5raq8g.cloudfront.net/Pictures/1024x536/7/1/3/511713_equipmentforcarbonfiltrationexperiment_591764.jpg', def: 'Uses a material such as activated carbon to trap and remove specific dissolved chemicals from a liquid or gas. The unwanted substances stick to the surface of the absorbing material.' }
+            ]
+        }
+    };
+
+    const LETTERS = ['A', 'B', 'C', 'D'];
+    let currentDeck = null;
+    let currentIndex = 0;
+    let dotState = {};
+    let currentOptions = [];
+    let answered = false;
+    let score = 0;
+
+    function getAllCards() {
+        return [...decks.insoluble.cards, ...decks.soluble.cards];
+    }
+
+    function buildOptions(deckKey, correctIndex) {
+        const correct = decks[deckKey].cards[correctIndex];
+        const pool = getAllCards().filter(c => c.term !== correct.term);
+        const distractors = pool.sort(() => Math.random() - 0.5).slice(0, 3);
+        const options = [
+            { term: correct.term, def: correct.def, isCorrect: true },
+            ...distractors.map(c => ({ term: c.term, def: c.def, isCorrect: false }))
+        ];
+        return options.sort(() => Math.random() - 0.5);
+    }
+
+    function openDeck(deckKey) {
+        currentDeck = deckKey;
+        currentIndex = 0;
+        dotState = {};
+        score = 0;
+        document.getElementById('score-display').textContent = '0';
+        document.getElementById('home-view').classList.remove('active');
+        document.getElementById('deck-view').classList.add('active');
+        document.getElementById('deck-view-title').textContent = decks[deckKey].title;
+        document.getElementById('card-area').style.display = 'block';
+        document.getElementById('results-screen').style.display = 'none';
+        document.getElementById('flip-hint').style.display = 'block';
+        document.getElementById('progress-dots').style.display = 'flex';
+        renderCard();
+    }
+
+    function goHome() {
+        document.getElementById('deck-view').classList.remove('active');
+        document.getElementById('home-view').classList.add('active');
+    }
+
+    function renderCard() {
+        const deck = decks[currentDeck];
+        const card = deck.cards[currentIndex];
+        answered = false;
+
+        document.getElementById('flashcard').classList.remove('flipped');
+        document.getElementById('card-eyebrow').textContent = deck.title;
+        document.getElementById('card-term').textContent = card.term;
+        document.getElementById('card-back-term').textContent = card.term;
+        document.getElementById('card-def').textContent = card.def;
+        document.getElementById('card-back-img').src = card.image || '';
+        document.getElementById('card-back-img').alt = card.term;
+        document.getElementById('deck-progress').textContent = (currentIndex + 1) + ' / ' + deck.cards.length;
+        document.getElementById('prev-btn').disabled = currentIndex === 0;
+        document.getElementById('next-btn').disabled = currentIndex === deck.cards.length - 1;
+        document.getElementById('flip-hint').textContent = 'Select the correct definition below';
+
+        currentOptions = buildOptions(currentDeck, currentIndex);
+        renderOptions(false, -1);
+        renderDots();
+    }
+
+    function renderOptions(locked, selectedIdx) {
+        const container = document.getElementById('answer-options');
+        container.innerHTML = '';
+        currentOptions.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'answer-btn';
+            if (locked) {
+                btn.disabled = true;
+                if (opt.isCorrect) btn.classList.add('correct');
+                else if (i === selectedIdx && !opt.isCorrect) btn.classList.add('incorrect');
+            }
+            btn.innerHTML = '<span class="ans-letter">' + LETTERS[i] + '</span><span>' + opt.def + '</span>';
+            if (!locked) btn.onclick = () => selectAnswer(i);
+            container.appendChild(btn);
+        });
+    }
+
+    function selectAnswer(selectedIdx) {
+        if (answered) return;
+        answered = true;
+        const isCorrect = currentOptions[selectedIdx].isCorrect;
+        dotState[currentIndex] = isCorrect ? 'correct' : 'incorrect';
+        if (isCorrect) {
+            score++;
+            document.getElementById('score-display').textContent = score;
+        }
+        renderOptions(true, selectedIdx);
+        renderDots();
+
+        const deck = decks[currentDeck];
+        const isLastCard = currentIndex === deck.cards.length - 1;
+
+        setTimeout(() => {
+            document.getElementById('flashcard').classList.add('flipped');
+            document.getElementById('flip-hint').textContent = isCorrect
+                ? 'Correct! Here is the full definition.'
+                : 'Not quite. Here is the correct definition.';
+
+            if (isLastCard) {
+                setTimeout(() => showResults(), 1600);
+            }
+        }, 380);
+    }
+
+    function showResults() {
+        const deck = decks[currentDeck];
+        const total = deck.cards.length;
+
+        document.getElementById('card-area').style.display = 'none';
+        document.getElementById('flip-hint').style.display = 'none';
+        document.getElementById('progress-dots').style.display = 'none';
+        document.getElementById('results-screen').style.display = 'block';
+
+        document.getElementById('results-score-num').innerHTML = score + '<span>/' + total + '</span>';
+
+        const pct = score / total;
+        let label, message;
+        if (pct === 1) {
+            label = 'Perfect Score!';
+            message = 'Outstanding work! You matched every definition correctly on the first attempt. You clearly know your separation methods inside out.';
+        } else if (pct >= 0.7) {
+            label = 'Well Done!';
+            message = 'Great effort! You got most definitions right on the first try. Review the ones you missed and give the deck another go.';
+        } else if (pct >= 0.5) {
+            label = 'Good Start';
+            message = 'You are getting there! Try the deck again and pay close attention to the definitions you found tricky.';
+        } else {
+            label = 'Keep Practising';
+            message = 'This is a tough topic. Read back through the definitions, then have another attempt. You will improve quickly with practice!';
+        }
+
+        document.getElementById('results-label').textContent = label;
+        document.getElementById('results-message').textContent = message;
+
+        const dotsEl = document.getElementById('results-dots');
+        dotsEl.innerHTML = '';
+        deck.cards.forEach((card, i) => {
+            const dot = document.createElement('div');
+            dot.className = 'results-dot ' + (dotState[i] || 'unanswered');
+            dot.title = card.term + ': ' + (dotState[i] || 'not reached');
+            dotsEl.appendChild(dot);
+        });
+    }
+
+    function retryDeck() {
+        openDeck(currentDeck);
+    }
+
+    function renderDots() {
+        const deck = decks[currentDeck];
+        const dotsEl = document.getElementById('progress-dots');
+        dotsEl.innerHTML = '';
+        deck.cards.forEach((_, i) => {
+            const dot = document.createElement('div');
+            dot.className = 'progress-dot';
+            if (i === currentIndex) dot.classList.add('active');
+            else if (dotState[i]) dot.classList.add(dotState[i]);
+            dotsEl.appendChild(dot);
+        });
+    }
+
+    function prevCard() { if (currentIndex > 0) { currentIndex--; renderCard(); } }
+    function nextCard() { const d = decks[currentDeck]; if (currentIndex < d.cards.length - 1) { currentIndex++; renderCard(); } }
+
+    function checkMCQ(qId, btn, isCorrect) {
+        const card = document.getElementById(qId);
+        if (card.dataset.answered) return;
+        card.dataset.answered = true;
+        const buttons = card.querySelectorAll('.mcq-option');
+        buttons.forEach(b => { b.disabled = true; });
+        btn.classList.add(isCorrect ? 'correct' : 'incorrect');
+        if (!isCorrect) {
+            buttons.forEach(b => { if ((b.getAttribute('onclick') || '').includes(', true)')) b.classList.add('correct'); });
+        }
+        const fb = document.getElementById(qId + '-fb');
+        fb.textContent = isCorrect ? 'Correct!' : 'Not quite. The correct answer is highlighted above.';
+        fb.classList.add('visible');
+    }
+
+    function checkTF(qId, btn, isCorrect, message) {
+        const card = document.getElementById(qId);
+        if (card.dataset.answered) return;
+        card.dataset.answered = true;
+        card.querySelectorAll('.tf-btn').forEach(b => { b.disabled = true; });
+        btn.classList.add(isCorrect ? 'correct' : 'incorrect');
+        const fb = document.getElementById(qId + '-fb');
+        fb.textContent = message;
+        fb.classList.add('visible');
+    }
+</script>
+</body>
+</html>
