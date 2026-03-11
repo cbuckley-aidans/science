@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Precise Language Activity</title>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #1b1f45;
+            --pink: #ea008a;
+            --teal: #1a6e6e;
+            --blue: #1a4ea6;
+            --white: #ffffff;
+            --off-white: #f5f5f5;
+            --light-grey: #e8e8e8;
+            --mid-grey: #9a9a9a;
+            --correct: #16a34a;
+            --incorrect: #dc2626;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Barlow', Helvetica Neue, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 40px;
+            background: #eaeaea;
+            color: var(--navy);
+        }
+
+        .sheet-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 17px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--mid-grey);
+            margin-bottom: 6px;
+        }
+
+        .sheet-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 42px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: var(--navy);
+            letter-spacing: 0.01em;
+            margin: 0 0 8px 0;
+            padding-bottom: 14px;
+            border-bottom: 4px solid var(--navy);
+        }
+
+        .sheet-title span { color: var(--pink); }
+
+        .drag-hint {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--mid-grey);
+            margin: 10px 0 28px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .drag-hint::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--pink);
+            flex-shrink: 0;
+        }
+
+        /* ACTIVITY CARD */
+        .activity-card {
+            border-top: 4px solid var(--navy);
+            border-left: 1.5px solid var(--light-grey);
+            border-right: 1.5px solid var(--light-grey);
+            border-bottom: 1.5px solid var(--light-grey);
+            margin-bottom: 34px;
+            background: var(--white);
+        }
+
+        .activity-header {
+            background-color: var(--navy);
+            padding: 11px 24px;
+            display: flex;
+            align-items: center;
+            gap: 22px;
+            flex-wrap: wrap;
+        }
+
+        .activity-number {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--pink);
+            white-space: nowrap;
+        }
+
+        .activity-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 22px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: var(--white);
+            margin: 0;
+            letter-spacing: 0.03em;
+            line-height: 1.2;
+        }
+
+        .find-badge {
+            margin-left: auto;
+            background-color: var(--pink);
+            color: var(--white);
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 17px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 5px 16px;
+            white-space: nowrap;
+        }
+
+        /* SENTENCE ROW */
+        .sentence-row {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            align-items: stretch;
+            border-bottom: 1.5px solid var(--light-grey);
+            min-height: 100px;
+        }
+
+        .sentence-col {
+            padding: 22px 28px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px 8px;
+            font-size: 20px;
+            line-height: 1.6;
+            color: var(--navy);
+        }
+
+        .sentence-col .word {
+            white-space: nowrap;
+        }
+
+        .step-tiles-col {
+            padding: 16px 20px;
+            background-color: var(--off-white);
+            border-left: 1.5px solid var(--light-grey);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+            align-items: center;
+            align-content: center;
+            min-height: 100px;
+        }
+
+        .step-tiles-col.drag-over { background-color: #dde8ff; }
+
+        /* DROPPABLE BLANKS */
+        .eq-blank {
+            border: 3px dashed #b0b8c1;
+            background-color: #f0f3f6;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.15s, background-color 0.15s;
+            vertical-align: middle;
+            flex-shrink: 0;
+        }
+
+        .eq-blank-sm  { min-width: 140px; height: 46px; padding: 0 6px; }
+        .eq-blank-md  { min-width: 180px; height: 46px; padding: 0 6px; }
+        .eq-blank-lg  { min-width: 230px; height: 46px; padding: 0 8px; }
+
+        .eq-blank.drag-over {
+            border-color: var(--pink);
+            background-color: #fff0f8;
+            border-style: solid;
+        }
+
+        .eq-blank.correct {
+            border: 3px solid var(--correct) !important;
+            background-color: #f0fdf4 !important;
+        }
+
+        .eq-blank.incorrect {
+            border: 3px solid var(--incorrect) !important;
+            background-color: #fef2f2 !important;
+            animation: shake 0.4s ease;
+        }
+
+        .eq-blank.has-tile {
+            border-style: solid;
+            border-color: transparent;
+            background-color: transparent;
+            padding: 0;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%  { transform: translateX(-7px); }
+            40%  { transform: translateX(7px); }
+            60%  { transform: translateX(-4px); }
+            80%  { transform: translateX(4px); }
+        }
+
+        /* TILES */
+        .tile {
+            border-radius: 7px;
+            padding: 8px 14px;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 19px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: 0.02em;
+            white-space: nowrap;
+            cursor: grab;
+            user-select: none;
+            transition: opacity 0.15s, transform 0.1s, box-shadow 0.1s;
+            box-shadow: 0 2px 0 rgba(0,0,0,0.25);
+        }
+
+        .tile:hover { transform: translateY(-2px); box-shadow: 0 4px 0 rgba(0,0,0,0.2); }
+        .tile:active { cursor: grabbing; }
+        .tile.dragging { opacity: 0.35; transform: scale(0.9); box-shadow: none; }
+
+        .tile-teal { background-color: var(--teal); color: var(--white); }
+        .tile-blue { background-color: var(--blue); color: var(--white); }
+        .tile-pink { background-color: var(--pink); color: var(--white); }
+
+        .eq-blank .tile { box-shadow: none; border-radius: 4px; }
+        .eq-blank .tile:hover { transform: none; box-shadow: none; }
+
+        /* VAGUE WORD styling */
+        .vague {
+            display: inline-block;
+            font-style: italic;
+            color: var(--mid-grey);
+            text-decoration: line-through;
+            font-size: 19px;
+            margin: 0 2px;
+            white-space: nowrap;
+        }
+
+        /* CHECK ROW */
+        .check-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 24px;
+            background-color: #f0f0f0;
+            border-top: 1.5px solid var(--light-grey);
+            flex-wrap: wrap;
+        }
+
+        .check-btn {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 20px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            background-color: var(--navy);
+            color: var(--white);
+            border: none;
+            padding: 11px 26px;
+            cursor: pointer;
+            transition: background-color 0.15s;
+        }
+
+        .check-btn:hover { background-color: #2e3472; }
+        .check-btn:active { background-color: var(--pink); }
+
+        .reset-btn {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 20px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            background-color: transparent;
+            color: var(--mid-grey);
+            border: 2px solid var(--light-grey);
+            padding: 11px 26px;
+            cursor: pointer;
+            transition: border-color 0.15s, color 0.15s;
+        }
+
+        .reset-btn:hover { border-color: #aaa; color: var(--navy); }
+
+        .feedback {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .feedback-correct { color: var(--correct); }
+        .feedback-incorrect { color: var(--incorrect); }
+    </style>
+</head>
+<body>
+
+<p class="sheet-label">Science -- Scientific Writing</p>
+<h1 class="sheet-title">Practice Activity: <span>Precise Language</span></h1>
+<p class="drag-hint">Replace each vague word or phrase with the precise option from the tile bank, then press Check Answers</p>
+
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- ACTIVITY 1                                      -->
+<!-- ════════════════════════════════════════════════ -->
+<div class="activity-card" id="act1">
+    <div class="activity-header">
+        <span class="activity-number">Activity 01</span>
+        <h3 class="activity-title">Rewrite Using Precise Language</h3>
+        <span class="find-badge">Replace the vague words</span>
+    </div>
+    <div class="activity-body">
+
+        <!-- Step 1 -->
+        <div class="sentence-row">
+            <div class="sentence-col">
+                <span class="word">"</span>
+                <span class="word">A</span>
+                <span class="vague">some</span>
+                <div class="eq-blank eq-blank-lg droppable" data-activity="act1" data-correct="250 mL beaker" id="act1-b1"></div>
+                <span class="word">is</span>
+                <span class="word">filled</span>
+                <span class="word">with</span>
+                <span class="vague">some water</span>
+                <div class="eq-blank eq-blank-lg droppable" data-activity="act1" data-correct="100 mL of water" id="act1-b2"></div>
+                <span class="word">"</span>
+            </div>
+            <div class="step-tiles-col pool" id="act1-pool">
+                <span class="tile tile-teal draggable" draggable="true" data-value="250 mL beaker" data-pool-id="act1-pool">250 mL beaker</span>
+                <span class="tile tile-blue draggable" draggable="true" data-value="100 mL of water" data-pool-id="act1-pool">100 mL of water</span>
+                <span class="tile tile-pink draggable" draggable="true" data-value="large container" data-pool-id="act1-pool">large container</span>
+                <span class="tile tile-pink draggable" draggable="true" data-value="half full" data-pool-id="act1-pool">half full</span>
+            </div>
+        </div>
+
+        <div class="check-row">
+            <button class="check-btn" onclick="checkActivity('act1')">Check Answers</button>
+            <button class="reset-btn" onclick="resetActivity('act1')">Reset</button>
+            <span class="feedback" id="act1-feedback"></span>
+        </div>
+    </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- ACTIVITY 2                                      -->
+<!-- ════════════════════════════════════════════════ -->
+<div class="activity-card" id="act2">
+    <div class="activity-header">
+        <span class="activity-number">Activity 02</span>
+        <h3 class="activity-title">Rewrite Using Precise Language</h3>
+        <span class="find-badge">Replace the vague words</span>
+    </div>
+    <div class="activity-body">
+
+        <div class="sentence-row">
+            <div class="sentence-col">
+                <span class="word">"The</span>
+                <span class="word">mixture</span>
+                <span class="word">is</span>
+                <span class="word">heated</span>
+                <span class="word">until</span>
+                <span class="word">it</span>
+                <span class="vague">looks done</span>
+                <div class="eq-blank eq-blank-lg droppable" data-activity="act2" data-correct="only a small amount of liquid remains" id="act2-b1"></div>
+                <span class="word">"</span>
+            </div>
+            <div class="step-tiles-col pool" id="act2-pool">
+                <span class="tile tile-teal draggable" draggable="true" data-value="only a small amount of liquid remains" data-pool-id="act2-pool">only a small amount of liquid remains</span>
+                <span class="tile tile-pink draggable" draggable="true" data-value="it is ready" data-pool-id="act2-pool">it is ready</span>
+                <span class="tile tile-pink draggable" draggable="true" data-value="it gets hot enough" data-pool-id="act2-pool">it gets hot enough</span>
+            </div>
+        </div>
+
+        <div class="check-row">
+            <button class="check-btn" onclick="checkActivity('act2')">Check Answers</button>
+            <button class="reset-btn" onclick="resetActivity('act2')">Reset</button>
+            <span class="feedback" id="act2-feedback"></span>
+        </div>
+    </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- ACTIVITY 3                                      -->
+<!-- ════════════════════════════════════════════════ -->
+<div class="activity-card" id="act3">
+    <div class="activity-header">
+        <span class="activity-number">Activity 03</span>
+        <h3 class="activity-title">Rewrite Using Precise Language</h3>
+        <span class="find-badge">Replace the vague words</span>
+    </div>
+    <div class="activity-body">
+
+        <div class="sentence-row">
+            <div class="sentence-col">
+                <span class="word">"The</span>
+                <span class="word">filter</span>
+                <span class="word">paper</span>
+                <span class="word">is</span>
+                <span class="word">placed</span>
+                <span class="word">into</span>
+                <span class="word">a</span>
+                <span class="vague">thing</span>
+                <div class="eq-blank eq-blank-sm droppable" data-activity="act3" data-correct="funnel" id="act3-b1"></div>
+                <span class="word">"</span>
+            </div>
+            <div class="step-tiles-col pool" id="act3-pool">
+                <span class="tile tile-teal draggable" draggable="true" data-value="funnel" data-pool-id="act3-pool">funnel</span>
+                <span class="tile tile-pink draggable" draggable="true" data-value="container" data-pool-id="act3-pool">container</span>
+                <span class="tile tile-pink draggable" draggable="true" data-value="beaker" data-pool-id="act3-pool">beaker</span>
+                <span class="tile tile-pink draggable" draggable="true" data-value="tube" data-pool-id="act3-pool">tube</span>
+            </div>
+        </div>
+
+        <div class="check-row">
+            <button class="check-btn" onclick="checkActivity('act3')">Check Answers</button>
+            <button class="reset-btn" onclick="resetActivity('act3')">Reset</button>
+            <span class="feedback" id="act3-feedback"></span>
+        </div>
+    </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- ACTIVITY 4                                      -->
+<!-- ════════════════════════════════════════════════ -->
+<div class="activity-card" id="act4">
+    <div class="activity-header">
+        <span class="activity-number">Activity 04</span>
+        <h3 class="activity-title">Rewrite Using Precise Language</h3>
+        <span class="find-badge">Replace the vague words</span>
+    </div>
+    <div class="activity-body">
+
+        <div class="sentence-row">
+            <div class="sentence-col">
+                <span class="word">"The</span>
+                <span class="word">Bunsen</span>
+                <span class="word">burner</span>
+                <span class="word">is</span>
+                <span class="word">adjusted</span>
+                <span class="word">to</span>
+                <span class="word">a</span>
+                <span class="vague">nice</span>
+                <div class="eq-blank eq-blank-sm droppable" data-activity="act4" data-correct="blue" id="act4-b1"></div>
+                <span class="word">flame."</span>
+            </div>
+            <div class="step-tiles-col pool" id="act4-pool">
+                <span class="tile tile-teal draggable" draggable="true" data-value="blue" data-pool-id="act4-pool">blue</span>
+                <span class="tile tile-pink draggable" draggable="true" data-value="orange" data-pool-id="act4-pool">orange</span>
+                <span class="tile tile-pink draggable" draggable="true" data-value="strong" data-pool-id="act4-pool">strong</span>
+                <span class="tile tile-pink draggable" draggable="true" data-value="good" data-pool-id="act4-pool">good</span>
+            </div>
+        </div>
+
+        <div class="check-row">
+            <button class="check-btn" onclick="checkActivity('act4')">Check Answers</button>
+            <button class="reset-btn" onclick="resetActivity('act4')">Reset</button>
+            <span class="feedback" id="act4-feedback"></span>
+        </div>
+    </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- ACTIVITY 5                                      -->
+<!-- ════════════════════════════════════════════════ -->
+<div class="activity-card" id="act5">
+    <div class="activity-header">
+        <span class="activity-number">Activity 05</span>
+        <h3 class="activity-title">Rewrite Using Precise Language</h3>
+        <span class="find-badge">Replace the vague words</span>
+    </div>
+    <div class="activity-body">
+
+        <div class="sentence-row">
+            <div class="sentence-col">
+                <span class="word">"The</span>
+                <span class="word">dish</span>
+                <span class="word">is</span>
+                <span class="word">left</span>
+                <span class="word">for</span>
+                <span class="vague">a while</span>
+                <div class="eq-blank eq-blank-md droppable" data-activity="act5" data-correct="5 minutes" id="act5-b1"></div>
+                <span class="word">before</span>
+                <span class="word">observations</span>
+                <span class="word">are</span>
+                <span class="word">recorded."</span>
+            </div>
+            <div class="step-tiles-col pool" id="act5-pool">
+                <span class="tile tile-teal draggable" draggable="true" data-value="5 minutes" data-pool-id="act5-pool">5 minutes</span>
+                <span class="tile tile-pink draggable" draggable="true" data-value="some time" data-pool-id="act5-pool">some time</span>
+                <span class="tile tile-pink draggable" draggable="true" data-value="long enough" data-pool-id="act5-pool">long enough</span>
+                <span class="tile tile-pink draggable" draggable="true" data-value="a bit" data-pool-id="act5-pool">a bit</span>
+            </div>
+        </div>
+
+        <div class="check-row">
+            <button class="check-btn" onclick="checkActivity('act5')">Check Answers</button>
+            <button class="reset-btn" onclick="resetActivity('act5')">Reset</button>
+            <span class="feedback" id="act5-feedback"></span>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    let draggedTile = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.draggable').forEach(tile => {
+            tile.addEventListener('dragstart', onDragStart);
+            tile.addEventListener('dragend', onDragEnd);
+        });
+        document.querySelectorAll('.droppable').forEach(blank => {
+            blank.addEventListener('dragover', onDragOver);
+            blank.addEventListener('dragleave', onDragLeave);
+            blank.addEventListener('drop', onDropBlank);
+        });
+        document.querySelectorAll('.pool').forEach(pool => {
+            pool.addEventListener('dragover', onDragOver);
+            pool.addEventListener('dragleave', onDragLeave);
+            pool.addEventListener('drop', onDropPool);
+        });
+    });
+
+    function onDragStart(e) {
+        draggedTile = e.target;
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', e.target.dataset.value);
+        setTimeout(() => { if (draggedTile) draggedTile.classList.add('dragging'); }, 0);
+    }
+
+    function onDragEnd(e) {
+        e.target.classList.remove('dragging');
+        draggedTile = null;
+    }
+
+    function onDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        e.currentTarget.classList.add('drag-over');
+    }
+
+    function onDragLeave(e) {
+        e.currentTarget.classList.remove('drag-over');
+    }
+
+    function onDropBlank(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const blank = e.currentTarget;
+        blank.classList.remove('drag-over', 'correct', 'incorrect');
+        if (!draggedTile) return;
+
+        const existing = blank.querySelector('.tile');
+        if (existing) {
+            const pool = document.getElementById(existing.dataset.poolId);
+            if (pool) pool.appendChild(existing);
+        }
+
+        if (draggedTile.parentElement && draggedTile.parentElement.classList.contains('droppable')) {
+            const prev = draggedTile.parentElement;
+            prev.classList.remove('has-tile', 'correct', 'incorrect');
+        }
+
+        blank.appendChild(draggedTile);
+        blank.classList.add('has-tile');
+    }
+
+    function onDropPool(e) {
+        e.preventDefault();
+        const pool = e.currentTarget;
+        pool.classList.remove('drag-over');
+        if (!draggedTile) return;
+        if (draggedTile.dataset.poolId !== pool.id) return;
+
+        if (draggedTile.parentElement && draggedTile.parentElement.classList.contains('droppable')) {
+            const prev = draggedTile.parentElement;
+            prev.classList.remove('has-tile', 'correct', 'incorrect');
+        }
+        pool.appendChild(draggedTile);
+    }
+
+    function checkActivity(actId) {
+        const blanks = document.querySelectorAll(`.droppable[data-activity="${actId}"]`);
+        let correct = 0;
+        const total = blanks.length;
+
+        blanks.forEach(blank => {
+            const tile = blank.querySelector('.tile');
+            const current = tile ? tile.dataset.value : null;
+            const expected = blank.dataset.correct;
+
+            blank.classList.remove('correct', 'incorrect');
+            void blank.offsetWidth;
+
+            if (current === expected) {
+                blank.classList.add('correct');
+                correct++;
+            } else {
+                blank.classList.add('incorrect');
+            }
+        });
+
+        const fb = document.getElementById(`${actId}-feedback`);
+        if (correct === total) {
+            fb.textContent = 'All correct! Well done.';
+            fb.className = 'feedback feedback-correct';
+        } else {
+            fb.textContent = `${correct} of ${total} correct -- check the red boxes.`;
+            fb.className = 'feedback feedback-incorrect';
+        }
+    }
+
+    function resetActivity(actId) {
+        const card = document.getElementById(actId);
+        card.querySelectorAll('.tile').forEach(tile => {
+            const pool = document.getElementById(tile.dataset.poolId);
+            if (pool) pool.appendChild(tile);
+        });
+        card.querySelectorAll('.droppable').forEach(blank => {
+            blank.classList.remove('has-tile', 'correct', 'incorrect');
+        });
+        const fb = document.getElementById(`${actId}-feedback`);
+        fb.textContent = '';
+        fb.className = 'feedback';
+    }
+</script>
+</body>
+</html>
