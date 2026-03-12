@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spot the Flaw: Method Writing</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Barlow+Condensed:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+    --navy: #1b1f45;
+    --pink: #ea008a;
+    --white: #ffffff;
+    --off-white: #f5f4f0;
+    --light-grey: #e2e0da;
+    --mid-grey: #9a9a9a;
+    --correct: #16a34a;
+    --correct-light: #dcfce7;
+    --incorrect: #dc2626;
+    --incorrect-light: #fee2e2;
+
+    --tag-vague: #b45309;
+    --tag-vague-bg: rgba(180,83,9,0.08);
+    --tag-fp: #1d4ed8;
+    --tag-fp-bg: rgba(29,78,216,0.08);
+    --tag-order: #7c3aed;
+    --tag-order-bg: rgba(124,58,237,0.08);
+    --tag-bundle: #dc2626;
+    --tag-bundle-bg: rgba(220,38,38,0.08);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { min-height: 100%; font-family: 'Barlow', sans-serif; background: var(--off-white); color: var(--navy); overflow-x: hidden; }
+
+/* ---- LAYOUT ---- */
+.placemat { min-height: 100vh; display: flex; flex-direction: column; padding: 32px 36px 48px; }
+
+/* ---- HEADER ---- */
+.mat-header { display: flex; align-items: flex-end; justify-content: space-between; padding-bottom: 14px; border-bottom: 4px solid var(--navy); margin-bottom: 16px; gap: 20px; flex-wrap: wrap; }
+.sheet-label { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pink); margin-bottom: 2px; }
+.sheet-title { font-family: 'Barlow Condensed', sans-serif; font-size: 38px; font-weight: 900; text-transform: uppercase; color: var(--navy); letter-spacing: 0.01em; line-height: 1; }
+.score-display { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.score-label { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mid-grey); }
+.score-pips { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; max-width: 320px; }
+.pip { width: 16px; height: 16px; border-radius: 50%; border: 2.5px solid var(--light-grey); background: transparent; transition: background 0.35s, border-color 0.35s, transform 0.25s; flex-shrink: 0; }
+.pip.correct   { background: var(--correct);   border-color: var(--correct);   transform: scale(1.2); }
+.pip.incorrect { background: var(--incorrect); border-color: var(--incorrect); transform: scale(1.2); }
+.progress-text { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; color: var(--navy); min-width: 52px; text-align: right; }
+
+/* ---- LEGEND BAR ---- */
+.legend-bar { background: var(--navy); padding: 10px 20px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.legend-plain { font-family: 'Barlow', sans-serif; font-size: 14px; font-weight: 400; font-style: italic; color: rgba(255,255,255,0.6); flex-shrink: 0; }
+.legend-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.ltag { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; padding: 3px 10px 2px; border: 2px solid; }
+.ltag-vague  { color: #f59e0b; border-color: #f59e0b; }
+.ltag-fp     { color: #60a5fa; border-color: #60a5fa; }
+.ltag-order  { color: #a78bfa; border-color: #a78bfa; }
+.ltag-bundle { color: #f87171; border-color: #f87171; }
+
+/* ---- QUESTIONS GRID ---- */
+.questions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; flex: 1; }
+@media (max-width: 860px) { .questions-grid { grid-template-columns: 1fr; } }
+
+/* ---- QUESTION CARD ---- */
+.q-card { background: var(--white); border: 2px solid var(--light-grey); border-radius: 3px; overflow: hidden; display: flex; flex-direction: column; transition: border-color 0.25s; }
+.q-card.answered-correct { border-color: var(--correct); }
+.q-card.answered-incorrect { border-color: var(--incorrect); }
+
+.q-card-top { height: 5px; background: var(--light-grey); flex-shrink: 0; transition: background 0.3s; }
+.q-card.answered-correct   .q-card-top { background: var(--correct); }
+.q-card.answered-incorrect .q-card-top { background: var(--incorrect); }
+
+.q-meta { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px 8px; border-bottom: 1px solid var(--light-grey); }
+.q-num { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--pink); }
+.q-context { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid-grey); }
+
+.q-step { padding: 14px 16px; font-size: 15px; font-style: italic; line-height: 1.65; color: var(--navy); border-bottom: 1px solid var(--light-grey); background: #fafaf8; flex-shrink: 0; }
+
+.q-prompt { padding: 10px 16px 6px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid-grey); }
+
+.q-options { display: flex; flex-direction: column; gap: 0; flex: 1; }
+.q-option { display: flex; align-items: center; gap: 12px; padding: 10px 16px; cursor: pointer; border: none; background: transparent; text-align: left; border-top: 1px solid var(--light-grey); transition: background 0.15s; width: 100%; font-family: 'Barlow', sans-serif; }
+.q-option:first-child { border-top: none; }
+.q-option:hover:not(:disabled) { background: var(--off-white); }
+.q-option:disabled { cursor: default; }
+
+.opt-marker { width: 22px; height: 22px; border-radius: 50%; border: 2.5px solid var(--light-grey); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 900; color: var(--mid-grey); transition: background 0.2s, border-color 0.2s, color 0.2s; }
+.opt-text { font-size: 13px; line-height: 1.45; color: var(--navy); font-weight: 500; }
+
+/* Option states after answer */
+.q-option.state-correct   .opt-marker { background: var(--correct);   border-color: var(--correct);   color: var(--white); }
+.q-option.state-incorrect .opt-marker { background: var(--incorrect); border-color: var(--incorrect); color: var(--white); }
+.q-option.state-correct   { background: var(--correct-light); }
+.q-option.state-incorrect { background: var(--incorrect-light); }
+.q-option.state-correct   .opt-text { color: #14532d; font-weight: 700; }
+.q-option.state-incorrect .opt-text { color: #7f1d1d; }
+
+/* Feedback row */
+.q-feedback { padding: 10px 16px 12px; font-size: 13px; line-height: 1.5; display: none; }
+.q-feedback.visible { display: block; }
+.q-feedback.fb-correct { color: #14532d; background: var(--correct-light); border-top: 1px solid #bbf7d0; }
+.q-feedback.fb-incorrect { color: #7f1d1d; background: var(--incorrect-light); border-top: 1px solid #fecaca; }
+.fb-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.16em; display: block; margin-bottom: 4px; }
+.fb-label.correct-lbl { color: var(--correct); }
+.fb-label.incorrect-lbl { color: var(--incorrect); }
+
+/* ---- STATUS BAR ---- */
+.status-bar { border-top: 2px solid var(--light-grey); margin-top: 24px; padding-top: 12px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--mid-grey); flex-shrink: 0; }
+.status-dot.active { background: var(--pink); animation: pulse 1.6s ease-in-out infinite; }
+.status-dot.done   { background: var(--correct); animation: none; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+.status-text { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mid-grey); }
+.reset-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; background: var(--navy); color: var(--white); border: none; padding: 10px 28px; cursor: pointer; border-radius: 2px; transition: background 0.15s, transform 0.12s; margin-left: auto; }
+.reset-btn:hover { background: var(--pink); transform: translateY(-2px); }
+.reset-btn:disabled { background: var(--mid-grey); cursor: default; transform: none; }
+
+/* ---- END OVERLAY ---- */
+.end-overlay { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; background: rgba(27,31,69,0.7); backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity 0.35s; }
+.end-overlay.visible { opacity: 1; pointer-events: all; }
+.end-panel { background: var(--white); border-top: 8px solid var(--pink); padding: 48px 52px; max-width: 460px; width: 90%; text-align: center; box-shadow: 0 28px 70px rgba(0,0,0,0.32); transform: scale(0.9); opacity: 0; transition: transform 0.45s cubic-bezier(0.22,1,0.36,1) 0.1s, opacity 0.35s 0.1s; }
+.end-overlay.visible .end-panel { transform: scale(1); opacity: 1; }
+.end-label { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pink); margin-bottom: 8px; }
+.end-score { font-family: 'Barlow Condensed', sans-serif; font-size: 80px; font-weight: 900; color: var(--navy); line-height: 1; margin-bottom: 8px; }
+.end-denom { font-size: 36px; color: var(--mid-grey); }
+.end-message { font-size: 16px; line-height: 1.55; color: var(--navy); margin-bottom: 28px; }
+.end-restart { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; background: var(--navy); color: var(--white); border: none; padding: 14px 36px; cursor: pointer; border-radius: 2px; transition: background 0.15s, transform 0.12s; width: 100%; }
+.end-restart:hover { background: var(--pink); transform: translateY(-2px); }
+
+/* entry animation */
+.q-card { opacity: 0; transform: translateY(12px); animation: cardEntry 0.4s cubic-bezier(0.22,1,0.36,1) forwards; }
+@keyframes cardEntry { to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+<div class="placemat">
+
+    <div class="mat-header">
+        <div>
+            <p class="sheet-label">Activity 3 &mdash; Method Writing</p>
+            <h1 class="sheet-title">Spot the Flaw</h1>
+        </div>
+        <div class="score-display">
+            <span class="score-label">Score</span>
+            <div class="score-pips" id="scorePips"></div>
+            <span class="progress-text" id="progressText">0 / 0</span>
+        </div>
+    </div>
+
+    <div class="legend-bar">
+        <span class="legend-plain">The four flaws to look for:</span>
+        <div class="legend-tags">
+            <span class="ltag ltag-vague">Too Vague</span>
+            <span class="ltag ltag-fp">First Person</span>
+            <span class="ltag ltag-order">Out of Order</span>
+            <span class="ltag ltag-bundle">Bundles Actions</span>
+        </div>
+    </div>
+
+    <div class="questions-grid" id="questionsGrid"></div>
+
+    <div class="status-bar">
+        <div class="status-dot active" id="statusDot"></div>
+        <span class="status-text" id="statusText">Answer all 15 questions</span>
+        <button class="reset-btn" id="resetBtn" onclick="resetActivity()">Reset</button>
+    </div>
+</div>
+
+<!-- END OVERLAY -->
+<div class="end-overlay" id="endOverlay">
+    <div class="end-panel">
+        <p class="end-label">Activity Complete</p>
+        <div class="end-score" id="endScore"></div>
+        <p class="end-message" id="endMessage"></p>
+        <button class="end-restart" onclick="resetActivity()">Try Again</button>
+    </div>
+</div>
+
+<script>
+const QUESTIONS = [
+    {
+        // Flaw: first person only. Step is specific, single-action, correct order.
+        context: 'Chromatography',
+        step: '"I drew a pencil line exactly 2 cm from the bottom of the chromatography paper."',
+        answer: 2,
+        options: [
+            'The step is out of order -- the pencil line should be drawn after the paper is placed in the solvent.',
+            'The step is too vague -- "2 cm from the bottom" does not specify which edge to measure from.',
+            'The step is written in first person ("I drew") instead of third person.',
+            'The step bundles two actions into one sentence.',
+        ],
+        feedback: {
+            correct: '"I drew" is first person. A method describes what is done, not who does it. The corrected version is: "A pencil line is drawn 2 cm from the bottom of the chromatography paper." The measurement and single action are already correct.',
+            incorrect: 'The measurement is clear, the order is correct, and there is only one action. The only problem is "I drew" -- methods are always written in third person.'
+        }
+    },
+    {
+        // Flaw: bundles actions only. Third person, specific, correct order.
+        context: 'Rusting Investigation',
+        step: '"One iron nail is placed into each test tube and the tubes are sealed with rubber stoppers."',
+        answer: 1,
+        options: [
+            'The step is written in first person.',
+            'The step bundles two separate actions -- placing the nail and sealing the tube -- into one instruction.',
+            'The step is out of order -- the tubes should be sealed before the nails are added.',
+            'The step does not specify the size of the test tubes.',
+        ],
+        feedback: {
+            correct: 'Placing the nail and sealing the tube are two distinct physical actions. Each should have its own numbered step so the reader cannot accidentally skip one.',
+            incorrect: 'The step is correctly in third person and the order is logical. The issue is that it combines two actions -- placing and sealing -- into a single instruction. They need to be numbered separately.'
+        }
+    },
+    {
+        // Flaw: vague only ("some salt"). Third person, single action, correct order.
+        context: 'Solubility Test',
+        step: '"Some salt is added to 100 mL of water in a 250 mL beaker."',
+        answer: 0,
+        options: [
+            '"Some salt" is too vague -- the mass of salt must be stated in grams.',
+            'The step is written in first person.',
+            'The step is out of order -- the water should be added after the salt.',
+            'The step bundles two actions into one sentence.',
+        ],
+        feedback: {
+            correct: '"Some salt" gives no measurable quantity. Without a specific mass, no two students will add the same amount, making results impossible to compare. It should read: "One spatula (approximately 2 g) of table salt is added..."',
+            incorrect: 'The step is correctly in third person, in the right order, and contains one action. The single flaw is "some salt" -- a vague phrase with no mass. A specific quantity in grams is required.'
+        }
+    },
+    {
+        // Flaw: bundles actions only. Third person, specific quantities, correct order.
+        context: 'Density of Liquids',
+        step: '"A 100 mL measuring cylinder is placed on the balance, zeroed, and 50 mL of water is poured in."',
+        answer: 3,
+        options: [
+            'The step is written in first person.',
+            'The step is out of order -- the water should be poured before the balance is zeroed.',
+            'The step does not specify the capacity of the measuring cylinder.',
+            'The step bundles three actions -- placing, zeroing, and pouring -- into one instruction.',
+        ],
+        feedback: {
+            correct: 'Place, zero, and pour are three distinct actions. If the zeroing step is buried inside a longer instruction, a reader could easily skip it, which would ruin the measurement entirely. Each action needs its own number.',
+            incorrect: 'The quantities are clear, the step is in third person, and the order is correct -- you must zero before pouring. The problem is that three separate actions are combined into one step.'
+        }
+    },
+    {
+        // Flaw: vague only ("a suitable amount"). Third person, single action, correct order.
+        context: 'Paper Towel Absorbency',
+        step: '"A suitable amount of water is dropped onto the centre of the paper towel sample using a pipette."',
+        answer: 2,
+        options: [
+            'The step is written in first person.',
+            'The step is out of order -- the pipette should be prepared before the paper towel is laid out.',
+            '"A suitable amount" is too vague -- an exact volume in millilitres must be stated.',
+            'The step bundles two actions into one sentence.',
+        ],
+        feedback: {
+            correct: '"A suitable amount" is an opinion, not a measurement. Different students will interpret it differently, making the test unreproducible. The step should state an exact volume: "5 mL of water is dropped onto the centre of the paper towel sample using a pipette."',
+            incorrect: 'The step is in third person, in the right order, and contains one action. The single flaw is "a suitable amount" -- without a number in millilitres, the step cannot be reproduced consistently.'
+        }
+    },
+    {
+        // Flaw: first person only. Specific, single action, correct order.
+        context: 'Candle Combustion',
+        step: '"I placed a 1-litre glass jar upside down over the lit candle."',
+        answer: 0,
+        options: [
+            'The step is written in first person ("I placed") instead of third person.',
+            'The step is out of order -- the jar should be prepared before the candle is lit.',
+            'The step bundles two actions into one sentence.',
+            'The step does not specify how far above the candle the jar should be held.',
+        ],
+        feedback: {
+            correct: '"I placed" is first person. Rewritten in third person it becomes: "A 1-litre glass jar is placed upside down over the lit candle." The jar size and single action are already perfectly correct.',
+            incorrect: 'The jar size is clearly stated, there is one action, and the order is correct. The only problem is "I placed" -- first person language that needs to be replaced with third person.'
+        }
+    },
+    {
+        // Flaw: out of order only. Third person, specific, single action per sentence.
+        context: 'Filtration',
+        step: '"The mixture is poured slowly into the funnel. The filter paper is folded in half twice and placed inside the funnel."',
+        answer: 3,
+        options: [
+            'The step is written in first person.',
+            '"Slowly" is too vague -- a pour rate in mL per second should be specified.',
+            'The step bundles two actions -- pouring and folding the filter paper -- into one sentence.',
+            'The step is out of order -- the filter paper must be set up in the funnel before any liquid is poured.',
+        ],
+        feedback: {
+            correct: 'The filter paper must be folded and placed in the funnel before the mixture is poured. As written, a student would pour liquid into an empty funnel. The paper preparation step must come first.',
+            incorrect: 'Both sentences are in third person and each contains one clear action. The flaw is sequence: you cannot pour through filter paper that has not been set up yet. The paper preparation must come first.'
+        }
+    },
+    {
+        // Flaw: first person only. Specific, single action, correct order.
+        context: 'Stretching Investigation',
+        step: '"I attached a 100 g mass to the lower end of the elastic band."',
+        answer: 1,
+        options: [
+            'The step does not specify which end of the elastic band the mass should be attached to.',
+            'The step is written in first person ("I attached") instead of third person.',
+            'The step is out of order -- the mass should be measured before it is attached.',
+            'The step bundles two actions into one sentence.',
+        ],
+        feedback: {
+            correct: '"I attached" is first person. The corrected version is: "A 100 g mass is attached to the lower end of the elastic band." The quantity, position, and single action are already correct.',
+            incorrect: 'The mass is specified, there is one action, and the order is logical. The only flaw is "I attached" -- that is first person and must be rewritten in third person.'
+        }
+    },
+    {
+        // Flaw: vague only ("a small volume"). Third person, single action, correct order.
+        context: 'pH Testing',
+        step: '"A small volume of universal indicator solution is added to the test tube using a dropper pipette."',
+        answer: 2,
+        options: [
+            'The step is written in first person.',
+            'The step is out of order -- the indicator should be added before the solution being tested.',
+            '"A small volume" is too vague -- the number of drops must be specified.',
+            'The step bundles two actions into one sentence.',
+        ],
+        feedback: {
+            correct: '"A small volume" cannot be reproduced consistently -- one student\'s small is another\'s large. The step should state a precise count: "3 drops of universal indicator solution are added to the test tube using a dropper pipette."',
+            incorrect: 'The step is in third person, correctly ordered, and contains one action. The flaw is "a small volume" -- that is not a measurable quantity. An exact number of drops is needed.'
+        }
+    },
+    {
+        // Flaw: bundles actions only. Third person, specific, correct order.
+        context: 'Electromagnet Investigation',
+        step: '"The power supply is switched on and the number of paperclips picked up by the electromagnet is counted and recorded."',
+        answer: 0,
+        options: [
+            'The step bundles three actions -- switching on, counting, and recording -- into one instruction.',
+            'The step is written in first person.',
+            'The step is out of order -- paperclips should be counted before the power supply is switched on.',
+            'The step does not specify the voltage setting on the power supply.',
+        ],
+        feedback: {
+            correct: 'Switching on the power supply, counting the paperclips, and recording the result are three separate actions. Each needs its own numbered step so the reader knows exactly when to do each one.',
+            incorrect: 'The step is in third person and the order is correct. The flaw is that three actions -- switch on, count, record -- are compressed into one instruction. They need to be separated into individual numbered steps.'
+        }
+    },
+    {
+        // Flaw: out of order only. Third person, specific, single action.
+        context: 'Cooling Curve',
+        step: '"The liquid is heated to 80 \u00b0C using the Bunsen burner. The starting temperature is recorded using a thermometer."',
+        answer: 1,
+        options: [
+            'The step is written in first person.',
+            'The step is out of order -- the starting temperature must be recorded before heating begins.',
+            'The step bundles two actions -- heating and recording -- into one instruction.',
+            '"80 \u00b0C" is too precise -- an approximate temperature range should be stated instead.',
+        ],
+        feedback: {
+            correct: 'The starting temperature must be taken before any heating occurs. As written, the temperature is recorded after the liquid has already reached 80 \u00b0C -- which is not the starting temperature at all. That reading must come first.',
+            incorrect: 'Both sentences are in third person and each contains one action. The issue is order: you cannot record a "starting temperature" after the liquid has already been heated. That reading must come before the Bunsen burner is lit.'
+        }
+    },
+    {
+        // Flaw: vague only ("for a while"). Third person, correct order, not bundling.
+        context: 'Insulation Investigation',
+        step: '"The wrapped beaker is left on the bench for a while before the temperature is read."',
+        answer: 3,
+        options: [
+            'The step is written in first person.',
+            'The step is out of order -- the temperature should be read before the beaker is wrapped.',
+            'The step bundles two actions -- leaving the beaker and reading the temperature -- into one sentence.',
+            '"For a while" is too vague -- the exact waiting time in minutes must be stated.',
+        ],
+        feedback: {
+            correct: '"For a while" is not a measurement. Different waiting times will produce different temperature readings, making results impossible to compare. The step should specify an exact time: "...left on the bench for 5 minutes before the temperature is read."',
+            incorrect: 'The step is in third person and the order is correct. Leaving and then reading is a single timed sequence, not two bundled actions. The real flaw is "for a while" -- that needs a specific time in minutes.'
+        }
+    },
+    {
+        // Flaw: out of order only. Third person, specific, single action per sentence.
+        context: 'Acid and Carbonate',
+        step: '"Two spatulas of calcium carbonate are added to the conical flask. The conical flask is placed on the balance and the mass is recorded."',
+        answer: 2,
+        options: [
+            'The step is written in first person.',
+            'The step bundles two actions -- adding the carbonate and recording the mass -- into one instruction.',
+            'The step is out of order -- the mass must be recorded before the calcium carbonate is added.',
+            '"Two spatulas" is too vague -- the mass of calcium carbonate must be given in grams.',
+        ],
+        feedback: {
+            correct: 'To record the mass of the calcium carbonate, you must weigh the flask before adding it. Once the carbonate is already inside, you have lost the baseline measurement. The mass recording step must come first.',
+            incorrect: 'Each sentence contains one clear action and both are in third person. The flaw is sequence: the mass must be recorded before the carbonate is added, otherwise the baseline reading is lost.'
+        }
+    },
+    {
+        // Flaw: first person only. Specific, single action, correct order.
+        context: 'Seed Germination',
+        step: '"I placed five seeds on top of the damp cotton wool in the petri dish."',
+        answer: 0,
+        options: [
+            'The step is written in first person ("I placed") instead of third person.',
+            'The step is out of order -- the seeds should be placed before the cotton wool is dampened.',
+            '"Five seeds" is too vague -- the species and mass of the seeds must be stated.',
+            'The step bundles two actions into one sentence.',
+        ],
+        feedback: {
+            correct: '"I placed" is first person. The corrected version reads: "Five seeds are placed on top of the damp cotton wool in the petri dish." The quantity, position, and single action are already correct.',
+            incorrect: 'Five seeds is a clear quantity, there is one action, and placing seeds on prepared cotton wool is the correct order. The only flaw is "I placed" -- that must be written in third person.'
+        }
+    },
+    {
+        // Flaw: bundles actions only. Third person, specific, correct order.
+        context: 'Pendulum Investigation',
+        step: '"The pendulum is pulled back to 10 degrees and released, and the time for 10 complete swings is recorded using a stopwatch."',
+        answer: 1,
+        options: [
+            'The step is written in first person.',
+            'The step bundles two actions -- releasing the pendulum and recording the time -- into one instruction.',
+            'The step is out of order -- the stopwatch should be started before the pendulum is released.',
+            '"10 degrees" is too vague -- the exact displacement in centimetres must be stated.',
+        ],
+        feedback: {
+            correct: 'Releasing the pendulum and recording the time are two separate physical actions. They should each have their own numbered step -- especially since the stopwatch must be started at the exact moment of release.',
+            incorrect: 'The step is in third person and the measurements are specific. The order is also correct. The flaw is that releasing and timing are two distinct actions compressed into one instruction. They need to be split into separate numbered steps.'
+        }
+    },
+];
+
+let answered = 0;
+let score = 0;
+
+function buildPips() {
+    const el = document.getElementById('scorePips');
+    el.innerHTML = '';
+    QUESTIONS.forEach(() => {
+        const p = document.createElement('div');
+        p.className = 'pip';
+        el.appendChild(p);
+    });
+    document.getElementById('progressText').textContent = '0 / ' + QUESTIONS.length;
+}
+
+function renderQuestions() {
+    const grid = document.getElementById('questionsGrid');
+    grid.innerHTML = '';
+    QUESTIONS.forEach((q, qi) => {
+        const card = document.createElement('div');
+        card.className = 'q-card';
+        card.id = 'qcard-' + qi;
+        card.style.animationDelay = (qi * 0.04) + 's';
+
+        const labels = ['A','B','C','D'];
+        const optionsHtml = q.options.map((opt, oi) => `
+            <button class="q-option" id="opt-${qi}-${oi}" onclick="choose(${qi}, ${oi})" aria-label="Option ${labels[oi]}">
+                <span class="opt-marker">${labels[oi]}</span>
+                <span class="opt-text">${opt}</span>
+            </button>
+        `).join('');
+
+        card.innerHTML = `
+            <div class="q-card-top"></div>
+            <div class="q-meta">
+                <span class="q-num">Q${qi + 1}</span>
+                <span class="q-context">${q.context}</span>
+            </div>
+            <div class="q-step">${q.step}</div>
+            <div class="q-prompt">What is wrong with this step?</div>
+            <div class="q-options">${optionsHtml}</div>
+            <div class="q-feedback" id="fb-${qi}"></div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+function choose(qi, oi) {
+    const q = QUESTIONS[qi];
+    const card = document.getElementById('qcard-' + qi);
+    const fb   = document.getElementById('fb-' + qi);
+    const correct = oi === q.answer;
+
+    // Disable all options for this question
+    q.options.forEach((_, i) => {
+        const btn = document.getElementById('opt-' + qi + '-' + i);
+        btn.disabled = true;
+        if (i === q.answer) {
+            btn.classList.add('state-correct');
+        } else if (i === oi && !correct) {
+            btn.classList.add('state-incorrect');
+        }
+    });
+
+    // Card border
+    card.classList.add(correct ? 'answered-correct' : 'answered-incorrect');
+
+    // Pip
+    const pip = document.getElementById('scorePips').children[qi];
+    pip.classList.add(correct ? 'correct' : 'incorrect');
+
+    // Score
+    if (correct) score++;
+    answered++;
+    document.getElementById('progressText').textContent = score + ' / ' + answered;
+
+    // Feedback
+    fb.classList.add('visible');
+    if (correct) {
+        fb.classList.add('fb-correct');
+        fb.innerHTML = `<span class="fb-label correct-lbl">&#10003; Correct</span>${q.feedback.correct}`;
+    } else {
+        fb.classList.add('fb-incorrect');
+        fb.innerHTML = `<span class="fb-label incorrect-lbl">&#10007; Not quite</span>${q.feedback.incorrect}`;
+    }
+
+    // Check completion
+    if (answered === QUESTIONS.length) {
+        document.getElementById('statusDot').className = 'status-dot done';
+        document.getElementById('statusText').textContent = 'All done!';
+        setTimeout(showEnd, 600);
+    }
+}
+
+function showEnd() {
+    const total = QUESTIONS.length;
+    const pct = score / total;
+    document.getElementById('endScore').innerHTML = score + '<span class="end-denom"> / ' + total + '</span>';
+    let msg;
+    if      (pct === 1)  msg = 'Perfect score! You can identify every flaw type accurately.';
+    else if (pct >= 0.8) msg = 'Great work! Review the questions you missed to sharpen up on the trickier flaw types.';
+    else if (pct >= 0.6) msg = 'Good effort. Pay close attention to steps that bundle multiple actions -- those are the easiest to miss.';
+    else                 msg = 'Keep going! Re-read the feedback on each question to build your understanding of the four flaw types.';
+    document.getElementById('endMessage').textContent = msg;
+    document.getElementById('endOverlay').classList.add('visible');
+}
+
+function resetActivity() {
+    document.getElementById('endOverlay').classList.remove('visible');
+    answered = 0;
+    score = 0;
+    document.getElementById('statusDot').className = 'status-dot active';
+    document.getElementById('statusText').textContent = 'Answer all 15 questions';
+    buildPips();
+    renderQuestions();
+}
+
+buildPips();
+renderQuestions();
+</script>
+</body>
+</html>
