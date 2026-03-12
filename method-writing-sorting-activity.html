@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sort It Out: Method Writing</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Barlow+Condensed:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+    --navy: #1b1f45;
+    --pink: #ea008a;
+    --accept: #1a6e6e;
+    --accept-light: #e6f7f5;
+    --accept-mid: #a0ddd8;
+    --reject: #a02020;
+    --reject-light: #fdf0f0;
+    --reject-mid: #f5b8b8;
+    --white: #ffffff;
+    --off-white: #f5f4f0;
+    --light-grey: #e2e0da;
+    --mid-grey: #9a9a9a;
+    --correct: #16a34a;
+    --incorrect: #dc2626;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--off-white); color: var(--navy); overflow-x: hidden; }
+
+.placemat { min-height: 100vh; display: grid; grid-template-rows: auto auto auto 1fr auto; padding: 32px 36px 28px; gap: 0; }
+
+/* HEADER */
+.mat-header { display: flex; align-items: flex-end; justify-content: space-between; padding-bottom: 14px; border-bottom: 4px solid var(--navy); margin-bottom: 16px; gap: 20px; flex-wrap: wrap; }
+.sheet-label { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pink); margin-bottom: 2px; }
+.sheet-title { font-family: 'Barlow Condensed', sans-serif; font-size: 38px; font-weight: 900; text-transform: uppercase; color: var(--navy); letter-spacing: 0.01em; line-height: 1; }
+.score-display { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.score-label { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mid-grey); }
+.score-pips { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; max-width: 280px; }
+.pip { width: 18px; height: 18px; border-radius: 50%; border: 2.5px solid var(--light-grey); background: transparent; transition: background 0.35s, border-color 0.35s, transform 0.25s; }
+.pip.correct   { background: var(--correct);   border-color: var(--correct);   transform: scale(1.2); }
+.pip.incorrect { background: var(--incorrect); border-color: var(--incorrect); transform: scale(1.2); }
+.progress-text { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; color: var(--navy); min-width: 52px; text-align: right; }
+
+/* CHECKLIST BAR */
+.formula-bar { background: var(--navy); padding: 10px 20px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.formula-plain { font-family: 'Barlow', sans-serif; font-size: 14px; font-weight: 400; font-style: italic; color: rgba(255,255,255,0.6); }
+.formula-pill { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; background: var(--pink); color: var(--white); padding: 3px 10px 2px; }
+
+/* COLUMNS */
+.columns-area { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: stretch; }
+.sort-col { border-radius: 3px; overflow: visible; display: flex; flex-direction: column; border: 2px solid var(--light-grey); }
+.col-top { height: 6px; flex-shrink: 0; border-radius: 2px 2px 0 0; }
+.col-top.accept { background: var(--accept); }
+.col-top.reject { background: var(--reject); }
+.col-heading { padding: 14px 16px 10px; border-bottom: 1.5px solid var(--light-grey); position: relative; overflow: visible; }
+.sort-col:first-child .col-heading { background: var(--white); }
+.sort-col:last-child  .col-heading { background: var(--navy); }
+.col-title { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+.col-title.accept { color: var(--accept); }
+.col-title.reject { color: var(--white); }
+.col-desc { font-size: 13px; font-style: italic; line-height: 1.4; }
+.sort-col:first-child .col-desc { color: var(--mid-grey); }
+.sort-col:last-child  .col-desc { color: rgba(255,255,255,0.55); }
+.col-flaw-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.flaw-tag { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; padding: 3px 8px 2px; border: 1.5px solid; }
+.flaw-tag.vague       { color: #b45309; border-color: #b45309; }
+.flaw-tag.firstperson { color: #1d4ed8; border-color: #1d4ed8; }
+.flaw-tag.unordered   { color: #7c3aed; border-color: #7c3aed; }
+.flaw-tag.incomplete  { color: #dc2626; border-color: #dc2626; }
+.drop-zone { flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 10px; min-height: 140px; background: var(--white); position: relative; border-radius: 0 0 2px 2px; }
+.sort-col:last-child .drop-zone { background: #f5f4f0; }
+.drop-empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+.drop-empty-text { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #d4d0c8; }
+
+/* PLACED CARDS */
+.placed-card { border-radius: 3px; padding: 14px 38px 14px 16px; border-left: 5px solid; font-size: 15px; line-height: 1.6; position: relative; animation: slideIn 0.35s cubic-bezier(0.22,1,0.36,1); }
+.placed-card.accept { border-color: var(--accept); background: var(--accept-light); }
+.placed-card.reject { border-color: var(--reject);  background: var(--reject-light); }
+.placed-card .result-icon { position: absolute; top: 13px; right: 13px; font-size: 16px; font-weight: 800; line-height: 1; }
+.placed-card.correct   .result-icon { color: var(--correct); }
+.placed-card.incorrect .result-icon { color: var(--incorrect); }
+.placed-card .placed-id { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mid-grey); display: block; margin-bottom: 5px; }
+.placed-card .placed-text { color: var(--navy); font-style: italic; }
+@keyframes slideIn { from { opacity:0; transform:translateY(-10px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+
+/* TOOLTIP */
+.tooltip-wrap { position: relative; display: inline; }
+.tooltip-trigger { border-bottom: 2px dotted rgba(255,255,255,0.4); cursor: help; color: inherit; }
+.tooltip-box { position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%); width: 250px; background: var(--navy); border: 2px solid var(--pink); padding: 10px 13px; font-family: 'Barlow', sans-serif; font-size: 12px; font-weight: 500; font-style: normal; line-height: 1.55; color: rgba(255,255,255,0.85); pointer-events: none; opacity: 0; transition: opacity 0.18s; z-index: 10000; text-transform: none; letter-spacing: 0; }
+.tooltip-box::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 6px solid transparent; border-top-color: var(--pink); }
+.tooltip-wrap:hover .tooltip-box { opacity: 1; }
+
+/* FLYING CARD */
+.flying-card { position: fixed; z-index: 10000; pointer-events: none; border-left: 5px solid; border-radius: 3px; padding: 12px 16px; font-family: 'Barlow', sans-serif; font-size: 14px; font-style: italic; line-height: 1.5; color: var(--navy); will-change: transform; }
+.flying-card.accept { border-color: var(--accept); background: var(--accept-light); }
+.flying-card.reject { border-color: var(--reject); background: var(--reject-light); }
+@keyframes cardFly {
+    0%   { transform: translate(0,0) rotate(0deg) scale(1);
+           box-shadow: 0 20px 60px rgba(0,0,0,0.35); }
+    25%  { transform: translate(calc(var(--dx)*0.25), calc(var(--dy)*0.25 - 50px)) rotate(var(--rot)) scale(1.07);
+           box-shadow: 0 36px 80px rgba(0,0,0,0.45); }
+    65%  { transform: translate(calc(var(--dx)*0.65), calc(var(--dy)*0.65 - 18px)) rotate(calc(var(--rot)*0.35)) scale(1.03);
+           box-shadow: 0 22px 55px rgba(0,0,0,0.35); }
+    88%  { transform: translate(calc(var(--dx)*0.98), calc(var(--dy)*0.98 + 4px)) rotate(-1deg) scale(0.96);
+           box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+    100% { transform: translate(var(--dx), var(--dy)) rotate(0deg) scale(0.95);
+           box-shadow: 0 3px 10px rgba(0,0,0,0.12); }
+}
+
+/* CARD OVERLAY */
+.card-overlay { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; background: rgba(27,31,69,0.55); backdrop-filter: blur(3px); opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+.card-overlay.visible { opacity: 1; pointer-events: all; }
+.overlay-inner { display: flex; flex-direction: column; align-items: center; gap: 24px; width: 100%; max-width: 700px; padding: 24px; }
+.active-card { background: var(--white); border-top: 6px solid var(--pink); padding: 30px 36px 28px; width: 100%; box-shadow: 0 24px 60px rgba(0,0,0,0.28); transform: scale(0.88); opacity: 0; transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), opacity 0.3s; position: relative; }
+.card-overlay.visible .active-card { transform: scale(1); opacity: 1; }
+.active-card-id { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pink); margin-bottom: 6px; }
+.active-card-product { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid-grey); margin-bottom: 12px; }
+.active-card-progress { position: absolute; top: 18px; right: 24px; font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid-grey); }
+.active-card-text { font-size: 17px; font-weight: 500; font-style: italic; line-height: 1.7; color: var(--navy); white-space: pre-line; }
+.active-card-prompt { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid-grey); margin-top: 18px; }
+.active-card.flash-correct   { animation: flashCorrect  0.45s ease; }
+.active-card.flash-incorrect { animation: flashIncorrect 0.45s ease; }
+@keyframes flashCorrect   { 0%{background:var(--white)} 35%{background:#dcfce7} 100%{background:var(--white)} }
+@keyframes flashIncorrect { 0%{background:var(--white)} 35%{background:#fee2e2} 100%{background:var(--white)} }
+
+.choice-btns { display: flex; gap: 12px; width: 100%; justify-content: center; overflow: visible; }
+.choice-btn { flex: 1; max-width: 260px; padding: 24px 16px 20px; border: 3px solid transparent; border-radius: 3px; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; transition: transform 0.15s, box-shadow 0.15s, background 0.15s, border-color 0.15s; position: relative; overflow: visible; }
+.choice-btn:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.2); }
+.choice-btn:active { transform: translateY(0); }
+.choice-btn.accept { background: var(--accept-light); color: var(--accept); border-color: var(--accept-mid); }
+.choice-btn.accept:hover { background: var(--accept-mid); border-color: var(--accept); }
+.choice-btn.reject { background: var(--reject-light); color: var(--reject); border-color: var(--reject-mid); }
+.choice-btn.reject:hover { background: var(--reject-mid); border-color: var(--reject); }
+.btn-sub { display: block; font-family: 'Barlow', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.03em; text-transform: none; opacity: 0.72; margin-top: 6px; line-height: 1.35; }
+.btn-tooltip { position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%); width: 260px; background: var(--navy); border: 2px solid var(--pink); padding: 10px 13px; font-family: 'Barlow', sans-serif; font-size: 12px; font-weight: 500; line-height: 1.55; color: rgba(255,255,255,0.85); pointer-events: none; opacity: 0; transition: opacity 0.18s; z-index: 10000; text-transform: none; letter-spacing: 0; }
+.btn-tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 6px solid transparent; border-top-color: var(--pink); }
+.choice-btn:hover .btn-tooltip { opacity: 1; }
+
+/* END OVERLAY */
+.end-overlay { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; background: rgba(27,31,69,0.7); backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity 0.35s; }
+.end-overlay.visible { opacity: 1; pointer-events: all; }
+.end-panel { background: var(--white); border-top: 8px solid var(--pink); padding: 48px 52px; max-width: 480px; width: 90%; text-align: center; box-shadow: 0 28px 70px rgba(0,0,0,0.32); transform: scale(0.9); opacity: 0; transition: transform 0.45s cubic-bezier(0.22,1,0.36,1) 0.1s, opacity 0.35s 0.1s; }
+.end-overlay.visible .end-panel { transform: scale(1); opacity: 1; }
+.end-label { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pink); margin-bottom: 8px; }
+.end-score { font-family: 'Barlow Condensed', sans-serif; font-size: 80px; font-weight: 900; color: var(--navy); line-height: 1; margin-bottom: 8px; }
+.end-denom { font-size: 36px; color: var(--mid-grey); }
+.end-message { font-size: 16px; line-height: 1.55; color: var(--navy); margin-bottom: 28px; }
+.end-btns { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+.restart-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; background: var(--navy); color: var(--white); border: none; padding: 14px 36px; cursor: pointer; border-radius: 2px; transition: background 0.15s, transform 0.12s; width: 100%; }
+.restart-btn:hover { background: var(--pink); transform: translateY(-2px); }
+.practice-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; background: transparent; color: var(--mid-grey); border: 2px solid var(--light-grey); padding: 11px 28px; cursor: pointer; border-radius: 2px; transition: border-color 0.15s, color 0.15s, transform 0.12s; width: 100%; }
+.practice-btn:hover { border-color: var(--navy); color: var(--navy); transform: translateY(-2px); }
+
+/* STATUS BAR */
+.status-bar { border-top: 2px solid var(--light-grey); margin-top: 16px; padding-top: 12px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--pink); animation: pulse 1.6s ease-in-out infinite; flex-shrink: 0; }
+.status-dot.done { background: var(--correct); animation: none; }
+.status-dot.idle { background: var(--mid-grey); animation: none; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+.status-text { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mid-grey); }
+.start-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; background: var(--pink); color: var(--white); border: none; padding: 10px 28px; cursor: pointer; border-radius: 2px; transition: background 0.15s, transform 0.12s; margin-left: auto; }
+.start-btn:hover { background: #c4006e; transform: translateY(-2px); }
+.start-btn:disabled { background: var(--mid-grey); cursor: default; transform: none; }
+
+/* ============================
+   WALKTHROUGH OVERLAY
+   ============================ */
+.walkthrough-overlay { position: fixed; inset: 0; z-index: 300; display: flex; flex-direction: column; background: var(--navy); opacity: 0; pointer-events: none; transition: opacity 0.4s; overflow-y: auto; }
+.walkthrough-overlay.visible { opacity: 1; pointer-events: all; }
+
+.wt-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 36px; border-bottom: 3px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+.wt-label { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pink); }
+.wt-title { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 900; text-transform: uppercase; color: var(--white); letter-spacing: 0.04em; margin-top: 2px; }
+.wt-close { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; background: transparent; color: rgba(255,255,255,0.5); border: 2px solid rgba(255,255,255,0.2); padding: 8px 18px; cursor: pointer; border-radius: 2px; transition: color 0.15s, border-color 0.15s; }
+.wt-close:hover { color: var(--white); border-color: rgba(255,255,255,0.6); }
+
+.wt-progress-bar { height: 4px; background: rgba(255,255,255,0.1); flex-shrink: 0; }
+.wt-progress-fill { height: 100%; background: var(--pink); transition: width 0.5s cubic-bezier(0.22,1,0.36,1); }
+
+.wt-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 36px; max-width: 820px; margin: 0 auto; width: 100%; }
+
+.wt-step { display: none; flex-direction: column; gap: 24px; width: 100%; animation: stepIn 0.45s cubic-bezier(0.22,1,0.36,1); }
+.wt-step.active { display: flex; }
+@keyframes stepIn { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
+
+.wt-step-label { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--pink); }
+.wt-step-heading { font-family: 'Barlow Condensed', sans-serif; font-size: 34px; font-weight: 900; text-transform: uppercase; color: var(--white); line-height: 1.05; letter-spacing: 0.02em; }
+.wt-step-body { font-size: 16px; line-height: 1.65; color: rgba(255,255,255,0.75); max-width: 640px; }
+.wt-step-body strong { color: var(--white); font-weight: 700; }
+
+/* Intent box */
+.intent-box { background: rgba(255,255,255,0.06); border-left: 5px solid rgba(255,255,255,0.3); padding: 18px 22px; }
+.intent-box-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 8px; }
+.intent-box-text { font-size: 17px; font-weight: 500; line-height: 1.6; color: rgba(255,255,255,0.9); font-style: italic; white-space: pre-line; }
+
+/* Flawed step box */
+.story-box { background: var(--white); padding: 20px 24px; }
+.story-box-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--mid-grey); margin-bottom: 10px; }
+.story-box-text { font-size: 16px; font-style: italic; line-height: 1.7; color: var(--navy); white-space: pre-line; }
+.error-tag { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; background: var(--pink); color: var(--white); padding: 4px 10px 3px; margin-top: 14px; margin-right: 6px; }
+
+/* checklist grid */
+.four-q-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.four-q-card { padding: 14px 16px; border-top: 4px solid; }
+.four-q-card.thirdperson { background: rgba(251,191,36,0.08);  border-color: #f59e0b; }
+.four-q-card.specific    { background: rgba(96,165,250,0.08);  border-color: #60a5fa; }
+.four-q-card.numbered    { background: rgba(167,139,250,0.08); border-color: #a78bfa; }
+.four-q-card.clear       { background: rgba(52,211,153,0.08);  border-color: #34d399; }
+.four-q-label { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 5px; }
+.thirdperson .four-q-label { color: #f59e0b; }
+.specific    .four-q-label { color: #60a5fa; }
+.numbered    .four-q-label { color: #a78bfa; }
+.clear       .four-q-label { color: #34d399; }
+.four-q-question { font-size: 13px; color: rgba(255,255,255,0.7); line-height: 1.5; margin-bottom: 6px; }
+.four-q-verdict { font-size: 13px; font-weight: 700; }
+.verdict-fail { color: #fca5a5; }
+.verdict-pass { color: #86efac; }
+
+/* Build steps */
+.build-steps { display: flex; flex-direction: column; gap: 10px; }
+.build-step-row { display: flex; align-items: flex-start; gap: 14px; padding: 14px 18px; background: rgba(255,255,255,0.05); }
+.build-step-pill { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.12em; padding: 4px 10px 3px; flex-shrink: 0; margin-top: 1px; }
+.pill-thirdperson { background: #f59e0b; color: var(--navy); }
+.pill-specific    { background: #60a5fa; color: var(--navy); }
+.pill-numbered    { background: #a78bfa; color: var(--navy); }
+.pill-clear       { background: #34d399; color: var(--navy); }
+.pill-fix         { background: var(--pink); color: var(--white); }
+.build-step-q { font-size: 13px; color: rgba(255,255,255,0.5); font-style: italic; margin-bottom: 4px; }
+.build-step-a { font-size: 15px; color: var(--white); font-weight: 600; }
+
+/* Final criterion */
+.final-story-box { background: var(--white); padding: 28px 32px; border-top: 6px solid var(--accept); }
+.final-story-label { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accept); margin-bottom: 12px; }
+.final-story-text { font-size: 17px; font-style: italic; line-height: 1.75; color: var(--navy); white-space: pre-line; }
+.final-note { font-size: 14px; color: rgba(255,255,255,0.6); font-style: italic; line-height: 1.5; }
+
+/* Comparison row */
+.compare-row { display: flex; flex-direction: column; gap: 10px; }
+
+/* Nav */
+.wt-nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 36px; border-top: 3px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+.wt-step-counter { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+.wt-nav-btns { display: flex; gap: 10px; }
+.wt-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; border: none; padding: 12px 28px; cursor: pointer; border-radius: 2px; transition: background 0.15s, transform 0.12s; }
+.wt-btn-prev { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); }
+.wt-btn-prev:hover { background: rgba(255,255,255,0.18); color: var(--white); }
+.wt-btn-next { background: var(--pink); color: var(--white); }
+.wt-btn-next:hover { background: #c4006e; transform: translateY(-2px); }
+.wt-btn:disabled { opacity: 0.3; cursor: default; transform: none !important; }
+</style>
+</head>
+<body>
+
+<div class="placemat">
+    <div class="mat-header">
+        <div>
+            <p class="sheet-label">Activity 2 &mdash; Method Writing</p>
+            <h1 class="sheet-title">Sort It Out</h1>
+        </div>
+        <div class="score-display">
+            <span class="score-label">Score</span>
+            <div class="score-pips" id="scorePips"></div>
+            <span class="progress-text" id="progressText">0 / 12</span>
+        </div>
+    </div>
+
+    <div class="formula-bar">
+        <span class="formula-plain">A good method step is:</span>
+        <span class="formula-pill">Third Person</span>
+        <span class="formula-pill">Specific</span>
+        <span class="formula-pill">Numbered &amp; Ordered</span>
+        <span class="formula-pill">One Clear Action</span>
+    </div>
+
+    <div class="columns-area">
+        <div class="sort-col">
+            <div class="col-top accept"></div>
+            <div class="col-heading">
+                <p class="col-title accept">Strong</p>
+                <p class="col-desc">Passes all four checks. Written in third person, includes specific quantities, has one clear action, and belongs in the right order.</p>
+            </div>
+            <div class="drop-zone" id="zone-accept">
+                <div class="drop-empty"><span class="drop-empty-text">Cards will appear here</span></div>
+            </div>
+        </div>
+        <div class="sort-col">
+            <div class="col-top reject"></div>
+            <div class="col-heading">
+                <p class="col-title reject">Weak</p>
+                <p class="col-desc">Fails one or more checks. Could be
+                    <span class="tooltip-wrap"><span class="tooltip-trigger" style="border-bottom-color:rgba(180,83,9,0.7);color:rgba(255,255,255,0.8);">too vague</span><span class="tooltip-box">No quantities or equipment sizes named. &ldquo;Some water&rdquo; or &ldquo;heat it up&rdquo; tells the reader nothing they could act on precisely.</span></span>,
+                    <span class="tooltip-wrap"><span class="tooltip-trigger" style="border-bottom-color:rgba(29,78,216,0.7);color:rgba(255,255,255,0.8);">written in first person</span><span class="tooltip-box">Methods use third person so the focus stays on what is done, not who is doing it. &ldquo;I added&rdquo; should be &ldquo;is added&rdquo; or &ldquo;was added&rdquo;.</span></span>,
+                    <span class="tooltip-wrap"><span class="tooltip-trigger" style="border-bottom-color:rgba(124,58,237,0.7);color:rgba(255,255,255,0.8);">out of order or unnumbered</span><span class="tooltip-box">Steps must be numbered and in the correct sequence. A step that should happen third cannot appear first without making the method impossible to follow.</span></span>, or
+                    <span class="tooltip-wrap"><span class="tooltip-trigger" style="border-bottom-color:rgba(220,38,38,0.7);color:rgba(255,255,255,0.8);">bundling multiple actions</span><span class="tooltip-box">Each step should contain one action only. Combining actions like &ldquo;measure, pour, and stir&rdquo; into a single step makes it easy to skip something or lose your place.</span></span>.</p>
+                <div class="col-flaw-tags">
+                    <span class="flaw-tag vague">Too Vague</span>
+                    <span class="flaw-tag firstperson">First Person</span>
+                    <span class="flaw-tag unordered">Out of Order</span>
+                    <span class="flaw-tag incomplete">Bundles Actions</span>
+                </div>
+            </div>
+            <div class="drop-zone" id="zone-reject">
+                <div class="drop-empty"><span class="drop-empty-text">Cards will appear here</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-dot idle" id="statusDot"></div>
+        <span class="status-text" id="statusText">Press Start to begin</span>
+        <button class="start-btn" id="startBtn" onclick="startActivity()">Start Activity</button>
+    </div>
+</div>
+
+<!-- ACTIVE CARD OVERLAY -->
+<div class="card-overlay" id="cardOverlay">
+    <div class="overlay-inner">
+        <div class="active-card" id="activeCard">
+            <div class="active-card-id" id="activeCardId">Card A</div>
+            <div class="active-card-progress" id="activeCardProgress">1 of 12</div>
+            <div class="active-card-product" id="activeCardProduct"></div>
+            <p class="active-card-text" id="activeCardText"></p>
+            <p class="active-card-prompt">Is this a strong or weak method step?</p>
+        </div>
+        <div class="choice-btns">
+            <button class="choice-btn accept" onclick="choose('accept')">
+                Strong
+                <span class="btn-sub">Third person, specific, numbered, one clear action</span>
+                <span class="btn-tooltip">Accept if the step names exact quantities and equipment, uses third person, and contains a single clear action that any reader could follow.</span>
+            </button>
+            <button class="choice-btn reject" onclick="choose('reject')">
+                Weak
+                <span class="btn-sub">Vague, first person, out of order, or bundles actions</span>
+                <span class="btn-tooltip">Reject if the step uses words like &ldquo;some&rdquo; or &ldquo;a bit&rdquo;, says &ldquo;I&rdquo; or &ldquo;we&rdquo;, bundles multiple actions together, or would come at the wrong point in the sequence.</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- END OVERLAY -->
+<div class="end-overlay" id="endOverlay">
+    <div class="end-panel">
+        <p class="end-label">Activity Complete</p>
+        <div class="end-score" id="endScore"></div>
+        <p class="end-message" id="endMessage"></p>
+        <div class="end-btns">
+            <button class="restart-btn" onclick="restartActivity()">Try Again</button>
+            <button class="practice-btn" onclick="openWalkthrough()">Need more practice? See the walkthrough &rarr;</button>
+        </div>
+    </div>
+</div>
+
+<!-- WALKTHROUGH OVERLAY -->
+<div class="walkthrough-overlay" id="walkthroughOverlay">
+    <div class="wt-header">
+        <div>
+            <p class="wt-label">Fix It &mdash; Walkthrough</p>
+            <p class="wt-title">Task: Separating Sugar from Sand</p>
+        </div>
+        <button class="wt-close" onclick="closeWalkthrough()">Close &times;</button>
+    </div>
+    <div class="wt-progress-bar">
+        <div class="wt-progress-fill" id="wtProgressFill" style="width:14.28%"></div>
+    </div>
+
+    <div class="wt-body">
+
+        <!-- STEP 1 -->
+        <div class="wt-step active" id="step-1">
+            <p class="wt-step-label">Step 1 of 7</p>
+            <h2 class="wt-step-heading">Start with the experiment</h2>
+            <p class="wt-step-body">Before writing a method, you need to understand what you are trying to do. The experiment sets out the goal and the key techniques you will use.</p>
+            <div class="intent-box">
+                <p class="intent-box-label">Experiment</p>
+                <p class="intent-box-text">"Separate a mixture of sugar and sand using water and filtration, then recover the sugar by evaporating the water."</p>
+            </div>
+            <p class="wt-step-body">This tells us we need steps for <strong>dissolving</strong>, <strong>filtering</strong>, and <strong>evaporating</strong> -- and that each step must be specific enough that any reader could carry it out independently.</p>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="wt-step" id="step-2">
+            <p class="wt-step-label">Step 2 of 7</p>
+            <h2 class="wt-step-heading">Read the weak method</h2>
+            <p class="wt-step-body">Now look at what was written. Can you spot the problems that would make this impossible to follow reliably?</p>
+            <div class="story-box">
+                <p class="story-box-label">Weak Method</p>
+                <p class="story-box-text">"We got some stuff and mixed it with water. Then we filtered it. After that we heated it up and got the sugar back."</p>
+                <div>
+                    <span class="error-tag">First Person</span>
+                    <span class="error-tag">Too Vague</span>
+                    <span class="error-tag">Bundles Actions</span>
+                </div>
+            </div>
+            <p class="wt-step-body">"We got some stuff" tells a reader nothing about what equipment to use or how much of anything to measure. "Then we filtered it" skips the setup entirely. <strong>A good method must be reproducible by someone who has never done the experiment.</strong></p>
+        </div>
+
+        <!-- STEP 3 -->
+        <div class="wt-step" id="step-3">
+            <p class="wt-step-label">Step 3 of 7</p>
+            <h2 class="wt-step-heading">Apply the four-point checklist</h2>
+            <p class="wt-step-body">Run the weak method through each check to see exactly where it breaks down.</p>
+            <div class="four-q-grid">
+                <div class="four-q-card thirdperson">
+                    <p class="four-q-label">Third Person?</p>
+                    <p class="four-q-question">Is "I" or "we" avoided throughout?</p>
+                    <p class="four-q-verdict verdict-fail">&#10007; No. "We got", "we filtered", "we heated" are all first person.</p>
+                </div>
+                <div class="four-q-card specific">
+                    <p class="four-q-label">Specific?</p>
+                    <p class="four-q-question">Are quantities, sizes, and equipment named?</p>
+                    <p class="four-q-verdict verdict-fail">&#10007; No. "Some stuff", "water", and "heated it up" contain no measurements.</p>
+                </div>
+                <div class="four-q-card numbered">
+                    <p class="four-q-label">Numbered &amp; Ordered?</p>
+                    <p class="four-q-question">Are steps numbered and in the correct sequence?</p>
+                    <p class="four-q-verdict verdict-fail">&#10007; No. There are no numbers and the sequence is collapsed into vague phrases.</p>
+                </div>
+                <div class="four-q-card clear">
+                    <p class="four-q-label">One Clear Action?</p>
+                    <p class="four-q-question">Does each step contain a single action?</p>
+                    <p class="four-q-verdict verdict-fail">&#10007; No. Multiple actions are bundled into each sentence.</p>
+                </div>
+            </div>
+            <p class="wt-step-body">All four checks fail. We need to rewrite the method so it passes every one.</p>
+        </div>
+
+        <!-- STEP 4 -->
+        <div class="wt-step" id="step-4">
+            <p class="wt-step-label">Step 4 of 7</p>
+            <h2 class="wt-step-heading">Fix the dissolving steps</h2>
+            <p class="wt-step-body">"Got some stuff and mixed it with water" needs to become two separate, specific, numbered steps written in third person.</p>
+            <div class="build-steps">
+                <div class="build-step-row">
+                    <span class="build-step-pill pill-specific">Specific</span>
+                    <div>
+                        <p class="build-step-q">What equipment and quantities are needed?</p>
+                        <p class="build-step-a">A 250 mL beaker half-filled with 100 mL of water.</p>
+                    </div>
+                </div>
+                <div class="build-step-row">
+                    <span class="build-step-pill pill-fix">Fix</span>
+                    <div>
+                        <p class="build-step-q">Rewrite as two third-person steps, one action each</p>
+                        <p class="build-step-a">1. A 250 mL beaker is half-filled with 100 mL of water.<br>2. One teaspoon of the sugar and sand mixture is added and stirred with a glass rod for 30 seconds until the sugar dissolves.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 5 -->
+        <div class="wt-step" id="step-5">
+            <p class="wt-step-label">Step 5 of 7</p>
+            <h2 class="wt-step-heading">Fix the filtering steps</h2>
+            <p class="wt-step-body">"Then we filtered it" skips critical setup. The reader needs to know exactly how to prepare the filter before any liquid is poured.</p>
+            <div class="build-steps">
+                <div class="build-step-row">
+                    <span class="build-step-pill pill-numbered">Ordered</span>
+                    <div>
+                        <p class="build-step-q">What has to be set up before filtering can begin?</p>
+                        <p class="build-step-a">Filter paper must be folded and placed in a funnel, which is positioned over a clean conical flask.</p>
+                    </div>
+                </div>
+                <div class="build-step-row">
+                    <span class="build-step-pill pill-fix">Fix</span>
+                    <div>
+                        <p class="build-step-q">Rewrite as two ordered third-person steps</p>
+                        <p class="build-step-a">3. A piece of filter paper is folded and placed into a funnel positioned over a clean 250 mL conical flask.<br>4. The mixture is slowly poured through the filter paper.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 6 -->
+        <div class="wt-step" id="step-6">
+            <p class="wt-step-label">Step 6 of 7</p>
+            <h2 class="wt-step-heading">Fix the evaporation steps</h2>
+            <p class="wt-step-body">"Heated it up" needs to be broken into specific steps that describe the equipment, the setup, and the safe shutdown in sequence.</p>
+            <div class="build-steps">
+                <div class="build-step-row">
+                    <span class="build-step-pill pill-clear">One Action</span>
+                    <div>
+                        <p class="build-step-q">What are the individual actions in this stage?</p>
+                        <p class="build-step-a">Transfer filtrate to evaporating dish, set up on gauze mat and tripod, light Bunsen burner, heat until water evaporates, turn off and allow to cool.</p>
+                    </div>
+                </div>
+                <div class="build-step-row">
+                    <span class="build-step-pill pill-fix">Fix</span>
+                    <div>
+                        <p class="build-step-q">Rewrite as separate numbered steps</p>
+                        <p class="build-step-a">5. The filtrate is poured into an evaporating dish placed on a gauze mat on a tripod.<br>6. The Bunsen burner is lit and adjusted to a blue flame. The solution is heated until most of the water has evaporated.<br>7. The Bunsen burner is turned off and the evaporating dish is allowed to cool.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 7 -->
+        <div class="wt-step" id="step-7">
+            <p class="wt-step-label">Step 7 of 7</p>
+            <h2 class="wt-step-heading">The improved method</h2>
+            <p class="wt-step-body">Compare the two. The improved method is numbered, specific, written in third person, and contains one action per step. Anyone could pick it up and repeat the experiment exactly.</p>
+            <div class="compare-row">
+                <div class="story-box" style="opacity:0.5;">
+                    <p class="story-box-label">Original (Weak)</p>
+                    <p class="story-box-text" style="font-size:14px;">"We got some stuff and mixed it with water. Then we filtered it. After that we heated it up and got the sugar back."</p>
+                </div>
+                <div class="final-story-box">
+                    <p class="final-story-label">&#10003;&nbsp; Improved Method</p>
+                    <p class="final-story-text">1. A 250 mL beaker is half-filled with 100 mL of water.
+2. One teaspoon of the sugar and sand mixture is added and stirred with a glass rod for 30 seconds until the sugar dissolves.
+3. A piece of filter paper is folded and placed into a funnel positioned over a clean 250 mL conical flask.
+4. The mixture is slowly poured through the filter paper.
+5. The filtrate is poured into an evaporating dish placed on a gauze mat on a tripod.
+6. The Bunsen burner is lit and adjusted to a blue flame. The solution is heated until most of the water has evaporated.
+7. The Bunsen burner is turned off and the evaporating dish is allowed to cool. Sugar crystals remain in the dish.</p>
+                </div>
+            </div>
+            <p class="final-note">Notice how every step has a number, a piece of named equipment, and one action. There is no "I" or "we", no vague words like "some" or "a bit", and no step that tries to do two things at once.</p>
+        </div>
+
+    </div>
+
+    <div class="wt-nav">
+        <span class="wt-step-counter" id="wtStepCounter">Step 1 of 7</span>
+        <div class="wt-nav-btns">
+            <button class="wt-btn wt-btn-prev" id="wtPrevBtn" onclick="wtPrev()" disabled>&#8592; Back</button>
+            <button class="wt-btn wt-btn-next" id="wtNextBtn" onclick="wtNext()">Next &#8594;</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Each card shows a single method step (or a short excerpt labelled as such).
+// Context label = experiment name. Text = the step as written.
+const CARDS = [
+    // STRONG steps
+    { id:'Card A', product:'Chromatography',
+      answer:'accept',
+      text:'"A pencil line is drawn 2 cm from the bottom of the chromatography paper."' },
+    { id:'Card B', product:'Density of Liquids',
+      answer:'accept',
+      text:'"A 100 mL measuring cylinder is placed on a balance and zeroed. 50 mL of water is poured in and the mass is recorded."' },
+    { id:'Card C', product:'Rusting Investigation',
+      answer:'accept',
+      text:'"Three iron nails are placed into separate test tubes. Tube 1 is left open to air, tube 2 is sealed with a rubber stopper, and tube 3 is filled with boiled water and sealed."' },
+    { id:'Card D', product:'Paper Towel Absorbency',
+      answer:'accept',
+      text:'"Each paper towel sample is placed flat on a tray and 5 mL of water is added using a syringe. The liquid absorbed after 30 seconds is measured."' },
+    { id:'Card E', product:'Candle Combustion',
+      answer:'accept',
+      text:'"A glass jar is inverted over the burning candle. The time from covering to flame extinction is recorded using a stopwatch."' },
+    { id:'Card F', product:'Solubility Test',
+      answer:'accept',
+      text:'"One spatula of salt is added to 50 mL of water in a beaker and stirred for 20 seconds. The process is repeated, adding one spatula at a time, until no more dissolves."' },
+    // WEAK steps
+    { id:'Card G', product:'Chromatography',
+      answer:'reject',
+      text:'"I drew a line near the bottom of the paper and put some ink dots on it."' },
+    { id:'Card H', product:'Density of Liquids',
+      answer:'reject',
+      text:'"We poured some water into the cylinder and weighed it, then added oil on top and did the same thing, then recorded everything."' },
+    { id:'Card I', product:'Rusting Investigation',
+      answer:'reject',
+      text:'"Put nails in tubes with different conditions so you can compare them later."' },
+    { id:'Card J', product:'Paper Towel Absorbency',
+      answer:'reject',
+      text:'"The paper towel is cut to size, placed on the tray, and then a bit of water is added and timed and the wet area is measured all at once."' },
+    { id:'Card K', product:'Candle Combustion',
+      answer:'reject',
+      text:'"The jar is put over the candle. Before this, the candle is lit and placed on the heat-proof mat and the stopwatch is started."' },
+    { id:'Card L', product:'Solubility Test',
+      answer:'reject',
+      text:'"Keep adding salt until it stops dissolving. Record how much you used."' },
+];
+
+let queue = [], currentIndex = 0, score = 0, answered = 0, busy = false;
+
+const overlay        = document.getElementById('cardOverlay');
+const activeCard     = document.getElementById('activeCard');
+const activeId       = document.getElementById('activeCardId');
+const activeProduct  = document.getElementById('activeCardProduct');
+const activeProgress = document.getElementById('activeCardProgress');
+const activeText     = document.getElementById('activeCardText');
+const endOverlay     = document.getElementById('endOverlay');
+const endScore       = document.getElementById('endScore');
+const endMsg         = document.getElementById('endMessage');
+const pipsEl         = document.getElementById('scorePips');
+const progressEl     = document.getElementById('progressText');
+const statusDot      = document.getElementById('statusDot');
+const statusText     = document.getElementById('statusText');
+const startBtn       = document.getElementById('startBtn');
+
+function buildPips() {
+    pipsEl.innerHTML = '';
+    CARDS.forEach(() => {
+        const p = document.createElement('div');
+        p.className = 'pip';
+        pipsEl.appendChild(p);
+    });
+}
+
+function startActivity() {
+    queue = [...CARDS].sort(() => Math.random() - 0.5);
+    currentIndex = 0; score = 0; answered = 0; busy = false;
+    buildPips();
+    updateProgress();
+    startBtn.disabled = true;
+    statusDot.className = 'status-dot';
+    statusText.textContent = 'Read the step, then apply the four-point checklist';
+    ['accept','reject'].forEach(cat => {
+        const z = document.getElementById('zone-' + cat);
+        z.querySelectorAll('.placed-card').forEach(c => c.remove());
+        z.querySelector('.drop-empty').style.display = '';
+    });
+    showCard();
+}
+
+function showCard() {
+    const card = queue[currentIndex];
+    activeId.textContent = card.id;
+    activeProduct.textContent = card.product;
+    activeProgress.textContent = (currentIndex + 1) + ' of ' + queue.length;
+    activeText.textContent = card.text;
+    activeCard.classList.remove('flash-correct','flash-incorrect');
+    overlay.classList.add('visible');
+}
+
+function choose(category) {
+    if (busy) return;
+    busy = true;
+    const card = queue[currentIndex];
+    const correct = card.answer === category;
+
+    const pip = pipsEl.children[currentIndex];
+    pip.classList.add(correct ? 'correct' : 'incorrect');
+    if (correct) score++;
+    answered++;
+    updateProgress();
+
+    const srcRect = activeCard.getBoundingClientRect();
+
+    void activeCard.offsetWidth;
+    activeCard.classList.add(correct ? 'flash-correct' : 'flash-incorrect');
+
+    setTimeout(() => {
+        overlay.classList.remove('visible');
+
+        const zone = document.getElementById('zone-' + category);
+        const zoneRect = zone.getBoundingClientRect();
+
+        const dx = (zoneRect.left + 12) - srcRect.left;
+        const dy = (zoneRect.top + 10) - srcRect.top;
+        const rot = dx > 0 ? '9deg' : '-9deg';
+
+        const flyer = document.createElement('div');
+        flyer.className = 'flying-card ' + category;
+        flyer.style.left   = srcRect.left + 'px';
+        flyer.style.top    = srcRect.top + 'px';
+        flyer.style.width  = srcRect.width + 'px';
+        flyer.style.setProperty('--dx', dx + 'px');
+        flyer.style.setProperty('--dy', dy + 'px');
+        flyer.style.setProperty('--rot', rot);
+        document.body.appendChild(flyer);
+
+        requestAnimationFrame(() => {
+            flyer.style.animation = 'cardFly 0.62s cubic-bezier(0.22,1,0.36,1) forwards';
+        });
+
+        setTimeout(() => {
+            document.body.removeChild(flyer);
+            placeCard(card, category, correct);
+
+            setTimeout(() => {
+                currentIndex++;
+                busy = false;
+                if (currentIndex < queue.length) {
+                    showCard();
+                } else {
+                    statusDot.className = 'status-dot done';
+                    statusText.textContent = 'All done!';
+                    setTimeout(showEnd, 450);
+                }
+            }, 900);
+        }, 650);
+    }, 300);
+}
+
+function placeCard(card, category, correct) {
+    const zone = document.getElementById('zone-' + category);
+    zone.querySelector('.drop-empty').style.display = 'none';
+    const el = document.createElement('div');
+    el.className = 'placed-card ' + category + (correct ? ' correct' : ' incorrect');
+    el.innerHTML = `<span class="placed-id">${card.id} &mdash; ${card.product}</span><span class="result-icon">${correct ? '&#10003;' : '&#10007;'}</span><span class="placed-text">${card.text}</span>`;
+    zone.appendChild(el);
+}
+
+function updateProgress() {
+    progressEl.textContent = score + ' / ' + answered;
+}
+
+function showEnd() {
+    const total = queue.length;
+    endScore.innerHTML = score + '<span class="end-denom"> / ' + total + '</span>';
+    const pct = score / total;
+    if      (pct === 1)  endMsg.textContent = 'Perfect score! You have a sharp eye for the difference between a strong and weak method step.';
+    else if (pct >= 0.8) endMsg.textContent = 'Great work! Review the incorrect cards to see which checks you missed.';
+    else if (pct >= 0.6) endMsg.textContent = 'Good effort. Watch out for first-person language and steps that bundle multiple actions together -- those are the trickiest to catch.';
+    else                 endMsg.textContent = 'Keep going! Try the walkthrough below to see how the four-point checklist is applied step by step.';
+    endOverlay.classList.add('visible');
+}
+
+function restartActivity() {
+    endOverlay.classList.remove('visible');
+    startBtn.disabled = false;
+    statusDot.className = 'status-dot idle';
+    statusText.textContent = 'Press Start to begin again';
+    progressEl.textContent = '0 / 12';
+    buildPips();
+}
+
+/* WALKTHROUGH */
+let wtCurrentStep = 1;
+const WT_TOTAL = 7;
+
+function openWalkthrough() {
+    endOverlay.classList.remove('visible');
+    wtCurrentStep = 1;
+    renderWtStep();
+    document.getElementById('walkthroughOverlay').classList.add('visible');
+}
+
+function closeWalkthrough() {
+    document.getElementById('walkthroughOverlay').classList.remove('visible');
+}
+
+function renderWtStep() {
+    document.querySelectorAll('.wt-step').forEach(s => s.classList.remove('active'));
+    document.getElementById('step-' + wtCurrentStep).classList.add('active');
+    document.getElementById('wtStepCounter').textContent = 'Step ' + wtCurrentStep + ' of ' + WT_TOTAL;
+    document.getElementById('wtProgressFill').style.width = (wtCurrentStep / WT_TOTAL * 100) + '%';
+    document.getElementById('wtPrevBtn').disabled = wtCurrentStep === 1;
+    const nextBtn = document.getElementById('wtNextBtn');
+    if (wtCurrentStep === WT_TOTAL) {
+        nextBtn.textContent = 'Done \u2713';
+        nextBtn.onclick = closeWalkthrough;
+    } else {
+        nextBtn.textContent = 'Next \u2192';
+        nextBtn.onclick = wtNext;
+    }
+}
+
+function wtNext() { if (wtCurrentStep < WT_TOTAL) { wtCurrentStep++; renderWtStep(); } }
+function wtPrev() { if (wtCurrentStep > 1) { wtCurrentStep--; renderWtStep(); } }
+
+buildPips();
+</script>
+</body>
+</html>
