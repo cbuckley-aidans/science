@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemistry Fundamentals — Flashcards</title>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #1b1f45;
+            --pink: #ea008a;
+            --white: #ffffff;
+            --off-white: #f5f5f5;
+            --light-grey: #e8e8e8;
+            --mid-grey: #9a9a9a;
+            --text: #1b1f45;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Barlow', Helvetica Neue, Helvetica, Arial, sans-serif;
+            color: var(--text);
+            background: var(--off-white);
+            min-height: 100vh;
+            zoom: 1.5;
+        }
+
+        .site-header {
+            background: var(--navy);
+            padding: 0 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 60px;
+            border-bottom: 4px solid var(--pink);
+        }
+        .site-header-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--pink);
+            margin-bottom: 3px;
+        }
+        .site-header-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--white);
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+        .site-header-right {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.35);
+        }
+
+        .container { max-width: 860px; margin: 0 auto; padding: 32px 24px 64px; }
+        .view { display: none; }
+        .view.active { display: block; }
+
+        .section-header {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 2.5px solid var(--navy);
+        }
+        .section-eyebrow {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--pink);
+            white-space: nowrap;
+        }
+        .section-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--navy);
+            text-transform: uppercase;
+        }
+
+        .definitions-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px; }
+        .def-card {
+            border-top: 4px solid var(--navy);
+            border-left: 1px solid var(--light-grey);
+            border-right: 1px solid var(--light-grey);
+            border-bottom: 1px solid var(--light-grey);
+            background: var(--white);
+            padding: 18px 20px;
+        }
+        .def-card-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--pink); margin-bottom: 6px;
+        }
+        .def-card h3 {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 18px; font-weight: 900;
+            text-transform: uppercase; color: var(--navy); margin-bottom: 8px;
+        }
+        .def-card p { font-size: 13px; line-height: 1.6; color: #444; }
+
+        .decks-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 40px; }
+        .deck-btn {
+            border: 3px solid var(--pink);
+            cursor: pointer; text-align: left;
+            padding: 24px 24px 20px;
+            background: var(--navy);
+            border-left: 8px solid var(--pink);
+            transition: background 0.15s, transform 0.12s, box-shadow 0.12s;
+            display: block; width: 100%;
+            box-shadow: 0 4px 0 rgba(234,0,138,0.4);
+        }
+        .deck-btn:hover { background: #252a5c; transform: translateY(-2px); box-shadow: 0 6px 0 rgba(234,0,138,0.5); }
+        .deck-btn:active { transform: translateY(1px); box-shadow: 0 2px 0 rgba(234,0,138,0.4); }
+        .deck-btn-eyebrow {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--pink); margin-bottom: 5px;
+        }
+        .deck-btn-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 24px; font-weight: 900;
+            color: var(--white); text-transform: uppercase;
+            display: block; margin-bottom: 6px; line-height: 1.1;
+        }
+        .deck-btn-count { font-size: 12px; color: rgba(255,255,255,0.45); }
+
+        .question-card {
+            background: var(--white);
+            border-left: 3px solid var(--navy);
+            border-top: 1px solid var(--light-grey);
+            border-right: 1px solid var(--light-grey);
+            border-bottom: 1px solid var(--light-grey);
+            padding: 16px 18px; margin-bottom: 12px;
+        }
+        .question-text { font-size: 14px; font-weight: 600; color: var(--navy); margin-bottom: 12px; line-height: 1.5; }
+        .mcq-options { display: flex; flex-direction: column; gap: 7px; }
+        .mcq-option {
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 9px 12px; border: 1.5px solid var(--light-grey);
+            cursor: pointer; font-size: 13px; background: var(--white);
+            transition: border-color 0.12s, background 0.12s;
+            text-align: left; width: 100%;
+            font-family: 'Barlow', sans-serif; color: var(--text); line-height: 1.45;
+        }
+        .mcq-option:hover:not(:disabled) { border-color: var(--navy); background: var(--off-white); }
+        .mcq-option.correct { border-color: #10b981; background: #f0fdf4; color: #065f46; font-weight: 600; }
+        .mcq-option.incorrect { border-color: #ef4444; background: #fef2f2; color: #991b1b; }
+        .option-letter { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 12px; color: var(--mid-grey); min-width: 16px; padding-top: 1px; }
+
+        .tf-row { display: flex; gap: 8px; margin-top: 4px; }
+        .tf-btn {
+            flex: 1; padding: 9px; border: 1.5px solid var(--light-grey);
+            cursor: pointer; font-family: 'Barlow Condensed', sans-serif;
+            font-size: 15px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 0.08em; background: var(--white); color: var(--navy);
+            transition: all 0.12s;
+        }
+        .tf-btn:hover:not(:disabled) { background: var(--off-white); border-color: var(--navy); }
+        .tf-btn.correct { background: #10b981; border-color: #10b981; color: white; }
+        .tf-btn.incorrect { background: #ef4444; border-color: #ef4444; color: white; }
+        .feedback-msg {
+            margin-top: 10px; font-size: 12.5px; line-height: 1.55;
+            color: #555; font-style: italic; display: none;
+            border-left: 3px solid var(--light-grey); padding-left: 10px;
+        }
+        .feedback-msg.visible { display: block; }
+
+        /* DECK VIEW */
+        .deck-nav-bar { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+        .back-btn {
+            border: none; background: none; cursor: pointer;
+            display: flex; align-items: center; gap: 5px;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 12px; font-weight: 700;
+            letter-spacing: 0.12em; text-transform: uppercase;
+            color: var(--pink); padding: 0;
+        }
+        .back-btn:hover { opacity: 0.65; }
+        .deck-view-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 22px; font-weight: 900;
+            text-transform: uppercase; color: var(--navy);
+        }
+        .deck-progress {
+            margin-left: auto;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px; font-weight: 700;
+            letter-spacing: 0.1em; text-transform: uppercase; color: var(--mid-grey);
+        }
+
+        .progress-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 14px; flex-wrap: wrap; }
+        .progress-dot { width: 8px; height: 8px; background: var(--light-grey); transition: background 0.2s; }
+        .progress-dot.active { background: var(--pink); }
+        .progress-dot.correct { background: #10b981; }
+        .progress-dot.incorrect { background: #ef4444; }
+
+        .flip-hint {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px; font-weight: 700;
+            letter-spacing: 0.14em; text-transform: uppercase;
+            color: var(--mid-grey); text-align: center; margin-bottom: 12px;
+        }
+
+        /* FLASHCARD */
+        .flashcard-scene {
+            perspective: 1200px;
+            margin: 0 auto 20px;
+            width: 100%; height: 380px;
+        }
+        .flashcard {
+            width: 100%; height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .flashcard.flipped { transform: rotateY(180deg); }
+        .card-face {
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        /* FRONT */
+        .card-front {
+            background: var(--navy);
+            border-left: 8px solid var(--pink);
+            display: flex; flex-direction: column;
+            justify-content: center; padding: 32px 36px;
+        }
+        .card-front-eyebrow {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--pink); margin-bottom: 10px;
+        }
+        .card-front-term {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 44px; font-weight: 900;
+            color: var(--white); text-transform: uppercase; line-height: 1.05;
+        }
+        .card-front-subtext {
+            font-size: 12px; color: rgba(255,255,255,0.35);
+            margin-top: 14px; font-style: italic;
+        }
+
+        /* BACK */
+        .card-back {
+            background: var(--white);
+            border-top: 4px solid var(--navy);
+            border-left: 1px solid var(--light-grey);
+            border-right: 1px solid var(--light-grey);
+            border-bottom: 1px solid var(--light-grey);
+            transform: rotateY(180deg);
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+        .card-back-text-col {
+            flex: 1; padding: 14px 20px;
+            display: flex; flex-direction: column;
+            justify-content: center; overflow: hidden;
+        }
+        .card-back-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--pink); margin-bottom: 5px;
+        }
+        .card-back-term {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 17px; font-weight: 900;
+            text-transform: uppercase; color: var(--navy); margin-bottom: 9px;
+        }
+        .card-back-def { font-size: 12.5px; line-height: 1.65; color: var(--text); }
+
+        /* ANSWER OPTIONS */
+        .answer-options {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 8px; margin-bottom: 20px;
+        }
+        .answer-btn {
+            background: var(--white);
+            border: 2px solid var(--navy);
+            cursor: pointer; text-align: left;
+            padding: 11px 14px;
+            font-family: 'Barlow', sans-serif;
+            font-size: 12.5px; color: var(--navy); font-weight: 500;
+            line-height: 1.4;
+            transition: background 0.12s, border-color 0.12s, transform 0.1s;
+            display: flex; align-items: flex-start; gap: 10px;
+        }
+        .answer-btn:hover:not(:disabled) {
+            background: var(--off-white); border-color: var(--pink);
+            transform: translateY(-1px);
+        }
+        .answer-btn .ans-letter {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px; font-weight: 900;
+            color: var(--pink); min-width: 16px; padding-top: 1px; flex-shrink: 0;
+        }
+        .answer-btn.correct { background: #f0fdf4; border-color: #10b981; color: #065f46; }
+        .answer-btn.incorrect { background: #fef2f2; border-color: #ef4444; color: #991b1b; }
+        .answer-btn:disabled { cursor: default; }
+
+        .card-controls { display: flex; align-items: center; justify-content: center; gap: 12px; }
+        .nav-btn {
+            background: var(--navy); color: var(--white); border: none;
+            cursor: pointer; font-family: 'Barlow Condensed', sans-serif;
+            font-size: 14px; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; padding: 10px 28px; transition: background 0.15s;
+        }
+        .nav-btn:hover:not(:disabled) { background: #252a5c; }
+        .nav-btn:disabled { opacity: 0.3; cursor: default; }
+
+        .score-badge {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px; font-weight: 700;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            color: var(--white);
+            background: var(--pink);
+            padding: 4px 12px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .score-badge-label { color: rgba(255,255,255,0.65); font-size: 10px; }
+
+        /* RESULTS SCREEN */
+        .results-screen {
+            background: var(--white);
+            border-top: 4px solid var(--navy);
+            border-left: 1px solid var(--light-grey);
+            border-right: 1px solid var(--light-grey);
+            border-bottom: 1px solid var(--light-grey);
+            padding: 40px 36px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .results-eyebrow {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--pink); margin-bottom: 10px;
+        }
+        .results-score {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 80px; font-weight: 900;
+            color: var(--navy); line-height: 1;
+            margin-bottom: 6px;
+        }
+        .results-score span { color: var(--pink); }
+        .results-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 22px; font-weight: 900;
+            text-transform: uppercase; color: var(--navy);
+            margin-bottom: 14px;
+        }
+        .results-message {
+            font-size: 14px; color: #555; line-height: 1.6;
+            max-width: 480px; margin: 0 auto 28px;
+        }
+        .results-dots {
+            display: flex; gap: 8px; justify-content: center;
+            margin-bottom: 28px; flex-wrap: wrap;
+        }
+        .results-dot {
+            width: 10px; height: 10px;
+        }
+        .results-dot.correct { background: #10b981; }
+        .results-dot.incorrect { background: #ef4444; }
+        .results-dot.unanswered { background: var(--light-grey); }
+        .results-btn-row { display: flex; gap: 10px; justify-content: center; }
+        .results-btn {
+            background: var(--navy); color: var(--white); border: none;
+            cursor: pointer; font-family: 'Barlow Condensed', sans-serif;
+            font-size: 14px; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; padding: 11px 28px;
+            transition: background 0.15s;
+        }
+        .results-btn:hover { background: #252a5c; }
+        .results-btn.outline {
+            background: var(--white); color: var(--navy);
+            border: 2px solid var(--navy);
+        }
+        .results-btn.outline:hover { background: var(--off-white); }
+
+        .quiz-section { margin-bottom: 32px; }
+        strong { font-weight: 700; }
+    </style>
+</head>
+<body>
+
+<header class="site-header">
+    <div>
+        <div class="site-header-label">Science &middot; Year 7</div>
+        <div class="site-header-title">Chemistry Fundamentals</div>
+    </div>
+    <div class="site-header-right">Flashcard Review</div>
+</header>
+
+<!-- HOME VIEW -->
+<div id="home-view" class="view active">
+    <div class="container">
+
+        <div class="section-header" style="margin-bottom: 16px;">
+            <span class="section-eyebrow">Start Here</span>
+            <h2 class="section-title">Choose a Flashcard Deck</h2>
+        </div>
+        <div class="decks-row">
+            <button class="deck-btn" onclick="openDeck('particleModel')">
+                <div class="deck-btn-eyebrow">Deck 01</div>
+                <span class="deck-btn-title">The Particle Model</span>
+                <div class="deck-btn-count">8 cards &rarr; Click to begin</div>
+            </button>
+            <button class="deck-btn" onclick="openDeck('mixtures')">
+                <div class="deck-btn-eyebrow">Deck 02</div>
+                <span class="deck-btn-title">Mixtures</span>
+                <div class="deck-btn-count">8 cards &rarr; Click to begin</div>
+            </button>
+            <button class="deck-btn" onclick="openDeck('density')">
+                <div class="deck-btn-eyebrow">Deck 03</div>
+                <span class="deck-btn-title">Density</span>
+                <div class="deck-btn-count">6 cards &rarr; Click to begin</div>
+            </button>
+            <button class="deck-btn" onclick="openDeck('investigations')">
+                <div class="deck-btn-eyebrow">Deck 04</div>
+                <span class="deck-btn-title">Investigations</span>
+                <div class="deck-btn-count">7 cards &rarr; Click to begin</div>
+            </button>
+        </div>
+
+        <div class="section-header" style="margin-bottom: 16px;">
+            <span class="section-eyebrow">Key Concepts</span>
+            <h2 class="section-title">Pure Substances vs Mixtures</h2>
+        </div>
+        <div class="definitions-row">
+            <div class="def-card">
+                <div class="def-card-label">Definition</div>
+                <h3>Pure Substance</h3>
+                <p>Contains <strong>only one type of particle</strong>. All particles are identical. Examples: diamond, oxygen gas, distilled water. Many substances that look uniform are actually mixtures.</p>
+            </div>
+            <div class="def-card">
+                <div class="def-card-label">Definition</div>
+                <h3>Mixture</h3>
+                <p>Contains <strong>two or more substances</strong> combined but not chemically joined. All mixtures can be separated into their components using physical methods that rely on differences in properties.</p>
+            </div>
+        </div>
+
+        <!-- MULTIPLE CHOICE -->
+        <div class="quiz-section">
+            <div class="section-header">
+                <span class="section-eyebrow">Check Your Understanding</span>
+                <h2 class="section-title">Multiple Choice</h2>
+            </div>
+
+            <div class="question-card" id="mcq1">
+                <div class="question-text">1. Which formula correctly calculates density?</div>
+                <div class="mcq-options">
+                    <button class="mcq-option" onclick="checkMCQ('mcq1', this, false)"><span class="option-letter">A</span> density = mass &times; volume</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq1', this, false)"><span class="option-letter">B</span> density = volume &divide; mass</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq1', this, true)"><span class="option-letter">C</span> density = mass &divide; volume</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq1', this, false)"><span class="option-letter">D</span> density = mass + volume</button>
+                </div>
+                <div class="feedback-msg" id="mcq1-fb"></div>
+            </div>
+
+            <div class="question-card" id="mcq2">
+                <div class="question-text">2. According to the particle model, which state of matter has particles that are far apart, moving fast and randomly?</div>
+                <div class="mcq-options">
+                    <button class="mcq-option" onclick="checkMCQ('mcq2', this, false)"><span class="option-letter">A</span> Solid</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq2', this, false)"><span class="option-letter">B</span> Liquid</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq2', this, true)"><span class="option-letter">C</span> Gas</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq2', this, false)"><span class="option-letter">D</span> Colloid</button>
+                </div>
+                <div class="feedback-msg" id="mcq2-fb"></div>
+            </div>
+
+            <div class="question-card" id="mcq3">
+                <div class="question-text">3. A student notices a cloudy mixture separating into layers after being left to stand overnight. What type of mixture is this?</div>
+                <div class="mcq-options">
+                    <button class="mcq-option" onclick="checkMCQ('mcq3', this, false)"><span class="option-letter">A</span> Solution</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq3', this, false)"><span class="option-letter">B</span> Colloid</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq3', this, true)"><span class="option-letter">C</span> Suspension</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq3', this, false)"><span class="option-letter">D</span> Emulsion</button>
+                </div>
+                <div class="feedback-msg" id="mcq3-fb"></div>
+            </div>
+
+            <div class="question-card" id="mcq4">
+                <div class="question-text">4. What is the change of state from a gas to a liquid called?</div>
+                <div class="mcq-options">
+                    <button class="mcq-option" onclick="checkMCQ('mcq4', this, false)"><span class="option-letter">A</span> Sublimation</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq4', this, false)"><span class="option-letter">B</span> Evaporation</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq4', this, false)"><span class="option-letter">C</span> Deposition</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq4', this, true)"><span class="option-letter">D</span> Condensation</button>
+                </div>
+                <div class="feedback-msg" id="mcq4-fb"></div>
+            </div>
+
+            <div class="question-card" id="mcq5">
+                <div class="question-text">5. In a fair test, what is the variable you deliberately change called?</div>
+                <div class="mcq-options">
+                    <button class="mcq-option" onclick="checkMCQ('mcq5', this, false)"><span class="option-letter">A</span> Dependent variable</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq5', this, false)"><span class="option-letter">B</span> Controlled variable</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq5', this, true)"><span class="option-letter">C</span> Independent variable</button>
+                    <button class="mcq-option" onclick="checkMCQ('mcq5', this, false)"><span class="option-letter">D</span> Fixed variable</button>
+                </div>
+                <div class="feedback-msg" id="mcq5-fb"></div>
+            </div>
+        </div>
+
+        <!-- TRUE / FALSE -->
+        <div class="quiz-section">
+            <div class="section-header">
+                <span class="section-eyebrow">Check Your Understanding</span>
+                <h2 class="section-title">True or False</h2>
+            </div>
+
+            <div class="question-card" id="tf1">
+                <div class="question-text">1. Ice floats on liquid water because it is less dense than liquid water.</div>
+                <div class="tf-row">
+                    <button class="tf-btn" onclick="checkTF('tf1', this, true, 'Correct! Ice has a density of 0.91 g/cm&sup3;, which is less than liquid water at 1.00 g/cm&sup3;. Its crystal lattice structure spaces particles further apart, making it less dense.')">True</button>
+                    <button class="tf-btn" onclick="checkTF('tf1', this, false, 'Not quite. Ice is actually less dense than liquid water (0.91 g/cm&sup3; vs 1.00 g/cm&sup3;), so it floats. Its crystal lattice structure spaces the particles further apart than in liquid water.')">False</button>
+                </div>
+                <div class="feedback-msg" id="tf1-fb"></div>
+            </div>
+
+            <div class="question-card" id="tf2">
+                <div class="question-text">2. A colloid will separate into layers if left to stand long enough.</div>
+                <div class="tf-row">
+                    <button class="tf-btn" onclick="checkTF('tf2', this, false, 'Not quite. Colloids do not separate when left to stand, no matter how long. This is what distinguishes them from suspensions. Colloid particles are permanently suspended.')">True</button>
+                    <button class="tf-btn" onclick="checkTF('tf2', this, true, 'Correct! Colloids never separate when left to stand. Their particles are small enough to stay permanently suspended, which is the key difference from suspensions.')">False</button>
+                </div>
+                <div class="feedback-msg" id="tf2-fb"></div>
+            </div>
+
+            <div class="question-card" id="tf3">
+                <div class="question-text">3. In a fair test, you can change more than one variable at a time as long as you record the results carefully.</div>
+                <div class="tf-row">
+                    <button class="tf-btn" onclick="checkTF('tf3', this, false, 'Not quite. A fair test changes only one variable — the independent variable — while keeping all others the same. Changing multiple variables means you cannot tell which change caused the result.')">True</button>
+                    <button class="tf-btn" onclick="checkTF('tf3', this, true, 'Correct! A fair test changes only the independent variable. All other variables must be controlled (kept the same) so that any change in the dependent variable can be attributed to just that one change.')">False</button>
+                </div>
+                <div class="feedback-msg" id="tf3-fb"></div>
+            </div>
+
+            <div class="question-card" id="tf4">
+                <div class="question-text">4. A pure substance contains only one type of particle.</div>
+                <div class="tf-row">
+                    <button class="tf-btn" onclick="checkTF('tf4', this, true, 'Correct! A pure substance is made up of only one type of particle, whether atoms or molecules. A mixture contains two or more different types of particle.')">True</button>
+                    <button class="tf-btn" onclick="checkTF('tf4', this, false, 'Not quite. A pure substance does contain only one type of particle. It is a mixture that contains two or more different types of particle combined but not chemically joined.')">False</button>
+                </div>
+                <div class="feedback-msg" id="tf4-fb"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- DECK VIEW -->
+<div id="deck-view" class="view">
+    <div class="container">
+        <div class="deck-nav-bar">
+            <button class="back-btn" onclick="goHome()">&#8592; Home</button>
+            <div class="deck-view-title" id="deck-view-title"></div>
+            <div style="margin-left:auto; display:flex; align-items:center; gap:10px;">
+                <div class="score-badge" id="score-badge">
+                    <span class="score-badge-label">Score</span>
+                    <span id="score-display">0</span>
+                </div>
+                <div class="deck-progress" id="deck-progress"></div>
+            </div>
+        </div>
+
+        <div class="progress-dots" id="progress-dots"></div>
+        <div class="flip-hint" id="flip-hint">Select the correct definition below</div>
+
+        <div id="card-area">
+        <div class="flashcard-scene">
+            <div class="flashcard" id="flashcard">
+                <div class="card-face card-front">
+                    <div class="card-front-eyebrow" id="card-eyebrow"></div>
+                    <div class="card-front-term" id="card-term"></div>
+                    <div class="card-front-subtext">Which definition matches this term?</div>
+                </div>
+                <div class="card-face card-back">
+                    <div class="card-back-text-col">
+                        <div class="card-back-label">Definition</div>
+                        <div class="card-back-term" id="card-back-term"></div>
+                        <div class="card-back-def" id="card-def"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="answer-options" id="answer-options"></div>
+
+        <div class="card-controls">
+            <button class="nav-btn" id="prev-btn" onclick="prevCard()">&#8592; Previous</button>
+            <button class="nav-btn" id="next-btn" onclick="nextCard()">Next &#8594;</button>
+        </div>
+        </div>
+
+        <!-- RESULTS SCREEN -->
+        <div id="results-screen" style="display:none;">
+            <div class="results-screen">
+                <div class="results-eyebrow">Deck Complete</div>
+                <div class="results-score" id="results-score-num">0<span id="results-total">/8</span></div>
+                <div class="results-label" id="results-label"></div>
+                <div class="results-message" id="results-message"></div>
+                <div class="results-dots" id="results-dots"></div>
+                <div class="results-btn-row">
+                    <button class="results-btn outline" onclick="retryDeck()">Try Again</button>
+                    <button class="results-btn" onclick="goHome()">&#8592; Choose Another Deck</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const decks = {
+        particleModel: {
+            title: 'The Particle Model',
+            cards: [
+                {
+                    term: 'Matter',
+                    def: 'Anything that takes up space and has mass. All matter is made up of tiny particles called atoms or molecules. Solids, liquids and gases are all forms of matter.'
+                },
+                {
+                    term: 'Solid',
+                    def: 'A state of matter where particles are tightly packed in a regular pattern, vibrating in fixed positions. Held together by strong forces of attraction. Has a definite shape and fixed volume.'
+                },
+                {
+                    term: 'Liquid',
+                    def: 'A state of matter where particles are close together but free to move around. Moderate forces of attraction. Takes the shape of its container but has a fixed volume.'
+                },
+                {
+                    term: 'Gas',
+                    def: 'A state of matter where particles are far apart and move fast and randomly. Forces of attraction are negligible. Spreads out to fill any container. Can be compressed.'
+                },
+                {
+                    term: 'Sublimation',
+                    def: 'The change of state from a solid directly to a gas, without passing through a liquid state. Energy is added. Example: dry ice (solid CO\u2082) turning into gas at room temperature.'
+                },
+                {
+                    term: 'Deposition',
+                    def: 'The change of state from a gas directly to a solid, without passing through a liquid state. Energy is removed. Example: frost forming on a cold surface from water vapour on a clear night.'
+                },
+                {
+                    term: 'Condensation',
+                    def: 'The change of state from a gas to a liquid when energy is removed. Example: water droplets forming on the outside of a cold glass. The visible \u201csteam\u201d from a kettle is actually tiny condensed liquid droplets, not gas.'
+                },
+                {
+                    term: 'Scientific Model',
+                    def: 'A simplified representation used to help explain or understand something in the real world. The particle model is a scientific model. All models have limitations and do not perfectly represent reality.'
+                }
+            ]
+        },
+        mixtures: {
+            title: 'Mixtures',
+            cards: [
+                {
+                    term: 'Pure Substance',
+                    def: 'A substance made up of only one type of particle. All particles are identical. Examples: diamond, oxygen gas, gold. Many substances that appear uniform, such as salt water, are actually mixtures.'
+                },
+                {
+                    term: 'Mixture',
+                    def: 'Contains two or more substances combined but not chemically joined. The components keep their own properties. All mixtures can be separated into their components by physical methods.'
+                },
+                {
+                    term: 'Solution',
+                    def: 'A type of mixture where the solute particles are so small they are invisible even under a microscope. Light passes straight through, making it transparent. Does not separate when left to stand.'
+                },
+                {
+                    term: 'Solute',
+                    def: 'The substance that dissolves in a solvent to form a solution. A soluble substance will dissolve; an insoluble substance will not. Example: salt is the solute in salt water.'
+                },
+                {
+                    term: 'Solvent',
+                    def: 'The substance that something dissolves into to form a solution. Example: water is the solvent in salt water. Water is the most common solvent, but solvents can also be other liquids or gases.'
+                },
+                {
+                    term: 'Suspension',
+                    def: 'A mixture where solid particles are dispersed in a liquid or gas but large enough to settle over time. Separates into layers when left to stand. The solid that settles out is called sediment. Example: sand in water.'
+                },
+                {
+                    term: 'Colloid',
+                    def: 'A mixture where particles are small enough to stay permanently suspended but large enough to scatter light, making the mixture appear cloudy. Does not separate when left to stand. Examples: milk, fog, paint, blood.'
+                },
+                {
+                    term: 'Emulsion',
+                    def: 'A suspension of one liquid dispersed as tiny droplets in another liquid. Example: milk (fat droplets suspended in water), vinaigrette dressing (oil droplets in vinegar). Homogenisation prevents emulsions from separating.'
+                }
+            ]
+        },
+        density: {
+            title: 'Density',
+            cards: [
+                {
+                    term: 'Density',
+                    def: 'The amount of mass packed into a given volume. Formula: density = mass \u00f7 volume (\u03c1 = m/V). Units: g/cm\u00b3. The denser an object, the more closely packed its particles.'
+                },
+                {
+                    term: 'Buoyancy',
+                    def: 'The upward force exerted by a fluid on an object. An object floats when the buoyant force equals the gravitational force pulling it down. This happens when the object is less dense than the surrounding fluid.'
+                },
+                {
+                    term: 'Floating and Sinking',
+                    def: 'An object floats if its density is less than the fluid it is placed in. An object sinks if its density is greater. Example: ice (0.91 g/cm\u00b3) floats on liquid water (1.00 g/cm\u00b3). A ship of steel floats because its overall density (including air) is less than water.'
+                },
+                {
+                    term: 'Crystal Lattice Structure',
+                    def: 'The regular, open arrangement of water molecules in ice. This structure spaces particles further apart than in liquid water, making ice less dense (0.91 g/cm\u00b3) than liquid water (1.00 g/cm\u00b3) \u2014 an unusual exception to the rule that solids are denser than their liquid form.'
+                },
+                {
+                    term: 'Heating, Cooling and Density',
+                    def: 'When a substance is heated, particles gain energy and move further apart, so density decreases. When cooled, particles slow down and move closer together, so density increases. Hot air is less dense than cool air \u2014 this is why hot air balloons rise.'
+                },
+                {
+                    term: 'Sediment',
+                    def: 'The solid that settles out to the bottom of a suspension when left to stand. Larger, denser particles settle faster than smaller or lighter ones. Suspensions always form sediment over time; colloids and solutions never do.'
+                }
+            ]
+        },
+        investigations: {
+            title: 'Investigations',
+            cards: [
+                {
+                    term: 'Variable',
+                    def: 'Anything that can change or be measured in a scientific investigation. Identifying all variables is an essential first step when designing a fair test.'
+                },
+                {
+                    term: 'Independent Variable',
+                    def: 'The one variable you deliberately change in a fair test. Only one independent variable is changed at a time so that results can be reliably attributed to that specific change.'
+                },
+                {
+                    term: 'Dependent Variable',
+                    def: 'The variable you measure in an investigation. It changes in response to the independent variable. Example: if you investigate how temperature affects the rate of dissolving, the rate of dissolving is the dependent variable.'
+                },
+                {
+                    term: 'Controlled Variable',
+                    def: 'Any variable kept the same throughout a fair test to ensure only the independent variable is causing change. Example: using the same amount and type of water in every trial when testing how temperature affects dissolving.'
+                },
+                {
+                    term: 'Fair Test',
+                    def: 'An investigation that changes only one variable (the independent variable) at a time, while keeping all other variables (controlled variables) the same. This ensures results are valid and reliable.'
+                },
+                {
+                    term: 'Testable Question',
+                    def: 'A question that can be answered by designing and conducting a fair test. Format: \u201cHow does [independent variable] affect [dependent variable]?\u201d Not all questions are testable. Example: \u201cHow does temperature affect how fast sugar dissolves?\u201d'
+                },
+                {
+                    term: 'Hazard',
+                    def: 'A danger in the laboratory that puts you or others at risk of injury. Common hazards include open flames, loose hair, running, and not wearing safety goggles. All hazards must be identified before starting an experiment.'
+                }
+            ]
+        }
+    };
+
+    const LETTERS = ['A', 'B', 'C', 'D'];
+    let currentDeck = null;
+    let currentIndex = 0;
+    let dotState = {};
+    let currentOptions = [];
+    let answered = false;
+    let score = 0;
+
+    function getAllCards() {
+        return [
+            ...decks.particleModel.cards,
+            ...decks.mixtures.cards,
+            ...decks.density.cards,
+            ...decks.investigations.cards
+        ];
+    }
+
+    function buildOptions(deckKey, correctIndex) {
+        const correct = decks[deckKey].cards[correctIndex];
+        const pool = getAllCards().filter(c => c.term !== correct.term);
+        const distractors = pool.sort(() => Math.random() - 0.5).slice(0, 3);
+        const options = [
+            { term: correct.term, def: correct.def, isCorrect: true },
+            ...distractors.map(c => ({ term: c.term, def: c.def, isCorrect: false }))
+        ];
+        return options.sort(() => Math.random() - 0.5);
+    }
+
+    function openDeck(deckKey) {
+        currentDeck = deckKey;
+        currentIndex = 0;
+        dotState = {};
+        score = 0;
+        document.getElementById('score-display').textContent = '0';
+        document.getElementById('home-view').classList.remove('active');
+        document.getElementById('deck-view').classList.add('active');
+        document.getElementById('deck-view-title').textContent = decks[deckKey].title;
+        document.getElementById('card-area').style.display = 'block';
+        document.getElementById('results-screen').style.display = 'none';
+        document.getElementById('flip-hint').style.display = 'block';
+        document.getElementById('progress-dots').style.display = 'flex';
+        renderCard();
+    }
+
+    function goHome() {
+        document.getElementById('deck-view').classList.remove('active');
+        document.getElementById('home-view').classList.add('active');
+    }
+
+    function renderCard() {
+        const deck = decks[currentDeck];
+        const card = deck.cards[currentIndex];
+        answered = false;
+
+        document.getElementById('flashcard').classList.remove('flipped');
+        document.getElementById('card-eyebrow').textContent = deck.title;
+        document.getElementById('card-term').textContent = card.term;
+        document.getElementById('card-back-term').textContent = card.term;
+        document.getElementById('card-def').textContent = card.def;
+        document.getElementById('deck-progress').textContent = (currentIndex + 1) + ' / ' + deck.cards.length;
+        document.getElementById('prev-btn').disabled = currentIndex === 0;
+        document.getElementById('next-btn').disabled = currentIndex === deck.cards.length - 1;
+        document.getElementById('flip-hint').textContent = 'Select the correct definition below';
+
+        currentOptions = buildOptions(currentDeck, currentIndex);
+        renderOptions(false, -1);
+        renderDots();
+    }
+
+    function renderOptions(locked, selectedIdx) {
+        const container = document.getElementById('answer-options');
+        container.innerHTML = '';
+        currentOptions.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'answer-btn';
+            if (locked) {
+                btn.disabled = true;
+                if (opt.isCorrect) btn.classList.add('correct');
+                else if (i === selectedIdx && !opt.isCorrect) btn.classList.add('incorrect');
+            }
+            btn.innerHTML = '<span class="ans-letter">' + LETTERS[i] + '</span><span>' + opt.def + '</span>';
+            if (!locked) btn.onclick = () => selectAnswer(i);
+            container.appendChild(btn);
+        });
+    }
+
+    function selectAnswer(selectedIdx) {
+        if (answered) return;
+        answered = true;
+        const isCorrect = currentOptions[selectedIdx].isCorrect;
+        dotState[currentIndex] = isCorrect ? 'correct' : 'incorrect';
+        if (isCorrect) {
+            score++;
+            document.getElementById('score-display').textContent = score;
+        }
+        renderOptions(true, selectedIdx);
+        renderDots();
+
+        const deck = decks[currentDeck];
+        const isLastCard = currentIndex === deck.cards.length - 1;
+
+        setTimeout(() => {
+            document.getElementById('flashcard').classList.add('flipped');
+            document.getElementById('flip-hint').textContent = isCorrect
+                ? 'Correct! Here is the full definition.'
+                : 'Not quite. Here is the correct definition.';
+
+            if (isLastCard) {
+                setTimeout(() => showResults(), 1600);
+            }
+        }, 380);
+    }
+
+    function showResults() {
+        const deck = decks[currentDeck];
+        const total = deck.cards.length;
+
+        document.getElementById('card-area').style.display = 'none';
+        document.getElementById('flip-hint').style.display = 'none';
+        document.getElementById('progress-dots').style.display = 'none';
+        document.getElementById('results-screen').style.display = 'block';
+
+        document.getElementById('results-score-num').innerHTML = score + '<span>/' + total + '</span>';
+
+        const pct = score / total;
+        let label, message;
+        if (pct === 1) {
+            label = 'Perfect Score!';
+            message = 'Outstanding work! You matched every definition correctly on the first attempt. You clearly know this topic inside out.';
+        } else if (pct >= 0.7) {
+            label = 'Well Done!';
+            message = 'Great effort! You got most definitions right on the first try. Review the ones you missed and give the deck another go.';
+        } else if (pct >= 0.5) {
+            label = 'Good Start';
+            message = 'You are getting there! Try the deck again and pay close attention to the definitions you found tricky.';
+        } else {
+            label = 'Keep Practising';
+            message = 'This is a tough topic. Read back through the definitions, then have another attempt. You will improve quickly with practice!';
+        }
+
+        document.getElementById('results-label').textContent = label;
+        document.getElementById('results-message').textContent = message;
+
+        const dotsEl = document.getElementById('results-dots');
+        dotsEl.innerHTML = '';
+        deck.cards.forEach((card, i) => {
+            const dot = document.createElement('div');
+            dot.className = 'results-dot ' + (dotState[i] || 'unanswered');
+            dot.title = card.term + ': ' + (dotState[i] || 'not reached');
+            dotsEl.appendChild(dot);
+        });
+    }
+
+    function retryDeck() {
+        openDeck(currentDeck);
+    }
+
+    function renderDots() {
+        const deck = decks[currentDeck];
+        const dotsEl = document.getElementById('progress-dots');
+        dotsEl.innerHTML = '';
+        deck.cards.forEach((_, i) => {
+            const dot = document.createElement('div');
+            dot.className = 'progress-dot';
+            if (i === currentIndex) dot.classList.add('active');
+            else if (dotState[i]) dot.classList.add(dotState[i]);
+            dotsEl.appendChild(dot);
+        });
+    }
+
+    function prevCard() { if (currentIndex > 0) { currentIndex--; renderCard(); } }
+    function nextCard() { const d = decks[currentDeck]; if (currentIndex < d.cards.length - 1) { currentIndex++; renderCard(); } }
+
+    function checkMCQ(qId, btn, isCorrect) {
+        const card = document.getElementById(qId);
+        if (card.dataset.answered) return;
+        card.dataset.answered = true;
+        const buttons = card.querySelectorAll('.mcq-option');
+        buttons.forEach(b => { b.disabled = true; });
+        btn.classList.add(isCorrect ? 'correct' : 'incorrect');
+        if (!isCorrect) {
+            buttons.forEach(b => { if ((b.getAttribute('onclick') || '').includes(', true)')) b.classList.add('correct'); });
+        }
+        const fb = document.getElementById(qId + '-fb');
+        fb.textContent = isCorrect ? 'Correct!' : 'Not quite. The correct answer is highlighted above.';
+        fb.classList.add('visible');
+    }
+
+    function checkTF(qId, btn, isCorrect, message) {
+        const card = document.getElementById(qId);
+        if (card.dataset.answered) return;
+        card.dataset.answered = true;
+        card.querySelectorAll('.tf-btn').forEach(b => { b.disabled = true; });
+        btn.classList.add(isCorrect ? 'correct' : 'incorrect');
+        const fb = document.getElementById(qId + '-fb');
+        fb.innerHTML = message;
+        fb.classList.add('visible');
+    }
+</script>
+</body>
+</html>
