@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Comment Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #1b1f45;
+            --pink: #ea008a;
+            --white: #ffffff;
+            --off-white: #f5f5f5;
+            --light-grey: #e8e8e8;
+            --mid-grey: #9a9a9a;
+            --green: #1a7a4a;
+            --amber: #b45309;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: 17.5px; }
+        body {
+            font-family: 'Barlow', Helvetica Neue, Helvetica, Arial, sans-serif;
+            color: var(--navy);
+            background: var(--off-white);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            line-height: 1.5;
+        }
+
+        /* HEADER */
+        .app-header {
+            background: var(--navy);
+            padding: 18px 30px 0 30px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .app-header-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--pink); margin-bottom: 5px;
+        }
+        .app-header-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 44px; font-weight: 900;
+            color: var(--white); line-height: 1;
+            letter-spacing: -0.01em; text-transform: uppercase;
+        }
+        .app-header-meta { text-align: right; padding-bottom: 16px; }
+        .app-header-meta p { color: rgba(255,255,255,0.5); font-size: 11px; line-height: 1.6; }
+        .header-accent { height: 5px; background: var(--pink); flex-shrink: 0; }
+
+        /* MODE STRIP */
+        .mode-strip {
+            background: var(--white);
+            border-bottom: 2px solid var(--light-grey);
+            display: flex;
+            flex-shrink: 0;
+            padding: 0 22px;
+        }
+        .mode-btn {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px; font-weight: 700;
+            letter-spacing: 0.12em; text-transform: uppercase;
+            color: var(--mid-grey);
+            background: none; border: none;
+            padding: 11px 16px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.15s;
+        }
+        .mode-btn:hover { color: var(--navy); }
+        .mode-btn.active { color: var(--navy); border-bottom-color: var(--pink); }
+
+        /* BODY */
+        .app-body {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 45% 55%;
+            overflow: hidden;
+        }
+        .left-panel {
+            overflow-y: auto;
+            padding: 22px 22px 30px;
+            border-right: 2px solid var(--light-grey);
+        }
+        .right-panel {
+            overflow-y: auto;
+            background: var(--white);
+            padding: 22px 22px 30px;
+        }
+
+        /* SECTION HEAD */
+        .section-head {
+            display: flex; align-items: baseline;
+            gap: 12px; margin: 22px 0 14px;
+            padding-bottom: 10px;
+            border-bottom: 2.5px solid var(--navy);
+        }
+        .section-head:first-child { margin-top: 0; }
+        .section-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 0.16em; text-transform: uppercase;
+            color: var(--pink); white-space: nowrap;
+        }
+        .section-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 22px; font-weight: 900;
+            color: var(--navy); text-transform: uppercase;
+            letter-spacing: 0.01em; line-height: 1;
+        }
+
+        /* RULED CARD */
+        .ruled-card {
+            border-top: 3px solid var(--navy);
+            border-left: 1px solid var(--light-grey);
+            border-right: 1px solid var(--light-grey);
+            border-bottom: 1px solid var(--light-grey);
+            background: var(--white);
+            margin-bottom: 16px;
+        }
+        .ruled-card-inner { padding: 18px; }
+
+        /* FIELD LABEL */
+        .field-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px; font-weight: 700;
+            letter-spacing: 0.12em; text-transform: uppercase;
+            color: var(--navy); display: block; margin-bottom: 7px;
+        }
+
+        /* TEXT INPUT */
+        .text-input {
+            font-family: 'Barlow', sans-serif;
+            font-size: 14px; font-weight: 500;
+            padding: 10px 12px;
+            border: 1.5px solid var(--light-grey);
+            border-top: 2.5px solid var(--navy);
+            width: 100%; color: var(--navy); outline: none;
+            background: var(--white); transition: border-color 0.15s;
+        }
+        .text-input:focus { border-color: var(--pink); border-top-color: var(--pink); }
+        .text-input::placeholder { color: var(--mid-grey); font-weight: 400; }
+        textarea.text-input { resize: vertical; min-height: 90px; line-height: 1.5; }
+
+        /* TWO COL */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        /* GRADE BUTTONS */
+        .grade-row { display: flex; gap: 8px; }
+        .grade-btn {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 22px; font-weight: 900;
+            width: 48px; height: 48px;
+            border: 2px solid var(--light-grey);
+            background: var(--white); color: var(--mid-grey);
+            cursor: pointer; transition: all 0.1s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .grade-btn:hover { border-color: var(--navy); color: var(--navy); }
+        .grade-btn.active { background: var(--navy); color: var(--white); border-color: var(--navy); }
+
+        /* SKILLS TABLE */
+        .skills-table { width: 100%; border-collapse: collapse; }
+        .skills-table thead tr { background: var(--navy); }
+        .skills-table th {
+            padding: 9px 12px; text-align: left;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px; font-weight: 700;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            color: var(--white); border: none;
+        }
+        .skills-table th.center { text-align: center; }
+        .skills-table td {
+            padding: 9px 12px;
+            border-bottom: 1px solid var(--light-grey);
+            font-size: 13px; vertical-align: middle;
+        }
+        .skills-table td.center { text-align: center; }
+        .skills-table tbody tr:last-child > td { border-bottom: none; }
+        .skills-table tbody tr:nth-child(4n+1) td,
+        .skills-table tbody tr:nth-child(4n+2) td { background: #fafafa; }
+        .skill-name { font-weight: 700; }
+        .skill-question { font-size: 11px; color: var(--mid-grey); font-weight: 400; }
+
+        /* MARK BUTTONS */
+        .mark-btns { display: flex; gap: 6px; justify-content: center; }
+        .mark-btn {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 16px; font-weight: 900;
+            width: 36px; height: 36px;
+            border: 2px solid var(--light-grey);
+            background: var(--white); color: var(--mid-grey);
+            cursor: pointer; transition: all 0.1s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .mark-btn:hover { border-color: var(--navy); color: var(--navy); }
+        .mark-btn.active-2 { background: var(--navy); color: var(--white); border-color: var(--navy); }
+        .mark-btn.active-1 { background: var(--pink); color: var(--white); border-color: var(--pink); }
+        .mark-btn.active-0 { background: #b0192e; color: var(--white); border-color: #b0192e; }
+
+        /* EDIT OVERRIDE BUTTON */
+        .edit-btn {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px; font-weight: 700;
+            letter-spacing: 0.08em; text-transform: uppercase;
+            background: none; border: 1.5px solid var(--light-grey);
+            color: var(--mid-grey); padding: 4px 9px;
+            cursor: pointer; transition: all 0.1s; white-space: nowrap;
+        }
+        .edit-btn:hover { border-color: var(--navy); color: var(--navy); }
+        .edit-btn.has-override { border-color: var(--amber); color: var(--amber); }
+
+        /* OVERRIDE EXPAND */
+        .override-row { display: none; }
+        .override-row.open { display: table-row; }
+        .override-expand {
+            padding: 14px 14px 14px 16px;
+            background: #fffbf5;
+            border-left: 4px solid var(--amber);
+        }
+        .override-expand .ov-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 0.12em; text-transform: uppercase;
+            color: var(--amber); display: block; margin-bottom: 5px;
+        }
+        .override-textarea {
+            font-family: 'Barlow', sans-serif;
+            font-size: 12px; line-height: 1.5;
+            width: 100%; padding: 8px 10px;
+            border: 1.5px solid #f0d090;
+            border-top: 2px solid var(--amber);
+            outline: none; resize: vertical; min-height: 58px;
+            background: var(--white); color: var(--navy);
+            margin-bottom: 10px;
+        }
+        .override-textarea:focus { border-color: var(--amber); }
+        .override-actions { display: flex; gap: 8px; }
+        .save-btn {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 12px; font-weight: 700;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            background: var(--amber); color: var(--white);
+            border: none; padding: 7px 16px; cursor: pointer;
+        }
+        .save-btn:hover { background: #92400e; }
+        .reset-btn {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 12px; font-weight: 700;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            background: none; color: var(--mid-grey);
+            border: 1.5px solid var(--light-grey); padding: 7px 16px; cursor: pointer;
+        }
+        .reset-btn:hover { color: var(--navy); border-color: var(--navy); }
+
+        /* PASTE ROW */
+        .paste-row { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 16px; }
+        .paste-row .text-input { flex: 1; }
+
+        /* NOTE BOX */
+        .note-box {
+            border-left: 4px solid var(--navy);
+            background: var(--off-white);
+            padding: 11px 14px; margin-bottom: 16px;
+        }
+        .note-box .note-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--navy); margin-bottom: 4px;
+        }
+        .note-box p { font-size: 12px; line-height: 1.5; color: var(--navy); }
+
+        /* PRAISE OPTIONS */
+        .praise-option {
+            display: flex; align-items: flex-start;
+            gap: 12px; padding: 12px 16px;
+            border-bottom: 1px solid var(--light-grey);
+            cursor: pointer; transition: background 0.1s;
+        }
+        .praise-option:last-child { border-bottom: none; }
+        .praise-option:hover { background: var(--off-white); }
+        .praise-option.selected { background: #eef0f8; border-left: 4px solid var(--navy); padding-left: 12px; }
+        .praise-radio {
+            width: 18px; height: 18px;
+            border: 2px solid var(--light-grey); border-radius: 50%;
+            flex-shrink: 0; margin-top: 3px;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.1s;
+        }
+        .praise-option.selected .praise-radio { border-color: var(--navy); background: var(--navy); }
+        .praise-radio-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--white); opacity: 0; transition: opacity 0.1s; }
+        .praise-option.selected .praise-radio-dot { opacity: 1; }
+        .praise-lbl {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px; font-weight: 700;
+            letter-spacing: 0.08em; text-transform: uppercase;
+            color: var(--pink); margin-bottom: 2px;
+        }
+        .praise-txt { font-size: 12px; color: var(--navy); line-height: 1.5; }
+
+        /* ACTION BUTTONS */
+        .action-btn {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 14px; font-weight: 700;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            background: var(--navy); color: var(--white);
+            border: none; padding: 11px 22px;
+            cursor: pointer; display: inline-flex;
+            align-items: center; gap: 8px;
+            transition: background 0.15s; white-space: nowrap;
+        }
+        .action-btn:hover { background: var(--pink); }
+        .action-btn.copied { background: var(--green); }
+        .action-btn:disabled { background: var(--mid-grey); cursor: default; }
+        .action-btn.secondary {
+            background: var(--off-white); color: var(--navy);
+            border: 1.5px solid var(--light-grey);
+        }
+        .action-btn.secondary:hover { background: var(--light-grey); }
+
+        /* SINGLE PREVIEW */
+        .output-box {
+            border-left: 4px solid var(--pink);
+            background: var(--off-white);
+            padding: 16px 18px; margin-bottom: 14px;
+            font-size: 13px; line-height: 1.85;
+            color: var(--navy); min-height: 100px;
+        }
+        .output-placeholder { color: var(--mid-grey); font-style: italic; }
+
+        /* BULK PREVIEW */
+        .bulk-header {
+            display: flex; align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px; padding-bottom: 12px;
+            border-bottom: 2.5px solid var(--navy);
+        }
+        .bulk-count {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 22px; font-weight: 900;
+            color: var(--navy); text-transform: uppercase;
+        }
+        .bulk-count span { color: var(--pink); }
+        .comment-card {
+            border-top: 3px solid var(--navy);
+            border-left: 1px solid var(--light-grey);
+            border-right: 1px solid var(--light-grey);
+            border-bottom: 1px solid var(--light-grey);
+            background: var(--white);
+            margin-bottom: 14px;
+        }
+        .comment-card-header {
+            background: var(--navy);
+            padding: 7px 14px;
+            display: flex; align-items: center;
+            justify-content: space-between;
+        }
+        .comment-card-name {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 14px; font-weight: 800;
+            letter-spacing: 0.08em; text-transform: uppercase;
+            color: var(--white);
+        }
+        .comment-card-grade {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px; font-weight: 700;
+            color: var(--pink);
+        }
+        .comment-card-body {
+            padding: 14px;
+            font-size: 12px; line-height: 1.85;
+            color: var(--navy);
+        }
+        .comment-card-footer {
+            padding: 10px 14px;
+            border-top: 1px solid var(--light-grey);
+            background: var(--off-white);
+            text-align: right;
+        }
+        .bulk-empty {
+            text-align: center; padding: 50px 20px;
+            color: var(--mid-grey); font-size: 13px; font-style: italic;
+        }
+
+        /* BULK PRAISE PICKER */
+        .bulk-praise-wrap {
+            border-top: 1px solid var(--light-grey);
+            background: var(--off-white);
+            padding: 10px 14px;
+        }
+        .bulk-praise-wrap-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 0.15em; text-transform: uppercase;
+            color: var(--pink); margin-bottom: 8px; display: block;
+        }
+        .bulk-praise-options {
+            display: flex; flex-wrap: wrap; gap: 6px;
+        }
+        .bulk-praise-chip {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px; font-weight: 700;
+            letter-spacing: 0.06em; text-transform: uppercase;
+            padding: 4px 10px;
+            border: 1.5px solid var(--light-grey);
+            background: var(--white); color: var(--mid-grey);
+            cursor: pointer; transition: all 0.1s;
+        }
+        .bulk-praise-chip:hover { border-color: var(--navy); color: var(--navy); }
+        .bulk-praise-chip.active { background: var(--navy); color: var(--white); border-color: var(--navy); }
+
+        /* CONFIGURE TOGGLE */
+        .config-toggle {
+            width: 100%;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 12px; font-weight: 700;
+            letter-spacing: 0.12em; text-transform: uppercase;
+            background: var(--off-white); color: var(--navy);
+            border: 1.5px solid var(--light-grey);
+            border-top: 2.5px solid var(--navy);
+            padding: 11px 14px; cursor: pointer;
+            text-align: left; display: flex;
+            align-items: center; justify-content: space-between;
+        }
+        .config-toggle:hover { background: var(--light-grey); }
+        .config-toggle-arrow { font-size: 10px; transition: transform 0.2s; }
+        .config-toggle.open .config-toggle-arrow { transform: rotate(180deg); }
+        .config-panel { display: none; margin-bottom: 16px; }
+        .config-panel.open { display: block; }
+    </style>
+</head>
+<body>
+
+<div class="app-header">
+    <div>
+        <p class="app-header-label">Science Inquiry Skills</p>
+        <h1 class="app-header-title">Feedback Generator</h1>
+    </div>
+
+</div>
+<div class="header-accent"></div>
+
+<div class="mode-strip">
+    <button class="mode-btn active" id="mode-single" onclick="setMode('single')">Single Student</button>
+    <button class="mode-btn" id="mode-bulk" onclick="setMode('bulk')">Bulk Import</button>
+</div>
+
+<div class="app-body">
+
+    <!-- LEFT PANEL -->
+    <div class="left-panel">
+
+        <!-- SINGLE MODE INPUTS -->
+        <div id="single-inputs">
+            <div class="section-head">
+                <span class="section-label">Step 01</span>
+                <h2 class="section-title">Student Details</h2>
+            </div>
+            <div class="ruled-card">
+                <div class="ruled-card-inner">
+                    <div class="two-col">
+                        <div>
+                            <label class="field-label" for="student-name">First Name</label>
+                            <input type="text" id="student-name" class="text-input" placeholder="e.g. Emma" oninput="generate()">
+                        </div>
+                        <div>
+                            <label class="field-label">Grade</label>
+                            <div class="grade-row" id="single-grade-row">
+                                <button class="grade-btn" data-grade="A" onclick="selectSingleGrade('A')">A</button>
+                                <button class="grade-btn" data-grade="B" onclick="selectSingleGrade('B')">B</button>
+                                <button class="grade-btn" data-grade="C" onclick="selectSingleGrade('C')">C</button>
+                                <button class="grade-btn" data-grade="D" onclick="selectSingleGrade('D')">D</button>
+                                <button class="grade-btn" data-grade="E" onclick="selectSingleGrade('E')">E</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-head">
+                <span class="section-label">Step 02</span>
+                <h2 class="section-title">Skill Marks</h2>
+            </div>
+            <div class="paste-row">
+                <input type="text" id="paste-input" class="text-input" placeholder="Paste Excel cells here..." onpaste="handleSinglePaste(event)">
+                <button class="action-btn secondary" onclick="clearMarks()">&#10005;&nbsp; Clear</button>
+            </div>
+            <div class="ruled-card" style="margin-bottom:16px;">
+                <table class="skills-table" id="skills-table"></table>
+            </div>
+
+            <!-- Praise picker, shown only when all 2s -->
+            <div id="praise-section" style="display:none;">
+                <div class="section-head">
+                    <span class="section-label">Step 02b</span>
+                    <h2 class="section-title">Praise Statement</h2>
+                </div>
+                <div class="note-box">
+                    <p class="note-label">All marks are full marks</p>
+                    <p>Optionally select one area to highlight. Leave unselected to omit.</p>
+                </div>
+                <div class="ruled-card" style="margin-bottom:0;">
+                    <div id="praise-options"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BULK MODE INPUTS -->
+        <div id="bulk-inputs" style="display:none;">
+            <div class="section-head">
+                <span class="section-label">Step 01</span>
+                <h2 class="section-title">Paste Student Data</h2>
+            </div>
+            <div class="note-box">
+                <p class="note-label">Expected format</p>
+                <p>Each row is one student. The name cell should be in "Last, First" format followed by 12 mark values. Paste directly from Excel. Adjectives are determined automatically based on the number of things requiring improvement.</p>
+            </div>
+            <div class="ruled-card">
+                <div class="ruled-card-inner">
+                    <label class="field-label" for="bulk-paste">Paste from Excel</label>
+                    <textarea id="bulk-paste" class="text-input" placeholder="Doe, Jane&#9;2&#9;2&#9;1&#9;2&#9;2&#9;2&#9;2&#9;2&#9;2&#9;2&#9;2&#9;2" oninput="parseBulk()" style="min-height:110px;"></textarea>
+                </div>
+            </div>
+
+            <button class="config-toggle" id="config-toggle-btn" onclick="toggleConfig()">
+                <span>Configure Skill Text Overrides</span>
+                <span class="config-toggle-arrow">&#9660;</span>
+            </button>
+            <div class="config-panel" id="config-panel">
+                <div class="ruled-card" style="margin-top:0; border-top:1px solid var(--light-grey);">
+                    <table class="skills-table" id="config-table"></table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+
+        <!-- SINGLE PREVIEW -->
+        <div id="single-preview">
+            <div class="section-head">
+                <span class="section-label">Preview</span>
+                <h2 class="section-title">Generated Comment</h2>
+            </div>
+            <div class="output-box" id="output-box">
+                <span class="output-placeholder">Enter student details and marks to generate a comment.</span>
+            </div>
+            <button class="action-btn" id="copy-btn" onclick="copySingle()" disabled>&#10064;&nbsp; Copy to Clipboard</button>
+        </div>
+
+        <!-- BULK PREVIEW -->
+        <div id="bulk-preview" style="display:none;">
+            <div class="bulk-header">
+                <div class="bulk-count"><span id="bulk-count-num">0</span> Students</div>
+                <button class="action-btn" id="copy-all-btn" onclick="copyAll()" disabled>&#10064;&nbsp; Copy All</button>
+            </div>
+            <div id="bulk-cards">
+                <div class="bulk-empty">Paste student data on the left to generate comments.</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════
+
+const DEFAULT_SKILLS = [
+    {
+        id: 'lab_equipment', label: 'Lab Equipment', questions: '',
+        improvement: 'ensure you are familiar with the different pieces of lab equipment, as you will need to continually interact and refer to these items throughout your science studies',
+        praise: 'Your familiarity with the lab equipment this term was great to see. You confidently identified and worked with the different pieces of equipment across each experiment.'
+    },
+    {
+        id: 'measuring_cylinder', label: 'Measuring Cylinder', questions: 'Q8',
+        improvement: 'ensure you correctly read and interpret the volume of liquids when using an instrument like a beaker or measuring cylinder',
+        praise: 'It was fantastic to see your confidence when reading and interpreting liquid volumes. You used the measuring cylinder with real accuracy and care throughout the task.'
+    },
+    {
+        id: 'balance', label: 'Balance', questions: 'Q2, Q6, Q9',
+        improvement: 'ensure that you understand when and where to use specific units of measurement, and how to read and interpret the values on an electronic balance',
+        praise: 'You showed excellent confidence working with the electronic balance, correctly applying appropriate units and accurately reading the displayed values each time.'
+    },
+    {
+        id: 'volume', label: 'Volume', questions: 'Q4',
+        improvement: 'ensure that you understand how to calculate the volume and density of objects',
+        praise: 'Your understanding of how to calculate volume and density was impressive throughout. You applied the relevant equations accurately and with clear understanding.'
+    },
+    {
+        id: 'bunsen_burners', label: 'Bunsen Burners', questions: '',
+        improvement: 'ensure that you can correctly identify the steps to safely lighting a Bunsen Burner',
+        praise: 'You demonstrated a clear and confident understanding of how to safely light a Bunsen Burner, following each step correctly and working with great care.'
+    },
+    {
+        id: 'id_variables', label: 'ID Variables', questions: '',
+        improvement: 'ensure that you can correctly identify the independent and dependent variable of an experiment',
+        praise: 'You showed a strong grasp of experimental design, correctly identifying both the independent and dependent variables with confidence and real precision.'
+    },
+    {
+        id: 'ra', label: 'RA', questions: '',
+        improvement: 'ensure you are correctly identifying and are aware of the various safety risks in the lab to ensure you can safely engage with future experiments',
+        praise: 'Your approach to lab safety was commendable. You demonstrated a strong awareness of the risks involved and consistently identified the appropriate precautions.'
+    },
+    {
+        id: 'table', label: 'Table', questions: '',
+        improvement: 'ensure you are familiar with basic data entry when you are creating your tables, as you will continue to collect and present data in your future science lessons',
+        praise: 'Your data tables were neat, complete, and well-constructed. You presented your collected results clearly and accurately throughout the task.'
+    },
+    {
+        id: 'graph', label: 'Graph', questions: '',
+        improvement: 'ensure you are familiar with the axes that independent and dependent variables go on',
+        praise: 'Your graphs showed a confident understanding of how to set up axes correctly, with the independent and dependent variables placed exactly where they should be.'
+    },
+    {
+        id: 'density', label: 'Density', questions: '',
+        improvement: 'ensure that you justify your statements thoroughly and practise using the equation to calculate density',
+        praise: 'Your written responses around density were well-reasoned and thorough. You clearly understood and confidently applied the density equation throughout the task.'
+    },
+    {
+        id: 'method', label: 'Method', questions: '',
+        improvement: 'ensure you review the methods of separating soluble and insoluble substances',
+        praise: 'Your understanding of the methods used to separate soluble and insoluble substances came through clearly in your responses. Really well done!'
+    },
+    {
+        id: 'material_list', label: 'Material List', questions: '',
+        improvement: 'ensure you can correctly list scientific experiment material lists by ensuring you cover all required equipment items, and that you can refer to specific sizes and quantities',
+        praise: 'Your material lists were detailed and precise, covering all required equipment items with specific sizes and quantities included. A really thorough effort here.'
+    },
+];
+
+const EXTRA_PRAISE = {
+    id: '_writing',
+    label: 'Scientific Writing and Effort',
+    text: 'Throughout this assessment, your use of formal scientific language and terminology was excellent. Your responses were well-structured, precise, and showed a genuine engagement with the content that was a pleasure to read.'
+};
+
+const gradeData = {
+    A: { achievement: 'very high', article: 'an', closing: 'excellent' },
+    B: { achievement: 'high',      article: 'a',  closing: 'great'     },
+    C: { achievement: 'satisfactory', article: 'a', closing: 'solid'   },
+    D: { achievement: 'developing', article: 'an', closing: 'adequate' },
+    E: { achievement: 'limited',   article: 'a',  closing: 'developing'},
+};
+
+const connectors = ['Also,', 'Additionally,', 'Further to this,', 'It would also help to'];
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+
+let currentMode = 'single';
+let singleGrade = null;
+let bulkGrade = null;
+let singleMarks = {};
+let selectedPraise = null;
+let bulkStudents = [];
+let bulkPraiseSelections = {};
+let praiseOptions = [];
+
+DEFAULT_SKILLS.forEach(s => { singleMarks[s.id] = 2; });
+
+// ═══════════════════════════════════════
+// LOCAL STORAGE (overrides only, no names)
+// ═══════════════════════════════════════
+
+function loadOverrides() {
+    try { return JSON.parse(localStorage.getItem('sas_overrides') || '{}'); }
+    catch { return {}; }
+}
+
+function saveOverride(skillId, improvement, praise) {
+    const o = loadOverrides();
+    o[skillId] = { improvement, praise };
+    localStorage.setItem('sas_overrides', JSON.stringify(o));
+}
+
+function resetOverride(skillId) {
+    const o = loadOverrides();
+    delete o[skillId];
+    localStorage.setItem('sas_overrides', JSON.stringify(o));
+}
+
+function getSkill(skillId) {
+    const base = DEFAULT_SKILLS.find(s => s.id === skillId);
+    const o = loadOverrides()[skillId];
+    if (!o) return base;
+    return { ...base, improvement: o.improvement ?? base.improvement, praise: o.praise ?? base.praise };
+}
+
+// ═══════════════════════════════════════
+// MODE
+// ═══════════════════════════════════════
+
+function setMode(mode) {
+    currentMode = mode;
+    document.getElementById('mode-single').classList.toggle('active', mode === 'single');
+    document.getElementById('mode-bulk').classList.toggle('active', mode === 'bulk');
+    document.getElementById('single-inputs').style.display = mode === 'single' ? 'block' : 'none';
+    document.getElementById('bulk-inputs').style.display = mode === 'bulk' ? 'block' : 'none';
+    document.getElementById('single-preview').style.display = mode === 'single' ? 'block' : 'none';
+    document.getElementById('bulk-preview').style.display = mode === 'bulk' ? 'block' : 'none';
+}
+
+// ═══════════════════════════════════════
+// SKILLS TABLE (single mode)
+// ═══════════════════════════════════════
+
+function buildSkillsTable() {
+    const table = document.getElementById('skills-table');
+    table.innerHTML = '';
+    const thead = document.createElement('thead');
+    thead.innerHTML = `<tr>
+        <th>Skill</th>
+        <th class="center" style="width:115px;">Mark</th>
+        <th class="center" style="width:75px;">Override</th>
+    </tr>`;
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    const overrides = loadOverrides();
+
+    DEFAULT_SKILLS.forEach(skill => {
+        const hasOverride = !!overrides[skill.id];
+        const qLabel = skill.questions ? ` <span class="skill-question">(${skill.questions})</span>` : '';
+        const cur = getSkill(skill.id);
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><span class="skill-name">${skill.label}</span>${qLabel}</td>
+            <td class="center">
+                <div class="mark-btns">
+                    <button class="mark-btn" data-id="${skill.id}" data-val="0" onclick="setMark('${skill.id}',0)">0</button>
+                    <button class="mark-btn" data-id="${skill.id}" data-val="1" onclick="setMark('${skill.id}',1)">1</button>
+                    <button class="mark-btn active-2" data-id="${skill.id}" data-val="2" onclick="setMark('${skill.id}',2)">2</button>
+                </div>
+            </td>
+            <td class="center">
+                <button class="edit-btn${hasOverride ? ' has-override' : ''}" id="editbtn-${skill.id}" onclick="toggleOverrideRow('${skill.id}','skills-table')">
+                    ${hasOverride ? '&#9998; Edited' : 'Edit'}
+                </button>
+            </td>`;
+        tbody.appendChild(tr);
+
+        const expandRow = document.createElement('tr');
+        expandRow.className = 'override-row';
+        expandRow.id = `override-${skill.id}`;
+        expandRow.innerHTML = `
+            <td colspan="3" style="padding:0;">
+                <div class="override-expand">
+                    <span class="ov-label">Improvement Statement</span>
+                    <textarea class="override-textarea" id="ov-imp-${skill.id}">${cur.improvement}</textarea>
+                    <span class="ov-label">Praise Statement</span>
+                    <textarea class="override-textarea" id="ov-praise-${skill.id}">${cur.praise}</textarea>
+                    <div class="override-actions">
+                        <button class="save-btn" onclick="saveSkillOverride('${skill.id}')">Save Override</button>
+                        <button class="reset-btn" onclick="resetSkillOverride('${skill.id}')">Reset to Default</button>
+                    </div>
+                </div>
+            </td>`;
+        tbody.appendChild(expandRow);
+    });
+    table.appendChild(tbody);
+}
+
+// ═══════════════════════════════════════
+// CONFIG TABLE (bulk mode)
+// ═══════════════════════════════════════
+
+function buildConfigTable() {
+    const table = document.getElementById('config-table');
+    table.innerHTML = '';
+    const thead = document.createElement('thead');
+    thead.innerHTML = `<tr><th>Skill</th><th class="center" style="width:75px;">Override</th></tr>`;
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    const overrides = loadOverrides();
+
+    DEFAULT_SKILLS.forEach(skill => {
+        const hasOverride = !!overrides[skill.id];
+        const cur = getSkill(skill.id);
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><span class="skill-name">${skill.label}</span></td>
+            <td class="center">
+                <button class="edit-btn${hasOverride ? ' has-override' : ''}" id="cfgbtn-${skill.id}" onclick="toggleOverrideRow('${skill.id}','config-table')">
+                    ${hasOverride ? '&#9998; Edited' : 'Edit'}
+                </button>
+            </td>`;
+        tbody.appendChild(tr);
+
+        const expandRow = document.createElement('tr');
+        expandRow.className = 'override-row';
+        expandRow.id = `cfg-override-${skill.id}`;
+        expandRow.innerHTML = `
+            <td colspan="2" style="padding:0;">
+                <div class="override-expand">
+                    <span class="ov-label">Improvement Statement</span>
+                    <textarea class="override-textarea" id="cfg-imp-${skill.id}">${cur.improvement}</textarea>
+                    <span class="ov-label">Praise Statement</span>
+                    <textarea class="override-textarea" id="cfg-praise-${skill.id}">${cur.praise}</textarea>
+                    <div class="override-actions">
+                        <button class="save-btn" onclick="saveConfigOverride('${skill.id}')">Save Override</button>
+                        <button class="reset-btn" onclick="resetConfigOverride('${skill.id}')">Reset to Default</button>
+                    </div>
+                </div>
+            </td>`;
+        tbody.appendChild(expandRow);
+    });
+    table.appendChild(tbody);
+}
+
+// ═══════════════════════════════════════
+// OVERRIDE TOGGLE & SAVE
+// ═══════════════════════════════════════
+
+function toggleOverrideRow(id, tableId) {
+    const prefix = tableId === 'skills-table' ? 'override-' : 'cfg-override-';
+    const row = document.getElementById(prefix + id);
+    const isOpen = row.classList.contains('open');
+    document.querySelectorAll('.override-row.open').forEach(r => r.classList.remove('open'));
+    if (!isOpen) row.classList.add('open');
+}
+
+function saveSkillOverride(id) {
+    const imp = document.getElementById(`ov-imp-${id}`).value.trim();
+    const praise = document.getElementById(`ov-praise-${id}`).value.trim();
+    saveOverride(id, imp, praise);
+    buildSkillsTable();
+    restoreMarkButtons();
+    buildPraiseOptions();
+    generate();
+}
+
+function resetSkillOverride(id) {
+    resetOverride(id);
+    buildSkillsTable();
+    restoreMarkButtons();
+    buildPraiseOptions();
+    generate();
+}
+
+function saveConfigOverride(id) {
+    const imp = document.getElementById(`cfg-imp-${id}`).value.trim();
+    const praise = document.getElementById(`cfg-praise-${id}`).value.trim();
+    saveOverride(id, imp, praise);
+    buildConfigTable();
+    parseBulk();
+}
+
+function resetConfigOverride(id) {
+    resetOverride(id);
+    buildConfigTable();
+    parseBulk();
+}
+
+function restoreMarkButtons() {
+    DEFAULT_SKILLS.forEach(s => {
+        const val = singleMarks[s.id];
+        document.querySelectorAll(`.mark-btn[data-id="${s.id}"]`).forEach(btn => {
+            btn.className = 'mark-btn';
+            if (parseInt(btn.dataset.val) === val) btn.classList.add(`active-${val}`);
+        });
+    });
+}
+
+// ═══════════════════════════════════════
+// PRAISE OPTIONS
+// ═══════════════════════════════════════
+
+function buildPraiseOptions() {
+    const container = document.getElementById('praise-options');
+    container.innerHTML = '';
+    selectedPraise = null;
+
+    praiseOptions = DEFAULT_SKILLS.map(s => {
+        const skill = getSkill(s.id);
+        return { id: s.id, label: s.label, text: skill.praise };
+    });
+    praiseOptions.push({ id: EXTRA_PRAISE.id, label: EXTRA_PRAISE.label, text: EXTRA_PRAISE.text });
+
+    praiseOptions.forEach((opt, i) => {
+        const div = document.createElement('div');
+        div.className = 'praise-option';
+        div.innerHTML = `
+            <div class="praise-radio"><div class="praise-radio-dot"></div></div>
+            <div>
+                <p class="praise-lbl">${opt.label}</p>
+                <p class="praise-txt">${opt.text}</p>
+            </div>`;
+        div.addEventListener('click', () => {
+            if (selectedPraise === i) {
+                selectedPraise = null;
+                div.classList.remove('selected');
+            } else {
+                selectedPraise = i;
+                container.querySelectorAll('.praise-option').forEach(el => el.classList.remove('selected'));
+                div.classList.add('selected');
+            }
+            generate();
+        });
+        container.appendChild(div);
+    });
+}
+
+// ═══════════════════════════════════════
+// GRADE SELECTION
+// ═══════════════════════════════════════
+
+function selectSingleGrade(g) {
+    singleGrade = g;
+    document.querySelectorAll('#single-grade-row .grade-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.grade === g);
+    });
+    generate();
+}
+
+function gradeFromMarks(marks) {
+    const count = DEFAULT_SKILLS.filter(s => (marks[s.id] ?? 2) < 2).length;
+    if (count <= 1) return 'A';
+    if (count <= 2) return 'B';
+    return 'C';
+}
+
+// ═══════════════════════════════════════
+// MARKS (SINGLE)
+// ═══════════════════════════════════════
+
+function setMark(id, val) {
+    singleMarks[id] = val;
+    document.querySelectorAll(`.mark-btn[data-id="${id}"]`).forEach(btn => {
+        btn.className = 'mark-btn';
+        if (parseInt(btn.dataset.val) === val) btn.classList.add(`active-${val}`);
+    });
+    generate();
+}
+
+function handleSinglePaste(e) {
+    e.preventDefault();
+    const raw = (e.clipboardData || window.clipboardData).getData('text');
+    const values = raw.trim().split(/[\t\n\r]+/).map(v => v.trim()).filter(v => v !== '');
+    values.forEach((val, i) => {
+        if (i >= DEFAULT_SKILLS.length) return;
+        const num = parseInt(val);
+        if ([0, 1, 2].includes(num)) {
+            singleMarks[DEFAULT_SKILLS[i].id] = num;
+            document.querySelectorAll(`.mark-btn[data-id="${DEFAULT_SKILLS[i].id}"]`).forEach(btn => {
+                btn.className = 'mark-btn';
+                if (parseInt(btn.dataset.val) === num) btn.classList.add(`active-${num}`);
+            });
+        }
+    });
+    e.target.value = '';
+    generate();
+}
+
+function clearMarks() {
+    DEFAULT_SKILLS.forEach(s => {
+        singleMarks[s.id] = 2;
+        document.querySelectorAll(`.mark-btn[data-id="${s.id}"]`).forEach(btn => {
+            btn.className = 'mark-btn';
+            if (btn.dataset.val === '2') btn.classList.add('active-2');
+        });
+    });
+    document.getElementById('paste-input').value = '';
+    generate();
+}
+
+// ═══════════════════════════════════════
+// COMMENT BUILDER
+// ═══════════════════════════════════════
+
+function buildImprovements(items) {
+    if (!items.length) return '';
+    if (items.length === 1) return `To improve, ${items[0]}.`;
+    let text = `To improve, ${items[0]}.`;
+    for (let i = 1; i < items.length; i++) {
+        text += ` ${connectors[Math.min(i - 1, connectors.length - 1)]} ${items[i]}.`;
+    }
+    return text;
+}
+
+function buildComment(name, grade, marks, praiseText) {
+    const gd = gradeData[grade];
+    const opening = 'The Science Inquiry Skills were a series of scaffolded in class assessment tasks that introduced new concepts and skills. It involved completing a series of experiments, which focused on specific techniques and concepts.';
+    let achievement;
+    if (grade === 'D') {
+        achievement = `${name}, you demonstrated a developing understanding of each skill, and showed effort throughout the experiments conducted during the term.`;
+    } else if (grade === 'E') {
+        achievement = `${name}, you are working towards the required standard for each skill, and with further practise and revision, can improve across the experiments conducted throughout the term.`;
+    } else {
+        achievement = `${name}, you performed each skill to a ${gd.achievement} overall standard, analysed data thoroughly, and provided accurate statements about the experiments conducted throughout the term.`;
+    }
+    const needsImprovement = DEFAULT_SKILLS
+        .filter(s => (marks[s.id] ?? 2) < 2)
+        .map(s => getSkill(s.id).improvement)
+        .filter(Boolean);
+    const improvementsText = buildImprovements(needsImprovement);
+    const closing = `Overall, ${gd.article} ${gd.closing} effort and result.`;
+    const parts = [opening, achievement];
+    if (praiseText) parts.push(praiseText);
+    if (improvementsText) parts.push(improvementsText);
+    parts.push(closing);
+    return parts.join(' ');
+}
+
+// ═══════════════════════════════════════
+// SINGLE GENERATE
+// ═══════════════════════════════════════
+
+function generate() {
+    const name = document.getElementById('student-name').value.trim();
+    const box = document.getElementById('output-box');
+    const copyBtn = document.getElementById('copy-btn');
+
+    const allPerfect = DEFAULT_SKILLS.every(s => singleMarks[s.id] === 2);
+    document.getElementById('praise-section').style.display = allPerfect ? 'block' : 'none';
+    if (!allPerfect) {
+        selectedPraise = null;
+        document.querySelectorAll('.praise-option').forEach(el => el.classList.remove('selected'));
+    }
+
+    if (!name || !singleGrade) {
+        box.innerHTML = '<span class="output-placeholder">Enter student details and marks to generate a comment.</span>';
+        copyBtn.disabled = true;
+        return;
+    }
+
+    const praiseText = (allPerfect && selectedPraise !== null) ? praiseOptions[selectedPraise]?.text : null;
+    box.textContent = buildComment(name, singleGrade, singleMarks, praiseText);
+    copyBtn.disabled = false;
+}
+
+function copySingle() {
+    const text = document.getElementById('output-box').textContent;
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copy-btn');
+        btn.innerHTML = '&#10003;&nbsp; Copied!'; btn.classList.add('copied');
+        setTimeout(() => { btn.innerHTML = '&#10064;&nbsp; Copy to Clipboard'; btn.classList.remove('copied'); }, 2200);
+    });
+}
+
+// ═══════════════════════════════════════
+// BULK PARSE & RENDER
+// ═══════════════════════════════════════
+
+function extractFirstName(nameStr) {
+    const s = nameStr.trim();
+    if (s.includes(',')) return s.split(',')[1].trim().split(' ')[0];
+    return s.split(' ')[0];
+}
+
+function parseBulk() {
+    const raw = document.getElementById('bulk-paste').value;
+    const lines = raw.trim().split('\n').map(l => l.trim()).filter(Boolean);
+    bulkStudents = [];
+
+    lines.forEach(line => {
+        const parts = (line.includes('\t') ? line.split('\t') : line.split(/\s{2,}/))
+            .map(p => p.trim()).filter(p => p !== '');
+        if (parts.length < 2) return;
+
+        const firstName = extractFirstName(parts[0]);
+        const markValues_raw = parts.slice(1).map(v => parseInt(v)).filter(v => [0,1,2].includes(v));
+        const marks_temp = {};
+        DEFAULT_SKILLS.forEach((s, i) => { marks_temp[s.id] = markValues_raw[i] !== undefined ? markValues_raw[i] : 2; });
+        const grade = gradeFromMarks(marks_temp);
+        const gradeOffset = 1;
+
+        const marks = marks_temp;
+        bulkStudents.push({ firstName, grade, marks });
+    });
+
+    renderBulkPreview();
+}
+
+function allPerfectMarks(marks) {
+    return DEFAULT_SKILLS.every(s => (marks[s.id] ?? 2) === 2);
+}
+
+function updateBulkCard(i) {
+    const student = bulkStudents[i];
+    const praiseText = (allPerfectMarks(student.marks) && bulkPraiseSelections[i] !== undefined)
+        ? praiseOptions[bulkPraiseSelections[i]]?.text : null;
+    const comment = buildComment(student.firstName, student.grade, student.marks, praiseText);
+    const bodyEl = document.getElementById(`card-body-${i}`);
+    if (bodyEl) bodyEl.textContent = comment;
+}
+
+function selectBulkPraise(studentIdx, praiseIdx) {
+    if (bulkPraiseSelections[studentIdx] === praiseIdx) {
+        delete bulkPraiseSelections[studentIdx];
+    } else {
+        bulkPraiseSelections[studentIdx] = praiseIdx;
+    }
+    // Update chip styles
+    const container = document.getElementById(`bulk-praise-${studentIdx}`);
+    if (container) {
+        container.querySelectorAll('.bulk-praise-chip').forEach((chip, ci) => {
+            chip.classList.toggle('active', bulkPraiseSelections[studentIdx] === ci);
+        });
+    }
+    updateBulkCard(studentIdx);
+}
+
+function renderBulkPreview() {
+    document.getElementById('bulk-count-num').textContent = bulkStudents.length;
+    const cardsEl = document.getElementById('bulk-cards');
+    const copyAllBtn = document.getElementById('copy-all-btn');
+    bulkPraiseSelections = {};
+
+    if (!bulkStudents.length) {
+        cardsEl.innerHTML = '<div class="bulk-empty">Paste student data on the left to generate comments.</div>';
+        copyAllBtn.disabled = true;
+        return;
+    }
+
+    copyAllBtn.disabled = false;
+    cardsEl.innerHTML = '';
+
+    bulkStudents.forEach((student, i) => {
+        const comment = buildComment(student.firstName, student.grade, student.marks, null);
+        const isPerfect = allPerfectMarks(student.marks);
+
+        const card = document.createElement('div');
+        card.className = 'comment-card';
+
+        let praiseHtml = '';
+        if (isPerfect) {
+            const chips = praiseOptions.map((opt, pi) =>
+                `<button class="bulk-praise-chip" onclick="selectBulkPraise(${i}, ${pi})">${opt.label}</button>`
+            ).join('');
+            praiseHtml = `
+                <div class="bulk-praise-wrap">
+                    <span class="bulk-praise-wrap-label">&#9733; All full marks -- select a praise highlight (optional)</span>
+                    <div class="bulk-praise-options" id="bulk-praise-${i}">${chips}</div>
+                </div>`;
+        }
+
+        card.innerHTML = `
+            <div class="comment-card-header">
+                <span class="comment-card-name">${student.firstName}</span>
+            </div>
+            ${praiseHtml}
+            <div class="comment-card-body" id="card-body-${i}">${comment}</div>
+            <div class="comment-card-footer">
+                <button class="action-btn" id="card-copy-${i}" onclick="copyCard(${i})">&#10064;&nbsp; Copy</button>
+            </div>`;
+        cardsEl.appendChild(card);
+    });
+}
+
+function copyCard(i) {
+    const student = bulkStudents[i];
+    const praiseText = (allPerfectMarks(student.marks) && bulkPraiseSelections[i] !== undefined)
+        ? praiseOptions[bulkPraiseSelections[i]]?.text : null;
+    const comment = buildComment(student.firstName, student.grade, student.marks, praiseText);
+    navigator.clipboard.writeText(comment).then(() => {
+        const btn = document.getElementById(`card-copy-${i}`);
+        btn.innerHTML = '&#10003;&nbsp; Copied!'; btn.classList.add('copied');
+        setTimeout(() => { btn.innerHTML = '&#10064;&nbsp; Copy'; btn.classList.remove('copied'); }, 2200);
+    });
+}
+
+function copyAll() {
+    if (!bulkStudents.length) return;
+    const all = bulkStudents.map((s, i) => {
+        const praiseText = (allPerfectMarks(s.marks) && bulkPraiseSelections[i] !== undefined)
+            ? praiseOptions[bulkPraiseSelections[i]]?.text : null;
+        return buildComment(s.firstName, s.grade, s.marks, praiseText);
+    }).join('\n\n');
+    navigator.clipboard.writeText(all).then(() => {
+        const btn = document.getElementById('copy-all-btn');
+        btn.innerHTML = '&#10003;&nbsp; Copied All!'; btn.classList.add('copied');
+        setTimeout(() => { btn.innerHTML = '&#10064;&nbsp; Copy All'; btn.classList.remove('copied'); }, 2200);
+    });
+}
+
+function toggleConfig() {
+    document.getElementById('config-panel').classList.toggle('open');
+    document.getElementById('config-toggle-btn').classList.toggle('open');
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+
+buildSkillsTable();
+buildConfigTable();
+buildPraiseOptions();
+</script>
+</body>
+</html>
