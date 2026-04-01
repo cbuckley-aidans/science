@@ -1088,30 +1088,32 @@ function parseBulk() {
     renderBulkPreview();
 }
 
-function allPerfectMarks(marks) {
-    return DEFAULT_SKILLS.every(s => (marks[s.id] ?? 2) === 2);
+function availablePraiseForStudent(marks) {
+    // Include skill praise only if that skill scored full marks; always include the general writing praise
+    return praiseOptions.map((opt, pi) => ({ opt, pi })).filter(({ opt }) =>
+        opt.id === '_writing' || (marks[opt.id] ?? 2) === 2
+    );
 }
 
 function updateBulkCard(i) {
     const student = bulkStudents[i];
-    const praiseText = (allPerfectMarks(student.marks) && bulkPraiseSelections[i] !== undefined)
-        ? praiseOptions[bulkPraiseSelections[i]]?.text : null;
+    const selGlobalIdx = bulkPraiseSelections[i];
+    const praiseText = selGlobalIdx !== undefined ? praiseOptions[selGlobalIdx]?.text : null;
     const comment = buildComment(student.firstName, student.grade, student.marks, praiseText);
     const bodyEl = document.getElementById(`card-body-${i}`);
     if (bodyEl) bodyEl.textContent = comment;
 }
 
-function selectBulkPraise(studentIdx, praiseIdx) {
-    if (bulkPraiseSelections[studentIdx] === praiseIdx) {
+function selectBulkPraise(studentIdx, globalPraiseIdx) {
+    if (bulkPraiseSelections[studentIdx] === globalPraiseIdx) {
         delete bulkPraiseSelections[studentIdx];
     } else {
-        bulkPraiseSelections[studentIdx] = praiseIdx;
+        bulkPraiseSelections[studentIdx] = globalPraiseIdx;
     }
-    // Update chip styles
     const container = document.getElementById(`bulk-praise-${studentIdx}`);
     if (container) {
-        container.querySelectorAll('.bulk-praise-chip').forEach((chip, ci) => {
-            chip.classList.toggle('active', bulkPraiseSelections[studentIdx] === ci);
+        container.querySelectorAll('.bulk-praise-chip').forEach(chip => {
+            chip.classList.toggle('active', parseInt(chip.dataset.pi) === bulkPraiseSelections[studentIdx]);
         });
     }
     updateBulkCard(studentIdx);
@@ -1134,23 +1136,20 @@ function renderBulkPreview() {
 
     bulkStudents.forEach((student, i) => {
         const comment = buildComment(student.firstName, student.grade, student.marks, null);
-        const isPerfect = allPerfectMarks(student.marks);
+        const available = availablePraiseForStudent(student.marks);
 
-        const card = document.createElement('div');
+        const chips = available.map(({ opt, pi }) =>
+            `<button class="bulk-praise-chip" data-pi="${pi}" onclick="selectBulkPraise(${i}, ${pi})">${opt.label}</button>`
+        ).join('');
+
+        const praiseHtml = `
+            <div class="bulk-praise-wrap">
+                <span class="bulk-praise-wrap-label">Praise highlight (optional)</span>
+                <div class="bulk-praise-options" id="bulk-praise-${i}">${chips}</div>
+            </div>`;
+
+        card = document.createElement('div');
         card.className = 'comment-card';
-
-        let praiseHtml = '';
-        if (isPerfect) {
-            const chips = praiseOptions.map((opt, pi) =>
-                `<button class="bulk-praise-chip" onclick="selectBulkPraise(${i}, ${pi})">${opt.label}</button>`
-            ).join('');
-            praiseHtml = `
-                <div class="bulk-praise-wrap">
-                    <span class="bulk-praise-wrap-label">&#9733; All full marks -- select a praise highlight (optional)</span>
-                    <div class="bulk-praise-options" id="bulk-praise-${i}">${chips}</div>
-                </div>`;
-        }
-
         card.innerHTML = `
             <div class="comment-card-header">
                 <span class="comment-card-name">${student.firstName}</span>
@@ -1166,7 +1165,7 @@ function renderBulkPreview() {
 
 function copyCard(i) {
     const student = bulkStudents[i];
-    const praiseText = (allPerfectMarks(student.marks) && bulkPraiseSelections[i] !== undefined)
+    const praiseText = bulkPraiseSelections[i] !== undefined
         ? praiseOptions[bulkPraiseSelections[i]]?.text : null;
     const comment = buildComment(student.firstName, student.grade, student.marks, praiseText);
     navigator.clipboard.writeText(comment).then(() => {
@@ -1179,7 +1178,7 @@ function copyCard(i) {
 function copyAll() {
     if (!bulkStudents.length) return;
     const all = bulkStudents.map((s, i) => {
-        const praiseText = (allPerfectMarks(s.marks) && bulkPraiseSelections[i] !== undefined)
+        const praiseText = bulkPraiseSelections[i] !== undefined
             ? praiseOptions[bulkPraiseSelections[i]]?.text : null;
         return buildComment(s.firstName, s.grade, s.marks, praiseText);
     }).join('\n\n');
