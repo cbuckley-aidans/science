@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sort It Out: Food Webs</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Barlow+Condensed:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+    --navy: #1b1f45;
+    --pink: #ea008a;
+    --producer: #1a6e6e;
+    --producer-light: #e6f7f5;
+    --producer-mid: #a0ddd8;
+    --primary-c: #b45309;
+    --primary-light: #fef3c7;
+    --primary-mid: #fcd34d;
+    --secondary-c: #7c3aed;
+    --secondary-light: #f5f3ff;
+    --secondary-mid: #c4b5fd;
+    --tertiary-c: #a02020;
+    --tertiary-light: #fdf0f0;
+    --tertiary-mid: #f5b8b8;
+    --white: #ffffff;
+    --off-white: #f5f4f0;
+    --light-grey: #e2e0da;
+    --mid-grey: #9a9a9a;
+    --correct: #16a34a;
+    --incorrect: #dc2626;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--off-white); color: var(--navy); overflow-x: hidden; }
+
+.placemat { min-height: 100vh; display: grid; grid-template-rows: auto auto auto 1fr auto; padding: 32px 36px 28px; gap: 0; }
+
+/* HEADER */
+.mat-header { display: flex; align-items: flex-end; justify-content: space-between; padding-bottom: 14px; border-bottom: 4px solid var(--navy); margin-bottom: 16px; gap: 20px; flex-wrap: wrap; }
+.sheet-label { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pink); margin-bottom: 2px; }
+.sheet-title { font-family: 'Barlow Condensed', sans-serif; font-size: 38px; font-weight: 900; text-transform: uppercase; color: var(--navy); letter-spacing: 0.01em; line-height: 1; }
+.score-display { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.score-label { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mid-grey); }
+.score-pips { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; max-width: 320px; }
+.pip { width: 18px; height: 18px; border-radius: 50%; border: 2.5px solid var(--light-grey); background: transparent; transition: background 0.35s, border-color 0.35s, transform 0.25s; }
+.pip.correct   { background: var(--correct);   border-color: var(--correct);   transform: scale(1.2); }
+.pip.incorrect { background: var(--incorrect); border-color: var(--incorrect); transform: scale(1.2); }
+.progress-text { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; color: var(--navy); min-width: 52px; text-align: right; }
+
+/* FORMULA BAR */
+.formula-bar { background: var(--navy); padding: 10px 20px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.formula-plain { font-family: 'Barlow', sans-serif; font-size: 14px; font-weight: 400; font-style: italic; color: rgba(255,255,255,0.6); }
+.formula-pill { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; padding: 3px 10px 2px; }
+.pill-producer  { background: var(--producer);  color: white; }
+.pill-primary   { background: var(--primary-c); color: white; }
+.pill-secondary { background: var(--secondary-c); color: white; }
+.pill-tertiary  { background: var(--tertiary-c); color: white; }
+
+/* COLUMNS */
+.columns-area { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; align-items: stretch; }
+.sort-col { border-radius: 3px; overflow: visible; display: flex; flex-direction: column; border: 2px solid var(--light-grey); }
+.col-top { height: 6px; flex-shrink: 0; border-radius: 2px 2px 0 0; }
+.col-top.producer  { background: var(--producer); }
+.col-top.primary   { background: var(--primary-c); }
+.col-top.secondary { background: var(--secondary-c); }
+.col-top.tertiary  { background: var(--tertiary-c); }
+.col-heading { padding: 12px 14px 10px; border-bottom: 1.5px solid var(--light-grey); background: var(--white); }
+.col-title { font-family: 'Barlow Condensed', sans-serif; font-size: 19px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 3px; }
+.col-title.producer  { color: var(--producer); }
+.col-title.primary   { color: var(--primary-c); }
+.col-title.secondary { color: var(--secondary-c); }
+.col-title.tertiary  { color: var(--tertiary-c); }
+.col-desc { font-size: 11px; font-style: italic; line-height: 1.4; color: var(--mid-grey); }
+.drop-zone { flex: 1; padding: 10px; display: flex; flex-direction: column; gap: 8px; min-height: 120px; background: var(--white); position: relative; border-radius: 0 0 2px 2px; }
+.drop-empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+.drop-empty-text { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #d4d0c8; }
+
+/* PLACED CARDS */
+.placed-card { border-radius: 3px; padding: 10px 28px 10px 12px; border-left: 4px solid; font-size: 14px; line-height: 1.4; position: relative; animation: slideIn 0.35s cubic-bezier(0.22,1,0.36,1); }
+.placed-card.producer  { border-color: var(--producer);   background: var(--producer-light); }
+.placed-card.primary   { border-color: var(--primary-c);  background: var(--primary-light); }
+.placed-card.secondary { border-color: var(--secondary-c); background: var(--secondary-light); }
+.placed-card.tertiary  { border-color: var(--tertiary-c); background: var(--tertiary-light); }
+.placed-card .result-icon { position: absolute; top: 10px; right: 9px; font-size: 13px; font-weight: 800; }
+.placed-card.correct   .result-icon { color: var(--correct); }
+.placed-card.incorrect .result-icon { color: var(--incorrect); }
+.placed-card .placed-ecosystem { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid-grey); display: block; margin-bottom: 2px; }
+.placed-card .placed-name { font-weight: 700; color: var(--navy); font-size: 14px; }
+@keyframes slideIn { from { opacity:0; transform:translateY(-8px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+
+/* FLYING CARD */
+.flying-card { position: fixed; z-index: 10000; pointer-events: none; border-left: 4px solid; border-radius: 3px; padding: 10px 14px; font-family: 'Barlow', sans-serif; font-size: 15px; font-weight: 700; color: var(--navy); will-change: transform; }
+.flying-card.producer  { border-color: var(--producer);   background: var(--producer-light); }
+.flying-card.primary   { border-color: var(--primary-c);  background: var(--primary-light); }
+.flying-card.secondary { border-color: var(--secondary-c); background: var(--secondary-light); }
+.flying-card.tertiary  { border-color: var(--tertiary-c); background: var(--tertiary-light); }
+@keyframes cardFly {
+    0%   { transform: translate(0,0) rotate(0deg) scale(1);
+           box-shadow: 0 20px 60px rgba(0,0,0,0.35); }
+    25%  { transform: translate(calc(var(--dx)*0.25), calc(var(--dy)*0.25 - 50px)) rotate(var(--rot)) scale(1.07);
+           box-shadow: 0 36px 80px rgba(0,0,0,0.45); }
+    65%  { transform: translate(calc(var(--dx)*0.65), calc(var(--dy)*0.65 - 18px)) rotate(calc(var(--rot)*0.35)) scale(1.03);
+           box-shadow: 0 22px 55px rgba(0,0,0,0.35); }
+    88%  { transform: translate(calc(var(--dx)*0.98), calc(var(--dy)*0.98 + 4px)) rotate(-1deg) scale(0.96);
+           box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+    100% { transform: translate(var(--dx), var(--dy)) rotate(0deg) scale(0.95);
+           box-shadow: 0 3px 10px rgba(0,0,0,0.12); }
+}
+
+/* CARD OVERLAY */
+.card-overlay { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; background: rgba(27,31,69,0.6); backdrop-filter: blur(3px); opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+.card-overlay.visible { opacity: 1; pointer-events: all; }
+.overlay-inner { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 20px; width: 100%; max-width: 1000px; padding: 24px; align-items: center; }
+
+/* Food web panel */
+.food-web-panel { background: var(--white); overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.3); transform: scale(0.92); opacity: 0; transition: transform 0.4s cubic-bezier(0.22,1,0.36,1) 0.05s, opacity 0.3s 0.05s; }
+.card-overlay.visible .food-web-panel { transform: scale(1); opacity: 1; }
+.food-web-label { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--white); background: var(--navy); padding: 9px 16px; }
+.food-web-img { width: 100%; height: auto; display: block; max-height: 380px; object-fit: contain; background: var(--off-white); }
+
+/* Card + buttons panel */
+.card-panel { display: flex; flex-direction: column; gap: 14px; }
+.active-card { background: var(--white); border-top: 6px solid var(--pink); padding: 24px 28px 22px; box-shadow: 0 16px 40px rgba(0,0,0,0.22); transform: scale(0.88); opacity: 0; transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), opacity 0.3s; }
+.card-overlay.visible .active-card { transform: scale(1); opacity: 1; }
+.active-card-ecosystem { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--pink); margin-bottom: 4px; }
+.active-card-progress { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid-grey); margin-bottom: 14px; }
+.active-card-name { font-family: 'Barlow Condensed', sans-serif; font-size: 52px; font-weight: 900; text-transform: uppercase; color: var(--navy); line-height: 1; margin-bottom: 10px; }
+.active-card-prompt { font-size: 13px; color: var(--mid-grey); font-style: italic; line-height: 1.45; }
+.active-card.flash-correct   { animation: flashCorrect  0.45s ease; }
+.active-card.flash-incorrect { animation: flashIncorrect 0.45s ease; }
+@keyframes flashCorrect   { 0%{background:var(--white)} 35%{background:#dcfce7} 100%{background:var(--white)} }
+@keyframes flashIncorrect { 0%{background:var(--white)} 35%{background:#fee2e2} 100%{background:var(--white)} }
+
+/* Choice buttons - 2x2 grid */
+.choice-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.choice-btn { padding: 14px 12px 12px; border: 2.5px solid transparent; border-radius: 3px; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-size: 17px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; transition: transform 0.15s, box-shadow 0.15s, background 0.15s, border-color 0.15s; text-align: left; line-height: 1.1; }
+.choice-btn:hover { transform: translateY(-4px); box-shadow: 0 10px 24px rgba(0,0,0,0.2); }
+.choice-btn:active { transform: translateY(0); }
+.choice-btn.producer  { background: var(--producer-light);  color: var(--producer);   border-color: var(--producer-mid); }
+.choice-btn.producer:hover  { background: var(--producer-mid);  border-color: var(--producer); }
+.choice-btn.primary   { background: var(--primary-light);   color: var(--primary-c);  border-color: var(--primary-mid); }
+.choice-btn.primary:hover   { background: var(--primary-mid);   border-color: var(--primary-c); }
+.choice-btn.secondary { background: var(--secondary-light); color: var(--secondary-c); border-color: var(--secondary-mid); }
+.choice-btn.secondary:hover { background: var(--secondary-mid); border-color: var(--secondary-c); }
+.choice-btn.tertiary  { background: var(--tertiary-light);  color: var(--tertiary-c); border-color: var(--tertiary-mid); }
+.choice-btn.tertiary:hover  { background: var(--tertiary-mid);  border-color: var(--tertiary-c); }
+.btn-sub { display: block; font-family: 'Barlow', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 0; text-transform: none; opacity: 0.65; margin-top: 4px; line-height: 1.35; }
+
+/* END OVERLAY */
+.end-overlay { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; background: rgba(27,31,69,0.7); backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity 0.35s; }
+.end-overlay.visible { opacity: 1; pointer-events: all; }
+.end-panel { background: var(--white); border-top: 8px solid var(--pink); padding: 48px 52px; max-width: 480px; width: 90%; text-align: center; box-shadow: 0 28px 70px rgba(0,0,0,0.32); transform: scale(0.9); opacity: 0; transition: transform 0.45s cubic-bezier(0.22,1,0.36,1) 0.1s, opacity 0.35s 0.1s; }
+.end-overlay.visible .end-panel { transform: scale(1); opacity: 1; }
+.end-label { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pink); margin-bottom: 8px; }
+.end-score { font-family: 'Barlow Condensed', sans-serif; font-size: 80px; font-weight: 900; color: var(--navy); line-height: 1; margin-bottom: 8px; }
+.end-denom { font-size: 36px; color: var(--mid-grey); }
+.end-message { font-size: 16px; line-height: 1.55; color: var(--navy); margin-bottom: 28px; }
+.restart-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; background: var(--navy); color: var(--white); border: none; padding: 14px 36px; cursor: pointer; border-radius: 2px; transition: background 0.15s, transform 0.12s; width: 100%; }
+.restart-btn:hover { background: var(--pink); transform: translateY(-2px); }
+
+/* STATUS BAR */
+.status-bar { border-top: 2px solid var(--light-grey); margin-top: 16px; padding-top: 12px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--pink); animation: pulse 1.6s ease-in-out infinite; flex-shrink: 0; }
+.status-dot.done { background: var(--correct); animation: none; }
+.status-dot.idle { background: var(--mid-grey); animation: none; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+.status-text { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mid-grey); }
+.start-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; background: var(--pink); color: var(--white); border: none; padding: 10px 28px; cursor: pointer; border-radius: 2px; transition: background 0.15s, transform 0.12s; margin-left: auto; }
+.start-btn:hover { background: #c4006e; transform: translateY(-2px); }
+.start-btn:disabled { background: var(--mid-grey); cursor: default; transform: none; }
+</style>
+</head>
+<body>
+
+<div class="placemat">
+    <div class="mat-header">
+        <div>
+            <p class="sheet-label">Activity 2 &mdash; Food Webs</p>
+            <h1 class="sheet-title">Sort It Out</h1>
+        </div>
+        <div class="score-display">
+            <span class="score-label">Score</span>
+            <div class="score-pips" id="scorePips"></div>
+            <span class="progress-text" id="progressText">0 / 13</span>
+        </div>
+    </div>
+
+    <div class="formula-bar">
+        <span class="formula-plain">Roles in a food web:</span>
+        <span class="formula-pill pill-producer">Producer</span>
+        <span class="formula-pill pill-primary">Primary Consumer</span>
+        <span class="formula-pill pill-secondary">Secondary Consumer</span>
+        <span class="formula-pill pill-tertiary">Tertiary Consumer</span>
+    </div>
+
+    <div class="columns-area">
+        <div class="sort-col">
+            <div class="col-top producer"></div>
+            <div class="col-heading">
+                <p class="col-title producer">Producer</p>
+                <p class="col-desc">Makes its own food using sunlight. Starts every food chain.</p>
+            </div>
+            <div class="drop-zone" id="zone-producer">
+                <div class="drop-empty"><span class="drop-empty-text">Cards will appear here</span></div>
+            </div>
+        </div>
+        <div class="sort-col">
+            <div class="col-top primary"></div>
+            <div class="col-heading">
+                <p class="col-title primary">Primary Consumer</p>
+                <p class="col-desc">Eats the producer directly. All herbivores are primary consumers.</p>
+            </div>
+            <div class="drop-zone" id="zone-primary">
+                <div class="drop-empty"><span class="drop-empty-text">Cards will appear here</span></div>
+            </div>
+        </div>
+        <div class="sort-col">
+            <div class="col-top secondary"></div>
+            <div class="col-heading">
+                <p class="col-title secondary">Secondary Consumer</p>
+                <p class="col-desc">Eats the primary consumer. Often a carnivore or omnivore.</p>
+            </div>
+            <div class="drop-zone" id="zone-secondary">
+                <div class="drop-empty"><span class="drop-empty-text">Cards will appear here</span></div>
+            </div>
+        </div>
+        <div class="sort-col">
+            <div class="col-top tertiary"></div>
+            <div class="col-heading">
+                <p class="col-title tertiary">Tertiary Consumer</p>
+                <p class="col-desc">Eats the secondary consumer. Often an apex predator.</p>
+            </div>
+            <div class="drop-zone" id="zone-tertiary">
+                <div class="drop-empty"><span class="drop-empty-text">Cards will appear here</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-dot idle" id="statusDot"></div>
+        <span class="status-text" id="statusText">Press Start to begin</span>
+        <button class="start-btn" id="startBtn" onclick="startActivity()">Start Activity</button>
+    </div>
+</div>
+
+<!-- ACTIVE CARD OVERLAY -->
+<div class="card-overlay" id="cardOverlay">
+    <div class="overlay-inner">
+        <div class="food-web-panel">
+            <div class="food-web-label" id="foodWebLabel">Africa Savanna Food Web</div>
+            <img class="food-web-img" id="foodWebImg" src="africa-food-web.png" alt="Food web diagram">
+        </div>
+        <div class="card-panel">
+            <div class="active-card" id="activeCard">
+                <div class="active-card-ecosystem" id="activeCardEcosystem">Africa Savanna</div>
+                <div class="active-card-progress" id="activeCardProgress">1 of 13</div>
+                <div class="active-card-name" id="activeCardName">Grass</div>
+                <p class="active-card-prompt">Use the food web to identify this organism's role. Trace the arrows to count how many steps it is from the producer.</p>
+            </div>
+            <div class="choice-btns">
+                <button class="choice-btn producer" onclick="choose('producer')">
+                    Producer
+                    <span class="btn-sub">Makes food from sunlight</span>
+                </button>
+                <button class="choice-btn primary" onclick="choose('primary')">
+                    Primary Consumer
+                    <span class="btn-sub">Eats the producer</span>
+                </button>
+                <button class="choice-btn secondary" onclick="choose('secondary')">
+                    Secondary Consumer
+                    <span class="btn-sub">Eats the primary consumer</span>
+                </button>
+                <button class="choice-btn tertiary" onclick="choose('tertiary')">
+                    Tertiary Consumer
+                    <span class="btn-sub">Eats the secondary consumer</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- END OVERLAY -->
+<div class="end-overlay" id="endOverlay">
+    <div class="end-panel">
+        <p class="end-label">Activity Complete</p>
+        <div class="end-score" id="endScore"></div>
+        <p class="end-message" id="endMessage"></p>
+        <button class="restart-btn" onclick="restartActivity()">Try Again</button>
+    </div>
+</div>
+
+<script>
+const CARDS = [
+    { ecosystem:'Africa Savanna', ecosystemKey:'africa', answer:'producer',   name:'Grass' },
+    { ecosystem:'Africa Savanna', ecosystemKey:'africa', answer:'producer',   name:'Acacia Tree' },
+    { ecosystem:'Africa Savanna', ecosystemKey:'africa', answer:'primary',    name:'Impala' },
+    { ecosystem:'Africa Savanna', ecosystemKey:'africa', answer:'primary',    name:'Gazelle' },
+    { ecosystem:'Africa Savanna', ecosystemKey:'africa', answer:'primary',    name:'Warthog' },
+    { ecosystem:'Africa Savanna', ecosystemKey:'africa', answer:'secondary',  name:'Cheetah' },
+    { ecosystem:'Africa Savanna', ecosystemKey:'africa', answer:'secondary',  name:'Lion' },
+    { ecosystem:'Coral Reef',     ecosystemKey:'reef',   answer:'producer',   name:'Algae' },
+    { ecosystem:'Coral Reef',     ecosystemKey:'reef',   answer:'primary',    name:'Zooplankton' },
+    { ecosystem:'Coral Reef',     ecosystemKey:'reef',   answer:'primary',    name:'Crab' },
+    { ecosystem:'Coral Reef',     ecosystemKey:'reef',   answer:'secondary',  name:'Clownfish' },
+    { ecosystem:'Coral Reef',     ecosystemKey:'reef',   answer:'secondary',  name:'Blue Tang' },
+    { ecosystem:'Coral Reef',     ecosystemKey:'reef',   answer:'tertiary',   name:'Reef Shark' },
+];
+
+const FOOD_WEB_IMAGES = {
+    africa: 'africa-food-web.png',
+    reef:   'reef-food-web.png',
+};
+
+let queue = [], currentIndex = 0, score = 0, answered = 0, busy = false;
+
+const overlay         = document.getElementById('cardOverlay');
+const activeCard      = document.getElementById('activeCard');
+const activeEcosystem = document.getElementById('activeCardEcosystem');
+const activeProgress  = document.getElementById('activeCardProgress');
+const activeName      = document.getElementById('activeCardName');
+const foodWebImg      = document.getElementById('foodWebImg');
+const foodWebLabel    = document.getElementById('foodWebLabel');
+const endOverlay      = document.getElementById('endOverlay');
+const endScore        = document.getElementById('endScore');
+const endMsg          = document.getElementById('endMessage');
+const pipsEl          = document.getElementById('scorePips');
+const progressEl      = document.getElementById('progressText');
+const statusDot       = document.getElementById('statusDot');
+const statusText      = document.getElementById('statusText');
+const startBtn        = document.getElementById('startBtn');
+
+function buildPips() {
+    pipsEl.innerHTML = '';
+    CARDS.forEach(() => {
+        const p = document.createElement('div');
+        p.className = 'pip';
+        pipsEl.appendChild(p);
+    });
+}
+
+function startActivity() {
+    queue = [...CARDS].sort(() => Math.random() - 0.5);
+    currentIndex = 0; score = 0; answered = 0; busy = false;
+    buildPips();
+    updateProgress();
+    startBtn.disabled = true;
+    statusDot.className = 'status-dot';
+    statusText.textContent = 'Use the food web diagram to identify each organism\'s role';
+    ['producer','primary','secondary','tertiary'].forEach(cat => {
+        const z = document.getElementById('zone-' + cat);
+        z.querySelectorAll('.placed-card').forEach(c => c.remove());
+        z.querySelector('.drop-empty').style.display = '';
+    });
+    showCard();
+}
+
+function showCard() {
+    const card = queue[currentIndex];
+    activeEcosystem.textContent = card.ecosystem;
+    activeProgress.textContent = (currentIndex + 1) + ' of ' + queue.length;
+    activeName.textContent = card.name;
+    foodWebImg.src = FOOD_WEB_IMAGES[card.ecosystemKey];
+    foodWebLabel.textContent = card.ecosystem + ' Food Web';
+    activeCard.classList.remove('flash-correct','flash-incorrect');
+    overlay.classList.add('visible');
+}
+
+function choose(category) {
+    if (busy) return;
+    busy = true;
+    const card = queue[currentIndex];
+    const correct = card.answer === category;
+
+    const pip = pipsEl.children[currentIndex];
+    pip.classList.add(correct ? 'correct' : 'incorrect');
+    if (correct) score++;
+    answered++;
+    updateProgress();
+
+    const srcRect = activeCard.getBoundingClientRect();
+
+    void activeCard.offsetWidth;
+    activeCard.classList.add(correct ? 'flash-correct' : 'flash-incorrect');
+
+    setTimeout(() => {
+        overlay.classList.remove('visible');
+
+        const zone = document.getElementById('zone-' + category);
+        const zoneRect = zone.getBoundingClientRect();
+
+        const dx = (zoneRect.left + 12) - srcRect.left;
+        const dy = (zoneRect.top + 10) - srcRect.top;
+        const rot = dx > 0 ? '8deg' : '-8deg';
+
+        const flyer = document.createElement('div');
+        flyer.className = 'flying-card ' + category;
+        flyer.style.left  = srcRect.left + 'px';
+        flyer.style.top   = srcRect.top + 'px';
+        flyer.style.width = '180px';
+        flyer.style.setProperty('--dx', dx + 'px');
+        flyer.style.setProperty('--dy', dy + 'px');
+        flyer.style.setProperty('--rot', rot);
+        flyer.textContent = card.name;
+        document.body.appendChild(flyer);
+
+        requestAnimationFrame(() => {
+            flyer.style.animation = 'cardFly 0.62s cubic-bezier(0.22,1,0.36,1) forwards';
+        });
+
+        setTimeout(() => {
+            document.body.removeChild(flyer);
+            placeCard(card, category, correct);
+
+            setTimeout(() => {
+                currentIndex++;
+                busy = false;
+                if (currentIndex < queue.length) {
+                    showCard();
+                } else {
+                    statusDot.className = 'status-dot done';
+                    statusText.textContent = 'All done!';
+                    setTimeout(showEnd, 450);
+                }
+            }, 900);
+        }, 650);
+    }, 300);
+}
+
+function placeCard(card, category, correct) {
+    const zone = document.getElementById('zone-' + category);
+    zone.querySelector('.drop-empty').style.display = 'none';
+    const el = document.createElement('div');
+    el.className = 'placed-card ' + category + (correct ? ' correct' : ' incorrect');
+    el.innerHTML = `<span class="placed-ecosystem">${card.ecosystem}</span><span class="result-icon">${correct ? '&#10003;' : '&#10007;'}</span><span class="placed-name">${card.name}</span>`;
+    zone.appendChild(el);
+}
+
+function updateProgress() {
+    progressEl.textContent = score + ' / ' + answered;
+}
+
+function showEnd() {
+    const total = queue.length;
+    endScore.innerHTML = score + '<span class="end-denom"> / ' + total + '</span>';
+    const pct = score / total;
+    if      (pct === 1)  endMsg.textContent = 'Perfect score! You can clearly read both food webs and identify every organism\'s role.';
+    else if (pct >= 0.8) endMsg.textContent = 'Great work! Review the organisms you missed and trace their position in the food web.';
+    else if (pct >= 0.6) endMsg.textContent = 'Good effort. Remember: the role depends on what an organism eats, not just what it looks like.';
+    else                 endMsg.textContent = 'Keep practising! Trace the arrows in the food web diagram and count how many steps each organism is from the producer.';
+    endOverlay.classList.add('visible');
+}
+
+function restartActivity() {
+    endOverlay.classList.remove('visible');
+    startBtn.disabled = false;
+    statusDot.className = 'status-dot idle';
+    statusText.textContent = 'Press Start to begin again';
+    progressEl.textContent = '0 / 13';
+    buildPips();
+}
+
+buildPips();
+</script>
+</body>
+</html>
