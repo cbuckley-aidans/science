@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sort It Out: States of Matter</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Barlow+Condensed:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+    --navy: #1b1f45;
+    --pink: #ea008a;
+    --solid: #1a6e6e;
+    --solid-light: #e6f7f5;
+    --solid-mid: #a0ddd8;
+    --liquid: #1e40af;
+    --liquid-light: #eff6ff;
+    --liquid-mid: #bfdbfe;
+    --gas: #6d28d9;
+    --gas-light: #f5f3ff;
+    --gas-mid: #ddd6fe;
+    --white: #ffffff;
+    --off-white: #f5f4f0;
+    --light-grey: #e2e0da;
+    --mid-grey: #9a9a9a;
+    --correct: #16a34a;
+    --incorrect: #dc2626;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--off-white); color: var(--navy); overflow-x: hidden; }
+.placemat { min-height: 100vh; display: grid; grid-template-rows: auto auto auto 1fr auto; padding: 32px 36px 28px; gap: 0; }
+
+/* HEADER */
+.mat-header { display: flex; align-items: flex-end; justify-content: space-between; padding-bottom: 14px; border-bottom: 4px solid var(--navy); margin-bottom: 16px; gap: 20px; flex-wrap: wrap; }
+.sheet-label { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pink); margin-bottom: 2px; }
+.sheet-title { font-family: 'Barlow Condensed', sans-serif; font-size: 38px; font-weight: 900; text-transform: uppercase; color: var(--navy); letter-spacing: 0.01em; line-height: 1; }
+.score-display { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.score-label { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mid-grey); }
+.score-pips { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; max-width: 310px; }
+.pip { width: 14px; height: 14px; border-radius: 50%; border: 2.5px solid var(--light-grey); background: transparent; transition: background 0.35s, border-color 0.35s, transform 0.25s; flex-shrink: 0; }
+.pip.correct   { background: var(--correct);   border-color: var(--correct);   transform: scale(1.2); }
+.pip.incorrect { background: var(--incorrect); border-color: var(--incorrect); transform: scale(1.2); }
+.progress-text { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; color: var(--navy); min-width: 52px; text-align: right; }
+
+/* KEY BAR */
+.formula-bar { background: var(--navy); padding: 11px 20px; margin-bottom: 16px; display: grid; grid-template-columns: auto 1fr 1fr 1fr; align-items: start; gap: 20px; }
+.formula-label { font-family: 'Barlow', sans-serif; font-size: 13px; font-weight: 400; font-style: italic; color: rgba(255,255,255,0.45); padding-top: 3px; white-space: nowrap; }
+.state-key-title { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.07em; display: block; margin-bottom: 3px; }
+.state-key-title.solid  { color: var(--solid-mid); }
+.state-key-title.liquid { color: var(--liquid-mid); }
+.state-key-title.gas    { color: var(--gas-mid); }
+.state-key-detail { font-size: 11px; color: rgba(255,255,255,0.5); line-height: 1.45; font-style: italic; }
+
+/* COLUMNS */
+.columns-area { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; align-items: stretch; }
+.sort-col { border-radius: 3px; display: flex; flex-direction: column; border: 2px solid var(--light-grey); }
+.col-top { height: 5px; flex-shrink: 0; border-radius: 2px 2px 0 0; }
+.col-top.solid  { background: var(--solid); }
+.col-top.liquid { background: var(--liquid); }
+.col-top.gas    { background: var(--gas); }
+.col-heading { padding: 12px 14px 10px; border-bottom: 1.5px solid var(--light-grey); background: var(--white); }
+.col-title { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 3px; }
+.col-title.solid  { color: var(--solid); }
+.col-title.liquid { color: var(--liquid); }
+.col-title.gas    { color: var(--gas); }
+.col-desc { font-size: 11px; font-style: italic; line-height: 1.35; color: var(--mid-grey); }
+.drop-zone { flex: 1; padding: 10px; display: flex; flex-direction: column; gap: 8px; min-height: 110px; background: var(--white); position: relative; border-radius: 0 0 2px 2px; }
+.drop-empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+.drop-empty-text { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #ccc8c0; text-align: center; line-height: 1.6; padding: 0 12px; }
+
+/* PLACED CARDS */
+.placed-card { border-radius: 3px; padding: 9px 26px 9px 11px; border-left: 4px solid; font-size: 12px; line-height: 1.45; position: relative; animation: slideIn 0.35s cubic-bezier(0.22,1,0.36,1); overflow: hidden; }
+.placed-card.solid  { border-color: var(--solid);  background: var(--solid-light); }
+.placed-card.liquid { border-color: var(--liquid); background: var(--liquid-light); }
+.placed-card.gas    { border-color: var(--gas);    background: var(--gas-light); }
+.placed-card .result-icon { position: absolute; top: 8px; right: 8px; font-size: 13px; font-weight: 800; line-height: 1; }
+.placed-card.correct   .result-icon { color: var(--correct); }
+.placed-card.incorrect .result-icon { color: var(--incorrect); }
+.placed-card .placed-id { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mid-grey); display: block; margin-bottom: 4px; }
+.placed-card .placed-text { color: var(--navy); font-style: italic; display: block; font-size: 11px; }
+.placed-card .placed-thumb { display: block; width: 100%; height: 44px; overflow: hidden; margin-top: 4px; pointer-events: none; }
+.placed-card .placed-thumb svg { width: 100%; height: 44px; }
+@keyframes slideIn { from { opacity:0; transform:translateY(-8px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+
+/* FLYING CARD */
+.flying-card { position: fixed; z-index: 10000; pointer-events: none; border-left: 4px solid; border-radius: 3px; padding: 10px 14px; font-family: 'Barlow', sans-serif; font-size: 13px; font-style: italic; line-height: 1.4; color: var(--navy); will-change: transform; }
+.flying-card.solid  { border-color: var(--solid);  background: var(--solid-light); }
+.flying-card.liquid { border-color: var(--liquid); background: var(--liquid-light); }
+.flying-card.gas    { border-color: var(--gas);    background: var(--gas-light); }
+@keyframes cardFly {
+    0%   { transform:translate(0,0) rotate(0deg) scale(1); box-shadow:0 20px 60px rgba(0,0,0,.35); }
+    25%  { transform:translate(calc(var(--dx)*.25),calc(var(--dy)*.25 - 50px)) rotate(var(--rot)) scale(1.07); box-shadow:0 36px 80px rgba(0,0,0,.45); }
+    65%  { transform:translate(calc(var(--dx)*.65),calc(var(--dy)*.65 - 18px)) rotate(calc(var(--rot)*.35)) scale(1.03); }
+    88%  { transform:translate(calc(var(--dx)*.98),calc(var(--dy)*.98 + 4px)) rotate(-1deg) scale(0.96); }
+    100% { transform:translate(var(--dx),var(--dy)) rotate(0deg) scale(0.95); box-shadow:0 3px 10px rgba(0,0,0,.12); }
+}
+
+/* CARD OVERLAY */
+.card-overlay { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; background: rgba(27,31,69,0.55); backdrop-filter: blur(3px); opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+.card-overlay.visible { opacity: 1; pointer-events: all; }
+.overlay-inner { display: flex; flex-direction: column; align-items: center; gap: 18px; width: 100%; max-width: 680px; padding: 24px; }
+.active-card { background: var(--white); border-top: 6px solid var(--pink); padding: 26px 32px 22px; width: 100%; box-shadow: 0 24px 60px rgba(0,0,0,0.28); transform: scale(0.88); opacity: 0; transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), opacity 0.3s; position: relative; }
+.card-overlay.visible .active-card { transform: scale(1); opacity: 1; }
+.active-card-id { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pink); margin-bottom: 5px; }
+.active-card-progress { position: absolute; top: 18px; right: 24px; font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid-grey); }
+.active-card-diagram { width: 100%; max-width: 360px; margin: 10px auto 14px; display: none; }
+.active-card-diagram svg { width: 100%; height: auto; display: block; }
+.active-card-text { font-size: 19px; font-weight: 500; font-style: italic; line-height: 1.6; color: var(--navy); display: none; }
+.active-card-prompt { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid-grey); margin-top: 14px; }
+.active-card.flash-correct   { animation: flashCorrect  0.45s ease; }
+.active-card.flash-incorrect { animation: flashIncorrect 0.45s ease; }
+@keyframes flashCorrect   { 0%{background:var(--white)} 35%{background:#dcfce7} 100%{background:var(--white)} }
+@keyframes flashIncorrect { 0%{background:var(--white)} 35%{background:#fee2e2} 100%{background:var(--white)} }
+
+.choice-btns { display: flex; gap: 10px; width: 100%; justify-content: center; overflow: visible; }
+.choice-btn { flex: 1; max-width: 192px; padding: 18px 10px 16px; border: 3px solid transparent; border-radius: 3px; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-size: 21px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; transition: transform 0.15s, box-shadow 0.15s, background 0.15s, border-color 0.15s; }
+.choice-btn:hover { transform: translateY(-4px); box-shadow: 0 10px 24px rgba(0,0,0,0.18); }
+.choice-btn:active { transform: translateY(0); }
+.choice-btn.solid  { background: var(--solid-light);  color: var(--solid);  border-color: var(--solid-mid); }
+.choice-btn.solid:hover  { background: var(--solid-mid);  border-color: var(--solid); }
+.choice-btn.liquid { background: var(--liquid-light); color: var(--liquid); border-color: var(--liquid-mid); }
+.choice-btn.liquid:hover { background: var(--liquid-mid); border-color: var(--liquid); }
+.choice-btn.gas    { background: var(--gas-light);    color: var(--gas);    border-color: var(--gas-mid); }
+.choice-btn.gas:hover    { background: var(--gas-mid);    border-color: var(--gas); }
+.btn-sub { display: block; font-family: 'Barlow', sans-serif; font-size: 10.5px; font-weight: 600; letter-spacing: 0.02em; text-transform: none; opacity: 0.68; margin-top: 5px; line-height: 1.3; }
+
+/* END OVERLAY */
+.end-overlay { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; background: rgba(27,31,69,0.7); backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity 0.35s; }
+.end-overlay.visible { opacity: 1; pointer-events: all; }
+.end-panel { background: var(--white); border-top: 8px solid var(--pink); padding: 48px 52px; max-width: 480px; width: 90%; text-align: center; box-shadow: 0 28px 70px rgba(0,0,0,0.32); transform: scale(0.9); opacity: 0; transition: transform 0.45s cubic-bezier(0.22,1,0.36,1) 0.1s, opacity 0.35s 0.1s; }
+.end-overlay.visible .end-panel { transform: scale(1); opacity: 1; }
+.end-label { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pink); margin-bottom: 8px; }
+.end-score { font-family: 'Barlow Condensed', sans-serif; font-size: 80px; font-weight: 900; color: var(--navy); line-height: 1; margin-bottom: 8px; }
+.end-denom { font-size: 36px; color: var(--mid-grey); }
+.end-message { font-size: 16px; line-height: 1.55; color: var(--navy); margin-bottom: 28px; }
+.end-btns { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+.restart-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; background: var(--navy); color: var(--white); border: none; padding: 14px 36px; cursor: pointer; border-radius: 2px; transition: background 0.15s, transform 0.12s; width: 100%; }
+.restart-btn:hover { background: var(--pink); transform: translateY(-2px); }
+.practice-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; background: transparent; color: var(--mid-grey); border: 2px solid var(--light-grey); padding: 11px 28px; cursor: pointer; border-radius: 2px; transition: border-color 0.15s, color 0.15s, transform 0.12s; width: 100%; }
+.practice-btn:hover { border-color: var(--navy); color: var(--navy); transform: translateY(-2px); }
+
+/* STATUS BAR */
+.status-bar { border-top: 2px solid var(--light-grey); margin-top: 16px; padding-top: 12px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--pink); animation: pulse 1.6s ease-in-out infinite; flex-shrink: 0; }
+.status-dot.done { background: var(--correct); animation: none; }
+.status-dot.idle { background: var(--mid-grey); animation: none; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+.status-text { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mid-grey); }
+.start-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; background: var(--pink); color: var(--white); border: none; padding: 10px 28px; cursor: pointer; border-radius: 2px; transition: background 0.15s, transform 0.12s; margin-left: auto; }
+.start-btn:hover { background: #c4006e; transform: translateY(-2px); }
+.start-btn:disabled { background: var(--mid-grey); cursor: default; transform: none; }
+
+/* WALKTHROUGH */
+.walkthrough-overlay { position: fixed; inset: 0; z-index: 300; display: flex; flex-direction: column; background: var(--navy); opacity: 0; pointer-events: none; transition: opacity 0.4s; overflow-y: auto; }
+.walkthrough-overlay.visible { opacity: 1; pointer-events: all; }
+.wt-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 36px; border-bottom: 3px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+.wt-label { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pink); }
+.wt-title { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 900; text-transform: uppercase; color: var(--white); letter-spacing: 0.04em; margin-top: 2px; }
+.wt-close { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; background: transparent; color: rgba(255,255,255,0.5); border: 2px solid rgba(255,255,255,0.2); padding: 8px 18px; cursor: pointer; border-radius: 2px; transition: color 0.15s, border-color 0.15s; }
+.wt-close:hover { color: var(--white); border-color: rgba(255,255,255,0.6); }
+.wt-progress-bar { height: 4px; background: rgba(255,255,255,0.1); flex-shrink: 0; }
+.wt-progress-fill { height: 100%; background: var(--pink); transition: width 0.5s cubic-bezier(0.22,1,0.36,1); }
+.wt-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 36px; max-width: 820px; margin: 0 auto; width: 100%; }
+.wt-step { display: none; flex-direction: column; gap: 20px; width: 100%; animation: stepIn 0.45s cubic-bezier(0.22,1,0.36,1); }
+.wt-step.active { display: flex; }
+@keyframes stepIn { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+.wt-step-label { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--pink); }
+.wt-step-heading { font-family: 'Barlow Condensed', sans-serif; font-size: 34px; font-weight: 900; text-transform: uppercase; color: var(--white); line-height: 1.05; letter-spacing: 0.02em; }
+.wt-step-body { font-size: 16px; line-height: 1.65; color: rgba(255,255,255,0.75); max-width: 640px; }
+.wt-step-body strong { color: var(--white); font-weight: 700; }
+.wt-diagram-box { background: var(--white); padding: 20px; display: flex; justify-content: center; border-radius: 2px; }
+.wt-diagram-box svg { max-width: 340px; width: 100%; height: auto; }
+.wt-keyword-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.wt-keyword { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; padding: 4px 10px 3px; border: 2px solid; }
+.wt-keyword.solid  { color: var(--solid-mid);  border-color: var(--solid-mid); }
+.wt-keyword.liquid { color: var(--liquid-mid); border-color: var(--liquid-mid); }
+.wt-keyword.gas    { color: var(--gas-mid);    border-color: var(--gas-mid); }
+.wt-three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.wt-state-card { padding: 14px 16px; border-top: 4px solid; background: rgba(255,255,255,0.04); }
+.wt-state-card.solid  { border-color: var(--solid-mid); }
+.wt-state-card.liquid { border-color: var(--liquid-mid); }
+.wt-state-card.gas    { border-color: var(--gas-mid); }
+.wt-state-name { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 7px; }
+.wt-state-card.solid  .wt-state-name { color: var(--solid-mid); }
+.wt-state-card.liquid .wt-state-name { color: var(--liquid-mid); }
+.wt-state-card.gas    .wt-state-name { color: var(--gas-mid); }
+.wt-state-prop { font-size: 12px; color: rgba(255,255,255,0.62); line-height: 1.6; }
+.wt-energy-bar { background: rgba(255,255,255,0.05); padding: 16px 20px; }
+.wt-energy-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 8px; }
+.wt-energy-row { display: flex; height: 30px; }
+.wt-energy-seg { flex: 1; display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--navy); }
+.wt-energy-seg.s { background: var(--solid-mid); }
+.wt-energy-seg.l { background: var(--liquid-mid); }
+.wt-energy-seg.g { background: var(--gas-mid); }
+.wt-nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 36px; border-top: 3px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+.wt-step-counter { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+.wt-nav-btns { display: flex; gap: 10px; }
+.wt-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; border: none; padding: 12px 28px; cursor: pointer; border-radius: 2px; transition: background 0.15s, transform 0.12s; }
+.wt-btn-prev { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); }
+.wt-btn-prev:hover { background: rgba(255,255,255,0.18); color: var(--white); }
+.wt-btn-next { background: var(--pink); color: var(--white); }
+.wt-btn-next:hover { background: #c4006e; transform: translateY(-2px); }
+.wt-btn:disabled { opacity: 0.3; cursor: default; transform: none !important; }
+</style>
+</head>
+<body>
+
+<div class="placemat">
+    <div class="mat-header">
+        <div>
+            <p class="sheet-label">Activity &mdash; States of Matter</p>
+            <h1 class="sheet-title">Sort It Out</h1>
+        </div>
+        <div class="score-display">
+            <span class="score-label">Score</span>
+            <div class="score-pips" id="scorePips"></div>
+            <span class="progress-text" id="progressText">0 / 18</span>
+        </div>
+    </div>
+
+    <div class="columns-area">
+        <div class="sort-col">
+            <div class="col-top solid"></div>
+            <div class="col-heading">
+                <p class="col-title solid">Solid</p>
+                <p class="col-desc">Regular arrangement. Particles vibrate in fixed positions and cannot move past one another.</p>
+            </div>
+            <div class="drop-zone" id="zone-solid">
+                <div class="drop-empty"><span class="drop-empty-text">Regular arrangement &middot; vibrates in place &middot; most dense &middot; least energy</span></div>
+            </div>
+        </div>
+        <div class="sort-col">
+            <div class="col-top liquid"></div>
+            <div class="col-heading">
+                <p class="col-title liquid">Liquid</p>
+                <p class="col-desc">Close but irregular. Particles can slide past one another but remain close together.</p>
+            </div>
+            <div class="drop-zone" id="zone-liquid">
+                <div class="drop-empty"><span class="drop-empty-text">Irregular arrangement &middot; slides around &middot; medium density &middot; medium energy</span></div>
+            </div>
+        </div>
+        <div class="sort-col">
+            <div class="col-top gas"></div>
+            <div class="col-heading">
+                <p class="col-title gas">Gas</p>
+                <p class="col-desc">Far apart, random. Particles move at high speed in all directions and fill any container.</p>
+            </div>
+            <div class="drop-zone" id="zone-gas">
+                <div class="drop-empty"><span class="drop-empty-text">Random, spread out &middot; fast movement &middot; least dense &middot; most energy</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-dot idle" id="statusDot"></div>
+        <span class="status-text" id="statusText">Press Start to begin</span>
+        <button class="start-btn" id="startBtn" onclick="startActivity()">Start Activity</button>
+    </div>
+</div>
+
+<!-- ACTIVE CARD OVERLAY -->
+<div class="card-overlay" id="cardOverlay">
+    <div class="overlay-inner">
+        <div class="active-card" id="activeCard">
+            <div class="active-card-id" id="activeCardId">Card 1</div>
+            <div class="active-card-progress" id="activeCardProgress">1 of 15</div>
+            <div class="active-card-diagram" id="activeCardDiagram"></div>
+            <p class="active-card-text" id="activeCardText"></p>
+            <p class="active-card-prompt" id="activeCardPrompt"></p>
+        </div>
+        <div class="choice-btns">
+            <button class="choice-btn solid" onclick="choose('solid')">Solid</button>
+            <button class="choice-btn liquid" onclick="choose('liquid')">Liquid</button>
+            <button class="choice-btn gas" onclick="choose('gas')">Gas</button>
+        </div>
+    </div>
+</div>
+
+<!-- END OVERLAY -->
+<div class="end-overlay" id="endOverlay">
+    <div class="end-panel">
+        <p class="end-label">Activity Complete</p>
+        <div class="end-score" id="endScore"></div>
+        <p class="end-message" id="endMessage"></p>
+        <div class="end-btns">
+            <button class="restart-btn" onclick="restartActivity()">Try Again</button>
+            <button class="practice-btn" onclick="openWalkthrough()">Need more practice? See the walkthrough &rarr;</button>
+        </div>
+    </div>
+</div>
+
+<!-- WALKTHROUGH OVERLAY -->
+<div class="walkthrough-overlay" id="walkthroughOverlay">
+    <div class="wt-header">
+        <div>
+            <p class="wt-label">How to Read Particle Diagrams</p>
+            <p class="wt-title">States of Matter Walkthrough</p>
+        </div>
+        <button class="wt-close" onclick="closeWalkthrough()">Close &times;</button>
+    </div>
+    <div class="wt-progress-bar">
+        <div class="wt-progress-fill" id="wtProgressFill" style="width:16.67%"></div>
+    </div>
+
+    <div class="wt-body">
+
+        <!-- STEP 1 -->
+        <div class="wt-step active" id="step-1">
+            <p class="wt-step-label">Step 1 of 6</p>
+            <h2 class="wt-step-heading">What particle diagrams show</h2>
+            <p class="wt-step-body">In these diagrams, each circle represents a single particle. To identify the state of matter, look at three things: <strong>how the particles are arranged</strong>, <strong>how far apart they are</strong>, and <strong>whether movement arrows are shown</strong>.</p>
+            <div class="wt-three-col">
+                <div class="wt-state-card solid">
+                    <div class="wt-state-name">Solid</div>
+                    <p class="wt-state-prop">Regular grid-like pattern. Particles touching or almost touching. No movement arrows.</p>
+                </div>
+                <div class="wt-state-card liquid">
+                    <div class="wt-state-name">Liquid</div>
+                    <p class="wt-state-prop">Close together but no regular pattern. Short arrows may show particles sliding around.</p>
+                </div>
+                <div class="wt-state-card gas">
+                    <div class="wt-state-name">Gas</div>
+                    <p class="wt-state-prop">Far apart with lots of empty space. Long arrows show particles moving fast in all directions.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="wt-step" id="step-2">
+            <p class="wt-step-label">Step 2 of 6</p>
+            <h2 class="wt-step-heading">Identifying a solid</h2>
+            <p class="wt-step-body">In a solid, particles sit in a <strong>regular, grid-like pattern</strong> packed tightly together. There are no movement arrows because particles cannot move from place to place &mdash; they only vibrate on the spot.</p>
+            <div class="wt-diagram-box">
+                <svg viewBox="0 0 198 128" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="198" height="128" fill="#f0f9ff" rx="3"/>
+                    <circle cx="21" cy="21" r="15" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="59" cy="21" r="15" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="97" cy="21" r="15" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="135" cy="21" r="15" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="173" cy="21" r="15" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="21" cy="59" r="15" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="59" cy="59" r="15" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="97" cy="59" r="15" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="135" cy="59" r="15" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="173" cy="59" r="15" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="21" cy="97" r="15" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="59" cy="97" r="15" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="97" cy="97" r="15" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="135" cy="97" r="15" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="173" cy="97" r="15" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                </svg>
+            </div>
+            <div class="wt-keyword-row">
+                <span class="wt-keyword solid">Regular pattern</span>
+                <span class="wt-keyword solid">Tightly packed</span>
+                <span class="wt-keyword solid">No movement arrows</span>
+                <span class="wt-keyword solid">Vibrates in place</span>
+            </div>
+        </div>
+
+        <!-- STEP 3 -->
+        <div class="wt-step" id="step-3">
+            <p class="wt-step-label">Step 3 of 6</p>
+            <h2 class="wt-step-heading">Identifying a liquid</h2>
+            <p class="wt-step-body">In a liquid, particles are <strong>close together but have no regular pattern</strong> &mdash; they are bunched up irregularly. Small arrows show the particles sliding past one another. The spacing is similar to a solid, but the arrangement is not fixed.</p>
+            <div class="wt-diagram-box">
+                <svg viewBox="0 0 198 130" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="198" height="130" fill="#f0f9ff" rx="3"/>
+                    <defs><marker id="wlah" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5Z" fill="#1e40af"/></marker></defs>
+                    <line x1="87" y1="21" x2="107" y2="30" stroke="#1e40af" stroke-width="2" stroke-linecap="round" marker-end="url(#wlah)"/>
+                    <line x1="118" y1="34" x2="110" y2="18" stroke="#1e40af" stroke-width="2" stroke-linecap="round" marker-end="url(#wlah)"/>
+                    <line x1="47" y1="103" x2="30" y2="95" stroke="#1e40af" stroke-width="2" stroke-linecap="round" marker-end="url(#wlah)"/>
+                    <circle cx="17" cy="20" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="45" cy="16" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="74" cy="21" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="104" cy="18" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="133" cy="22" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="160" cy="17" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="31" cy="50" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="60" cy="46" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="89" cy="51" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="118" cy="47" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="147" cy="52" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="174" cy="48" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="17" cy="79" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="47" cy="74" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="76" cy="80" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="106" cy="76" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="135" cy="81" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="162" cy="77" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="31" cy="108" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="60" cy="103" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="90" cy="109" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="120" cy="105" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="149" cy="110" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="174" cy="106" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                </svg>
+            </div>
+            <div class="wt-keyword-row">
+                <span class="wt-keyword liquid">No regular pattern</span>
+                <span class="wt-keyword liquid">Still close together</span>
+                <span class="wt-keyword liquid">Short movement arrows</span>
+                <span class="wt-keyword liquid">Slides around</span>
+            </div>
+        </div>
+
+        <!-- STEP 4 -->
+        <div class="wt-step" id="step-4">
+            <p class="wt-step-label">Step 4 of 6</p>
+            <h2 class="wt-step-heading">Identifying a gas</h2>
+            <p class="wt-step-body">In a gas, particles are <strong>spread far apart</strong> with lots of empty space between them. Long arrows show they move at <strong>high speed in all directions</strong>. The large gaps explain why gases have very low density and expand to fill any container.</p>
+            <div class="wt-diagram-box">
+                <svg viewBox="0 0 200 168" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="200" height="168" fill="#f0f9ff" rx="3"/>
+                    <defs><marker id="wgah" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#1e40af"/></marker></defs>
+                    <line x1="35" y1="22" x2="60" y2="22" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round" marker-end="url(#wgah)"/>
+                    <line x1="145" y1="26" x2="124" y2="44" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round" marker-end="url(#wgah)"/>
+                    <line x1="70" y1="68" x2="50" y2="50" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round" marker-end="url(#wgah)"/>
+                    <line x1="156" y1="74" x2="136" y2="57" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round" marker-end="url(#wgah)"/>
+                    <line x1="40" y1="120" x2="58" y2="103" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round" marker-end="url(#wgah)"/>
+                    <line x1="122" y1="134" x2="104" y2="116" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round" marker-end="url(#wgah)"/>
+                    <line x1="108" y1="47" x2="125" y2="63" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round" marker-end="url(#wgah)"/>
+                    <circle cx="22" cy="22" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="158" cy="18" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="82" cy="78" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="168" cy="85" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="28" cy="130" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="135" cy="145" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                    <circle cx="96" cy="36" r="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+                </svg>
+            </div>
+            <div class="wt-keyword-row">
+                <span class="wt-keyword gas">Far apart</span>
+                <span class="wt-keyword gas">Lots of empty space</span>
+                <span class="wt-keyword gas">Long fast-movement arrows</span>
+                <span class="wt-keyword gas">All directions</span>
+            </div>
+        </div>
+
+        <!-- STEP 5 -->
+        <div class="wt-step" id="step-5">
+            <p class="wt-step-label">Step 5 of 6</p>
+            <h2 class="wt-step-heading">Using written descriptions</h2>
+            <p class="wt-step-body">Some cards give a written description instead of a diagram. Look for key phrases that match the properties of each state.</p>
+            <div class="wt-three-col">
+                <div class="wt-state-card solid">
+                    <div class="wt-state-name">Solid clues</div>
+                    <p class="wt-state-prop">"regular pattern" &middot; "fixed positions" &middot; "vibrate" &middot; "greatest density" &middot; "least energy" &middot; "strong attractive forces hold particles in place"</p>
+                </div>
+                <div class="wt-state-card liquid">
+                    <div class="wt-state-name">Liquid clues</div>
+                    <p class="wt-state-prop">"slide past" &middot; "no fixed arrangement" &middot; "can flow" &middot; "takes the shape" &middot; "close but irregular" &middot; "cannot be compressed"</p>
+                </div>
+                <div class="wt-state-card gas">
+                    <div class="wt-state-name">Gas clues</div>
+                    <p class="wt-state-prop">"far apart" &middot; "high speed" &middot; "fill any container" &middot; "most energy" &middot; "lowest density" &middot; "forces too weak to hold them close"</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 6 -->
+        <div class="wt-step" id="step-6">
+            <p class="wt-step-label">Step 6 of 6</p>
+            <h2 class="wt-step-heading">Energy and density</h2>
+            <p class="wt-step-body"><strong>Solids have the most density</strong> (particles are most tightly packed) but the <strong>least energy</strong>. <strong>Gases have the least density</strong> but the <strong>most energy</strong>. These two properties always run in opposite directions across the three states.</p>
+            <div class="wt-energy-bar">
+                <p class="wt-energy-label">Energy &mdash; least &rarr; most</p>
+                <div class="wt-energy-row">
+                    <div class="wt-energy-seg s">Solid</div>
+                    <div class="wt-energy-seg l">Liquid</div>
+                    <div class="wt-energy-seg g">Gas</div>
+                </div>
+            </div>
+            <div class="wt-energy-bar">
+                <p class="wt-energy-label">Density &mdash; most &rarr; least</p>
+                <div class="wt-energy-row">
+                    <div class="wt-energy-seg s">Solid</div>
+                    <div class="wt-energy-seg l">Liquid</div>
+                    <div class="wt-energy-seg g">Gas</div>
+                </div>
+            </div>
+            <p class="wt-step-body">If a card says <strong>"most dense"</strong> or <strong>"least energy"</strong> &mdash; that is a solid. If it says <strong>"most energy"</strong> or <strong>"least dense"</strong> &mdash; that is a gas. Liquid always sits in between.</p>
+        </div>
+
+    </div>
+
+    <div class="wt-nav">
+        <span class="wt-step-counter" id="wtStepCounter">Step 1 of 6</span>
+        <div class="wt-nav-btns">
+            <button class="wt-btn wt-btn-prev" id="wtPrevBtn" onclick="wtPrev()" disabled>&#8592; Back</button>
+            <button class="wt-btn wt-btn-next" id="wtNextBtn" onclick="wtNext()">Next &#8594;</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ====== SVG GENERATION ======
+const PC = 'fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"';
+const cp = (x, y, r = 15) => `<circle cx="${x}" cy="${y}" r="${r}" ${PC}/>`;
+
+// Solid: 5x4 regular grid — rows shifted to y=26 so top space is balanced
+const SOLID_CIRCLES = [26, 64, 102, 140].flatMap(y => [21, 59, 97, 135, 173].map(x => cp(x, y))).join('');
+const solidWrap = c => `<svg viewBox="0 0 198 168" xmlns="http://www.w3.org/2000/svg"><rect width="198" height="168" fill="#f0f9ff" rx="3"/>${c}</svg>`;
+const SVG_SOLID1 = solidWrap(SOLID_CIRCLES);
+const SVG_SOLID2 = solidWrap(SOLID_CIRCLES);
+
+// Liquid: 24 circles, 4 rows, irregular
+const LIQ_POS = [
+    [17,20],[45,16],[74,21],[104,18],[133,22],[160,17],
+    [31,50],[60,46],[89,51],[118,47],[147,52],[174,48],
+    [17,79],[47,74],[76,80],[106,76],[135,81],[162,77],
+    [31,108],[60,103],[90,109],[120,105],[149,110],[174,106]
+];
+const LIQUID_CIRCLES = LIQ_POS.map(([x, y]) => cp(x, y, 13)).join('');
+const liqWrap = c => `<svg viewBox="0 0 198 130" xmlns="http://www.w3.org/2000/svg"><rect width="198" height="130" fill="#f0f9ff" rx="3"/>${c}</svg>`;
+const SVG_LIQUID1 = liqWrap(LIQUID_CIRCLES);
+const SVG_LIQUID2 = liqWrap(LIQUID_CIRCLES);
+
+// Gas: 7 circles spread far apart, with arrows
+const mkArrows = (pairs, markerId) => pairs.map(([x1,y1,x2,y2]) =>
+    `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round" marker-end="url(#${markerId})"/>`).join('');
+const G1_DEFS = `<defs><marker id="g1ah" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#1e40af"/></marker></defs>`;
+const G2_DEFS = `<defs><marker id="g2ah" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#1e40af"/></marker></defs>`;
+const G1_ARROWS = mkArrows([[35,22,60,22],[145,26,124,44],[70,68,50,50],[156,74,136,57],[40,120,58,103],[122,134,104,116],[108,47,125,63]], 'g1ah');
+const G2_ARROWS = mkArrows([[65,17,88,8],[170,38,170,62],[33,92,58,96],[128,62,107,48],[92,138,110,120],[162,129,144,112],[121,85,143,73]], 'g2ah');
+const G1_CIR = [[22,22],[158,18],[82,78],[168,85],[28,130],[135,145],[96,36]].map(([x,y]) => cp(x,y,13)).join('');
+const G2_CIR = [[52,22],[170,25],[20,90],[140,72],[80,148],[174,140],[108,92]].map(([x,y]) => cp(x,y,13)).join('');
+const SVG_GAS1 = `<svg viewBox="0 0 200 168" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="168" fill="#f0f9ff" rx="3"/>${G1_DEFS}${G1_ARROWS}${G1_CIR}</svg>`;
+const SVG_GAS2 = `<svg viewBox="0 0 200 170" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="170" fill="#f0f9ff" rx="3"/>${G2_DEFS}${G2_ARROWS}${G2_CIR}</svg>`;
+
+// ====== CARDS ======
+const CARDS = [
+    { id:'Card 1',  type:'diagram', answer:'solid',
+      svg: SVG_SOLID1,   prompt:'Which state of matter does this particle model represent?' },
+    { id:'Card 2',  type:'diagram', answer:'solid',
+      svg: SVG_SOLID2,   prompt:'Which state of matter does this particle model represent?' },
+    { id:'Card 3',  type:'diagram', answer:'liquid',
+      svg: SVG_LIQUID1,  prompt:'Which state of matter does this particle model represent?' },
+    { id:'Card 4',  type:'diagram', answer:'liquid',
+      svg: SVG_LIQUID2,  prompt:'Which state of matter does this particle model represent?' },
+    { id:'Card 5',  type:'diagram', answer:'gas',
+      svg: SVG_GAS1,     prompt:'Which state of matter does this particle model represent?' },
+    { id:'Card 6',  type:'diagram', answer:'gas',
+      svg: SVG_GAS2,     prompt:'Which state of matter does this particle model represent?' },
+    { id:'Card 7',  type:'text',    answer:'solid',
+      text:'\u201cParticles are arranged in a regular pattern and vibrate in fixed positions \u2014 they cannot move from place to place.\u201d',
+      prompt:'Which state of matter is being described?' },
+    { id:'Card 8',  type:'text',    answer:'solid',
+      text:'\u201cThis state has the least particle energy and the greatest density of all three states.\u201d',
+      prompt:'Which state of matter is being described?' },
+    { id:'Card 9',  type:'text',    answer:'solid',
+      text:'\u201cStrong attractive forces hold every particle tightly in a fixed position.\u201d',
+      prompt:'Which state of matter is being described?' },
+    { id:'Card 10', type:'text',    answer:'liquid',
+      text:'\u201cParticles are close to one another but are free to slide past each other \u2014 there is no fixed arrangement.\u201d',
+      prompt:'Which state of matter is being described?' },
+    { id:'Card 11', type:'text',    answer:'liquid',
+      text:'\u201cThis state can flow and take the shape of its container, but cannot be compressed easily.\u201d',
+      prompt:'Which state of matter is being described?' },
+    { id:'Card 12', type:'text',    answer:'liquid',
+      text:'\u201cAttractive forces keep particles close to one another, but are not strong enough to hold them in fixed positions.\u201d',
+      prompt:'Which state of matter is being described?' },
+    { id:'Card 13', type:'text',    answer:'gas',
+      text:'\u201cParticles travel at high speed in straight lines, colliding with each other and with the walls of any container.\u201d',
+      prompt:'Which state of matter is being described?' },
+    { id:'Card 14', type:'text',    answer:'gas',
+      text:'\u201cThis state has the most energy and the lowest density \u2014 particles are far more spread out than in either of the other states.\u201d',
+      prompt:'Which state of matter is being described?' },
+    { id:'Card 15', type:'text',    answer:'gas',
+      text:'\u201cAttractive forces between particles are too weak to hold them close \u2014 they spread out to fill any available space.\u201d',
+      prompt:'Which state of matter is being described?' },
+    { id:'Card 16', type:'text',    answer:'solid',
+      text:'\u201cThe particles in this state are packed so tightly together that it has the greatest density of the three states and cannot be compressed.\u201d',
+      prompt:'Which state of matter is being described?' },
+    { id:'Card 17', type:'text',    answer:'liquid',
+      text:'\u201cThis state has a similar density to a solid because its particles are still packed closely together \u2014 but unlike a solid, it can flow and be poured.\u201d',
+      prompt:'Which state of matter is being described?' },
+    { id:'Card 18', type:'text',    answer:'gas',
+      text:'\u201cThe same volume of this state contains far fewer particles than either of the other two states, making it the least dense and the most easily compressed.\u201d',
+      prompt:'Which state of matter is being described?' },
+];
+
+// ====== ACTIVITY LOGIC ======
+let queue = [], currentIndex = 0, score = 0, answered = 0, busy = false;
+
+const overlay        = document.getElementById('cardOverlay');
+const activeCard     = document.getElementById('activeCard');
+const activeId       = document.getElementById('activeCardId');
+const activeProgress = document.getElementById('activeCardProgress');
+const activeDiagram  = document.getElementById('activeCardDiagram');
+const activeText     = document.getElementById('activeCardText');
+const activePrompt   = document.getElementById('activeCardPrompt');
+const endOverlay     = document.getElementById('endOverlay');
+const endScore       = document.getElementById('endScore');
+const endMsg         = document.getElementById('endMessage');
+const pipsEl         = document.getElementById('scorePips');
+const progressEl     = document.getElementById('progressText');
+const statusDot      = document.getElementById('statusDot');
+const statusText     = document.getElementById('statusText');
+const startBtn       = document.getElementById('startBtn');
+
+function buildPips() {
+    pipsEl.innerHTML = '';
+    CARDS.forEach(() => {
+        const p = document.createElement('div');
+        p.className = 'pip';
+        pipsEl.appendChild(p);
+    });
+}
+
+function startActivity() {
+    queue = [...CARDS].sort(() => Math.random() - 0.5);
+    currentIndex = 0; score = 0; answered = 0; busy = false;
+    buildPips();
+    updateProgress();
+    startBtn.disabled = true;
+    statusDot.className = 'status-dot';
+    statusText.textContent = 'Read the card, then sort it into the correct column';
+    ['solid','liquid','gas'].forEach(cat => {
+        const z = document.getElementById('zone-' + cat);
+        z.querySelectorAll('.placed-card').forEach(c => c.remove());
+        z.querySelector('.drop-empty').style.display = '';
+    });
+    showCard();
+}
+
+function showCard() {
+    const card = queue[currentIndex];
+    activeId.textContent = card.id;
+    activeProgress.textContent = (currentIndex + 1) + ' of ' + queue.length;
+    activePrompt.textContent = card.prompt;
+    if (card.type === 'diagram') {
+        activeDiagram.innerHTML = card.svg;
+        activeDiagram.style.display = 'block';
+        activeText.style.display = 'none';
+    } else {
+        activeText.textContent = card.text;
+        activeText.style.display = 'block';
+        activeDiagram.style.display = 'none';
+    }
+    activeCard.classList.remove('flash-correct','flash-incorrect');
+    overlay.classList.add('visible');
+}
+
+function choose(category) {
+    if (busy) return;
+    busy = true;
+    const card = queue[currentIndex];
+    const correct = card.answer === category;
+    pipsEl.children[currentIndex].classList.add(correct ? 'correct' : 'incorrect');
+    if (correct) score++;
+    answered++;
+    updateProgress();
+
+    const srcRect = activeCard.getBoundingClientRect();
+    void activeCard.offsetWidth;
+    activeCard.classList.add(correct ? 'flash-correct' : 'flash-incorrect');
+
+    setTimeout(() => {
+        overlay.classList.remove('visible');
+        const zone = document.getElementById('zone-' + category);
+        const zoneRect = zone.getBoundingClientRect();
+        const dx = (zoneRect.left + 12) - srcRect.left;
+        const dy = (zoneRect.top + 10) - srcRect.top;
+        const rot = dx > 0 ? '7deg' : '-7deg';
+
+        const flyer = document.createElement('div');
+        flyer.className = 'flying-card ' + category;
+        flyer.style.cssText = `left:${srcRect.left}px;top:${srcRect.top}px;width:${srcRect.width}px;`;
+        flyer.style.setProperty('--dx', dx + 'px');
+        flyer.style.setProperty('--dy', dy + 'px');
+        flyer.style.setProperty('--rot', rot);
+        document.body.appendChild(flyer);
+
+        requestAnimationFrame(() => {
+            flyer.style.animation = 'cardFly 0.62s cubic-bezier(0.22,1,0.36,1) forwards';
+        });
+
+        setTimeout(() => {
+            document.body.removeChild(flyer);
+            placeCard(card, category, correct);
+            setTimeout(() => {
+                currentIndex++;
+                busy = false;
+                if (currentIndex < queue.length) {
+                    showCard();
+                } else {
+                    statusDot.className = 'status-dot done';
+                    statusText.textContent = 'All done!';
+                    setTimeout(showEnd, 450);
+                }
+            }, 900);
+        }, 650);
+    }, 300);
+}
+
+function placeCard(card, category, correct) {
+    const zone = document.getElementById('zone-' + category);
+    zone.querySelector('.drop-empty').style.display = 'none';
+    const el = document.createElement('div');
+    el.className = 'placed-card ' + category + (correct ? ' correct' : ' incorrect');
+    let inner = '';
+    if (card.type === 'diagram') {
+        inner = `<div class="placed-thumb">${card.svg}</div>`;
+    } else {
+        const preview = card.text.length > 58 ? card.text.substring(0, 58) + '\u2026' : card.text;
+        inner = `<span class="placed-text">${preview}</span>`;
+    }
+    el.innerHTML = `<span class="placed-id">${card.id}</span><span class="result-icon">${correct ? '&#10003;' : '&#10007;'}</span>${inner}`;
+    zone.appendChild(el);
+}
+
+function updateProgress() {
+    progressEl.textContent = score + ' / ' + answered;
+}
+
+function showEnd() {
+    const total = queue.length;
+    endScore.innerHTML = score + '<span class="end-denom"> / ' + total + '</span>';
+    const pct = score / total;
+    if (pct === 1)       endMsg.textContent = 'Perfect score! You have a strong understanding of the particle model for all three states.';
+    else if (pct >= 0.8) endMsg.textContent = 'Great work! Review any incorrect cards to sharpen up the details.';
+    else if (pct >= 0.6) endMsg.textContent = 'Good effort. Focus on whether the particle arrangement is regular, irregular, or random.';
+    else                 endMsg.textContent = 'Keep going! Try the walkthrough to see how to identify each state from its particle diagram or description.';
+    endOverlay.classList.add('visible');
+}
+
+function restartActivity() {
+    endOverlay.classList.remove('visible');
+    startBtn.disabled = false;
+    statusDot.className = 'status-dot idle';
+    statusText.textContent = 'Press Start to begin again';
+    progressEl.textContent = '0 / 18';
+    buildPips();
+}
+
+// ====== WALKTHROUGH ======
+let wtCurrentStep = 1;
+const WT_TOTAL = 6;
+
+function openWalkthrough() {
+    endOverlay.classList.remove('visible');
+    wtCurrentStep = 1;
+    renderWtStep();
+    document.getElementById('walkthroughOverlay').classList.add('visible');
+}
+function closeWalkthrough() {
+    document.getElementById('walkthroughOverlay').classList.remove('visible');
+}
+function renderWtStep() {
+    document.querySelectorAll('.wt-step').forEach(s => s.classList.remove('active'));
+    document.getElementById('step-' + wtCurrentStep).classList.add('active');
+    document.getElementById('wtStepCounter').textContent = 'Step ' + wtCurrentStep + ' of ' + WT_TOTAL;
+    document.getElementById('wtProgressFill').style.width = (wtCurrentStep / WT_TOTAL * 100) + '%';
+    document.getElementById('wtPrevBtn').disabled = wtCurrentStep === 1;
+    const nextBtn = document.getElementById('wtNextBtn');
+    if (wtCurrentStep === WT_TOTAL) {
+        nextBtn.textContent = 'Done \u2713';
+        nextBtn.onclick = closeWalkthrough;
+    } else {
+        nextBtn.textContent = 'Next \u2192';
+        nextBtn.onclick = wtNext;
+    }
+}
+function wtNext() { if (wtCurrentStep < WT_TOTAL) { wtCurrentStep++; renderWtStep(); } }
+function wtPrev() { if (wtCurrentStep > 1) { wtCurrentStep--; renderWtStep(); } }
+
+buildPips();
+</script>
+</body>
+</html>
