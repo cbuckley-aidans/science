@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sort It Out: Pure Substances &amp; Mixtures</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Barlow+Condensed:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+    --navy: #1b1f45;
+    --pink: #ea008a;
+    --pure: #1a6e6e;
+    --pure-light: #e6f7f5;
+    --pure-mid: #a0ddd8;
+    --mix: #92400e;
+    --mix-light: #fffbeb;
+    --mix-mid: #fcd34d;
+    --white: #ffffff;
+    --off-white: #f5f4f0;
+    --light-grey: #e2e0da;
+    --mid-grey: #9a9a9a;
+    --correct: #16a34a;
+    --incorrect: #dc2626;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--off-white); color: var(--navy); overflow-x: hidden; }
+
+.placemat { min-height: 100vh; display: grid; grid-template-rows: auto auto auto 1fr auto; padding: 32px 36px 28px; gap: 0; }
+
+.mat-header { display: flex; align-items: flex-end; justify-content: space-between; padding-bottom: 14px; border-bottom: 4px solid var(--navy); margin-bottom: 16px; gap: 20px; flex-wrap: wrap; }
+.sheet-label { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pink); margin-bottom: 2px; }
+.sheet-title { font-family: 'Barlow Condensed', sans-serif; font-size: 38px; font-weight: 900; text-transform: uppercase; color: var(--navy); letter-spacing: 0.01em; line-height: 1; }
+.score-display { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.score-label { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mid-grey); }
+.score-pips { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; max-width: 300px; }
+.pip { width: 16px; height: 16px; border-radius: 50%; border: 2.5px solid var(--light-grey); background: transparent; transition: background 0.35s, border-color 0.35s, transform 0.25s; }
+.pip.correct   { background: var(--correct);   border-color: var(--correct);   transform: scale(1.2); }
+.pip.incorrect { background: var(--incorrect); border-color: var(--incorrect); transform: scale(1.2); }
+.progress-text { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; color: var(--navy); min-width: 52px; text-align: right; }
+
+.formula-bar { background: var(--navy); padding: 10px 20px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.formula-plain { font-family: 'Barlow', sans-serif; font-size: 13px; font-weight: 400; font-style: italic; color: rgba(255,255,255,0.6); }
+.formula-pill { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; padding: 3px 10px 2px; display: inline-flex; align-items: center; gap: 6px; }
+.pill-pure { background: var(--pure-light); color: var(--pure); }
+.pill-sc { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.85); }
+.pill-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.phase-badge { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.14em; background: var(--pink); color: var(--white); padding: 3px 10px 2px; margin-left: auto; }
+
+.columns-area { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: stretch; }
+.sort-col { border-radius: 3px; overflow: visible; display: flex; flex-direction: column; border: 2px solid var(--light-grey); }
+.col-top { height: 6px; flex-shrink: 0; border-radius: 2px 2px 0 0; }
+.col-top.pure { background: var(--pure); }
+.col-top.mix  { background: #d97706; }
+.col-heading { padding: 14px 16px 12px; border-bottom: 1.5px solid var(--light-grey); }
+.pure-col .col-heading { background: var(--white); }
+.mix-col  .col-heading { background: var(--navy); }
+.col-title { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+.col-title.pure { color: var(--pure); }
+.col-title.mix  { color: #fcd34d; }
+.col-desc { font-size: 13px; font-style: italic; line-height: 1.4; }
+.pure-col .col-desc { color: var(--mid-grey); }
+.mix-col  .col-desc { color: rgba(255,255,255,0.55); }
+.drop-zone { flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 10px; min-height: 160px; background: var(--white); position: relative; border-radius: 0 0 2px 2px; }
+.mix-col .drop-zone { background: #fafaf8; }
+.drop-empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+.drop-empty-text { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #d4d0c8; }
+
+.placed-card { border-radius: 3px; padding: 9px 32px 9px 9px; border-left: 5px solid; position: relative; animation: slideIn 0.35s cubic-bezier(0.22,1,0.36,1); display: flex; gap: 8px; align-items: flex-start; }
+.placed-card.pure { border-color: var(--pure); background: var(--pure-light); }
+.placed-card.mix  { border-color: #d97706; background: var(--mix-light); }
+.placed-card .result-icon { position: absolute; top: 8px; right: 8px; font-size: 13px; font-weight: 800; line-height: 1; }
+.placed-card.correct   .result-icon { color: var(--correct); }
+.placed-card.incorrect .result-icon { color: var(--incorrect); }
+.placed-mini-svg { flex-shrink: 0; width: 58px; }
+.placed-mini-svg svg { width: 58px; height: auto; display: block; }
+.placed-info { flex: 1; min-width: 0; }
+.placed-id { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mid-grey); display: block; margin-bottom: 2px; }
+.placed-caption { color: var(--navy); font-size: 12px; font-style: italic; line-height: 1.35; }
+@keyframes slideIn { from { opacity:0; transform:translateY(-10px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+
+.flying-card { position: fixed; z-index: 10000; pointer-events: none; border-left: 5px solid; border-radius: 3px; padding: 10px 14px; font-family: 'Barlow', sans-serif; font-size: 13px; line-height: 1.5; color: var(--navy); will-change: transform; }
+.flying-card.pure { border-color: var(--pure); background: var(--pure-light); }
+.flying-card.mix  { border-color: #d97706; background: var(--mix-light); }
+@keyframes cardFly {
+    0%   { transform: translate(0,0) rotate(0deg) scale(1); box-shadow: 0 20px 60px rgba(0,0,0,0.35); }
+    25%  { transform: translate(calc(var(--dx)*0.25), calc(var(--dy)*0.25 - 50px)) rotate(var(--rot)) scale(1.07); box-shadow: 0 36px 80px rgba(0,0,0,0.45); }
+    65%  { transform: translate(calc(var(--dx)*0.65), calc(var(--dy)*0.65 - 18px)) rotate(calc(var(--rot)*0.35)) scale(1.03); box-shadow: 0 22px 55px rgba(0,0,0,0.35); }
+    88%  { transform: translate(calc(var(--dx)*0.98), calc(var(--dy)*0.98 + 4px)) rotate(-1deg) scale(0.96); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+    100% { transform: translate(var(--dx), var(--dy)) rotate(0deg) scale(0.95); box-shadow: 0 3px 10px rgba(0,0,0,0.12); }
+}
+
+.card-overlay { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; background: rgba(27,31,69,0.55); backdrop-filter: blur(3px); opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+.card-overlay.visible { opacity: 1; pointer-events: all; }
+.overlay-inner { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; max-width: 620px; padding: 24px; }
+.active-card { background: var(--white); border-top: 6px solid var(--pink); padding: 22px 28px 20px; width: 100%; box-shadow: 0 24px 60px rgba(0,0,0,0.28); transform: scale(0.88); opacity: 0; transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), opacity 0.3s; }
+.card-overlay.visible .active-card { transform: scale(1); opacity: 1; }
+.active-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.active-card-id { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pink); }
+.active-card-progress { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid-grey); }
+.active-card-svg-area { display: flex; justify-content: center; background: #f8f7f4; padding: 14px 16px; border: 1.5px solid var(--light-grey); margin-bottom: 10px; }
+.active-card-svg-area svg { max-width: 260px; width: 100%; height: auto; }
+.active-card-caption { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid-grey); text-align: center; margin-bottom: 5px; }
+.active-card-legend { font-size: 13px; font-style: italic; color: var(--mid-grey); text-align: center; margin-bottom: 12px; line-height: 1.45; }
+.active-card-prompt { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mid-grey); text-align: center; }
+.active-card.flash-correct   { animation: flashCorrect  0.45s ease; }
+.active-card.flash-incorrect { animation: flashIncorrect 0.45s ease; }
+@keyframes flashCorrect   { 0%{background:var(--white)} 35%{background:#dcfce7} 100%{background:var(--white)} }
+@keyframes flashIncorrect { 0%{background:var(--white)} 35%{background:#fee2e2} 100%{background:var(--white)} }
+
+.choice-btns { display: flex; gap: 12px; width: 100%; }
+.choice-btn { flex: 1; padding: 18px 12px 14px; border: 3px solid transparent; border-radius: 3px; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; transition: transform 0.15s, box-shadow 0.15s, background 0.15s, border-color 0.15s; }
+.choice-btn:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.2); }
+.choice-btn:active { transform: translateY(0); }
+.choice-btn.pure-btn { background: var(--pure-light); color: var(--pure); border-color: var(--pure-mid); }
+.choice-btn.pure-btn:hover { background: var(--pure-mid); border-color: var(--pure); }
+.choice-btn.mix-btn  { background: var(--mix-light); color: var(--mix); border-color: var(--mix-mid); }
+.choice-btn.mix-btn:hover  { background: var(--mix-mid); border-color: #d97706; }
+.btn-sub { display: block; font-family: 'Barlow', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.02em; text-transform: none; opacity: 0.72; margin-top: 5px; line-height: 1.35; }
+
+/* MC OVERLAY */
+.mc-overlay { position: fixed; inset: 0; z-index: 150; display: flex; align-items: center; justify-content: center; background: rgba(27,31,69,0.6); backdrop-filter: blur(3px); opacity: 0; pointer-events: none; transition: opacity 0.25s; padding: 24px; }
+.mc-overlay.visible { opacity: 1; pointer-events: all; }
+.mc-card { background: var(--white); border-top: 6px solid var(--pink); padding: 26px 32px 22px; width: 100%; max-width: 660px; box-shadow: 0 24px 60px rgba(0,0,0,0.28); transform: scale(0.88); opacity: 0; transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), opacity 0.3s; }
+.mc-overlay.visible .mc-card { transform: scale(1); opacity: 1; }
+.mc-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.mc-sc-tag { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; background: var(--navy); color: var(--white); padding: 3px 10px 2px; }
+.mc-progress { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mid-grey); }
+.mc-question { font-size: 17px; font-weight: 500; line-height: 1.6; color: var(--navy); margin-bottom: 16px; }
+.mc-options { display: flex; flex-direction: column; gap: 7px; }
+.mc-option { display: flex; align-items: flex-start; gap: 12px; padding: 11px 15px; border: 2px solid var(--light-grey); border-radius: 2px; cursor: pointer; transition: border-color 0.15s, background 0.15s; font-size: 14px; line-height: 1.45; color: var(--navy); background: var(--white); text-align: left; width: 100%; font-family: 'Barlow', sans-serif; }
+.mc-option:hover:not([disabled]) { border-color: var(--navy); background: var(--off-white); }
+.mc-option[disabled] { cursor: default; }
+.mc-option.correct-ans { border-color: var(--correct) !important; background: #dcfce7 !important; }
+.mc-option.wrong-ans   { border-color: var(--incorrect) !important; background: #fee2e2 !important; }
+.opt-letter { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 900; letter-spacing: 0.08em; flex-shrink: 0; margin-top: 0; }
+.mc-feedback { margin-top: 12px; padding: 11px 15px; background: var(--off-white); border-left: 4px solid var(--navy); display: none; }
+.mc-feedback.visible { display: block; }
+.mc-feedback-label { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--mid-grey); margin-bottom: 5px; }
+.mc-feedback-text { font-size: 13px; line-height: 1.55; color: var(--navy); }
+.mc-next-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 17px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; background: var(--navy); color: var(--white); border: none; padding: 11px 28px; cursor: pointer; border-radius: 2px; margin-top: 12px; display: none; width: 100%; transition: background 0.15s; }
+.mc-next-btn.visible { display: block; }
+.mc-next-btn:hover { background: var(--pink); }
+
+/* PHASE TRANSITION */
+.phase-overlay { position: fixed; inset: 0; z-index: 175; display: flex; align-items: center; justify-content: center; background: rgba(27,31,69,0.75); backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity 0.35s; }
+.phase-overlay.visible { opacity: 1; pointer-events: all; }
+.phase-panel { background: var(--white); border-top: 8px solid var(--pink); padding: 44px 48px; max-width: 460px; width: 90%; text-align: center; box-shadow: 0 28px 70px rgba(0,0,0,0.32); transform: scale(0.9); opacity: 0; transition: transform 0.45s cubic-bezier(0.22,1,0.36,1) 0.1s, opacity 0.35s 0.1s; }
+.phase-overlay.visible .phase-panel { transform: scale(1); opacity: 1; }
+.phase-label { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pink); margin-bottom: 6px; }
+.phase-title { font-family: 'Barlow Condensed', sans-serif; font-size: 40px; font-weight: 900; color: var(--navy); line-height: 1; margin-bottom: 8px; }
+.phase-score-text { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 800; color: var(--mid-grey); margin-bottom: 18px; }
+.phase-body { font-size: 14px; line-height: 1.6; color: var(--navy); margin-bottom: 24px; }
+.phase-continue-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 19px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; background: var(--pink); color: var(--white); border: none; padding: 13px 32px; cursor: pointer; border-radius: 2px; width: 100%; transition: background 0.15s, transform 0.12s; }
+.phase-continue-btn:hover { background: #c4006e; transform: translateY(-2px); }
+
+/* END OVERLAY */
+.end-overlay { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; background: rgba(27,31,69,0.7); backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity 0.35s; }
+.end-overlay.visible { opacity: 1; pointer-events: all; }
+.end-panel { background: var(--white); border-top: 8px solid var(--pink); padding: 44px 48px; max-width: 460px; width: 90%; text-align: center; box-shadow: 0 28px 70px rgba(0,0,0,0.32); transform: scale(0.9); opacity: 0; transition: transform 0.45s cubic-bezier(0.22,1,0.36,1) 0.1s, opacity 0.35s 0.1s; }
+.end-overlay.visible .end-panel { transform: scale(1); opacity: 1; }
+.end-label { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pink); margin-bottom: 8px; }
+.end-score { font-family: 'Barlow Condensed', sans-serif; font-size: 76px; font-weight: 900; color: var(--navy); line-height: 1; margin-bottom: 6px; }
+.end-denom { font-size: 34px; color: var(--mid-grey); }
+.end-breakdown { display: flex; gap: 24px; justify-content: center; margin-bottom: 14px; border-top: 2px solid var(--light-grey); padding-top: 14px; }
+.end-breakdown-item { text-align: center; }
+.end-breakdown-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid-grey); margin-bottom: 3px; }
+.end-breakdown-val { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 900; color: var(--navy); }
+.end-message { font-size: 14px; line-height: 1.55; color: var(--navy); margin-bottom: 24px; }
+.restart-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 19px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; background: var(--navy); color: var(--white); border: none; padding: 13px 32px; cursor: pointer; border-radius: 2px; transition: background 0.15s, transform 0.12s; width: 100%; }
+.restart-btn:hover { background: var(--pink); transform: translateY(-2px); }
+
+.status-bar { border-top: 2px solid var(--light-grey); margin-top: 16px; padding-top: 12px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--pink); animation: pulse 1.6s ease-in-out infinite; flex-shrink: 0; }
+.status-dot.done { background: var(--correct); animation: none; }
+.status-dot.idle { background: var(--mid-grey); animation: none; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+.status-text { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mid-grey); }
+.start-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; background: var(--pink); color: var(--white); border: none; padding: 10px 28px; cursor: pointer; border-radius: 2px; transition: background 0.15s, transform 0.12s; margin-left: auto; }
+.start-btn:hover { background: #c4006e; transform: translateY(-2px); }
+.start-btn:disabled { background: var(--mid-grey); cursor: default; transform: none; }
+</style>
+</head>
+<body>
+<div class="placemat">
+    <div class="mat-header">
+        <div>
+            <p class="sheet-label">LG4 &mdash; Particle Theory</p>
+            <h1 class="sheet-title">Sort It Out: Substances &amp; Mixtures</h1>
+        </div>
+        <div class="score-display">
+            <span class="score-label">Score</span>
+            <div class="score-pips" id="scorePips"></div>
+            <span class="progress-text" id="progressText">0 / 6</span>
+        </div>
+    </div>
+
+    <div class="formula-bar" id="formulaBar">
+        <span class="formula-plain">Look at each particle model and decide: are all particles the same type, or is there more than one type mixed in?</span>
+        <span class="phase-badge">Phase 1 of 2: Particle Sorting</span>
+    </div>
+
+    <div class="columns-area">
+        <div class="sort-col pure-col">
+            <div class="col-top pure"></div>
+            <div class="col-heading">
+                <p class="col-title pure">Pure Substance</p>
+                <p class="col-desc">Only one type of particle. All atoms or molecules are identical throughout the sample.</p>
+            </div>
+            <div class="drop-zone" id="zone-pure">
+                <div class="drop-empty"><span class="drop-empty-text">Cards will appear here</span></div>
+            </div>
+        </div>
+        <div class="sort-col mix-col">
+            <div class="col-top mix"></div>
+            <div class="col-heading">
+                <p class="col-title mix">Mixture</p>
+                <p class="col-desc">Two or more different types of particles. Each substance keeps its own properties.</p>
+            </div>
+            <div class="drop-zone" id="zone-mix">
+                <div class="drop-empty"><span class="drop-empty-text">Cards will appear here</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-dot idle" id="statusDot"></div>
+        <span class="status-text" id="statusText">Press Start to begin</span>
+        <button class="start-btn" id="startBtn" onclick="startActivity()">Start Activity</button>
+    </div>
+</div>
+
+<!-- SORT CARD OVERLAY -->
+<div class="card-overlay" id="cardOverlay">
+    <div class="overlay-inner">
+        <div class="active-card" id="activeCard">
+            <div class="active-card-header">
+                <span class="active-card-id" id="activeCardId">Diagram 1</span>
+                <span class="active-card-progress" id="activeCardProgress">1 of 8</span>
+            </div>
+            <div class="active-card-svg-area" id="activeCardSvgArea"></div>
+            <p class="active-card-prompt">Pure substance or mixture?</p>
+        </div>
+        <div class="choice-btns">
+            <button class="choice-btn pure-btn" onclick="choose('pure')">
+                Pure Substance
+                <span class="btn-sub">All particles identical</span>
+            </button>
+            <button class="choice-btn mix-btn" onclick="choose('mix')">
+                Mixture
+                <span class="btn-sub">Two or more types of particles</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- PHASE TRANSITION OVERLAY -->
+<div class="phase-overlay" id="phaseOverlay">
+    <div class="phase-panel">
+        <p class="phase-label">Phase 1 Complete</p>
+        <h2 class="phase-title">Sorting Done!</h2>
+        <p class="phase-score-text" id="phaseScoreText">8 / 8 correct</p>
+        <p class="phase-body">Great work identifying particle models. Now let's test your knowledge of key definitions, solutions, and separation methods.</p>
+        <button class="phase-continue-btn" onclick="startPhase2()">Start Phase 2: Definitions &amp; Methods &#8594;</button>
+    </div>
+</div>
+
+<!-- MC OVERLAY -->
+<div class="mc-overlay" id="mcOverlay">
+    <div class="mc-card" id="mcCard">
+        <div class="mc-card-header">
+            <span class="mc-sc-tag" id="mcScTag">SC22</span>
+            <span class="mc-progress" id="mcProgress">Q1 of 10</span>
+        </div>
+        <p class="mc-question" id="mcQuestion"></p>
+        <div class="mc-options" id="mcOptions"></div>
+        <div class="mc-feedback" id="mcFeedback">
+            <p class="mc-feedback-label">Explanation</p>
+            <p class="mc-feedback-text" id="mcFeedbackText"></p>
+        </div>
+        <button class="mc-next-btn" id="mcNextBtn" onclick="nextMC()">Next Question &#8594;</button>
+    </div>
+</div>
+
+<!-- END OVERLAY -->
+<div class="end-overlay" id="endOverlay">
+    <div class="end-panel">
+        <p class="end-label">Activity Complete</p>
+        <div class="end-score" id="endScore"></div>
+        <div class="end-breakdown" id="endBreakdown"></div>
+        <p class="end-message" id="endMessage"></p>
+        <button class="restart-btn" onclick="restartActivity()">Try Again</button>
+    </div>
+</div>
+
+<script>
+// ============================
+// SVG BUILDER
+// Particle types:
+//   m  = monatomic (single circle)
+//   b  = bonded pair (two atoms, side by side, with bond line)
+//   h2 = triatomic V-shape (1 large central + 2 small, e.g. H2O)
+// ============================
+function buildSVG(particles) {
+    let s = '';
+    for (const p of particles) {
+        if (p.t === 'm') {
+            s += `<circle cx="${p.x}" cy="${p.y}" r="11" fill="${p.c}" stroke="rgba(0,0,0,0.18)" stroke-width="1.5"/>`;
+        } else if (p.t === 'b') {
+            const d = 9;
+            s += `<line x1="${p.x-d}" y1="${p.y}" x2="${p.x+d}" y2="${p.y}" stroke="rgba(0,0,0,0.22)" stroke-width="3.5"/>`;
+            s += `<circle cx="${p.x-d}" cy="${p.y}" r="10" fill="${p.c}" stroke="rgba(0,0,0,0.18)" stroke-width="1.5"/>`;
+            s += `<circle cx="${p.x+d}" cy="${p.y}" r="10" fill="${p.c2}" stroke="rgba(0,0,0,0.18)" stroke-width="1.5"/>`;
+        } else if (p.t === 'h2') {
+            s += `<line x1="${p.x}" y1="${p.y}" x2="${p.x-13}" y2="${p.y+12}" stroke="rgba(0,0,0,0.22)" stroke-width="3"/>`;
+            s += `<line x1="${p.x}" y1="${p.y}" x2="${p.x+13}" y2="${p.y+12}" stroke="rgba(0,0,0,0.22)" stroke-width="3"/>`;
+            s += `<circle cx="${p.x-13}" cy="${p.y+12}" r="8" fill="${p.c2}" stroke="rgba(0,0,0,0.18)" stroke-width="1.5"/>`;
+            s += `<circle cx="${p.x+13}" cy="${p.y+12}" r="8" fill="${p.c2}" stroke="rgba(0,0,0,0.18)" stroke-width="1.5"/>`;
+            s += `<circle cx="${p.x}" cy="${p.y}" r="12" fill="${p.c}" stroke="rgba(0,0,0,0.18)" stroke-width="1.5"/>`;
+        }
+    }
+    return `<svg viewBox="0 0 220 170" xmlns="http://www.w3.org/2000/svg">${s}</svg>`;
+}
+
+// ============================
+// SORT CARD DATA — simple mono-particle only
+// ============================
+const SORT_CARDS = [
+    {
+        id: 'Diagram 1',
+        answer: 'pure',
+        particles: [
+            {t:'m',x:30,y:28,c:'#f97316'},{t:'m',x:82,y:22,c:'#f97316'},
+            {t:'m',x:148,y:26,c:'#f97316'},{t:'m',x:202,y:30,c:'#f97316'},
+            {t:'m',x:206,y:76,c:'#f97316'},{t:'m',x:162,y:62,c:'#f97316'},
+            {t:'m',x:102,y:58,c:'#f97316'},{t:'m',x:46,y:66,c:'#f97316'},
+            {t:'m',x:18,y:104,c:'#f97316'},{t:'m',x:74,y:100,c:'#f97316'},
+            {t:'m',x:140,y:96,c:'#f97316'},{t:'m',x:194,y:108,c:'#f97316'},
+            {t:'m',x:152,y:146,c:'#f97316'},{t:'m',x:94,y:148,c:'#f97316'},
+            {t:'m',x:40,y:150,c:'#f97316'},
+        ]
+    },
+    {
+        id: 'Diagram 2',
+        answer: 'pure',
+        particles: [
+            {t:'m',x:28,y:24,c:'#3b82f6'},{t:'m',x:88,y:20,c:'#3b82f6'},
+            {t:'m',x:152,y:28,c:'#3b82f6'},{t:'m',x:204,y:32,c:'#3b82f6'},
+            {t:'m',x:208,y:80,c:'#3b82f6'},{t:'m',x:160,y:66,c:'#3b82f6'},
+            {t:'m',x:100,y:60,c:'#3b82f6'},{t:'m',x:44,y:70,c:'#3b82f6'},
+            {t:'m',x:16,y:108,c:'#3b82f6'},{t:'m',x:72,y:104,c:'#3b82f6'},
+            {t:'m',x:138,y:100,c:'#3b82f6'},{t:'m',x:196,y:112,c:'#3b82f6'},
+            {t:'m',x:148,y:150,c:'#3b82f6'},{t:'m',x:90,y:152,c:'#3b82f6'},
+        ]
+    },
+    {
+        id: 'Diagram 3',
+        answer: 'pure',
+        particles: [
+            {t:'m',x:34,y:30,c:'#a855f7'},{t:'m',x:96,y:22,c:'#a855f7'},
+            {t:'m',x:160,y:26,c:'#a855f7'},{t:'m',x:208,y:36,c:'#a855f7'},
+            {t:'m',x:200,y:82,c:'#a855f7'},{t:'m',x:150,y:68,c:'#a855f7'},
+            {t:'m',x:90,y:64,c:'#a855f7'},{t:'m',x:36,y:72,c:'#a855f7'},
+            {t:'m',x:14,y:112,c:'#a855f7'},{t:'m',x:70,y:106,c:'#a855f7'},
+            {t:'m',x:134,y:102,c:'#a855f7'},{t:'m',x:190,y:114,c:'#a855f7'},
+            {t:'m',x:60,y:152,c:'#a855f7'},{t:'m',x:136,y:154,c:'#a855f7'},
+            {t:'m',x:200,y:148,c:'#a855f7'},
+        ]
+    },
+    {
+        id: 'Diagram 4',
+        answer: 'mix',
+        particles: [
+            {t:'m',x:30,y:28,c:'#f97316'},{t:'m',x:148,y:26,c:'#f97316'},
+            {t:'m',x:206,y:76,c:'#f97316'},{t:'m',x:102,y:58,c:'#f97316'},
+            {t:'m',x:18,y:104,c:'#f97316'},{t:'m',x:140,y:96,c:'#f97316'},
+            {t:'m',x:152,y:146,c:'#f97316'},
+            {t:'m',x:82,y:22,c:'#3b82f6'},{t:'m',x:202,y:30,c:'#3b82f6'},
+            {t:'m',x:162,y:62,c:'#3b82f6'},{t:'m',x:46,y:66,c:'#3b82f6'},
+            {t:'m',x:74,y:100,c:'#3b82f6'},{t:'m',x:194,y:108,c:'#3b82f6'},
+            {t:'m',x:94,y:148,c:'#3b82f6'},{t:'m',x:40,y:150,c:'#3b82f6'},
+        ]
+    },
+    {
+        id: 'Diagram 5',
+        answer: 'mix',
+        particles: [
+            {t:'m',x:28,y:24,c:'#f97316'},{t:'m',x:152,y:28,c:'#f97316'},
+            {t:'m',x:208,y:80,c:'#f97316'},{t:'m',x:44,y:70,c:'#f97316'},
+            {t:'m',x:138,y:100,c:'#f97316'},{t:'m',x:90,y:152,c:'#f97316'},
+            {t:'m',x:88,y:20,c:'#22c55e'},{t:'m',x:204,y:32,c:'#22c55e'},
+            {t:'m',x:160,y:66,c:'#22c55e'},{t:'m',x:16,y:108,c:'#22c55e'},
+            {t:'m',x:72,y:104,c:'#22c55e'},{t:'m',x:196,y:112,c:'#22c55e'},
+            {t:'m',x:148,y:150,c:'#22c55e'},
+        ]
+    },
+    {
+        id: 'Diagram 6',
+        answer: 'mix',
+        particles: [
+            {t:'m',x:34,y:30,c:'#f97316'},{t:'m',x:160,y:26,c:'#f97316'},
+            {t:'m',x:200,y:82,c:'#f97316'},{t:'m',x:60,y:152,c:'#f97316'},
+            {t:'m',x:96,y:22,c:'#3b82f6'},{t:'m',x:36,y:72,c:'#3b82f6'},
+            {t:'m',x:134,y:102,c:'#3b82f6'},{t:'m',x:200,y:148,c:'#3b82f6'},
+            {t:'m',x:208,y:36,c:'#a855f7'},{t:'m',x:150,y:68,c:'#a855f7'},
+            {t:'m',x:14,y:112,c:'#a855f7'},{t:'m',x:70,y:106,c:'#a855f7'},
+            {t:'m',x:136,y:154,c:'#a855f7'},
+        ]
+    },
+];
+
+// ============================
+// MC QUESTION DATA
+// ============================
+const MC_QUESTIONS = [
+    {
+        sc: 'SC22',
+        q: 'What is a <strong>solute</strong>?',
+        opts: ['The liquid in which a substance dissolves','The substance that dissolves in a solvent','A mixture that cannot be separated','A substance that does not dissolve'],
+        correct: 1,
+        explain: 'The solute is the substance that gets dissolved. In saltwater, salt is the solute. In cordial, the syrup is the solute.'
+    },
+    {
+        sc: 'SC22',
+        q: 'Which word describes a solution with a <strong>very small amount of solute</strong> dissolved in a large amount of solvent?',
+        opts: ['Saturated','Concentrated','Dilute','Insoluble'],
+        correct: 2,
+        explain: 'A dilute solution has a small proportion of solute relative to solvent. A concentrated solution has a large amount of solute. A saturated solution can hold no more solute at that temperature.'
+    },
+    {
+        sc: 'SC22',
+        q: 'A <strong>saturated</strong> solution is one that...',
+        opts: ['Contains only one type of particle','Has been heated until boiling','Cannot dissolve any more solute at that temperature','Contains equal amounts of solute and solvent'],
+        correct: 2,
+        explain: 'A saturated solution holds the maximum possible amount of dissolved solute at a given temperature. Adding more solute at that point leaves it undissolved at the bottom.'
+    },
+    {
+        sc: 'SC22',
+        q: 'A substance described as <strong>insoluble</strong>...',
+        opts: ['Dissolves quickly in water','Has been filtered out of a solution','Does not dissolve in a given solvent','Contains more solute than solvent'],
+        correct: 2,
+        explain: 'Insoluble means the substance will not dissolve. Sand is insoluble in water. Soluble means it will dissolve, like sugar or salt in water.'
+    },
+    {
+        sc: 'SC22',
+        q: 'In a solution, what is the role of the <strong>solvent</strong>?',
+        opts: ['It is the substance that gets dissolved','It is the substance that does the dissolving','It is always water','It is the solid residue left after filtration'],
+        correct: 1,
+        explain: 'The solvent does the dissolving. Water is the most common solvent, but other liquids such as ethanol and acetone can also act as solvents.'
+    },
+    {
+        sc: 'SC23',
+        q: 'In a <strong>saltwater</strong> solution, which substance is the <strong>solvent</strong>?',
+        opts: ['Salt (sodium chloride)','Water','Both in equal amounts','Neither \u2014 they form a new compound'],
+        correct: 1,
+        explain: 'Water is the solvent because it does the dissolving. Salt is the solute. The result is a homogeneous mixture (a solution) in which the salt particles are evenly spread throughout the water.'
+    },
+    {
+        sc: 'SC23',
+        q: 'A student dissolves sugar into hot water to make a syrup. What is the <strong>solute</strong>?',
+        opts: ['Hot water','Sugar','The steam rising from the cup','The container'],
+        correct: 1,
+        explain: 'Sugar is the solute because it is the substance that dissolves. The water is the solvent. The resulting syrup is a solution.'
+    },
+    {
+        sc: 'SC23',
+        q: 'Orange cordial is made by adding cordial syrup to water. In the final drink, what is the <strong>solvent</strong>?',
+        opts: ['The cordial syrup','The sugar in the syrup','Water','Carbon dioxide'],
+        correct: 2,
+        explain: 'Water is the solvent. The cordial syrup (containing sugar, colour and flavour) is the solute that dissolves into the water to form the drink.'
+    },
+    {
+        sc: 'SC24',
+        q: 'Which method would best separate <strong>sand from water</strong>?',
+        opts: ['Evaporation','Filtration','Dissolving','Heating the mixture'],
+        correct: 1,
+        explain: 'Sand is insoluble and does not dissolve in water. Filtration uses a filter paper to trap the solid sand particles while the water passes through as the filtrate. Evaporation is used to separate dissolved (soluble) substances, not insoluble ones.'
+    },
+    {
+        sc: 'SC24',
+        q: 'A student mixes chalk powder (insoluble) into water. After <strong>filtration</strong>, where does the chalk end up?',
+        opts: ['In the liquid that passed through the filter (the filtrate)','Dissolved in the water','Collected in the filter paper as the residue','Destroyed during the process'],
+        correct: 2,
+        explain: 'Insoluble chalk particles are too large to pass through the tiny pores in the filter paper, so they collect on top of it as the residue. The water passes through as the filtrate.'
+    },
+];
+
+// ============================
+// GAME STATE
+// ============================
+let queue = [], currentIndex = 0, sortScore = 0, busy = false;
+let mcIndex = 0, mcScore = 0, mcAnswered = false, phase = 0;
+
+const cardOverlay   = document.getElementById('cardOverlay');
+const activeCard    = document.getElementById('activeCard');
+const activeId      = document.getElementById('activeCardId');
+const activeProgress= document.getElementById('activeCardProgress');
+const svgArea       = document.getElementById('activeCardSvgArea');
+const activeCaption = document.getElementById('activeCardCaption');
+const activeLegend  = document.getElementById('activeCardLegend');
+const phaseOverlay  = document.getElementById('phaseOverlay');
+const mcOverlay     = document.getElementById('mcOverlay');
+const endOverlay    = document.getElementById('endOverlay');
+const pipsEl        = document.getElementById('scorePips');
+const progressEl    = document.getElementById('progressText');
+const statusDot     = document.getElementById('statusDot');
+const statusText    = document.getElementById('statusText');
+const startBtn      = document.getElementById('startBtn');
+
+function buildPips(n) {
+    pipsEl.innerHTML = '';
+    for (let i = 0; i < n; i++) {
+        const p = document.createElement('div');
+        p.className = 'pip';
+        pipsEl.appendChild(p);
+    }
+}
+
+function startActivity() {
+    queue = [...SORT_CARDS].sort(() => Math.random() - 0.5);
+    currentIndex = 0; sortScore = 0; busy = false; phase = 1;
+    buildPips(SORT_CARDS.length);
+    progressEl.textContent = '0 / ' + SORT_CARDS.length;
+    startBtn.disabled = true;
+    statusDot.className = 'status-dot';
+    statusText.textContent = 'Phase 1: Classify each particle model';
+    ['pure','mix'].forEach(cat => {
+        const z = document.getElementById('zone-' + cat);
+        z.querySelectorAll('.placed-card').forEach(c => c.remove());
+        z.querySelector('.drop-empty').style.display = '';
+    });
+    showCard();
+}
+
+function showCard() {
+    const card = queue[currentIndex];
+    activeId.textContent = card.id;
+    activeProgress.textContent = (currentIndex + 1) + ' of ' + queue.length;
+    svgArea.innerHTML = buildSVG(card.particles);
+    activeCard.classList.remove('flash-correct','flash-incorrect');
+    cardOverlay.classList.add('visible');
+}
+
+function choose(category) {
+    if (busy) return;
+    busy = true;
+    const card = queue[currentIndex];
+    const correct = card.answer === category;
+    pipsEl.children[currentIndex].classList.add(correct ? 'correct' : 'incorrect');
+    if (correct) sortScore++;
+    progressEl.textContent = sortScore + ' / ' + SORT_CARDS.length;
+
+    const srcRect = activeCard.getBoundingClientRect();
+    void activeCard.offsetWidth;
+    activeCard.classList.add(correct ? 'flash-correct' : 'flash-incorrect');
+
+    setTimeout(() => {
+        cardOverlay.classList.remove('visible');
+        const zone = document.getElementById('zone-' + category);
+        const zoneRect = zone.getBoundingClientRect();
+        const dx = (zoneRect.left + 12) - srcRect.left;
+        const dy = (zoneRect.top + 10) - srcRect.top;
+
+        const flyer = document.createElement('div');
+        flyer.className = 'flying-card ' + category;
+        flyer.style.cssText = `left:${srcRect.left}px;top:${srcRect.top}px;width:${srcRect.width}px;height:60px;`;
+        flyer.style.setProperty('--dx', dx + 'px');
+        flyer.style.setProperty('--dy', dy + 'px');
+        flyer.style.setProperty('--rot', dx > 0 ? '9deg' : '-9deg');
+        document.body.appendChild(flyer);
+        requestAnimationFrame(() => { flyer.style.animation = 'cardFly 0.62s cubic-bezier(0.22,1,0.36,1) forwards'; });
+
+        setTimeout(() => {
+            document.body.removeChild(flyer);
+            placeCard(card, category, correct);
+            setTimeout(() => {
+                currentIndex++;
+                busy = false;
+                if (currentIndex < queue.length) {
+                    showCard();
+                } else {
+                    statusDot.className = 'status-dot done';
+                    statusText.textContent = 'Phase 1 complete';
+                    setTimeout(showPhaseTransition, 500);
+                }
+            }, 900);
+        }, 650);
+    }, 300);
+}
+
+function placeCard(card, category, correct) {
+    const zone = document.getElementById('zone-' + category);
+    zone.querySelector('.drop-empty').style.display = 'none';
+    const el = document.createElement('div');
+    el.className = 'placed-card ' + category + (correct ? ' correct' : ' incorrect');
+    el.innerHTML = `
+        <div class="placed-mini-svg">${buildSVG(card.particles)}</div>
+        <div class="placed-info"><span class="placed-id">${card.id}</span></div>
+        <span class="result-icon">${correct ? '&#10003;' : '&#10007;'}</span>`;
+    zone.appendChild(el);
+}
+
+function showPhaseTransition() {
+    document.getElementById('phaseScoreText').textContent = sortScore + ' / ' + queue.length + ' correct';
+    phaseOverlay.classList.add('visible');
+}
+
+function startPhase2() {
+    phaseOverlay.classList.remove('visible');
+    phase = 2;
+    mcIndex = 0; mcScore = 0; mcAnswered = false;
+    buildPips(MC_QUESTIONS.length);
+    progressEl.textContent = '0 / ' + MC_QUESTIONS.length;
+    statusDot.className = 'status-dot';
+    statusText.textContent = 'Phase 2: Definitions and methods quiz';
+    document.getElementById('formulaBar').innerHTML = `
+        <span class="formula-plain">Questions cover:</span>
+        <span class="formula-pill pill-sc">SC22 Key Definitions</span>
+        <span class="formula-pill pill-sc">SC23 Identify Solute/Solvent</span>
+        <span class="formula-pill pill-sc">SC24 Separation Methods</span>
+        <span class="phase-badge">Phase 2 of 2: Definitions</span>`;
+    setTimeout(showMC, 300);
+}
+
+function showMC() {
+    const q = MC_QUESTIONS[mcIndex];
+    mcAnswered = false;
+    document.getElementById('mcScTag').textContent = q.sc;
+    document.getElementById('mcProgress').textContent = 'Q' + (mcIndex + 1) + ' of ' + MC_QUESTIONS.length;
+    document.getElementById('mcQuestion').innerHTML = q.q;
+    document.getElementById('mcFeedback').classList.remove('visible');
+    document.getElementById('mcNextBtn').classList.remove('visible');
+
+    const optsEl = document.getElementById('mcOptions');
+    optsEl.innerHTML = '';
+    ['A','B','C','D'].forEach((letter, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'mc-option';
+        btn.innerHTML = `<span class="opt-letter">${letter}</span>${q.opts[i]}`;
+        btn.addEventListener('click', () => answerMC(i));
+        optsEl.appendChild(btn);
+    });
+
+    mcOverlay.classList.add('visible');
+}
+
+function answerMC(chosen) {
+    if (mcAnswered) return;
+    mcAnswered = true;
+    const q = MC_QUESTIONS[mcIndex];
+    const correct = chosen === q.correct;
+    pipsEl.children[mcIndex].classList.add(correct ? 'correct' : 'incorrect');
+    if (correct) mcScore++;
+    progressEl.textContent = mcScore + ' / ' + MC_QUESTIONS.length;
+
+    const optsEl = document.getElementById('mcOptions');
+    Array.from(optsEl.children).forEach((btn, i) => {
+        btn.disabled = true;
+        if (i === q.correct)                  btn.classList.add('correct-ans');
+        else if (i === chosen && !correct)    btn.classList.add('wrong-ans');
+    });
+
+    document.getElementById('mcFeedbackText').textContent = q.explain;
+    document.getElementById('mcFeedback').classList.add('visible');
+    const nextBtn = document.getElementById('mcNextBtn');
+    nextBtn.textContent = mcIndex < MC_QUESTIONS.length - 1 ? 'Next Question \u2192' : 'See Results \u2192';
+    nextBtn.classList.add('visible');
+}
+
+function nextMC() {
+    mcIndex++;
+    if (mcIndex < MC_QUESTIONS.length) {
+        mcOverlay.classList.remove('visible');
+        setTimeout(showMC, 300);
+    } else {
+        mcOverlay.classList.remove('visible');
+        statusDot.className = 'status-dot done';
+        statusText.textContent = 'All done!';
+        setTimeout(showEnd, 450);
+    }
+}
+
+function showEnd() {
+    const total = SORT_CARDS.length + MC_QUESTIONS.length;
+    const totalScore = sortScore + mcScore;
+    document.getElementById('endScore').innerHTML = totalScore + '<span class="end-denom"> / ' + total + '</span>';
+    document.getElementById('endBreakdown').innerHTML = `
+        <div class="end-breakdown-item">
+            <p class="end-breakdown-label">Particle Sorting</p>
+            <p class="end-breakdown-val">${sortScore} / ${SORT_CARDS.length}</p>
+        </div>
+        <div class="end-breakdown-item">
+            <p class="end-breakdown-label">Definitions</p>
+            <p class="end-breakdown-val">${mcScore} / ${MC_QUESTIONS.length}</p>
+        </div>`;
+    const pct = totalScore / total;
+    let msg;
+    if      (pct === 1)  msg = 'Perfect score! You can confidently identify particle models and define all key terms.';
+    else if (pct >= 0.8) msg = 'Excellent work. Review any questions you missed to sharpen your understanding of solutions and separation.';
+    else if (pct >= 0.6) msg = 'Good effort. Pay close attention to the difference between dilute, concentrated, and saturated solutions.';
+    else                 msg = 'Keep going! Focus on the SC22 definitions and what makes a particle diagram show a pure substance versus a mixture.';
+    document.getElementById('endMessage').textContent = msg;
+    endOverlay.classList.add('visible');
+}
+
+function restartActivity() {
+    endOverlay.classList.remove('visible');
+    phase = 0;
+    startBtn.disabled = false;
+    statusDot.className = 'status-dot idle';
+    statusText.textContent = 'Press Start to begin again';
+    progressEl.textContent = '0 / 6';
+    document.getElementById('formulaBar').innerHTML = `
+        <span class="formula-plain">Look at each particle model and decide: are all particles the same type, or is there more than one type mixed in?</span>
+        <span class="phase-badge">Phase 1 of 2: Particle Sorting</span>`;
+    buildPips(SORT_CARDS.length);
+}
+
+buildPips(SORT_CARDS.length);
+</script>
+</body>
+</html>
