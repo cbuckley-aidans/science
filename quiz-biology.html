@@ -7,50 +7,27 @@
   <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --navy: #1b1f45;
-  --pink: #ea008a;
-  --bg: #eef0f6;
-  --card: #ffffff;
-  --border: #dde1ee;
-  --ok: #16a34a; --ok-bg: #dcfce7; --ok-b: #bbf7d0;
+  --navy: #1b1f45; --pink: #ea008a; --bg: #eef0f6; --card: #fff;
+  --border: #dde1ee; --ok: #16a34a; --ok-bg: #dcfce7; --ok-b: #bbf7d0;
   --err: #dc2626; --err-bg: #fee2e2; --err-b: #fecaca;
   --amber: #d97706; --amber-bg: #fffbeb; --amber-b: #fde68a;
-  --muted: #6b7280;
-  --r: 10px;
+  --muted: #6b7280; --r: 10px;
 }
 html { scroll-behavior: smooth; }
-body {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 16px; line-height: 1.55; color: #111;
-  background: var(--bg); padding-top: 60px;
-}
+body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.55; color: #111; background: var(--bg); padding-top: 60px; }
 
-/* Header */
-#site-header {
-  position: fixed; top: 0; left: 0; right: 0; height: 60px;
-  background: var(--navy); display: flex; align-items: center;
-  padding: 0 24px; gap: 20px; z-index: 100;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.3);
-}
+#site-header { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: var(--navy); display: flex; align-items: center; padding: 0 24px; gap: 20px; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
 .hdr-title { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.85); letter-spacing: 1.5px; text-transform: uppercase; flex-shrink: 0; }
 .hdr-pills { display: flex; gap: 8px; flex: 1; justify-content: center; }
-.hdr-pill {
-  display: flex; align-items: center; gap: 5px;
-  padding: 5px 12px; border-radius: 20px;
-  font-size: 12px; font-weight: 600;
-  color: rgba(255,255,255,0.5); border: 1.5px solid rgba(255,255,255,0.18);
-  cursor: pointer; transition: all 0.2s; text-decoration: none;
-}
+.hdr-pill { display: flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.5); border: 1.5px solid rgba(255,255,255,0.18); cursor: pointer; transition: all 0.2s; text-decoration: none; }
 .hdr-pill:hover { color: white; border-color: rgba(255,255,255,0.5); }
 .hdr-pill.done { background: rgba(22,163,74,0.25); border-color: #4ade80; color: #4ade80; }
 .hdr-pill.partial { border-color: rgba(234,0,138,0.55); color: #f472b6; }
 .hdr-counter { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.65); white-space: nowrap; flex-shrink: 0; }
 #unanswered-num { color: #fbbf24; }
 
-/* Layout */
 .page-wrap { max-width: 840px; margin: 0 auto; padding: 28px 20px 80px; display: flex; flex-direction: column; gap: 28px; }
 
-/* Cover */
 #cover { background: var(--card); border-radius: var(--r); padding: 40px 44px; box-shadow: 0 2px 16px rgba(27,31,69,0.1); }
 .cover-eyebrow { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
 .cover-title { font-size: 48px; font-weight: 900; color: var(--navy); letter-spacing: -1.5px; line-height: 1; margin-bottom: 28px; }
@@ -63,27 +40,32 @@ body {
 .results-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
 .results-table tbody tr:nth-child(even) td { background: #f8f9fc; }
 .results-table tfoot td { background: #eef0f8; border-top: 2px solid var(--navy); padding: 9px 12px; }
+
+/* Overall SC review (in cover) */
+.overall-sc-review { background: #fff8e1; border: 2px solid var(--amber); border-radius: 8px; padding: 16px 20px; margin-bottom: 20px; }
+.osc-title { font-size: 14px; font-weight: 700; color: #92400e; margin-bottom: 10px; }
+.osc-list { display: flex; flex-direction: column; gap: 6px; }
+.osc-item { display: flex; align-items: baseline; gap: 10px; }
+.osc-sc-tag { font-size: 11px; font-weight: 700; padding: 3px 7px; border-radius: 4px; background: var(--amber); color: white; flex-shrink: 0; }
+.osc-desc { font-size: 13px; color: #374151; }
+
 .instruct-block { border-top: 1.5px solid var(--border); padding-top: 18px; margin-top: 4px; }
 .instruct-title { font-weight: 700; font-size: 14px; color: var(--navy); margin-bottom: 8px; }
 .instruct-block ul { padding-left: 20px; }
 .instruct-block li { margin-bottom: 6px; font-size: 14px; color: #374151; }
 
-/* Section block */
 .sec-block { background: var(--card); border-radius: var(--r); overflow: hidden; box-shadow: 0 2px 16px rgba(27,31,69,0.08); }
 .subject-bar { background: var(--navy); color: white; text-align: center; font-size: 14px; font-weight: 900; letter-spacing: 5px; padding: 10px 0; }
 .lg-bar { background: var(--pink); color: white; display: flex; align-items: center; gap: 10px; padding: 11px 28px; }
 .lg-id { font-size: 18px; font-weight: 900; letter-spacing: 0.5px; flex-shrink: 0; }
-.lg-dash { opacity: 0.65; font-size: 16px; }
+.lg-dash { opacity: 0.65; }
 .lg-title { font-size: 14px; font-weight: 500; }
 .sc-line { font-size: 12px; color: var(--muted); font-style: italic; padding: 7px 28px; background: #fafbfd; border-bottom: 1px solid var(--border); }
-
-/* Part header */
 .part-head { display: flex; align-items: baseline; gap: 10px; padding: 22px 28px 14px; border-bottom: 2px solid var(--navy); }
 .part-label { font-size: 10px; font-weight: 800; color: var(--navy); text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.45; flex-shrink: 0; }
 .part-name { font-size: 15px; font-weight: 700; color: var(--navy); }
 .part-note { font-size: 12px; color: var(--muted); font-style: italic; margin-left: auto; }
 
-/* Questions */
 .question { padding: 24px 28px; border-bottom: 1px solid var(--border); }
 .question:last-of-type { border-bottom: none; }
 .q-inner { display: flex; gap: 18px; align-items: flex-start; }
@@ -93,18 +75,20 @@ body {
 .mc-badge { background: #dbeafe; color: #1d4ed8; }
 .tf-badge { background: #ede9fe; color: #7c3aed; }
 .sr-badge { background: #fce7f3; color: #be185d; }
+
+/* SC tags on questions */
+.sc-tags { display: flex; flex-direction: column; align-items: center; gap: 3px; margin-top: 2px; }
+.sc-tag { font-size: 9px; font-weight: 700; padding: 2px 5px; border-radius: 4px; background: #eef0fb; color: var(--navy); border: 1px solid #c7ccee; white-space: nowrap; letter-spacing: 0.2px; }
+
 .q-body { flex: 1; min-width: 0; }
 .q-text { font-size: 16px; margin-bottom: 14px; line-height: 1.55; }
 .marks-badge { display: inline-block; font-size: 11px; color: var(--muted); font-style: italic; font-weight: 400; margin-left: 8px; }
 .q-img-wrap { margin: 0 0 16px; }
 .q-img { max-width: 100%; max-height: 300px; border-radius: 8px; border: 1px solid var(--border); object-fit: contain; display: block; }
 .img-missing { display: inline-block; background: #f3f4f6; border: 2px dashed #ccc; color: #9ca3af; font-style: italic; font-size: 13px; padding: 14px 20px; border-radius: 6px; }
-
-/* Key steps */
 .key-steps { background: #f5f6ff; border-left: 3px solid var(--pink); border-radius: 0 8px 8px 0; padding: 12px 16px; margin: -6px 0 14px; display: flex; flex-direction: column; gap: 6px; }
-.key-step { font-size: 14px; color: #374151; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+.key-step { font-size: 14px; color: #374151; }
 
-/* MC options */
 .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 2px; }
 .opts-stacked { grid-template-columns: 1fr; }
 .opt { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border: 2px solid var(--border); border-radius: 8px; cursor: pointer; transition: border-color 0.15s, background 0.15s; user-select: none; }
@@ -120,7 +104,6 @@ body {
 .opt-marker { width: 30px; height: 30px; border: 2px solid var(--navy); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--navy); flex-shrink: 0; transition: all 0.15s; }
 .opt-text { font-size: 15px; }
 
-/* T/F */
 .tf-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
 .tf-row .q-text { flex: 1; margin-bottom: 0; }
 .tf-opts { display: flex; gap: 10px; flex-shrink: 0; padding-top: 2px; }
@@ -139,7 +122,6 @@ body {
 .q-feedback.correct { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok-b); }
 .q-feedback.incorrect { background: var(--err-bg); color: var(--err); border: 1px solid var(--err-b); }
 
-/* SR */
 .sr-input { width: 100%; padding: 14px 16px; font-family: inherit; font-size: 15px; line-height: 1.65; border: 2px solid var(--border); border-radius: 8px; resize: vertical; color: #111; transition: border-color 0.15s; display: block; margin-top: 6px; }
 .sr-input:focus { outline: none; border-color: var(--navy); }
 .sr-input:disabled { background: #f9f9f9; color: #444; cursor: default; }
@@ -154,7 +136,6 @@ body {
 .sm-btn:hover { background: var(--amber-b); }
 .sm-btn.active { background: var(--navy); border-color: var(--navy); color: white; }
 
-/* Section score box */
 .sec-score-box { margin: 20px 28px 28px; border: 2px solid var(--navy); border-radius: 8px; overflow: hidden; }
 .ssb-label { background: var(--navy); color: rgba(255,255,255,0.8); font-size: 13px; font-weight: 600; padding: 10px 18px; }
 .ssb-scores { display: flex; align-items: center; background: #f0f2f9; padding: 18px 20px; }
@@ -165,7 +146,14 @@ body {
 .total-item .ssb-name { font-weight: 700; color: var(--navy); }
 .ssb-sep { width: 1px; background: var(--border); height: 44px; flex-shrink: 0; margin: 0 10px; }
 
-/* Submit area */
+/* SC review in score box */
+.sc-review { background: #fff8e1; border-top: 2px solid var(--amber); padding: 14px 18px; }
+.sc-review-title { font-size: 12px; font-weight: 700; color: #92400e; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+.sc-review-list { display: flex; flex-direction: column; gap: 7px; }
+.sc-review-item { display: flex; align-items: baseline; gap: 10px; }
+.sc-flag-tag { font-size: 10px; font-weight: 700; padding: 3px 7px; border-radius: 4px; background: var(--amber); color: white; flex-shrink: 0; }
+.sc-desc { font-size: 13px; color: #374151; }
+
 #submit-area { background: var(--card); border-radius: var(--r); padding: 40px 44px; text-align: center; box-shadow: 0 2px 16px rgba(27,31,69,0.08); }
 .submit-btn { display: inline-block; background: var(--navy); color: white; border: none; padding: 18px 56px; font-size: 17px; font-weight: 700; font-family: inherit; border-radius: 10px; cursor: pointer; letter-spacing: 0.5px; transition: background 0.15s, transform 0.1s; }
 .submit-btn:hover { background: #252c5e; transform: translateY(-1px); }
@@ -186,54 +174,55 @@ body {
   <div class="cover-eyebrow">Science &mdash; Semester 1 Review</div>
   <div class="cover-title">Biology</div>
   <div id="results-table-wrap" hidden>
-    <div class="results-banner">
-      <div class="rb-title">&#10003; Submitted</div>
-      <div class="rb-sub">Review your answers below. Use the model answers to self-mark your short response questions, then update your totals.</div>
-    </div>
+    <div class="results-banner"><div class="rb-title">&#10003; Submitted</div><div class="rb-sub">Review your answers below. Use model answers to self-mark short response questions, then update your totals.</div></div>
     <table class="results-table">
       <thead><tr><th>Section</th><th>Topic</th><th>MC+T/F</th><th>SR (self)</th><th>Total</th></tr></thead>
       <tbody><tr>
     <td style="font-weight:700;color:#1b1f45">LG1</td>
     <td>Classification</td>
-    <td class="tc" id="cov-auto-s3">&#8212;</td>
-    <td class="tc" id="cov-sr-s3">&#8212;</td>
-    <td class="tc" id="cov-total-s3">&#8212; / 23</td>
+    <td class="tc" id="cov-auto-s3">&mdash;</td>
+    <td class="tc" id="cov-sr-s3">&mdash;</td>
+    <td class="tc" id="cov-total-s3">&mdash; / 23</td>
   </tr><tr>
     <td style="font-weight:700;color:#1b1f45">LG2</td>
     <td>Food Webs and Ecosystems</td>
-    <td class="tc" id="cov-auto-s4">&#8212;</td>
-    <td class="tc" id="cov-sr-s4">&#8212;</td>
-    <td class="tc" id="cov-total-s4">&#8212; / 20</td>
+    <td class="tc" id="cov-auto-s4">&mdash;</td>
+    <td class="tc" id="cov-sr-s4">&mdash;</td>
+    <td class="tc" id="cov-total-s4">&mdash; / 20</td>
   </tr></tbody>
       <tfoot><tr>
         <td colspan="2" style="font-weight:700;color:#1b1f45">TOTAL</td>
-        <td class="tc" id="cov-auto-total">&#8212;</td>
-        <td class="tc" id="cov-sr-total">&#8212;</td>
-        <td class="tc" id="cov-grand-total" style="font-weight:700">&#8212; / 43</td>
+        <td class="tc" id="cov-auto-total">&mdash;</td>
+        <td class="tc" id="cov-sr-total">&mdash;</td>
+        <td class="tc" id="cov-grand-total" style="font-weight:700">&mdash; / 43</td>
       </tr></tfoot>
     </table>
+    <div class="overall-sc-review" id="overall-sc-review" hidden>
+      <div class="osc-title">&#128270; Success criteria to focus on across all sections:</div>
+      <div class="osc-list" id="overall-sc-list"></div>
+    </div>
   </div>
   <div class="instruct-block">
     <div class="instruct-title">Instructions</div>
     <ul>
       <li><strong>Multiple Choice</strong> &mdash; Click the correct option. Results are auto-marked on submission. <em>(1 mark each)</em></li>
       <li><strong>True or False</strong> &mdash; Click TRUE or FALSE. Results are auto-marked on submission. <em>(1 mark each)</em></li>
-      <li><strong>Short Response</strong> &mdash; Type your answer in the box. After submission, a model answer will appear. Use it to self-mark your response. <strong>If you are unsure whether your answer is close enough to the model answer, check with Mr Buckley.</strong></li>
-      <li>Questions with images: refer to the image displayed above the question.</li>
+      <li><strong>Short Response</strong> &mdash; Type your answer. After submission, a model answer will appear. Use it to self-mark your response. <strong>If you are unsure whether your answer is close enough to the model answer, check with Mr Buckley.</strong></li>
+      <li>Each question is tagged with its Success Criterion (e.g. <span class="sc-tag" style="font-size:11px">SC15</span>). After submission, any SCs where you struggled will be highlighted in your score box.</li>
       <li>Answer all Multiple Choice and True/False questions before clicking <strong>Submit</strong>.</li>
     </ul>
   </div>
 </div>
   <section class="sec-block" id="sec-s3" data-secid="s3"><div class="subject-bar">BIOLOGY</div>
-  <div class="lg-bar">
-    <span class="lg-id">LG1</span>
-    <span class="lg-dash">&mdash;</span>
-    <span class="lg-title">Classification</span>
-  </div>
+  <div class="lg-bar"><span class="lg-id">LG1</span><span class="lg-dash">&mdash;</span><span class="lg-title">Classification</span></div>
   <div class="sc-line">Success Criteria: SC1, SC2, SC3, SC4, SC5, SC6, SC7</div><div class="part-head"><span class="part-label">Part A</span><span class="part-name">Multiple Choice</span><span class="part-note">1 mark each &mdash; auto-marked</span></div>
 <div class="question" data-qid="s3-mc-0" data-type="mc">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">1</span><span class="q-badge mc-badge">MC</span></div>
+    <div class="q-num-col">
+      <span class="q-num">1</span>
+      <span class="q-badge mc-badge">MC</span>
+      <div class="sc-tags"><span class="sc-tag">SC3</span></div>
+    </div>
     <div class="q-body">
       
       <p class="q-text">Which is the correct order of the Linnaean hierarchy from broadest to most specific?</p>
@@ -265,7 +254,11 @@ body {
 </div>
 <div class="question" data-qid="s3-mc-1" data-type="mc">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">2</span><span class="q-badge mc-badge">MC</span></div>
+    <div class="q-num-col">
+      <span class="q-num">2</span>
+      <span class="q-badge mc-badge">MC</span>
+      <div class="sc-tags"><span class="sc-tag">SC4</span></div>
+    </div>
     <div class="q-body">
       
       <p class="q-text">Which of the following is written correctly using binomial nomenclature?</p>
@@ -297,7 +290,11 @@ body {
 </div>
 <div class="question" data-qid="s3-mc-2" data-type="mc">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">3</span><span class="q-badge mc-badge">MC</span></div>
+    <div class="q-num-col">
+      <span class="q-num">3</span>
+      <span class="q-badge mc-badge">MC</span>
+      <div class="sc-tags"><span class="sc-tag">SC6</span></div>
+    </div>
     <div class="q-body">
       
       <p class="q-text">A dichotomous key works by:</p>
@@ -329,7 +326,11 @@ body {
 </div>
 <div class="question" data-qid="s3-mc-3" data-type="mc">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">4</span><span class="q-badge mc-badge">MC</span></div>
+    <div class="q-num-col">
+      <span class="q-num">4</span>
+      <span class="q-badge mc-badge">MC</span>
+      <div class="sc-tags"><span class="sc-tag">SC1</span></div>
+    </div>
     <div class="q-body">
       
       <p class="q-text">Why do scientists use a universal classification system?</p>
@@ -361,12 +362,13 @@ body {
 </div>
 <div class="question" data-qid="s3-mc-4" data-type="mc">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">5</span><span class="q-badge mc-badge">MC</span></div>
+    <div class="q-num-col">
+      <span class="q-num">5</span>
+      <span class="q-badge mc-badge">MC</span>
+      <div class="sc-tags"><span class="sc-tag">SC6</span></div>
+    </div>
     <div class="q-body">
-      <div class="q-img-wrap">
-    <img src="img/animals.png" class="q-img" alt="Question image"
-      onerror="this.parentElement.innerHTML='<div class=img-missing>animals</div>'">
-  </div>
+      <div class="q-img-wrap"><img src="img/animals.png" class="q-img" alt="Question image" onerror="this.parentElement.innerHTML='<div class=img-missing>animals</div>'"></div>
       <p class="q-text">An animal has legs, does <strong>not</strong> have a very long neck, and does <strong>not</strong> have stripes. Use the dichotomous key below to identify which animal is being described.</p>
       <div class="key-steps"><div class="key-step">Step 1 &mdash; Does the animal have legs? &ensp; No &rarr; Snake &ensp;|&ensp; Yes &rarr; Step 2</div><div class="key-step">Step 2 &mdash; Does it have a very long neck? &ensp; Yes &rarr; Giraffe &ensp;|&ensp; No &rarr; Step 3</div><div class="key-step">Step 3 &mdash; Does it have stripes? &ensp; Yes &rarr; Zebra &ensp;|&ensp; No &rarr; Lion</div></div>
       <div class="opts">
@@ -396,12 +398,13 @@ body {
 </div>
 <div class="question" data-qid="s3-mc-5" data-type="mc">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">6</span><span class="q-badge mc-badge">MC</span></div>
+    <div class="q-num-col">
+      <span class="q-num">6</span>
+      <span class="q-badge mc-badge">MC</span>
+      <div class="sc-tags"><span class="sc-tag">SC6</span></div>
+    </div>
     <div class="q-body">
-      <div class="q-img-wrap">
-    <img src="img/alien-creatures.png" class="q-img" alt="Question image"
-      onerror="this.parentElement.innerHTML='<div class=img-missing>alien creatures</div>'">
-  </div>
+      <div class="q-img-wrap"><img src="img/alien-creatures.png" class="q-img" alt="Question image" onerror="this.parentElement.innerHTML='<div class=img-missing>alien creatures</div>'"></div>
       <p class="q-text">A creature does <strong>not</strong> have antennae, has spikes covering its body, and has a star shape on its body. Use the dichotomous key below to identify which creature is being described.</p>
       <div class="key-steps"><div class="key-step">Step 1 &mdash; Does the creature have antennae? &ensp; Yes &rarr; Step 2 &ensp;|&ensp; No &rarr; Step 3</div><div class="key-step">Step 2 &mdash; Does it have a spiky appendage on its side? &ensp; Yes &rarr; Creature 1 &ensp;|&ensp; No &rarr; Creature 3</div><div class="key-step">Step 3 &mdash; Does it have spikes covering its body? &ensp; Yes &rarr; Step 4 &ensp;|&ensp; No &rarr; Creature 2</div><div class="key-step">Step 4 &mdash; Does it have a star on its body? &ensp; Yes &rarr; Creature 5 &ensp;|&ensp; No &rarr; Creature 4</div></div>
       <div class="opts">
@@ -431,19 +434,17 @@ body {
 </div><div class="part-head"><span class="part-label">Part B</span><span class="part-name">True or False</span><span class="part-note">1 mark each &mdash; auto-marked</span></div>
 <div class="question" data-qid="s3-tf-0" data-type="tf">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">7</span><span class="q-badge tf-badge">T/F</span></div>
+    <div class="q-num-col">
+      <span class="q-num">7</span>
+      <span class="q-badge tf-badge">T/F</span>
+      <div class="sc-tags"><span class="sc-tag">SC4</span></div>
+    </div>
     <div class="q-body">
       <div class="tf-row">
         <p class="q-text">A scientific name consists of an organism's genus and species.</p>
         <div class="tf-opts">
-          <label class="tf-opt" data-val="true">
-            <input type="radio" name="s3-tf-0" value="true">
-            <span class="tf-marker">T</span><span>TRUE</span>
-          </label>
-          <label class="tf-opt" data-val="false">
-            <input type="radio" name="s3-tf-0" value="false">
-            <span class="tf-marker">F</span><span>FALSE</span>
-          </label>
+          <label class="tf-opt" data-val="true"><input type="radio" name="s3-tf-0" value="true"><span class="tf-marker">T</span><span>TRUE</span></label>
+          <label class="tf-opt" data-val="false"><input type="radio" name="s3-tf-0" value="false"><span class="tf-marker">F</span><span>FALSE</span></label>
         </div>
       </div>
       <div class="q-feedback" hidden></div>
@@ -452,19 +453,17 @@ body {
 </div>
 <div class="question" data-qid="s3-tf-1" data-type="tf">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">8</span><span class="q-badge tf-badge">T/F</span></div>
+    <div class="q-num-col">
+      <span class="q-num">8</span>
+      <span class="q-badge tf-badge">T/F</span>
+      <div class="sc-tags"><span class="sc-tag">SC2</span></div>
+    </div>
     <div class="q-body">
       <div class="tf-row">
         <p class="q-text">The Linnaean classification system has remained unchanged since it was first developed.</p>
         <div class="tf-opts">
-          <label class="tf-opt" data-val="true">
-            <input type="radio" name="s3-tf-1" value="true">
-            <span class="tf-marker">T</span><span>TRUE</span>
-          </label>
-          <label class="tf-opt" data-val="false">
-            <input type="radio" name="s3-tf-1" value="false">
-            <span class="tf-marker">F</span><span>FALSE</span>
-          </label>
+          <label class="tf-opt" data-val="true"><input type="radio" name="s3-tf-1" value="true"><span class="tf-marker">T</span><span>TRUE</span></label>
+          <label class="tf-opt" data-val="false"><input type="radio" name="s3-tf-1" value="false"><span class="tf-marker">F</span><span>FALSE</span></label>
         </div>
       </div>
       <div class="q-feedback" hidden></div>
@@ -473,19 +472,17 @@ body {
 </div>
 <div class="question" data-qid="s3-tf-2" data-type="tf">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">9</span><span class="q-badge tf-badge">T/F</span></div>
+    <div class="q-num-col">
+      <span class="q-num">9</span>
+      <span class="q-badge tf-badge">T/F</span>
+      <div class="sc-tags"><span class="sc-tag">SC3</span><span class="sc-tag">SC5</span></div>
+    </div>
     <div class="q-body">
       <div class="tf-row">
         <p class="q-text">Organisms in the same genus are more closely related than organisms in the same kingdom.</p>
         <div class="tf-opts">
-          <label class="tf-opt" data-val="true">
-            <input type="radio" name="s3-tf-2" value="true">
-            <span class="tf-marker">T</span><span>TRUE</span>
-          </label>
-          <label class="tf-opt" data-val="false">
-            <input type="radio" name="s3-tf-2" value="false">
-            <span class="tf-marker">F</span><span>FALSE</span>
-          </label>
+          <label class="tf-opt" data-val="true"><input type="radio" name="s3-tf-2" value="true"><span class="tf-marker">T</span><span>TRUE</span></label>
+          <label class="tf-opt" data-val="false"><input type="radio" name="s3-tf-2" value="false"><span class="tf-marker">F</span><span>FALSE</span></label>
         </div>
       </div>
       <div class="q-feedback" hidden></div>
@@ -494,19 +491,17 @@ body {
 </div>
 <div class="question" data-qid="s3-tf-3" data-type="tf">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">10</span><span class="q-badge tf-badge">T/F</span></div>
+    <div class="q-num-col">
+      <span class="q-num">10</span>
+      <span class="q-badge tf-badge">T/F</span>
+      <div class="sc-tags"><span class="sc-tag">SC4</span></div>
+    </div>
     <div class="q-body">
       <div class="tf-row">
         <p class="q-text">Common names for organisms are used in scientific classification.</p>
         <div class="tf-opts">
-          <label class="tf-opt" data-val="true">
-            <input type="radio" name="s3-tf-3" value="true">
-            <span class="tf-marker">T</span><span>TRUE</span>
-          </label>
-          <label class="tf-opt" data-val="false">
-            <input type="radio" name="s3-tf-3" value="false">
-            <span class="tf-marker">F</span><span>FALSE</span>
-          </label>
+          <label class="tf-opt" data-val="true"><input type="radio" name="s3-tf-3" value="true"><span class="tf-marker">T</span><span>TRUE</span></label>
+          <label class="tf-opt" data-val="false"><input type="radio" name="s3-tf-3" value="false"><span class="tf-marker">F</span><span>FALSE</span></label>
         </div>
       </div>
       <div class="q-feedback" hidden></div>
@@ -515,19 +510,17 @@ body {
 </div>
 <div class="question" data-qid="s3-tf-4" data-type="tf">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">11</span><span class="q-badge tf-badge">T/F</span></div>
+    <div class="q-num-col">
+      <span class="q-num">11</span>
+      <span class="q-badge tf-badge">T/F</span>
+      <div class="sc-tags"><span class="sc-tag">SC6</span></div>
+    </div>
     <div class="q-body">
       <div class="tf-row">
         <p class="q-text">Each step in a dichotomous key always presents exactly two choices.</p>
         <div class="tf-opts">
-          <label class="tf-opt" data-val="true">
-            <input type="radio" name="s3-tf-4" value="true">
-            <span class="tf-marker">T</span><span>TRUE</span>
-          </label>
-          <label class="tf-opt" data-val="false">
-            <input type="radio" name="s3-tf-4" value="false">
-            <span class="tf-marker">F</span><span>FALSE</span>
-          </label>
+          <label class="tf-opt" data-val="true"><input type="radio" name="s3-tf-4" value="true"><span class="tf-marker">T</span><span>TRUE</span></label>
+          <label class="tf-opt" data-val="false"><input type="radio" name="s3-tf-4" value="false"><span class="tf-marker">F</span><span>FALSE</span></label>
         </div>
       </div>
       <div class="q-feedback" hidden></div>
@@ -536,7 +529,11 @@ body {
 </div><div class="part-head"><span class="part-label">Part C</span><span class="part-name">Short Response</span><span class="part-note">self-marked using model answers</span></div>
 <div class="question sr" data-qid="s3-sr-0" data-type="sr" data-maxmarks="2">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">12</span><span class="q-badge sr-badge">SR</span></div>
+    <div class="q-num-col">
+      <span class="q-num">12</span>
+      <span class="q-badge sr-badge">SR</span>
+      <div class="sc-tags"><span class="sc-tag">SC3</span></div>
+    </div>
     <div class="q-body">
       
       <p class="q-text">List the seven levels of the Linnaean classification hierarchy in order from broadest to most specific.<span class="marks-badge">2 marks</span></p>
@@ -555,7 +552,11 @@ body {
 </div>
 <div class="question sr" data-qid="s3-sr-1" data-type="sr" data-maxmarks="2">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">13</span><span class="q-badge sr-badge">SR</span></div>
+    <div class="q-num-col">
+      <span class="q-num">13</span>
+      <span class="q-badge sr-badge">SR</span>
+      <div class="sc-tags"><span class="sc-tag">SC4</span></div>
+    </div>
     <div class="q-body">
       
       <p class="q-text">What is binomial nomenclature, and why is it used instead of common names?<span class="marks-badge">2 marks</span></p>
@@ -574,7 +575,11 @@ body {
 </div>
 <div class="question sr" data-qid="s3-sr-2" data-type="sr" data-maxmarks="2">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">14</span><span class="q-badge sr-badge">SR</span></div>
+    <div class="q-num-col">
+      <span class="q-num">14</span>
+      <span class="q-badge sr-badge">SR</span>
+      <div class="sc-tags"><span class="sc-tag">SC2</span></div>
+    </div>
     <div class="q-body">
       
       <p class="q-text">Give one reason why biological classification systems have changed over time.<span class="marks-badge">2 marks</span></p>
@@ -593,12 +598,13 @@ body {
 </div>
 <div class="question sr" data-qid="s3-sr-3" data-type="sr" data-maxmarks="4">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">15</span><span class="q-badge sr-badge">SR</span></div>
+    <div class="q-num-col">
+      <span class="q-num">15</span>
+      <span class="q-badge sr-badge">SR</span>
+      <div class="sc-tags"><span class="sc-tag">SC7</span></div>
+    </div>
     <div class="q-body">
-      <div class="q-img-wrap">
-    <img src="img/animals.png" class="q-img" alt="Question image"
-      onerror="this.parentElement.innerHTML='<div class=img-missing>animals</div>'">
-  </div>
+      <div class="q-img-wrap"><img src="img/animals.png" class="q-img" alt="Question image" onerror="this.parentElement.innerHTML='<div class=img-missing>animals</div>'"></div>
       <p class="q-text">Using the animal images, create a simple dichotomous key with at least three steps that could be used to identify the snake, zebra, green tree frog, and grey kangaroo.<span class="marks-badge">4 marks</span></p>
       <textarea class="sr-input" rows="8" style="min-height:256px" placeholder="Write your answer here…"></textarea>
       <div class="model-ans-box" hidden>
@@ -615,7 +621,11 @@ body {
 </div>
 <div class="question sr" data-qid="s3-sr-4" data-type="sr" data-maxmarks="2">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">16</span><span class="q-badge sr-badge">SR</span></div>
+    <div class="q-num-col">
+      <span class="q-num">16</span>
+      <span class="q-badge sr-badge">SR</span>
+      <div class="sc-tags"><span class="sc-tag">SC3</span><span class="sc-tag">SC5</span></div>
+    </div>
     <div class="q-body">
       
       <p class="q-text">Two organisms share the same genus but different species. What does this tell you about how closely related they are?<span class="marks-badge">2 marks</span></p>
@@ -635,24 +645,28 @@ body {
   <div class="sec-score-box" id="score-s3">
     <div class="ssb-label">LG1 &mdash; Classification</div>
     <div class="ssb-scores">
-      <div class="ssb-item"><span class="ssb-name">MC + T/F</span><span class="ssb-val" id="auto-s3">&#8212;</span><span class="ssb-of">/ 11</span></div>
+      <div class="ssb-item"><span class="ssb-name">MC + T/F</span><span class="ssb-val" id="auto-s3">&mdash;</span><span class="ssb-of">/ 11</span></div>
       <div class="ssb-sep"></div>
-      <div class="ssb-item"><span class="ssb-name">Short Response</span><span class="ssb-val" id="sr-s3">&#8212;</span><span class="ssb-of">/ 12</span></div>
+      <div class="ssb-item"><span class="ssb-name">Short Response</span><span class="ssb-val" id="sr-s3">&mdash;</span><span class="ssb-of">/ 12</span></div>
       <div class="ssb-sep"></div>
-      <div class="ssb-item total-item"><span class="ssb-name">Section Total</span><span class="ssb-val" id="total-s3">&#8212;</span><span class="ssb-of">/ 23</span></div>
+      <div class="ssb-item total-item"><span class="ssb-name">Section Total</span><span class="ssb-val" id="total-s3">&mdash;</span><span class="ssb-of">/ 23</span></div>
+    </div>
+    <div class="sc-review" id="sc-review-s3" hidden>
+      <div class="sc-review-title">&#9888; Success criteria to focus on:</div>
+      <div class="sc-review-list" id="sc-review-list-s3"></div>
     </div>
   </div>
   </section>
 <section class="sec-block" id="sec-s4" data-secid="s4">
-  <div class="lg-bar">
-    <span class="lg-id">LG2</span>
-    <span class="lg-dash">&mdash;</span>
-    <span class="lg-title">Food Webs and Ecosystems</span>
-  </div>
+  <div class="lg-bar"><span class="lg-id">LG2</span><span class="lg-dash">&mdash;</span><span class="lg-title">Food Webs and Ecosystems</span></div>
   <div class="sc-line">Success Criteria: SC8, SC9, SC10</div><div class="part-head"><span class="part-label">Part A</span><span class="part-name">Multiple Choice</span><span class="part-note">1 mark each &mdash; auto-marked</span></div>
 <div class="question" data-qid="s4-mc-0" data-type="mc">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">17</span><span class="q-badge mc-badge">MC</span></div>
+    <div class="q-num-col">
+      <span class="q-num">17</span>
+      <span class="q-badge mc-badge">MC</span>
+      <div class="sc-tags"><span class="sc-tag">SC8</span><span class="sc-tag">SC9</span></div>
+    </div>
     <div class="q-body">
       
       <p class="q-text">Which organism is always found at the start of a food chain?</p>
@@ -684,7 +698,11 @@ body {
 </div>
 <div class="question" data-qid="s4-mc-1" data-type="mc">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">18</span><span class="q-badge mc-badge">MC</span></div>
+    <div class="q-num-col">
+      <span class="q-num">18</span>
+      <span class="q-badge mc-badge">MC</span>
+      <div class="sc-tags"><span class="sc-tag">SC9</span></div>
+    </div>
     <div class="q-body">
       
       <p class="q-text">In the food chain: Grass &rarr; Grasshopper &rarr; Frog &rarr; Snake, what is the frog?</p>
@@ -716,7 +734,11 @@ body {
 </div>
 <div class="question" data-qid="s4-mc-2" data-type="mc">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">19</span><span class="q-badge mc-badge">MC</span></div>
+    <div class="q-num-col">
+      <span class="q-num">19</span>
+      <span class="q-badge mc-badge">MC</span>
+      <div class="sc-tags"><span class="sc-tag">SC10</span></div>
+    </div>
     <div class="q-body">
       
       <p class="q-text">What does a food web show that a single food chain does not?</p>
@@ -748,7 +770,11 @@ body {
 </div>
 <div class="question" data-qid="s4-mc-3" data-type="mc">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">20</span><span class="q-badge mc-badge">MC</span></div>
+    <div class="q-num-col">
+      <span class="q-num">20</span>
+      <span class="q-badge mc-badge">MC</span>
+      <div class="sc-tags"><span class="sc-tag">SC9</span></div>
+    </div>
     <div class="q-body">
       
       <p class="q-text">An organism that only eats plants is called a:</p>
@@ -780,12 +806,13 @@ body {
 </div>
 <div class="question" data-qid="s4-mc-4" data-type="mc">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">21</span><span class="q-badge mc-badge">MC</span></div>
+    <div class="q-num-col">
+      <span class="q-num">21</span>
+      <span class="q-badge mc-badge">MC</span>
+      <div class="sc-tags"><span class="sc-tag">SC10</span></div>
+    </div>
     <div class="q-body">
-      <div class="q-img-wrap">
-    <img src="img/food-web-savanna.png" class="q-img" alt="Question image"
-      onerror="this.parentElement.innerHTML='<div class=img-missing>food web savanna</div>'">
-  </div>
+      <div class="q-img-wrap"><img src="img/food-web-savanna.png" class="q-img" alt="Question image" onerror="this.parentElement.innerHTML='<div class=img-missing>food web savanna</div>'"></div>
       <p class="q-text">Using the savanna food web shown, if the population of gazelles suddenly declined, which organism would most likely be directly affected?</p>
       
       <div class="opts">
@@ -815,19 +842,17 @@ body {
 </div><div class="part-head"><span class="part-label">Part B</span><span class="part-name">True or False</span><span class="part-note">1 mark each &mdash; auto-marked</span></div>
 <div class="question" data-qid="s4-tf-0" data-type="tf">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">22</span><span class="q-badge tf-badge">T/F</span></div>
+    <div class="q-num-col">
+      <span class="q-num">22</span>
+      <span class="q-badge tf-badge">T/F</span>
+      <div class="sc-tags"><span class="sc-tag">SC8</span></div>
+    </div>
     <div class="q-body">
       <div class="tf-row">
         <p class="q-text">Arrows in a food chain point in the direction of energy flow.</p>
         <div class="tf-opts">
-          <label class="tf-opt" data-val="true">
-            <input type="radio" name="s4-tf-0" value="true">
-            <span class="tf-marker">T</span><span>TRUE</span>
-          </label>
-          <label class="tf-opt" data-val="false">
-            <input type="radio" name="s4-tf-0" value="false">
-            <span class="tf-marker">F</span><span>FALSE</span>
-          </label>
+          <label class="tf-opt" data-val="true"><input type="radio" name="s4-tf-0" value="true"><span class="tf-marker">T</span><span>TRUE</span></label>
+          <label class="tf-opt" data-val="false"><input type="radio" name="s4-tf-0" value="false"><span class="tf-marker">F</span><span>FALSE</span></label>
         </div>
       </div>
       <div class="q-feedback" hidden></div>
@@ -836,19 +861,17 @@ body {
 </div>
 <div class="question" data-qid="s4-tf-1" data-type="tf">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">23</span><span class="q-badge tf-badge">T/F</span></div>
+    <div class="q-num-col">
+      <span class="q-num">23</span>
+      <span class="q-badge tf-badge">T/F</span>
+      <div class="sc-tags"><span class="sc-tag">SC10</span></div>
+    </div>
     <div class="q-body">
       <div class="tf-row">
         <p class="q-text">A food web contains only one food chain.</p>
         <div class="tf-opts">
-          <label class="tf-opt" data-val="true">
-            <input type="radio" name="s4-tf-1" value="true">
-            <span class="tf-marker">T</span><span>TRUE</span>
-          </label>
-          <label class="tf-opt" data-val="false">
-            <input type="radio" name="s4-tf-1" value="false">
-            <span class="tf-marker">F</span><span>FALSE</span>
-          </label>
+          <label class="tf-opt" data-val="true"><input type="radio" name="s4-tf-1" value="true"><span class="tf-marker">T</span><span>TRUE</span></label>
+          <label class="tf-opt" data-val="false"><input type="radio" name="s4-tf-1" value="false"><span class="tf-marker">F</span><span>FALSE</span></label>
         </div>
       </div>
       <div class="q-feedback" hidden></div>
@@ -857,19 +880,17 @@ body {
 </div>
 <div class="question" data-qid="s4-tf-2" data-type="tf">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">24</span><span class="q-badge tf-badge">T/F</span></div>
+    <div class="q-num-col">
+      <span class="q-num">24</span>
+      <span class="q-badge tf-badge">T/F</span>
+      <div class="sc-tags"><span class="sc-tag">SC10</span></div>
+    </div>
     <div class="q-body">
       <div class="tf-row">
         <p class="q-text">Removing one species from a food web can affect many other species.</p>
         <div class="tf-opts">
-          <label class="tf-opt" data-val="true">
-            <input type="radio" name="s4-tf-2" value="true">
-            <span class="tf-marker">T</span><span>TRUE</span>
-          </label>
-          <label class="tf-opt" data-val="false">
-            <input type="radio" name="s4-tf-2" value="false">
-            <span class="tf-marker">F</span><span>FALSE</span>
-          </label>
+          <label class="tf-opt" data-val="true"><input type="radio" name="s4-tf-2" value="true"><span class="tf-marker">T</span><span>TRUE</span></label>
+          <label class="tf-opt" data-val="false"><input type="radio" name="s4-tf-2" value="false"><span class="tf-marker">F</span><span>FALSE</span></label>
         </div>
       </div>
       <div class="q-feedback" hidden></div>
@@ -878,19 +899,17 @@ body {
 </div>
 <div class="question" data-qid="s4-tf-3" data-type="tf">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">25</span><span class="q-badge tf-badge">T/F</span></div>
+    <div class="q-num-col">
+      <span class="q-num">25</span>
+      <span class="q-badge tf-badge">T/F</span>
+      <div class="sc-tags"><span class="sc-tag">SC9</span></div>
+    </div>
     <div class="q-body">
       <div class="tf-row">
         <p class="q-text">Producers obtain energy by consuming other organisms.</p>
         <div class="tf-opts">
-          <label class="tf-opt" data-val="true">
-            <input type="radio" name="s4-tf-3" value="true">
-            <span class="tf-marker">T</span><span>TRUE</span>
-          </label>
-          <label class="tf-opt" data-val="false">
-            <input type="radio" name="s4-tf-3" value="false">
-            <span class="tf-marker">F</span><span>FALSE</span>
-          </label>
+          <label class="tf-opt" data-val="true"><input type="radio" name="s4-tf-3" value="true"><span class="tf-marker">T</span><span>TRUE</span></label>
+          <label class="tf-opt" data-val="false"><input type="radio" name="s4-tf-3" value="false"><span class="tf-marker">F</span><span>FALSE</span></label>
         </div>
       </div>
       <div class="q-feedback" hidden></div>
@@ -899,19 +918,17 @@ body {
 </div>
 <div class="question" data-qid="s4-tf-4" data-type="tf">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">26</span><span class="q-badge tf-badge">T/F</span></div>
+    <div class="q-num-col">
+      <span class="q-num">26</span>
+      <span class="q-badge tf-badge">T/F</span>
+      <div class="sc-tags"><span class="sc-tag">SC9</span></div>
+    </div>
     <div class="q-body">
       <div class="tf-row">
         <p class="q-text">A tertiary consumer is always a herbivore.</p>
         <div class="tf-opts">
-          <label class="tf-opt" data-val="true">
-            <input type="radio" name="s4-tf-4" value="true">
-            <span class="tf-marker">T</span><span>TRUE</span>
-          </label>
-          <label class="tf-opt" data-val="false">
-            <input type="radio" name="s4-tf-4" value="false">
-            <span class="tf-marker">F</span><span>FALSE</span>
-          </label>
+          <label class="tf-opt" data-val="true"><input type="radio" name="s4-tf-4" value="true"><span class="tf-marker">T</span><span>TRUE</span></label>
+          <label class="tf-opt" data-val="false"><input type="radio" name="s4-tf-4" value="false"><span class="tf-marker">F</span><span>FALSE</span></label>
         </div>
       </div>
       <div class="q-feedback" hidden></div>
@@ -920,7 +937,11 @@ body {
 </div><div class="part-head"><span class="part-label">Part C</span><span class="part-name">Short Response</span><span class="part-note">self-marked using model answers</span></div>
 <div class="question sr" data-qid="s4-sr-0" data-type="sr" data-maxmarks="2">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">27</span><span class="q-badge sr-badge">SR</span></div>
+    <div class="q-num-col">
+      <span class="q-num">27</span>
+      <span class="q-badge sr-badge">SR</span>
+      <div class="sc-tags"><span class="sc-tag">SC8</span><span class="sc-tag">SC10</span></div>
+    </div>
     <div class="q-body">
       
       <p class="q-text">What is the difference between a food chain and a food web?<span class="marks-badge">2 marks</span></p>
@@ -939,7 +960,11 @@ body {
 </div>
 <div class="question sr" data-qid="s4-sr-1" data-type="sr" data-maxmarks="2">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">28</span><span class="q-badge sr-badge">SR</span></div>
+    <div class="q-num-col">
+      <span class="q-num">28</span>
+      <span class="q-badge sr-badge">SR</span>
+      <div class="sc-tags"><span class="sc-tag">SC9</span></div>
+    </div>
     <div class="q-body">
       
       <p class="q-text">Name the three roles an organism can occupy in a food chain.<span class="marks-badge">2 marks</span></p>
@@ -958,12 +983,13 @@ body {
 </div>
 <div class="question sr" data-qid="s4-sr-2" data-type="sr" data-maxmarks="2">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">29</span><span class="q-badge sr-badge">SR</span></div>
+    <div class="q-num-col">
+      <span class="q-num">29</span>
+      <span class="q-badge sr-badge">SR</span>
+      <div class="sc-tags"><span class="sc-tag">SC8</span><span class="sc-tag">SC10</span></div>
+    </div>
     <div class="q-body">
-      <div class="q-img-wrap">
-    <img src="img/food-web-aquatic.png" class="q-img" alt="Question image"
-      onerror="this.parentElement.innerHTML='<div class=img-missing>food web aquatic</div>'">
-  </div>
+      <div class="q-img-wrap"><img src="img/food-web-aquatic.png" class="q-img" alt="Question image" onerror="this.parentElement.innerHTML='<div class=img-missing>food web aquatic</div>'"></div>
       <p class="q-text">Using the aquatic food web shown, write one complete food chain containing at least three organisms. Show the direction of energy flow using arrows.<span class="marks-badge">2 marks</span></p>
       <textarea class="sr-input" rows="4" style="min-height:128px" placeholder="Write your answer here…"></textarea>
       <div class="model-ans-box" hidden>
@@ -980,7 +1006,11 @@ body {
 </div>
 <div class="question sr" data-qid="s4-sr-3" data-type="sr" data-maxmarks="2">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">30</span><span class="q-badge sr-badge">SR</span></div>
+    <div class="q-num-col">
+      <span class="q-num">30</span>
+      <span class="q-badge sr-badge">SR</span>
+      <div class="sc-tags"><span class="sc-tag">SC10</span></div>
+    </div>
     <div class="q-body">
       
       <p class="q-text">Explain what would happen to the rest of the food web if all producers were removed.<span class="marks-badge">2 marks</span></p>
@@ -999,7 +1029,11 @@ body {
 </div>
 <div class="question sr" data-qid="s4-sr-4" data-type="sr" data-maxmarks="2">
   <div class="q-inner">
-    <div class="q-num-col"><span class="q-num">31</span><span class="q-badge sr-badge">SR</span></div>
+    <div class="q-num-col">
+      <span class="q-num">31</span>
+      <span class="q-badge sr-badge">SR</span>
+      <div class="sc-tags"><span class="sc-tag">SC8</span></div>
+    </div>
     <div class="q-body">
       
       <p class="q-text">In a food chain, what does the arrow represent?<span class="marks-badge">2 marks</span></p>
@@ -1019,18 +1053,22 @@ body {
   <div class="sec-score-box" id="score-s4">
     <div class="ssb-label">LG2 &mdash; Food Webs and Ecosystems</div>
     <div class="ssb-scores">
-      <div class="ssb-item"><span class="ssb-name">MC + T/F</span><span class="ssb-val" id="auto-s4">&#8212;</span><span class="ssb-of">/ 10</span></div>
+      <div class="ssb-item"><span class="ssb-name">MC + T/F</span><span class="ssb-val" id="auto-s4">&mdash;</span><span class="ssb-of">/ 10</span></div>
       <div class="ssb-sep"></div>
-      <div class="ssb-item"><span class="ssb-name">Short Response</span><span class="ssb-val" id="sr-s4">&#8212;</span><span class="ssb-of">/ 10</span></div>
+      <div class="ssb-item"><span class="ssb-name">Short Response</span><span class="ssb-val" id="sr-s4">&mdash;</span><span class="ssb-of">/ 10</span></div>
       <div class="ssb-sep"></div>
-      <div class="ssb-item total-item"><span class="ssb-name">Section Total</span><span class="ssb-val" id="total-s4">&#8212;</span><span class="ssb-of">/ 20</span></div>
+      <div class="ssb-item total-item"><span class="ssb-name">Section Total</span><span class="ssb-val" id="total-s4">&mdash;</span><span class="ssb-of">/ 20</span></div>
+    </div>
+    <div class="sc-review" id="sc-review-s4" hidden>
+      <div class="sc-review-title">&#9888; Success criteria to focus on:</div>
+      <div class="sc-review-list" id="sc-review-list-s4"></div>
     </div>
   </div>
   </section>
   <div id="submit-area">
     <button class="submit-btn" id="submit-btn">Submit Exam</button>
     <p id="submit-warning" hidden></p>
-    <p id="submit-note" hidden>Scroll through to review your answers and self-mark your short response questions.</p>
+    <p id="submit-note" hidden>Scroll through to review your answers and self-mark your short response questions. Success criteria you need to focus on will appear in each section’s score box.</p>
   </div>
 </div>
 <script>
@@ -1050,7 +1088,7 @@ const ANSWERS = {
   "s3-sr-0": "Kingdom → Phylum → Class → Order → Family → Genus → Species",
   "s3-sr-1": "Binomial nomenclature is the system of giving each organism a unique two-part scientific name made up of its genus and species (e.g. Homo sapiens).\nIt is used instead of common names because common names vary between languages and regions, whereas scientific names are universal and consistent worldwide.",
   "s3-sr-2": "Advances in DNA analysis and molecular biology have revealed evolutionary relationships between organisms that were not apparent from physical features alone, leading scientists to reclassify some species.",
-  "s3-sr-3": "Accept any valid key with at least 3 binary steps that correctly distinguishes all four organisms.\n\nExample:\nStep 1: Does the animal have legs? — No → Snake | Yes → Step 2\nStep 2: Does the animal have green skin? — Yes → Green tree frog | No → Step 3\nStep 3: Does the animal have stripes? — Yes → Zebra | No → Grey kangaroo\n\n4 marks: key has 3+ correct steps, all four organisms correctly identified, correct binary format throughout.\n2 marks: key is mostly correct with minor errors.\n1 mark: partial attempt showing some understanding.",
+  "s3-sr-3": "Accept any valid key with at least 3 binary steps that correctly distinguishes all four organisms.\n\nExample:\nStep 1: Does the animal have legs? — No → Snake | Yes → Step 2\nStep 2: Does the animal have green skin? — Yes → Green tree frog | No → Step 3\nStep 3: Does the animal have stripes? — Yes → Zebra | No → Grey kangaroo\n\n4 marks: 3+ correct binary steps, all four organisms correctly identified.\n2 marks: mostly correct with minor errors.\n1 mark: partial attempt showing some understanding.",
   "s3-sr-4": "They are very closely related. Sharing the same genus means they share more physical and genetic characteristics than organisms from different genera. However, they are still distinct species, meaning they cannot interbreed to produce fertile offspring.",
   "s4-mc-0": "C",
   "s4-mc-1": "C",
@@ -1068,143 +1106,239 @@ const ANSWERS = {
   "s4-sr-3": "All organisms in the food web would eventually decline or die out. Producers are the foundation of every food chain — they convert sunlight into energy through photosynthesis, making it available to all consumers. Without producers, primary consumers would have no food, and secondary and tertiary consumers would also lose their food source. The entire ecosystem would collapse.",
   "s4-sr-4": "The arrow represents the direction of energy flow — from the organism being eaten to the organism that is eating it. It shows which organism is the food source and which is the consumer."
 };
+const Q_SC = {
+  "s3-mc-0": [
+    "SC3"
+  ],
+  "s3-mc-1": [
+    "SC4"
+  ],
+  "s3-mc-2": [
+    "SC6"
+  ],
+  "s3-mc-3": [
+    "SC1"
+  ],
+  "s3-mc-4": [
+    "SC6"
+  ],
+  "s3-mc-5": [
+    "SC6"
+  ],
+  "s3-tf-0": [
+    "SC4"
+  ],
+  "s3-tf-1": [
+    "SC2"
+  ],
+  "s3-tf-2": [
+    "SC3",
+    "SC5"
+  ],
+  "s3-tf-3": [
+    "SC4"
+  ],
+  "s3-tf-4": [
+    "SC6"
+  ],
+  "s3-sr-0": [
+    "SC3"
+  ],
+  "s3-sr-1": [
+    "SC4"
+  ],
+  "s3-sr-2": [
+    "SC2"
+  ],
+  "s3-sr-3": [
+    "SC7"
+  ],
+  "s3-sr-4": [
+    "SC3",
+    "SC5"
+  ],
+  "s4-mc-0": [
+    "SC8",
+    "SC9"
+  ],
+  "s4-mc-1": [
+    "SC9"
+  ],
+  "s4-mc-2": [
+    "SC10"
+  ],
+  "s4-mc-3": [
+    "SC9"
+  ],
+  "s4-mc-4": [
+    "SC10"
+  ],
+  "s4-tf-0": [
+    "SC8"
+  ],
+  "s4-tf-1": [
+    "SC10"
+  ],
+  "s4-tf-2": [
+    "SC10"
+  ],
+  "s4-tf-3": [
+    "SC9"
+  ],
+  "s4-tf-4": [
+    "SC9"
+  ],
+  "s4-sr-0": [
+    "SC8",
+    "SC10"
+  ],
+  "s4-sr-1": [
+    "SC9"
+  ],
+  "s4-sr-2": [
+    "SC8",
+    "SC10"
+  ],
+  "s4-sr-3": [
+    "SC10"
+  ],
+  "s4-sr-4": [
+    "SC8"
+  ]
+};
+const SC_DESCS = {
+  "SC7": "Properties of states of matter",
+  "SC8": "Particle arrangement diagrams",
+  "SC9": "Particle model of matter",
+  "SC10": "Physical properties of solid, liquid and gas",
+  "SC11": "Bunsen burner labelling and safe use",
+  "SC14": "Physical and chemical properties",
+  "SC15": "Defining density",
+  "SC16": "Calculating density",
+  "SC17": "Particle motion, energy and state changes",
+  "SC18": "Classifying mixtures and pure substances",
+  "SC19": "Comparing pure substances and mixtures",
+  "SC20": "Identifying examples of mixtures and pure substances",
+  "SC21": "Particle representations of mixtures",
+  "SC22": "Solution vocabulary (solute, solvent, concentrated, dilute, saturated)",
+  "SC23": "Identifying solute and solvent in solutions",
+  "SC24": "Separating insoluble substances",
+  "SC25": "Separating soluble substances",
+  "SC26": "Separation methods used at home",
+  "SC27": "Properties that allow separation",
+  "SC28": "Designing a separation system for a mixture",
+  "SC29": "First Nations separation techniques",
+  "SC1": "Reasons for classifying organisms",
+  "SC2": "How biological classification systems have changed",
+  "SC3": "Linnaean classification hierarchy",
+  "SC4": "Scientific naming conventions (binomial nomenclature)",
+  "SC5": "Grouping organisms based on similarities and differences",
+  "SC6": "Using dichotomous keys to identify organisms",
+  "SC7b": "Developing a dichotomous key",
+  "SC8b": "Food chains and feeding relationships",
+  "SC9b": "Classifying organisms by position in a food chain",
+  "SC10b": "Constructing and interpreting food webs"
+};
 const SECTIONS_META = [{"id":"s3","mcCount":6,"tfCount":5,"srCount":5,"autoTotal":11,"srTotal":12,"total":23},{"id":"s4","mcCount":5,"tfCount":5,"srCount":5,"autoTotal":10,"srTotal":10,"total":20}];
 const SR_MAX_MARKS = {"s3-sr-3":4};
 const AUTO_TOTAL = 21;
 const SR_TOTAL_ALL = 22;
 const GRAND_TOTAL = 43;
+const MC_STARTS = [1,17];
+const TF_STARTS = [7,22];
 
 let submitted = false;
 const srMarks = {};
 
 function getSectionStatus(sec) {
   let answered = 0, total = sec.mcCount + sec.tfCount;
-  for (let i = 0; i < sec.mcCount; i++) {
-    if (document.querySelector('input[name="'+sec.id+'-mc-'+i+'"]:checked')) answered++;
-  }
-  for (let i = 0; i < sec.tfCount; i++) {
-    if (document.querySelector('input[name="'+sec.id+'-tf-'+i+'"]:checked')) answered++;
-  }
-  return { answered, total, done: answered === total };
-}
-
-function getOverallCount() {
-  let answered = 0;
-  SECTIONS_META.forEach(sec => {
-    const s = getSectionStatus(sec);
-    answered += s.answered;
-  });
-  const total = SECTIONS_META.reduce((s, sec) => s + sec.mcCount + sec.tfCount, 0);
-  return { answered, total };
+  for (let i=0;i<sec.mcCount;i++) { if (document.querySelector('input[name="'+sec.id+'-mc-'+i+'"]:checked')) answered++; }
+  for (let i=0;i<sec.tfCount;i++) { if (document.querySelector('input[name="'+sec.id+'-tf-'+i+'"]:checked')) answered++; }
+  return {answered, total, done: answered===total};
 }
 
 function updateProgress() {
-  const { answered, total } = getOverallCount();
+  const total = SECTIONS_META.reduce((s,sec)=>s+sec.mcCount+sec.tfCount,0);
+  const answered = SECTIONS_META.reduce((s,sec)=>s+getSectionStatus(sec).answered,0);
   document.getElementById('unanswered-num').textContent = total - answered;
   SECTIONS_META.forEach(sec => {
     const pill = document.getElementById('pill-'+sec.id);
     if (!pill) return;
-    const { answered: a, total: t, done } = getSectionStatus(sec);
+    const {answered:a,done} = getSectionStatus(sec);
     pill.classList.remove('done','partial');
     const tick = pill.querySelector('.pill-tick');
-    if (done) { pill.classList.add('done'); if (tick) tick.textContent = ' ✓'; }
-    else if (a > 0) { pill.classList.add('partial'); if (tick) tick.textContent = ''; }
-    else { if (tick) tick.textContent = ''; }
+    if (done) { pill.classList.add('done'); if(tick) tick.textContent=' ✓'; }
+    else if (a>0) { pill.classList.add('partial'); if(tick) tick.textContent=''; }
+    else { if(tick) tick.textContent=''; }
   });
 }
 
 document.querySelectorAll('.opt').forEach(label => {
   label.addEventListener('click', () => {
     if (submitted) return;
-    const input = label.querySelector('input');
-    const name = input.name;
+    const input = label.querySelector('input'), name = input.name;
     document.querySelectorAll('input[name="'+name+'"]').forEach(r => r.closest('.opt').classList.remove('selected'));
-    label.classList.add('selected');
-    input.checked = true;
-    updateProgress();
+    label.classList.add('selected'); input.checked = true; updateProgress();
   });
 });
-
 document.querySelectorAll('.tf-opt').forEach(label => {
   label.addEventListener('click', () => {
     if (submitted) return;
-    const input = label.querySelector('input');
-    const name = input.name;
+    const input = label.querySelector('input'), name = input.name;
     document.querySelectorAll('input[name="'+name+'"]').forEach(r => r.closest('.tf-opt').classList.remove('selected'));
-    label.classList.add('selected');
-    input.checked = true;
-    updateProgress();
+    label.classList.add('selected'); input.checked = true; updateProgress();
   });
 });
 
 document.getElementById('submit-btn').addEventListener('click', () => {
   const missing = [];
-  SECTIONS_META.forEach(sec => {
-    for (let i = 0; i < sec.mcCount; i++) {
-      if (!document.querySelector('input[name="'+sec.id+'-mc-'+i+'"]:checked')) missing.push('Q'+([1,17][SECTIONS_META.indexOf(sec)]+i));
-    }
-    for (let i = 0; i < sec.tfCount; i++) {
-      if (!document.querySelector('input[name="'+sec.id+'-tf-'+i+'"]:checked')) missing.push('Q'+([7,22][SECTIONS_META.indexOf(sec)]+i));
-    }
+  SECTIONS_META.forEach((sec,si) => {
+    for (let i=0;i<sec.mcCount;i++) { if (!document.querySelector('input[name="'+sec.id+'-mc-'+i+'"]:checked')) missing.push('Q'+(MC_STARTS[si]+i)); }
+    for (let i=0;i<sec.tfCount;i++) { if (!document.querySelector('input[name="'+sec.id+'-tf-'+i+'"]:checked')) missing.push('Q'+(TF_STARTS[si]+i)); }
   });
   if (missing.length > 0) {
     const w = document.getElementById('submit-warning');
     w.innerHTML = '<strong>Please answer all Multiple Choice and True/False questions first.</strong><br>Unanswered: '+missing.join(', ');
-    w.hidden = false;
-    w.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    return;
+    w.hidden = false; w.scrollIntoView({behavior:'smooth',block:'center'}); return;
   }
   submitted = true;
   document.getElementById('submit-warning').hidden = true;
   document.getElementById('submit-btn').disabled = true;
   document.getElementById('submit-btn').textContent = '✓ Submitted';
   document.getElementById('submit-note').hidden = false;
-  markAllAuto();
-  revealAllSR();
+  markAllAuto(); revealAllSR();
   document.getElementById('results-table-wrap').hidden = false;
   updateAllScores();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({top:0, behavior:'smooth'});
 });
 
 function markAllAuto() {
   SECTIONS_META.forEach(sec => {
-    for (let i = 0; i < sec.mcCount; i++) {
-      const qid = sec.id+'-mc-'+i;
-      const correct = ANSWERS[qid];
+    for (let i=0;i<sec.mcCount;i++) {
+      const qid = sec.id+'-mc-'+i, correct = ANSWERS[qid];
       const selected = document.querySelector('input[name="'+qid+'"]:checked')?.value;
       document.querySelectorAll('input[name="'+qid+'"]').forEach(r => {
-        const lbl = r.closest('.opt');
-        lbl.classList.add('locked');
-        if (r.value === correct) lbl.classList.add('correct');
-        else if (r.value === selected) lbl.classList.add('incorrect');
+        const lbl = r.closest('.opt'); lbl.classList.add('locked');
+        if (r.value===correct) lbl.classList.add('correct');
+        else if (r.value===selected) lbl.classList.add('incorrect');
         else lbl.classList.add('dimmed');
       });
       const fb = document.querySelector('.question[data-qid="'+qid+'"] .q-feedback');
-      if (fb) {
-        fb.hidden = false;
-        fb.textContent = selected === correct ? '✓ Correct' : '✗ Incorrect — correct answer: '+correct;
-        fb.className = 'q-feedback '+(selected === correct ? 'correct' : 'incorrect');
-      }
+      if (fb) { fb.hidden=false; fb.textContent = selected===correct ? '✓ Correct' : '✗ Incorrect — correct answer: '+correct; fb.className='q-feedback '+(selected===correct?'correct':'incorrect'); }
     }
-    for (let i = 0; i < sec.tfCount; i++) {
-      const qid = sec.id+'-tf-'+i;
-      const correct = ANSWERS[qid];
+    for (let i=0;i<sec.tfCount;i++) {
+      const qid = sec.id+'-tf-'+i, correct = ANSWERS[qid];
       const selected = document.querySelector('input[name="'+qid+'"]:checked')?.value;
       document.querySelectorAll('input[name="'+qid+'"]').forEach(r => {
-        const lbl = r.closest('.tf-opt');
-        lbl.classList.add('locked');
-        if (r.value === correct) lbl.classList.add('correct');
-        else if (r.value === selected) lbl.classList.add('incorrect');
+        const lbl = r.closest('.tf-opt'); lbl.classList.add('locked');
+        if (r.value===correct) lbl.classList.add('correct');
+        else if (r.value===selected) lbl.classList.add('incorrect');
         else lbl.classList.add('dimmed');
       });
       const fb = document.querySelector('.question[data-qid="'+qid+'"] .q-feedback');
-      if (fb) {
-        fb.hidden = false;
-        fb.textContent = selected === correct ? '✓ Correct' : '✗ Incorrect — correct answer: '+(correct==='true'?'TRUE':'FALSE');
-        fb.className = 'q-feedback '+(selected === correct ? 'correct' : 'incorrect');
-      }
+      if (fb) { fb.hidden=false; fb.textContent = selected===correct ? '✓ Correct' : '✗ Incorrect — correct answer: '+(correct==='true'?'TRUE':'FALSE'); fb.className='q-feedback '+(selected===correct?'correct':'incorrect'); }
     }
-    for (let i = 0; i < sec.srCount; i++) {
+    for (let i=0;i<sec.srCount;i++) {
       const ta = document.querySelector('.question[data-qid="'+sec.id+'-sr-'+i+'"] .sr-input');
       if (ta) ta.disabled = true;
     }
@@ -1213,7 +1347,7 @@ function markAllAuto() {
 
 function revealAllSR() {
   SECTIONS_META.forEach(sec => {
-    for (let i = 0; i < sec.srCount; i++) {
+    for (let i=0;i<sec.srCount;i++) {
       const qid = sec.id+'-sr-'+i;
       const box = document.querySelector('.question[data-qid="'+qid+'"] .model-ans-box');
       const txt = document.querySelector('.question[data-qid="'+qid+'"] .model-ans-text');
@@ -1224,8 +1358,7 @@ function revealAllSR() {
 
 document.querySelectorAll('.sm-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    const qDiv = btn.closest('.question');
-    const qid = qDiv.dataset.qid;
+    const qDiv = btn.closest('.question'), qid = qDiv.dataset.qid;
     srMarks[qid] = parseInt(btn.dataset.mark);
     qDiv.querySelectorAll('.sm-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
@@ -1235,42 +1368,88 @@ document.querySelectorAll('.sm-btn').forEach(btn => {
 
 function calcAutoScore(sec) {
   let score = 0;
-  for (let i = 0; i < sec.mcCount; i++) {
-    const qid = sec.id+'-mc-'+i;
-    if (document.querySelector('input[name="'+qid+'"]:checked')?.value === ANSWERS[qid]) score++;
-  }
-  for (let i = 0; i < sec.tfCount; i++) {
-    const qid = sec.id+'-tf-'+i;
-    if (document.querySelector('input[name="'+qid+'"]:checked')?.value === ANSWERS[qid]) score++;
-  }
+  for (let i=0;i<sec.mcCount;i++) { const qid=sec.id+'-mc-'+i; if (document.querySelector('input[name="'+qid+'"]:checked')?.value===ANSWERS[qid]) score++; }
+  for (let i=0;i<sec.tfCount;i++) { const qid=sec.id+'-tf-'+i; if (document.querySelector('input[name="'+qid+'"]:checked')?.value===ANSWERS[qid]) score++; }
+  return score;
+}
+function calcSRScore(sec) {
+  let score = 0;
+  for (let i=0;i<sec.srCount;i++) score += srMarks[sec.id+'-sr-'+i] ?? 0;
   return score;
 }
 
-function calcSRScore(sec) {
-  let score = 0;
-  for (let i = 0; i < sec.srCount; i++) {
-    score += srMarks[sec.id+'-sr-'+i] ?? 0;
+function updateSCReview(sec) {
+  const flagged = new Set();
+  for (let i=0;i<sec.mcCount;i++) {
+    const qid=sec.id+'-mc-'+i;
+    if (document.querySelector('input[name="'+qid+'"]:checked')?.value !== ANSWERS[qid] && Q_SC[qid])
+      Q_SC[qid].forEach(s=>flagged.add(s));
   }
-  return score;
+  for (let i=0;i<sec.tfCount;i++) {
+    const qid=sec.id+'-tf-'+i;
+    if (document.querySelector('input[name="'+qid+'"]:checked')?.value !== ANSWERS[qid] && Q_SC[qid])
+      Q_SC[qid].forEach(s=>flagged.add(s));
+  }
+  for (let i=0;i<sec.srCount;i++) {
+    const qid=sec.id+'-sr-'+i;
+    const maxM = SR_MAX_MARKS[qid]||2, earned = srMarks[qid];
+    if (earned !== undefined && earned < maxM && Q_SC[qid]) Q_SC[qid].forEach(s=>flagged.add(s));
+  }
+  const reviewEl = document.getElementById('sc-review-'+sec.id);
+  const listEl   = document.getElementById('sc-review-list-'+sec.id);
+  if (!flagged.size) { reviewEl.hidden=true; return; }
+  const sorted = Array.from(flagged).sort((a,b)=>parseInt(a.replace('SC',''))-parseInt(b.replace('SC','')));
+  listEl.innerHTML = sorted.map(sc => {
+    const desc = SC_DESCS[sc] || sc;
+    return '<div class="sc-review-item"><span class="sc-flag-tag">'+sc+'</span><span class="sc-desc">'+desc+'</span></div>';
+  }).join('');
+  reviewEl.hidden = false;
+}
+
+function updateOverallSCReview() {
+  const all = new Set();
+  SECTIONS_META.forEach(sec => {
+    for (let i=0;i<sec.mcCount;i++) {
+      const qid=sec.id+'-mc-'+i;
+      if (document.querySelector('input[name="'+qid+'"]:checked')?.value!==ANSWERS[qid] && Q_SC[qid]) Q_SC[qid].forEach(s=>all.add(s));
+    }
+    for (let i=0;i<sec.tfCount;i++) {
+      const qid=sec.id+'-tf-'+i;
+      if (document.querySelector('input[name="'+qid+'"]:checked')?.value!==ANSWERS[qid] && Q_SC[qid]) Q_SC[qid].forEach(s=>all.add(s));
+    }
+    for (let i=0;i<sec.srCount;i++) {
+      const qid=sec.id+'-sr-'+i;
+      const maxM=SR_MAX_MARKS[qid]||2, earned=srMarks[qid];
+      if (earned!==undefined && earned<maxM && Q_SC[qid]) Q_SC[qid].forEach(s=>all.add(s));
+    }
+  });
+  const el  = document.getElementById('overall-sc-review');
+  const lst = document.getElementById('overall-sc-list');
+  if (!all.size) { el.hidden=true; return; }
+  const sorted = Array.from(all).sort((a,b)=>parseInt(a.replace('SC',''))-parseInt(b.replace('SC','')));
+  lst.innerHTML = sorted.map(sc=>{
+    const desc=SC_DESCS[sc]||sc;
+    return '<div class="osc-item"><span class="osc-sc-tag">'+sc+'</span><span class="osc-desc">'+desc+'</span></div>';
+  }).join('');
+  el.hidden = false;
 }
 
 function updateAllScores() {
-  let gAuto = 0, gSR = 0;
+  let gAuto=0, gSR=0;
   SECTIONS_META.forEach(sec => {
-    const a = calcAutoScore(sec), s = calcSRScore(sec);
-    gAuto += a; gSR += s;
-    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-    set('auto-'+sec.id, a);
-    set('sr-'+sec.id, s);
-    set('total-'+sec.id, a+s);
-    set('cov-auto-'+sec.id, a+' / '+sec.autoTotal);
-    set('cov-sr-'+sec.id, s+' / '+sec.srTotal);
-    set('cov-total-'+sec.id, (a+s)+' / '+sec.total);
+    const a=calcAutoScore(sec), s=calcSRScore(sec); gAuto+=a; gSR+=s;
+    const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+    set('auto-'+sec.id,a); set('sr-'+sec.id,s); set('total-'+sec.id,a+s);
+    set('cov-auto-'+sec.id,a+' / '+sec.autoTotal);
+    set('cov-sr-'+sec.id,s+' / '+sec.srTotal);
+    set('cov-total-'+sec.id,(a+s)+' / '+sec.total);
+    updateSCReview(sec);
   });
-  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-  set('cov-auto-total', gAuto+' / '+AUTO_TOTAL);
-  set('cov-sr-total', gSR+' / '+SR_TOTAL_ALL);
-  set('cov-grand-total', (gAuto+gSR)+' / '+GRAND_TOTAL);
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set('cov-auto-total',gAuto+' / '+AUTO_TOTAL);
+  set('cov-sr-total',gSR+' / '+SR_TOTAL_ALL);
+  set('cov-grand-total',(gAuto+gSR)+' / '+GRAND_TOTAL);
+  updateOverallSCReview();
 }
 
 updateProgress();
