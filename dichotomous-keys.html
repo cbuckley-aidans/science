@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YR7 Biology: Dichotomous Keys</title>
+<link rel="stylesheet" href="presentation.css">
+<style>
+/* ── Override mono to Helvetica for this presentation ────── */
+:root {
+  --mono: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* ── Callout: larger and more prominent ─────────────────────── */
+.callout {
+  background: rgba(235,0,139,0.1);
+  border-left: 4px solid var(--pink);
+  padding: 14px 20px;
+  border-radius: 0 4px 4px 0;
+  font-size: clamp(0.92rem, 1.6vw, 1.1rem);
+  letter-spacing: 0.02em;
+  color: rgba(255,255,255,0.88);
+  line-height: 1.65;
+}
+
+/* ── Image column: fills flex space, never overflows ───────── */
+.img-col {
+  flex: 0 0 40%;
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.1);
+  align-self: stretch;
+}
+.img-col img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: top center;
+  display: block;
+}
+
+/* ── Swappable warmup panels ─────────────────────────────── */
+.warmup-stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+.warmup-panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  overflow-y: auto;
+}
+.warmup-panel.vis { opacity: 1; pointer-events: all; }
+
+.ans-reveal {
+  opacity: 0;
+  transform: translateY(5px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.ans-reveal.vis { opacity: 1; transform: translateY(0); }
+
+/* ── Key construction block ──────────────────────────────── */
+.key-step {
+  border-left: 3px solid var(--pink);
+  border-radius: 0 4px 4px 0;
+  padding: 13px 18px;
+  background: rgba(255,255,255,0.04);
+}
+.ks-label {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--pink);
+  margin-bottom: 8px;
+}
+.ks-text {
+  font-family: var(--mono);
+  font-size: clamp(0.9rem, 1.5vw, 1.08rem);
+  line-height: 2.1;
+  letter-spacing: 0.02em;
+  color: rgba(255,255,255,0.9);
+}
+.ks-text .id { color: var(--pink); font-weight: 700; }
+
+/* ── Think-aloud annotation ──────────────────────────────── */
+.think-note {
+  background: rgba(235,0,139,0.06);
+  border: 1px solid rgba(235,0,139,0.2);
+  border-radius: 4px;
+  padding: 10px 16px;
+  font-size: clamp(0.82rem, 1.35vw, 0.97rem);
+  letter-spacing: 0.02em;
+  color: rgba(255,255,255,0.8);
+  line-height: 1.7;
+}
+.think-note .tl {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--pink);
+  margin-bottom: 5px;
+}
+
+/* ── Characteristics grid ────────────────────────────────── */
+.char-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+.char-item {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 3px;
+  padding: 9px 14px;
+  font-size: clamp(0.78rem, 1.25vw, 0.9rem);
+  color: rgba(255,255,255,0.8);
+  line-height: 1.5;
+}
+.char-item .q { color: var(--pink); font-weight: 700; display: block; margin-bottom: 3px; }
+
+/* ── Reveal button ───────────────────────────────────────── */
+.reveal-btn {
+  display: inline-flex;
+  align-items: center;
+  background: var(--pink);
+  color: white;
+  border: none;
+  padding: 11px 26px;
+  font-size: clamp(0.85rem, 1.4vw, 1rem);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: background 0.2s ease, opacity 0.3s ease, transform 0.25s ease;
+  align-self: flex-start;
+}
+.reveal-btn:hover { background: #c4006e; }
+.reveal-btn.gone { opacity: 0; pointer-events: none; transform: translateY(-4px); }
+
+/* ── Fade-in content (button-triggered) ──────────────────── */
+.fade-in {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.4s ease 0.05s, transform 0.4s ease 0.05s;
+  pointer-events: none;
+}
+.fade-in.vis { opacity: 1; transform: translateY(0); pointer-events: all; }
+
+/* ── Warmup text sizes ───────────────────────────────────── */
+.key-body {
+  font-family: var(--mono);
+  font-size: clamp(0.88rem, 1.45vw, 1.05rem);
+  line-height: 2.3;
+  letter-spacing: 0.025em;
+  color: rgba(255,255,255,0.85);
+}
+.key-q {
+  font-size: clamp(1rem, 1.8vw, 1.25rem);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: white;
+  line-height: 1.55;
+}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+
+<!-- ── s0: Title ──────────────────────────────────────────────── -->
+<div class="scene" id="s0" style="align-items:center; justify-content:center; text-align:center;">
+  <div class="eyebrow">YR7 Biology</div>
+  <div class="scene-title" style="font-size:clamp(2.4rem,6vw,4.5rem);">Dichotomous <span class="hl">Keys</span></div>
+  <div class="scene-rule" style="align-self:center;"></div>
+  <div class="reveal" id="s0-sub" style="font-size:clamp(0.9rem,1.8vw,1.2rem); color:var(--dim); line-height:1.6;">
+    Revision
+  </div>
+</div>
+
+
+<!-- ── s1: Warmup (SC6) ───────────────────────────────────────── -->
+<div class="scene" id="s1">
+  <div class="checks">
+    <img src="checksforunderstanding/stopandjot.png" alt="Stop and Jot">
+    <img src="checksforunderstanding/coldcall.png" alt="Cold Call">
+  </div>
+  <div class="scene-title">Use the <span class="hl">key.</span></div>
+  <div class="scene-rule"></div>
+
+  <div class="two-col" style="flex:1; min-height:0;">
+    <div class="col-l" style="min-height:0;">
+      <div class="warmup-stage">
+
+        <!-- Panel A -->
+        <div class="warmup-panel" id="s1-pa">
+          <div class="def-card">
+            <div class="def-label">Key A</div>
+            <div class="key-body">
+              Step 1: Does it have legs? &nbsp; No &rarr; Snake &nbsp;|&nbsp; Yes &rarr; Step 2<br>
+              Step 2: Does it have a very long neck? &nbsp; Yes &rarr; Giraffe &nbsp;|&nbsp; No &rarr; Step 3<br>
+              Step 3: Does it have stripes? &nbsp; Yes &rarr; Zebra &nbsp;|&nbsp; No &rarr; Lion
+            </div>
+          </div>
+          <div class="key-q">
+            An animal has legs, no very long neck, and no stripes. What is it?
+          </div>
+          <div class="ans-reveal" id="s1-ans-a">
+            <div class="callout" style="font-size:clamp(0.9rem,1.5vw,1.05rem);">
+              <strong>Lion.</strong> &nbsp; Step 1: Yes &rarr; Step 2: No &rarr; Step 3: No &rarr; Lion
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel B -->
+        <div class="warmup-panel" id="s1-pb">
+          <div class="def-card">
+            <div class="def-label">Key B</div>
+            <div class="key-body">
+              Step 1: Does it have green skin? &nbsp; Yes &rarr; Green tree frog &nbsp;|&nbsp; No &rarr; Step 2<br>
+              Step 2: Does it have a long muscular tail? &nbsp; Yes &rarr; Grey kangaroo &nbsp;|&nbsp; No &rarr; Step 3<br>
+              Step 3: Does it have very long ears? &nbsp; Yes &rarr; Hare &nbsp;|&nbsp; No &rarr; Horse
+            </div>
+          </div>
+          <div class="key-q">
+            An animal does not have green skin but does have a long muscular tail. What is it?
+          </div>
+          <div class="ans-reveal" id="s1-ans-b">
+            <div class="callout" style="font-size:clamp(0.9rem,1.5vw,1.05rem);">
+              <strong>Grey kangaroo.</strong> &nbsp; Step 1: No &rarr; Step 2: Yes &rarr; Grey kangaroo
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="img-col">
+      <img src="img/animals.png" alt="Reference animals">
+    </div>
+  </div>
+</div>
+
+
+<!-- ── s-def: Definition ──────────────────────────────────────── -->
+<div class="scene" id="s-def">
+  <div class="scene-title">Physical <span class="hl">characteristic</span></div>
+  <div class="scene-rule"></div>
+
+  <div class="two-col" style="flex:1; min-height:0; align-items:flex-start;">
+    <div class="col-l" style="gap:16px;">
+
+      <div class="reveal" id="sdef-def">
+        <div class="def-card">
+          <div class="def-label">Definition</div>
+          <div class="def-body" style="font-size:clamp(1rem,1.8vw,1.3rem); line-height:1.7;">
+            A <strong style="color:var(--pink);">physical characteristic</strong> is any observable feature of an organism's body - something you can <strong>see</strong>.
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal" id="sdef-ex">
+        <div class="callout">
+          Examples from the image: the zebra's <strong>stripes</strong>, the giraffe's <strong>long neck</strong>, the snake's <strong>lack of legs</strong>, the green tree frog's <strong>green skin</strong>.
+        </div>
+      </div>
+
+      <div class="reveal" id="sdef-note">
+        <div class="callout" style="border-left-color:rgba(255,255,255,0.2); color:var(--dim);">
+          Physical characteristics do <strong style="color:white;">not</strong> include behaviour (what an animal does) or habitat (where it lives). They describe the <strong style="color:white;">body</strong>.
+        </div>
+      </div>
+
+    </div>
+    <div class="img-col">
+      <img src="img/animals.png" alt="Reference animals">
+    </div>
+  </div>
+</div>
+
+
+<!-- ── s-jot: Stop & Jot check ────────────────────────────────── -->
+<div class="scene" id="s-jot">
+  <div class="checks">
+    <img src="checksforunderstanding/stopandjot.png" alt="Stop and Jot">
+    <img src="checksforunderstanding/coldcall.png" alt="Cold Call">
+  </div>
+  <div class="scene-title">Stop <span class="hl">&amp; Jot.</span></div>
+  <div class="scene-rule"></div>
+
+  <div class="two-col" style="flex:1; min-height:0; align-items:flex-start;">
+    <div class="col-l" style="gap:18px;">
+
+      <div class="reveal" id="sjot-q1">
+        <div class="def-card">
+          <div class="def-label">Question 1</div>
+          <div class="def-body" style="font-size:clamp(1rem,1.8vw,1.25rem); font-weight:700; color:white; line-height:1.5;">
+            In your own words: what is a physical characteristic?
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal" id="sjot-q2">
+        <div class="def-card">
+          <div class="def-label">Question 2</div>
+          <div class="def-body" style="font-size:clamp(1rem,1.8vw,1.25rem); font-weight:700; color:white; line-height:1.5;">
+            Look at the animal image. Write down one physical characteristic you can observe.
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="img-col">
+      <img src="img/animals.png" alt="Reference animals">
+    </div>
+  </div>
+</div>
+
+
+<!-- ── s2: Brainstorm (physical characteristics) ──────────────── -->
+<div class="scene" id="s2">
+  <div class="checks">
+    <img src="checksforunderstanding/stopandjot.png" alt="Stop and Jot">
+    <img src="checksforunderstanding/turnandtalk.png" alt="Turn and Talk">
+  </div>
+  <div class="scene-title">What features <span class="hl">could we use?</span></div>
+  <div class="scene-rule"></div>
+
+  <div class="two-col" style="flex:1; min-height:0; align-items:flex-start;">
+    <div class="col-l" style="gap:14px;">
+
+      <div class="reveal" id="s2-instr" style="font-size:clamp(0.95rem,1.6vw,1.1rem); color:rgba(255,255,255,0.85); line-height:1.6;">
+        Look at the animals. On your whiteboard, write down physical characteristics that could split the group into a clear YES or NO.
+      </div>
+
+      <div class="reveal" id="s2-criteria">
+        <div class="callout">A good characteristic is <strong>visible</strong>, gives a <strong>clear YES or NO</strong>, and <strong>splits the group</strong> rather than putting all animals on the same side.</div>
+      </div>
+
+      <div class="reveal" id="s2-btnwrap">
+        <button class="reveal-btn" id="s2-btn"
+          onclick="event.stopPropagation(); revealExamples();">
+          Show example characteristics
+        </button>
+      </div>
+
+      <div class="fade-in" id="s2-examples" style="display:flex; flex-direction:column; gap:10px;">
+        <div class="char-grid">
+          <div class="char-item"><span class="q">Has legs?</span>No: Snake &nbsp; Yes: All others</div>
+          <div class="char-item"><span class="q">Has stripes?</span>Yes: Zebra &nbsp; No: All others</div>
+          <div class="char-item"><span class="q">Has a very long neck?</span>Yes: Giraffe &nbsp; No: All others</div>
+          <div class="char-item"><span class="q">Has green skin?</span>Yes: Green tree frog &nbsp; No: All others</div>
+          <div class="char-item"><span class="q">Has very long ears?</span>Yes: Hare &nbsp; No: All others</div>
+          <div class="char-item"><span class="q">Has hooves?</span>Yes: Horse, Giraffe, Zebra &nbsp; No: Others</div>
+        </div>
+        <div class="callout">Features that isolate <strong>one animal on their own</strong> are the most useful starting points for branching.</div>
+      </div>
+
+    </div>
+    <div class="img-col">
+      <img src="img/animals.png" alt="Reference animals">
+    </div>
+  </div>
+</div>
+
+
+<!-- ── s3: I Do - Example 1 ───────────────────────────────────── -->
+<div class="scene" id="s3">
+  <div class="header-row">
+    <div>
+      <div class="eyebrow">Example 1 of 2</div>
+      <div class="scene-title">Building a <span class="hl">key.</span></div>
+    </div>
+    <div class="phase-pill" style="margin-top:8px;">I Do</div>
+  </div>
+  <div class="scene-rule"></div>
+
+  <div class="two-col" style="flex:1; min-height:0; align-items:flex-start;">
+    <div class="col-l" style="gap:9px; overflow-y:auto; padding-right:4px;">
+
+      <div class="reveal" id="s3-focus" style="font-size:clamp(0.88rem,1.4vw,1rem); color:var(--dim);">
+        Animals: <span class="hl">snake &nbsp; zebra &nbsp; green tree frog &nbsp; grey kangaroo</span>
+      </div>
+
+      <div class="reveal" id="s3-t1">
+        <div class="think-note"><span class="tl">Think aloud</span>Look at all 4 animals. I want one physical feature that clearly splits the group in two. The snake stands out straight away.</div>
+      </div>
+      <div class="reveal" id="s3-k1">
+        <div class="key-step">
+          <div class="ks-label">Step 1</div>
+          <div class="ks-text">Does it have legs?<br>No &rarr; <span class="id">Snake</span> &nbsp;|&nbsp; Yes &rarr; Step 2</div>
+        </div>
+      </div>
+
+      <div class="reveal" id="s3-t2">
+        <div class="think-note"><span class="tl">Think aloud</span>Snake identified. Three remain: zebra, green tree frog, grey kangaroo. What is visibly different about one of them?</div>
+      </div>
+      <div class="reveal" id="s3-k2">
+        <div class="key-step">
+          <div class="ks-label">Step 2</div>
+          <div class="ks-text">Does it have stripes?<br>Yes &rarr; <span class="id">Zebra</span> &nbsp;|&nbsp; No &rarr; Step 3</div>
+        </div>
+      </div>
+
+      <div class="reveal" id="s3-t3">
+        <div class="think-note"><span class="tl">Think aloud</span>Two remain: green tree frog and grey kangaroo. One more observable feature will separate them.</div>
+      </div>
+      <div class="reveal" id="s3-k3">
+        <div class="key-step">
+          <div class="ks-label">Step 3</div>
+          <div class="ks-text">Does it have green skin?<br>Yes &rarr; <span class="id">Green tree frog</span> &nbsp;|&nbsp; No &rarr; <span class="id">Grey kangaroo</span></div>
+        </div>
+      </div>
+
+      <div class="reveal" id="s3-end">
+        <div class="callout"><strong>Done.</strong> Every animal reaches a unique endpoint. The key uses only observable physical characteristics.</div>
+      </div>
+
+    </div>
+    <div class="img-col">
+      <img src="img/animals.png" alt="Reference animals">
+    </div>
+  </div>
+</div>
+
+
+<!-- ── s4: I Do - Example 2 ───────────────────────────────────── -->
+<div class="scene" id="s4">
+  <div class="header-row">
+    <div>
+      <div class="eyebrow">Example 2 of 2</div>
+      <div class="scene-title">Building a <span class="hl">key.</span></div>
+    </div>
+    <div class="phase-pill" style="margin-top:8px;">I Do</div>
+  </div>
+  <div class="scene-rule"></div>
+
+  <div class="two-col" style="flex:1; min-height:0; align-items:flex-start;">
+    <div class="col-l" style="gap:9px; overflow-y:auto; padding-right:4px;">
+
+      <div class="reveal" id="s4-focus" style="font-size:clamp(0.88rem,1.4vw,1rem); color:var(--dim);">
+        Animals: <span class="hl">horse &nbsp; lion &nbsp; hare &nbsp; giraffe</span>
+      </div>
+
+      <div class="reveal" id="s4-t1">
+        <div class="think-note"><span class="tl">Think aloud</span>Same approach: look for one feature that immediately isolates an animal. The giraffe's neck is unmistakable.</div>
+      </div>
+      <div class="reveal" id="s4-k1">
+        <div class="key-step">
+          <div class="ks-label">Step 1</div>
+          <div class="ks-text">Does it have a very long neck?<br>Yes &rarr; <span class="id">Giraffe</span> &nbsp;|&nbsp; No &rarr; Step 2</div>
+        </div>
+      </div>
+
+      <div class="reveal" id="s4-t2">
+        <div class="think-note"><span class="tl">Think aloud</span>Giraffe identified. Horse, lion, hare remain. Something stands out about the hare straight away.</div>
+      </div>
+      <div class="reveal" id="s4-k2">
+        <div class="key-step">
+          <div class="ks-label">Step 2</div>
+          <div class="ks-text">Does it have very long ears?<br>Yes &rarr; <span class="id">Hare</span> &nbsp;|&nbsp; No &rarr; Step 3</div>
+        </div>
+      </div>
+
+      <div class="reveal" id="s4-t3">
+        <div class="think-note"><span class="tl">Think aloud</span>Horse and lion remain. I look at their feet - one has hooves, one has paws. That is a clear, observable split.</div>
+      </div>
+      <div class="reveal" id="s4-k3">
+        <div class="key-step">
+          <div class="ks-label">Step 3</div>
+          <div class="ks-text">Does it have hooves?<br>Yes &rarr; <span class="id">Horse</span> &nbsp;|&nbsp; No &rarr; <span class="id">Lion</span></div>
+        </div>
+      </div>
+
+      <div class="reveal" id="s4-end">
+        <div class="callout"><strong>Notice:</strong> different animals need different characteristics. The logic is always the same - split, identify, repeat.</div>
+      </div>
+
+    </div>
+    <div class="img-col">
+      <img src="img/animals.png" alt="Reference animals">
+    </div>
+  </div>
+</div>
+
+
+<!-- ── s5: We Do ──────────────────────────────────────────────── -->
+<div class="scene" id="s5">
+  <div class="checks">
+    <img src="checksforunderstanding/turnandtalk.png" alt="Turn and Talk">
+    <img src="checksforunderstanding/stopandjot.png" alt="Stop and Jot">
+  </div>
+  <div class="header-row">
+    <div class="scene-title">Now you <span class="hl">try.</span></div>
+    <div class="phase-pill">We Do</div>
+  </div>
+  <div class="scene-rule"></div>
+
+  <div class="two-col" style="flex:1; min-height:0; align-items:flex-start;">
+    <div class="col-l" style="gap:14px;">
+
+      <div class="reveal" id="s5-instr" style="font-style:italic; color:var(--dim); font-size:clamp(0.85rem,1.4vw,1rem);">
+        With your partner, build a dichotomous key on your whiteboard. Use only observable physical characteristics.
+      </div>
+
+      <div class="reveal" id="s5-animals">
+        <div class="def-card">
+          <div class="def-label">Your animals</div>
+          <div class="def-body" style="font-size:clamp(1.05rem,1.9vw,1.35rem); font-weight:700; color:var(--pink); letter-spacing:0.03em;">
+            snake &nbsp;&nbsp; lion &nbsp;&nbsp; green tree frog &nbsp;&nbsp; giraffe
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal" id="s5-scaffold">
+        <div class="callout">Start by looking for one feature that separates at least one animal from all the others.</div>
+      </div>
+
+      <div class="reveal" id="s5-btnwrap">
+        <button class="reveal-btn" id="s5-btn"
+          onclick="event.stopPropagation(); revealAnswer();">
+          Show a sample key
+        </button>
+      </div>
+
+      <div class="fade-in" id="s5-answer" style="display:flex; flex-direction:column; gap:8px;">
+        <div class="key-step">
+          <div class="ks-label">Sample answer</div>
+          <div class="ks-text">
+            Step 1: Does it have legs? &nbsp; No &rarr; <span class="id">Snake</span> &nbsp;|&nbsp; Yes &rarr; Step 2<br>
+            Step 2: Does it have green skin? &nbsp; Yes &rarr; <span class="id">Green tree frog</span> &nbsp;|&nbsp; No &rarr; Step 3<br>
+            Step 3: Does it have a very long neck? &nbsp; Yes &rarr; <span class="id">Giraffe</span> &nbsp;|&nbsp; No &rarr; <span class="id">Lion</span>
+          </div>
+        </div>
+        <div style="font-size:clamp(0.75rem,1.2vw,0.85rem); color:var(--dim); font-style:italic;">
+          Other valid keys exist. Any logical sequence of observable physical characteristics is correct.
+        </div>
+      </div>
+
+    </div>
+    <div class="img-col">
+      <img src="img/animals.png" alt="Reference animals">
+    </div>
+  </div>
+</div>
+
+
+<script src="presentation.js"></script>
+<script>
+function revealExamples() {
+  document.getElementById('s2-btn').classList.add('gone');
+  document.getElementById('s2-examples').classList.add('vis');
+}
+
+function revealAnswer() {
+  document.getElementById('s5-btn').classList.add('gone');
+  document.getElementById('s5-answer').classList.add('vis');
+}
+
+const SCENES = [
+
+  { id:'s0', steps:[
+    () => vis('s0-sub'),
+  ]},
+
+  { id:'s1', steps:[
+    () => document.getElementById('s1-pa').classList.add('vis'),
+    () => document.getElementById('s1-ans-a').classList.add('vis'),
+    () => {
+      document.getElementById('s1-pa').classList.remove('vis');
+      document.getElementById('s1-pb').classList.add('vis');
+    },
+    () => document.getElementById('s1-ans-b').classList.add('vis'),
+  ],
+  fullFn: () => {
+    document.getElementById('s1-pa').classList.remove('vis');
+    document.getElementById('s1-pb').classList.add('vis');
+    document.getElementById('s1-ans-b').classList.add('vis');
+  }},
+
+  { id:'s-def', steps:[
+    () => vis('sdef-def'),
+    () => vis('sdef-ex'),
+    () => vis('sdef-note'),
+  ]},
+
+  { id:'s-jot', steps:[
+    () => vis('sjot-q1'),
+    () => vis('sjot-q2'),
+  ]},
+
+  { id:'s2', steps:[
+    () => vis('s2-instr'),
+    () => vis('s2-criteria'),
+    () => {
+      vis('s2-btnwrap');
+      document.getElementById('s2-btn').classList.remove('gone');
+      document.getElementById('s2-examples').classList.remove('vis');
+    },
+  ],
+  fullFn: () => { revealExamples(); }},
+
+  { id:'s3', steps:[
+    () => vis('s3-focus'),
+    () => vis('s3-t1'),
+    () => vis('s3-k1'),
+    () => vis('s3-t2'),
+    () => vis('s3-k2'),
+    () => vis('s3-t3'),
+    () => vis('s3-k3'),
+    () => vis('s3-end'),
+  ]},
+
+  { id:'s4', steps:[
+    () => vis('s4-focus'),
+    () => vis('s4-t1'),
+    () => vis('s4-k1'),
+    () => vis('s4-t2'),
+    () => vis('s4-k2'),
+    () => vis('s4-t3'),
+    () => vis('s4-k3'),
+    () => vis('s4-end'),
+  ]},
+
+  { id:'s5', steps:[
+    () => vis('s5-instr'),
+    () => vis('s5-animals'),
+    () => vis('s5-scaffold'),
+    () => {
+      vis('s5-btnwrap');
+      document.getElementById('s5-btn').classList.remove('gone');
+      document.getElementById('s5-answer').classList.remove('vis');
+    },
+  ],
+  fullFn: () => { revealAnswer(); }},
+
+];
+
+initPresentation(SCENES);
+</script>
+</body>
+</html>
