@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scale explorer</title>
+<style>
+  :root{
+    --ink:#05060d;
+    --line:rgba(140,160,220,0.18);
+    --text:#e8ecff;
+    --dim:#8b93bb;
+    --amber:#ffb347;
+    --cyan:#5ce1e6;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 15% -10%, rgba(92,225,230,0.10), transparent 60%),
+      radial-gradient(900px 500px at 95% 110%, rgba(255,179,71,0.09), transparent 60%),
+      var(--ink);
+    color:var(--text);
+    font-family:var(--mono);
+    font-size:15px;
+    min-height:100vh;
+    padding:26px clamp(14px,3.5vw,54px) 46px;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.55;
+    background-image:
+      radial-gradient(1px 1px at 12% 22%, #fff, transparent),
+      radial-gradient(1px 1px at 68% 12%, #cfe, transparent),
+      radial-gradient(1px 1px at 82% 44%, #fff, transparent),
+      radial-gradient(1px 1px at 34% 68%, #fed, transparent),
+      radial-gradient(1px 1px at 55% 88%, #fff, transparent),
+      radial-gradient(1px 1px at 91% 76%, #cfe, transparent),
+      radial-gradient(1px 1px at 22% 91%, #fff, transparent),
+      radial-gradient(1px 1px at 45% 35%, #fff, transparent),
+      radial-gradient(1px 1px at 74% 62%, #fff, transparent);
+  }
+  .wrap{position:relative;z-index:1;max-width:1500px;margin:0 auto;}
+
+  header{display:flex;align-items:flex-end;justify-content:space-between;gap:22px;flex-wrap:wrap;
+    border-bottom:1px solid var(--line);padding-bottom:16px;}
+  h1{font-family:var(--serif);font-weight:400;font-size:clamp(1.6rem,3.4vw,2.5rem);margin:0;}
+  h1 em{color:var(--amber);}
+  .tag{font-size:0.66rem;letter-spacing:0.28em;text-transform:uppercase;color:var(--dim);}
+  header p{margin:9px 0 0;color:var(--dim);font-size:0.84rem;max-width:58ch;line-height:1.6;}
+
+  .readout{
+    margin:20px 0 16px;border:1px solid var(--line);background:rgba(11,14,28,0.72);
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  }
+  .cell{padding:14px 18px;border-right:1px solid var(--line);}
+  .cell:last-child{border-right:none;}
+  .cell .k{font-size:0.6rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--dim);}
+  .cell .v{font-size:clamp(1rem,2vw,1.35rem);margin-top:7px;color:var(--cyan);
+    font-variant-numeric:tabular-nums;}
+  .cell.hero .v{color:var(--amber);}
+
+  .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .row + .row{margin-top:10px;}
+  .lbl{font-size:0.6rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--dim);margin-right:6px;}
+  button{font:inherit;cursor:pointer;color:var(--text);background:transparent;
+    border:1px solid var(--line);padding:7px 14px;border-radius:999px;transition:.16s;}
+  button:hover{border-color:var(--cyan);color:var(--cyan);}
+  .chip[aria-pressed="true"]{background:var(--cyan);border-color:var(--cyan);color:var(--ink);}
+  .chip[aria-pressed="true"]:hover{background:var(--amber);border-color:var(--amber);color:var(--ink);}
+  .chip .sw{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:1px;}
+  .ghost{border-style:dashed;font-size:0.77rem;letter-spacing:0.06em;padding:6px 13px;}
+  .toggle[aria-pressed="true"]{background:rgba(255,179,71,0.14);border-color:var(--amber);color:var(--amber);}
+
+  .stage{
+    position:relative;margin-top:16px;border:1px solid var(--line);
+    background:linear-gradient(180deg,rgba(11,14,28,0.85),rgba(5,6,13,0.9));
+    height:58vh;min-height:330px;overflow:auto;
+    display:flex;align-items:center;justify-content:center;gap:24px;padding:22px;
+  }
+  .stage.locked{justify-content:flex-start;}
+  .empty{color:var(--dim);font-size:0.88rem;text-align:center;max-width:44ch;line-height:1.7;}
+  .body{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:0 0 auto;}
+  .disc{border-radius:50%;flex:0 0 auto;position:relative;transition:width .35s,height .35s;}
+  .ring{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-17deg);
+    border:1px solid rgba(216,196,140,0.8);border-radius:50%;pointer-events:none;}
+  .cap{margin-top:11px;text-align:center;min-height:32px;}
+  .cap .nm{font-size:0.7rem;letter-spacing:0.16em;text-transform:uppercase;}
+  .cap .md{font-size:0.67rem;color:var(--dim);margin-top:3px;font-variant-numeric:tabular-nums;}
+
+  .grid{display:grid;grid-template-columns:1.15fr 1fr;gap:18px;margin-top:18px;}
+  @media (max-width:820px){.grid{grid-template-columns:1fr;}}
+  .panel{border:1px solid var(--line);background:rgba(11,14,28,0.72);padding:16px 18px;}
+  .panel h2{margin:0 0 12px;font-size:0.6rem;letter-spacing:0.22em;text-transform:uppercase;
+    color:var(--dim);font-weight:400;}
+  table{border-collapse:collapse;width:100%;font-size:0.8rem;}
+  th,td{text-align:left;padding:6px 8px;border-bottom:1px solid rgba(140,160,220,0.10);}
+  th{font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--dim);font-weight:400;}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;}
+  td .sw{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:8px;}
+  .note{font-family:var(--serif);font-size:1.02rem;line-height:1.6;margin:0;}
+  .note b{color:var(--amber);font-weight:400;font-style:italic;}
+
+  .calib{margin-top:14px;border:1px dashed var(--line);padding:14px 16px;background:rgba(11,14,28,0.5);}
+  .calib summary{cursor:pointer;font-size:0.64rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--amber);}
+  .calib p{color:var(--dim);font-size:0.8rem;line-height:1.65;margin:12px 0 10px;max-width:66ch;}
+  .bar{height:22px;border:1px solid var(--cyan);
+    background:repeating-linear-gradient(90deg,rgba(92,225,230,0.20) 0 1px,transparent 1px 100%);
+    margin:10px 0 6px;}
+  .bar-note{font-size:0.72rem;color:var(--dim);}
+  input[type=range]{width:min(420px,100%);accent-color:var(--cyan);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1>How big is a planet, <em>really</em>?</h1>
+    </div>
+    <div class="row">
+      <span class="lbl">Mode</span>
+      <button class="toggle" id="modeBtn" aria-pressed="false">Fit to screen</button>
+    </div>
+  </header>
+
+  <div class="readout">
+    <div class="cell hero"><div class="k">Scale</div><div class="v" id="rScale">&mdash;</div></div>
+    <div class="cell"><div class="k">Ratio</div><div class="v" id="rRatio">&mdash;</div></div>
+    <div class="cell"><div class="k">Largest on screen</div><div class="v" id="rBig">&mdash;</div></div>
+    <div class="cell"><div class="k">Bodies selected</div><div class="v" id="rCount">0</div></div>
+  </div>
+
+  <div class="row" id="chips"></div>
+
+  <div class="row">
+    <span class="lbl">Presets</span>
+    <button class="ghost" data-preset="inner">Inner four</button>
+    <button class="ghost" data-preset="giants">Gas giants</button>
+    <button class="ghost" data-preset="all">All eight</button>
+    <button class="ghost" data-preset="sun">Sun + Earth</button>
+    <button class="ghost" data-preset="clear">Clear</button>
+  </div>
+
+  <div class="row" id="lockRow" style="display:none;">
+    <span class="lbl">km per pixel</span>
+    <input type="range" id="lockRange" min="1" max="5" step="0.01" value="3">
+    <span id="lockVal" style="color:var(--amber);font-variant-numeric:tabular-nums;"></span>
+  </div>
+
+  <div class="stage" id="stage"></div>
+
+  <div class="grid">
+    <div class="panel">
+      <h2>Measurements</h2>
+      <table>
+        <thead><tr><th>Body</th><th class="num">Real diameter</th><th class="num">On screen</th><th class="num">Pixels</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="panel">
+      <h2>What this model shows</h2>
+      <p class="note" id="note">Choose some bodies to begin.</p>
+    </div>
+  </div>
+
+  <details class="calib">
+    <summary>Make the on-screen sizes physically accurate</summary>
+    <p>Screens vary, so a browser can only guess at a centimetre. Hold a ruler against the bar below and drag the slider until the bar measures exactly 10 cm. Every measurement on this page will then be true to life.</p>
+    <div class="bar" id="calBar"></div>
+    <div class="bar-note">Target length 10.0 cm &middot; currently <span id="calRead"></span> pixels per cm</div>
+    <input type="range" id="calRange" min="20" max="110" step="0.5" value="37.8">
+  </details>
+
+</div>
+
+<script>
+var BODIES = [
+  {key:"sun",     name:"Sun",     d:1391000, c:"#ffb347", glow:true},
+  {key:"mercury", name:"Mercury", d:4880,    c:"#9aa0ad"},
+  {key:"venus",   name:"Venus",   d:12100,   c:"#e6c07b"},
+  {key:"earth",   name:"Earth",   d:12700,   c:"#4d8fd6"},
+  {key:"mars",    name:"Mars",    d:6800,    c:"#c1552e"},
+  {key:"jupiter", name:"Jupiter", d:143000,  c:"#c99a6b"},
+  {key:"saturn",  name:"Saturn",  d:120000,  c:"#d8c48c", ring:true},
+  {key:"uranus",  name:"Uranus",  d:51000,   c:"#8fd0d6"},
+  {key:"neptune", name:"Neptune", d:49000,   c:"#4a63d8"}
+];
+
+var selected = new Set(["mercury","venus","earth","mars"]);
+var locked = false;
+var pxPerCm = 37.8;
+
+function sig(v,n){
+  if(!isFinite(v) || v === 0) return 0;
+  var d = Math.ceil(Math.log10(Math.abs(v)));
+  var f = Math.pow(10, n-d);
+  return Math.round(v*f)/f;
+}
+function num(v){ return Math.round(v).toLocaleString("en-AU"); }
+function km(v){ v = sig(v,3); return v >= 1 ? num(v) : v.toFixed(2); }
+function physical(px){
+  var cm = px / pxPerCm;
+  if(cm < 1)   return (cm*10).toFixed(1) + " mm";
+  if(cm < 100) return cm.toFixed(1) + " cm";
+  return (cm/100).toFixed(2) + " m";
+}
+
+var chipWrap = document.getElementById("chips");
+var lab = document.createElement("span");
+lab.className = "lbl"; lab.textContent = "Bodies";
+chipWrap.appendChild(lab);
+BODIES.forEach(function(b){
+  var btn = document.createElement("button");
+  btn.className = "chip";
+  btn.innerHTML = '<span class="sw" style="background:'+b.c+'"></span>'+b.name;
+  btn.setAttribute("aria-pressed", selected.has(b.key));
+  btn.addEventListener("click", function(){
+    if(selected.has(b.key)) selected.delete(b.key); else selected.add(b.key);
+    sync(); render();
+  });
+  b.btn = btn;
+  chipWrap.appendChild(btn);
+});
+function sync(){
+  BODIES.forEach(function(b){ b.btn.setAttribute("aria-pressed", selected.has(b.key)); });
+}
+
+document.querySelectorAll("[data-preset]").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    var p = btn.getAttribute("data-preset");
+    if(p === "inner")  selected = new Set(["mercury","venus","earth","mars"]);
+    if(p === "giants") selected = new Set(["jupiter","saturn","uranus","neptune"]);
+    if(p === "all")    selected = new Set(["mercury","venus","earth","mars","jupiter","saturn","uranus","neptune"]);
+    if(p === "sun")    selected = new Set(["sun","earth"]);
+    if(p === "clear")  selected = new Set();
+    sync(); render();
+  });
+});
+
+var modeBtn = document.getElementById("modeBtn");
+var lockRow = document.getElementById("lockRow");
+var lockRange = document.getElementById("lockRange");
+var lockVal = document.getElementById("lockVal");
+modeBtn.addEventListener("click", function(){
+  locked = !locked;
+  modeBtn.setAttribute("aria-pressed", locked);
+  modeBtn.textContent = locked ? "Locked scale" : "Fit to screen";
+  lockRow.style.display = locked ? "flex" : "none";
+  document.getElementById("stage").classList.toggle("locked", locked);
+  render();
+});
+lockRange.addEventListener("input", render);
+
+var calRange = document.getElementById("calRange");
+var calBar = document.getElementById("calBar");
+var calRead = document.getElementById("calRead");
+calRange.addEventListener("input", function(){
+  pxPerCm = parseFloat(calRange.value);
+  drawCal(); render();
+});
+function drawCal(){
+  calBar.style.width = (pxPerCm*10) + "px";
+  calRead.textContent = pxPerCm.toFixed(1);
+}
+
+var stage = document.getElementById("stage");
+var tbody = document.getElementById("tbody");
+var note  = document.getElementById("note");
+
+function render(){
+  var sel = BODIES.filter(function(b){ return selected.has(b.key); });
+  document.getElementById("rCount").textContent = sel.length;
+
+  if(!sel.length){
+    stage.innerHTML = '<div class="empty">Nothing selected. Switch on a body above and it will be drawn to scale here.</div>';
+    document.getElementById("rScale").innerHTML = "&mdash;";
+    document.getElementById("rRatio").innerHTML = "&mdash;";
+    document.getElementById("rBig").innerHTML = "&mdash;";
+    tbody.innerHTML = '<tr><td colspan="4" style="color:#8b93bb">Nothing selected.</td></tr>';
+    note.textContent = "Choose some bodies to begin.";
+    return;
+  }
+
+  var gap = 24, pad = 22;
+  var availW = stage.clientWidth  - pad*2 - gap*(sel.length-1);
+  var availH = stage.clientHeight - 96;
+  var sumD = sel.reduce(function(s,b){ return s+b.d; }, 0);
+  var maxD = Math.max.apply(null, sel.map(function(b){ return b.d; }));
+
+  var kmPerPx;
+  if(locked){
+    kmPerPx = Math.pow(10, parseFloat(lockRange.value));
+    lockVal.textContent = num(kmPerPx) + " km / px";
+  } else {
+    kmPerPx = Math.max(sumD/availW, maxD/(availH*0.92));
+  }
+
+  document.getElementById("rScale").innerHTML = "1 px = " + km(kmPerPx) + " km";
+  document.getElementById("rRatio").textContent = "1 : " + num(sig(kmPerPx * pxPerCm * 100000, 3));
+  document.getElementById("rBig").textContent = physical(maxD/kmPerPx);
+
+  stage.innerHTML = "";
+  var tiny = [];
+  sel.forEach(function(b){
+    var px = b.d / kmPerPx;
+    if(px < 3) tiny.push(b.name);
+
+    var wrap = document.createElement("div");
+    wrap.className = "body";
+
+    var disc = document.createElement("div");
+    disc.className = "disc";
+    disc.style.width = px + "px";
+    disc.style.height = px + "px";
+    disc.style.background = b.c;
+    if(b.glow) disc.style.boxShadow = "0 0 " + Math.max(14, px*0.32) + "px rgba(255,179,71,0.5)";
+
+    if(b.ring){
+      var r = document.createElement("div");
+      r.className = "ring";
+      r.style.width = (px*1.95)+"px";
+      r.style.height = (px*0.72)+"px";
+      disc.appendChild(r);
+    }
+    wrap.appendChild(disc);
+
+    var cap = document.createElement("div");
+    cap.className = "cap";
+    cap.innerHTML = '<div class="nm">'+b.name+'</div><div class="md">'+physical(px)+'</div>';
+    wrap.appendChild(cap);
+    stage.appendChild(wrap);
+  });
+
+  tbody.innerHTML = sel.map(function(b){
+    var px = b.d/kmPerPx;
+    return '<tr><td><span class="sw" style="background:'+b.c+'"></span>'+b.name+
+           '</td><td class="num">'+num(b.d)+' km</td><td class="num">'+physical(px)+
+           '</td><td class="num">'+(px<1?px.toFixed(2):num(px))+'</td></tr>';
+  }).join("");
+
+  if(tiny.length){
+    var list = tiny.length === 1 ? tiny[0] : tiny.slice(0,-1).join(", ")+" and "+tiny[tiny.length-1];
+    note.innerHTML = "At this scale <b>"+list+"</b> "+(tiny.length===1?"is":"are")+
+      " smaller than a few pixels, so "+(tiny.length===1?"it":"they")+
+      " almost disappear. When one body is enormous the small ones cannot be seen, and that is a real limitation of any scale model.";
+  } else if(selected.has("sun")){
+    note.innerHTML = "The Sun <b>dwarfs</b> everything else. Fitting it on screen shrinks the planets dramatically, which is exactly why the Sun is almost never drawn to scale beside them.";
+  } else {
+    note.innerHTML = "Sizes here are exact, but the <b>distances</b> between these bodies are not shown at all. A single model can rarely show correct size and correct distance at the same time.";
+  }
+}
+
+var t;
+window.addEventListener("resize", function(){ clearTimeout(t); t = setTimeout(render, 110); });
+
+drawCal();
+render();
+</script>
+</body>
+</html>
