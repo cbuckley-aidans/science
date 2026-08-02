@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Axial Tilt and the Seasons</title>
+<style>
+  :root{
+    --navy:#1b1f45;
+    --pink:#ea008a;
+    --paper:#f4f4f2;
+    --line:rgba(255,255,255,0.16);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--navy);
+    color:var(--paper);
+    font-family:Helvetica,"Helvetica Neue",Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow:hidden;
+  }
+  #app{display:grid;grid-template-columns:1fr 340px;height:100vh}
+
+  /* ---------- stage ---------- */
+  #stage{position:relative}
+  #canvas-wrap{position:absolute;inset:0}
+  canvas{display:block}
+
+  .masthead{
+    position:absolute;top:0;left:0;right:0;
+    padding:18px 22px;
+    display:flex;align-items:baseline;gap:16px;
+    pointer-events:none;
+    border-bottom:1px solid var(--line);
+  }
+  .masthead h1{
+    font-size:15px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;
+  }
+  .masthead .sub{
+    font-size:11px;letter-spacing:0.18em;text-transform:uppercase;opacity:0.55;
+  }
+  .tilt-tag{
+    margin-left:auto;
+    font-size:11px;letter-spacing:0.18em;text-transform:uppercase;
+    color:var(--pink);
+  }
+
+  .stage-foot{
+    position:absolute;left:22px;bottom:14px;right:22px;
+    display:flex;align-items:center;gap:12px;
+    font-size:10px;letter-spacing:0.14em;text-transform:uppercase;
+  }
+  .stage-foot span{opacity:0.4}
+  .stage-foot button{
+    background:none;border:1px solid var(--line);color:var(--paper);
+    font-family:inherit;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;
+    padding:7px 12px;cursor:pointer;
+  }
+  .stage-foot button:hover{border-color:var(--pink);color:var(--pink)}
+  .stage-foot button:focus-visible{outline:2px solid var(--pink);outline-offset:2px}
+  .stage-foot #followBtn{margin-left:auto}
+
+  /* ---------- date control ---------- */
+  .datebar{
+    position:absolute;left:22px;right:22px;bottom:44px;
+  }
+  .datebar .row{
+    display:flex;align-items:flex-end;gap:18px;margin-bottom:10px;
+  }
+  .bigdate{font-size:34px;font-weight:700;letter-spacing:-0.01em;line-height:1}
+  .daynum{font-size:11px;letter-spacing:0.16em;text-transform:uppercase;opacity:0.5;padding-bottom:4px}
+  .playbtn{
+    margin-left:auto;
+    background:none;border:1px solid var(--line);color:var(--paper);
+    font-family:inherit;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;
+    padding:9px 16px;cursor:pointer;
+  }
+  .playbtn:hover{border-color:var(--pink);color:var(--pink)}
+  .playbtn:focus-visible{outline:2px solid var(--pink);outline-offset:2px}
+
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100%;height:26px;background:transparent;cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-runnable-track{height:2px;background:rgba(255,255,255,0.3)}
+  input[type=range]::-moz-range-track{height:2px;background:rgba(255,255,255,0.3)}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:14px;height:26px;background:var(--pink);
+    margin-top:-12px;border:none;border-radius:0;
+  }
+  input[type=range]::-moz-range-thumb{width:14px;height:26px;background:var(--pink);border:none;border-radius:0}
+  input[type=range]:focus-visible{outline:2px solid var(--pink);outline-offset:4px}
+
+  .ticks{display:flex;justify-content:space-between;font-size:9px;letter-spacing:0.12em;opacity:0.45;margin-top:2px}
+
+  .jumps{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+  .jumps button{
+    background:none;border:1px solid var(--line);color:var(--paper);
+    font-family:inherit;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;
+    padding:8px 12px;cursor:pointer;
+  }
+  .jumps button:hover{border-color:var(--pink);color:var(--pink)}
+  .jumps button.on{background:var(--pink);border-color:var(--pink);color:#fff}
+  .jumps button:focus-visible{outline:2px solid var(--pink);outline-offset:2px}
+
+  /* ---------- panel ---------- */
+  #panel{
+    border-left:1px solid var(--line);
+    overflow-y:auto;
+    padding:18px 20px 40px;
+  }
+  .eyebrow{
+    font-size:10px;letter-spacing:0.2em;text-transform:uppercase;
+    color:var(--pink);margin-bottom:10px;
+  }
+  .block{padding:18px 0;border-bottom:1px solid var(--line)}
+  .block:first-child{padding-top:4px}
+
+  .hemi{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .hemi .card{border:1px solid var(--line);padding:12px}
+  .hemi .card .lab{font-size:9px;letter-spacing:0.14em;text-transform:uppercase;opacity:0.5;line-height:1.5}
+  .hemi .card .season{font-size:20px;font-weight:700;margin-top:6px}
+  .hemi .card.sun{border-color:var(--pink)}
+  .hemi .card.sun .season{color:var(--pink)}
+
+  .stat{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;font-size:12px}
+  .stat .k{opacity:0.6}
+  .stat .v{font-weight:700;font-variant-numeric:tabular-nums}
+
+  .city{margin-bottom:18px}
+  .city:last-child{margin-bottom:0}
+  .city .name{font-size:13px;font-weight:700;letter-spacing:0.02em}
+  .city .lat{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;opacity:0.5;margin-top:2px}
+  .bar{height:8px;background:rgba(255,255,255,0.12);margin-top:9px;position:relative}
+  .bar span{position:absolute;left:0;top:0;bottom:0;background:var(--pink);transition:width .12s linear}
+
+  .toggles label.off{opacity:0.35}
+  .toggles label{
+    display:flex;align-items:center;gap:9px;font-size:11px;
+    letter-spacing:0.08em;text-transform:uppercase;opacity:0.8;padding:5px 0;cursor:pointer;
+  }
+  .toggles input{accent-color:var(--pink);width:14px;height:14px}
+
+  .note{font-size:11px;line-height:1.6;opacity:0.6}
+
+  #modelWarn{
+    display:none;
+    position:absolute;top:70px;left:22px;max-width:380px;
+    border:1px solid var(--pink);border-left-width:4px;
+    padding:12px 14px;font-size:11px;line-height:1.6;background:rgba(27,31,69,0.9);
+  }
+
+  #energyBox{
+    position:absolute;top:70px;right:22px;width:250px;
+    border:1px solid var(--line);border-top:3px solid var(--pink);
+    padding:14px;background:rgba(13,16,48,0.82);
+  }
+  .eb-title{font-size:9px;letter-spacing:0.18em;text-transform:uppercase;opacity:0.55;margin-bottom:12px}
+  .eb-row{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+  .eb-lab{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;width:38px;opacity:0.7}
+  .eb-bar{flex:1;height:10px;background:rgba(255,255,255,0.12);position:relative}
+  .eb-bar span{position:absolute;left:0;top:0;bottom:0;background:var(--pink)}
+  .eb-val{font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;width:38px;text-align:right}
+  .eb-verdict{font-size:11px;line-height:1.5;opacity:0.7;margin-top:10px}
+
+  @media (max-width:900px){
+    #app{grid-template-columns:1fr;grid-template-rows:60vh 40vh}
+    #panel{border-left:none;border-top:1px solid var(--line)}
+    .bigdate{font-size:26px}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .bar span{transition:none}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="stage">
+    <div id="canvas-wrap"></div>
+
+    <div class="masthead">
+      <h1>Axial Tilt and the Seasons</h1>
+      <div class="sub">Year 7 Earth and Space</div>
+      <div class="tilt-tag">Tilt 23.5&deg; &middot; fixed in space</div>
+    </div>
+
+    <div class="datebar">
+      <div class="row">
+        <div class="bigdate" id="dateLabel">21 June</div>
+        <div class="daynum" id="dayLabel">Day 172</div>
+        <button class="playbtn" id="playBtn">Play orbit</button>
+      </div>
+      <input type="range" id="daySlider" min="1" max="365" value="172" aria-label="Day of the year">
+      <div class="ticks">
+        <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
+        <span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span>
+      </div>
+      <div class="jumps" id="jumps">
+        <button data-day="80">March equinox</button>
+        <button data-day="172">June solstice</button>
+        <button data-day="266">September equinox</button>
+        <button data-day="355">December solstice</button>
+      </div>
+    </div>
+
+    <div id="energyBox">
+      <div class="eb-title">Sunlight energy received today</div>
+      <div class="eb-row">
+        <span class="eb-lab">North</span>
+        <span class="eb-bar"><span id="nEnergyBar"></span></span>
+        <span class="eb-val" id="nEnergy">100%</span>
+      </div>
+      <div class="eb-row">
+        <span class="eb-lab">South</span>
+        <span class="eb-bar"><span id="sEnergyBar"></span></span>
+        <span class="eb-val" id="sEnergy">42%</span>
+      </div>
+      <div class="eb-verdict" id="energyVerdict">The northern hemisphere is receiving 58 per cent more.</div>
+    </div>
+
+    <div class="stage-foot">
+      <span>Drag to rotate &middot; right-drag or shift-drag to pan &middot; scroll to zoom</span>
+      <button id="followBtn">Follow Earth</button>
+      <button id="resetBtn">Reset view</button>
+    </div>
+    <div id="modelWarn">scene.gltf could not be loaded. Check it sits beside this file with its textures folder, and open the page from a local web server rather than a file:// link.</div>
+  </div>
+
+  <div id="panel">
+    <div class="block">
+      <div class="eyebrow">Season right now</div>
+      <div class="hemi">
+        <div class="card" id="nCard">
+          <div class="lab">Northern<br>hemisphere</div>
+          <div class="season" id="nSeason">Summer</div>
+        </div>
+        <div class="card" id="sCard">
+          <div class="lab">Southern<br>hemisphere</div>
+          <div class="season" id="sSeason">Winter</div>
+        </div>
+      </div>
+      <div class="note" style="margin-top:12px">The pink border marks the hemisphere tilted towards the Sun.</div>
+    </div>
+
+    <div class="block">
+      <div class="eyebrow">Sunlight across the hemispheres</div>
+      <svg id="crossView" viewBox="0 0 300 244" width="100%"
+           font-family="Helvetica, Arial, sans-serif">
+        <g id="cvNight"></g>
+        <g id="cvRays"></g>
+        <g id="cvArcs" fill="none"></g>
+        <circle cx="196" cy="116" r="72" fill="none" stroke="#ffffff" stroke-opacity="0.22"/>
+        <g id="cvGlobe"></g>
+        <g id="cvLabels" fill="#ffffff"></g>
+      </svg>
+      <div class="note" style="margin-top:8px">
+        A slice through the Earth at midday. The sunlight never changes, so the bright zone stays put. What rocks back and forth is the Earth, carrying its fixed 23.5&deg; tilt, which slides each hemisphere in and out of the direct light.
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="eyebrow">Sun position</div>
+      <div class="stat"><span class="k">Directly overhead at</span><span class="v" id="subsolar">23.4&deg; N</span></div>
+      <div class="stat"><span class="k">Days since December solstice</span><span class="v" id="sinceSol">188</span></div>
+    </div>
+
+    <div class="block">
+      <div class="eyebrow">Compare two cities</div>
+      <div class="city">
+        <div class="name">Brisbane, Australia</div>
+        <div class="lat">27.5&deg; S</div>
+        <div class="stat"><span class="k">Noon sun angle</span><span class="v" id="briAlt">39&deg;</span></div>
+        <div class="stat"><span class="k">Hours of daylight</span><span class="v" id="briDay">10.4 h</span></div>
+        <div class="stat"><span class="k">Light intensity</span><span class="v" id="briInt">63%</span></div>
+        <div class="bar"><span id="briBar" style="width:63%"></span></div>
+      </div>
+      <div class="city">
+        <div class="name">Bergen, Norway</div>
+        <div class="lat">60.4&deg; N</div>
+        <div class="stat"><span class="k">Noon sun angle</span><span class="v" id="berAlt">53&deg;</span></div>
+        <div class="stat"><span class="k">Hours of daylight</span><span class="v" id="berDay">18.9 h</span></div>
+        <div class="stat"><span class="k">Light intensity</span><span class="v" id="berInt">80%</span></div>
+        <div class="bar"><span id="berBar" style="width:80%"></span></div>
+      </div>
+      <div class="note" style="margin-top:14px">Light intensity is how concentrated the Sun's energy is at noon. A low sun angle spreads the same energy over a wider area.</div>
+    </div>
+
+    <div class="block toggles">
+      <div class="eyebrow">Show</div>
+      <label><input type="checkbox" id="tRays" checked> Sunlight rays</label>
+      <label><input type="checkbox" id="tSub" checked> Overhead Sun marker</label>
+      <label><input type="checkbox" id="tFoot"> Beam footprints on surface</label>
+      <label><input type="checkbox" id="tOrbit" checked> Orbit path and markers</label>
+      <label><input type="checkbox" id="tAxis" checked> Axis and tropics</label>
+      <label><input type="checkbox" id="tLock" checked> Hold Brisbane at midday</label>
+      <label><input type="checkbox" id="tSpin" disabled> Spin the Earth</label>
+      <div class="note" style="margin-top:8px">With Brisbane held at midday, the globe turns just enough each day to keep the city on the noon meridian, so the Sun's height above Brisbane is always the noon value shown below.</div>
+      <label><input type="checkbox" id="tTilt"> Set tilt to 0&deg;</label>
+    </div>
+
+    <div class="block" style="border-bottom:none">
+      <div class="eyebrow">Try this</div>
+      <div class="note">
+        Set the tilt to 0&deg; and drag through a whole year. Watch what happens to the two cities. Then turn the tilt back on and explain the difference in your own words.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script>
+(function(){
+  const NAVY = 0x1b1f45, PINK = 0xea008a;
+  const TILT_DEG = 23.44;
+  const ORBIT_R = 30;
+
+  // ---------- renderer / scene ----------
+  const wrap = document.getElementById('canvas-wrap');
+  const renderer = new THREE.WebGLRenderer({antialias:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  wrap.appendChild(renderer.domElement);
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0d1030);
+
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 500);
+
+  // camera orbit state
+  let az = -0.9, el = 0.85, dist = 78;
+  const target = new THREE.Vector3(0,0,0);
+  function placeCamera(){
+    el = Math.max(0.05, Math.min(Math.PI-0.05, el));
+    camera.position.set(
+      target.x + dist*Math.sin(el)*Math.sin(az),
+      target.y + dist*Math.cos(el),
+      target.z + dist*Math.sin(el)*Math.cos(az)
+    );
+    camera.lookAt(target);
+  }
+
+  // ---------- stars ----------
+  (function(){
+    const g = new THREE.BufferGeometry(), n = 1200, a = [];
+    for(let i=0;i<n;i++){
+      const v = new THREE.Vector3().setFromSphericalCoords(200+Math.random()*80, Math.acos(2*Math.random()-1), Math.random()*Math.PI*2);
+      a.push(v.x,v.y,v.z);
+    }
+    g.setAttribute('position', new THREE.Float32BufferAttribute(a,3));
+    scene.add(new THREE.Points(g, new THREE.PointsMaterial({color:0xffffff, size:0.7, sizeAttenuation:true, opacity:0.7, transparent:true})));
+  })();
+
+  // ---------- sun ----------
+  const sun = new THREE.Mesh(new THREE.SphereGeometry(4.4, 48, 48), new THREE.MeshBasicMaterial({color:0xffd24a}));
+  scene.add(sun);
+  const glow = new THREE.Mesh(new THREE.SphereGeometry(6.4, 32, 32), new THREE.MeshBasicMaterial({color:0xffb400, transparent:true, opacity:0.16}));
+  scene.add(glow);
+  // A point light at this orbit scale would light only an 84 degree cap, because the
+  // Sun sits 9 Earth radii away here instead of the real 23,500. A directional light
+  // gives the parallel rays and exact half-lit sphere that real sunlight produces.
+  const sunLight = new THREE.DirectionalLight(0xffffff, 1.65);
+  const sunTarget = new THREE.Object3D();
+  scene.add(sunLight); scene.add(sunTarget);
+  sunLight.target = sunTarget;
+  scene.add(new THREE.AmbientLight(0xffffff, 0.14));
+
+  // ---------- earth ----------
+  const EARTH_R = 3.2;
+  const MODEL_URL = 'scene.gltf';     // sits beside this file, with its textures/ folder
+  const MODEL_SPIN_OFFSET = 0;        // radians, nudge if the model's 0° longitude is rotated
+
+  const earthPivot = new THREE.Object3D();   // holds the tilt
+  const earth = new THREE.Object3D();        // holds the daily spin
+  earthPivot.add(earth);
+  scene.add(earthPivot);
+
+  const globeSlot = new THREE.Object3D();
+  earth.add(globeSlot);
+
+  // placeholder while the model loads, and the fallback if it cannot be read
+  const placeholder = new THREE.Mesh(
+    new THREE.SphereGeometry(EARTH_R, 48, 32),
+    new THREE.MeshLambertMaterial({color:0x2a4f7c})
+  );
+  globeSlot.add(placeholder);
+
+  new THREE.GLTFLoader().load(MODEL_URL, gltf => {
+    const model = gltf.scene;
+    // scale and centre so the globe always fills the same radius
+    const box = new THREE.Box3().setFromObject(model);
+    const size = box.getSize(new THREE.Vector3());
+    const centre = box.getCenter(new THREE.Vector3());
+    const s = (EARTH_R*2) / Math.max(size.x, size.y, size.z);
+    model.scale.setScalar(s);
+    model.position.copy(centre.multiplyScalar(-s));
+    model.rotation.y = MODEL_SPIN_OFFSET;
+    model.traverse(o => {
+      if(o.isMesh && o.material){
+        o.material.side = THREE.FrontSide;
+        if('roughness' in o.material) o.material.roughness = 1;
+        if('metalness' in o.material) o.material.metalness = 0;
+      }
+    });
+    globeSlot.remove(placeholder);
+    globeSlot.add(model);
+  }, undefined, err => {
+    console.warn('scene.gltf could not be loaded, using the plain globe instead.', err);
+    document.getElementById('modelWarn').style.display = 'block';
+  });
+
+  // ---------- latitude rings ----------
+  const ringGroup = new THREE.Object3D();
+  earth.add(ringGroup);
+  function latRing(latDeg, colour, opacity){
+    const la = latDeg*Math.PI/180;
+    const r = EARTH_R*Math.cos(la)*1.004, y = EARTH_R*Math.sin(la)*1.004;
+    const pts=[];
+    for(let i=0;i<=128;i++){const a=i/128*Math.PI*2; pts.push(new THREE.Vector3(r*Math.cos(a), y, r*Math.sin(a)));}
+    const l = new THREE.LineLoop(
+      new THREE.BufferGeometry().setFromPoints(pts),
+      new THREE.LineBasicMaterial({color:colour, transparent:true, opacity:opacity, depthTest:false})
+    );
+    l.renderOrder = 2;
+    ringGroup.add(l);
+  }
+  latRing(0, 0xffffff, 0.9);
+  latRing(23.44, PINK, 0.9); latRing(-23.44, PINK, 0.9);
+  latRing(66.56, 0xffffff, 0.35); latRing(-66.56, 0xffffff, 0.35);
+
+  // axis + poles
+  const axisGroup = new THREE.Object3D();
+  const axis = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.07,0.07,EARTH_R*2.9,8),
+    new THREE.MeshBasicMaterial({color:PINK})
+  );
+  axisGroup.add(axis);
+  function poleDot(sign){
+    const m = new THREE.Mesh(new THREE.SphereGeometry(0.22,16,16), new THREE.MeshBasicMaterial({color:0xffffff}));
+    m.position.y = sign*EARTH_R*1.45; return m;
+  }
+  axisGroup.add(poleDot(1)); axisGroup.add(poleDot(-1));
+  earthPivot.add(axisGroup);
+
+  // city markers
+  function cityMarker(latDeg, lonDeg, colour){
+    const m = new THREE.Mesh(
+      new THREE.SphereGeometry(0.17,12,12),
+      new THREE.MeshBasicMaterial({color:colour})
+    );
+    const la = latDeg*Math.PI/180, lo = lonDeg*Math.PI/180, R = EARTH_R*1.035;
+    m.position.set(R*Math.cos(la)*Math.sin(lo), R*Math.sin(la), R*Math.cos(la)*Math.cos(lo));
+    return m;
+  }
+  const BRISBANE = {lat:-27.47, lon:153.03};
+  const BERGEN   = {lat: 60.39, lon:  5.32};
+  const briMark = cityMarker(BRISBANE.lat, BRISBANE.lon, 0xffffff);
+  const berMark = cityMarker(BERGEN.lat, BERGEN.lon, 0xffd24a);
+  earth.add(briMark); earth.add(berMark);
+
+  // ---------- orbit path + solstice markers ----------
+  const orbitGroup = new THREE.Object3D(); scene.add(orbitGroup);
+  (function(){
+    const pts=[];
+    for(let i=0;i<=256;i++){const a=i/256*Math.PI*2; pts.push(new THREE.Vector3(ORBIT_R*Math.cos(a),0,-ORBIT_R*Math.sin(a)));}
+    const g=new THREE.BufferGeometry().setFromPoints(pts);
+    orbitGroup.add(new THREE.Line(g,new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:0.28})));
+    [0,Math.PI/2,Math.PI,3*Math.PI/2].forEach(a=>{
+      const m=new THREE.Mesh(new THREE.SphereGeometry(0.32,10,10),new THREE.MeshBasicMaterial({color:PINK}));
+      m.position.set(ORBIT_R*Math.cos(a),0,-ORBIT_R*Math.sin(a));
+      orbitGroup.add(m);
+    });
+  })();
+
+  // ---------- sun rays, surface normals and beam footprints ----------
+  const rayGroup = new THREE.Object3D(); scene.add(rayGroup);
+  const footGroup = new THREE.Object3D(); footGroup.visible = false; scene.add(footGroup);
+
+  const N_RAYS = 13;
+  const FOOT_SEG = 20;
+  const beams = [];
+  const DIM = new THREE.Color(0x3d4a7a), HOT = new THREE.Color(0xffd24a);
+  const COLD_PATCH = new THREE.Color(0x2b3566), HOT_PATCH = new THREE.Color(0xea008a);
+
+  for(let i=0;i<N_RAYS;i++){
+    // incoming ray
+    const rg = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
+    const rm = new THREE.LineBasicMaterial({transparent:true});
+    const ray = new THREE.Line(rg, rm); ray.frustumCulled = false; rayGroup.add(ray);
+
+    // footprint ribbon on the surface
+    const fg = new THREE.BufferGeometry();
+    fg.setAttribute('position', new THREE.BufferAttribute(new Float32Array((FOOT_SEG+1)*2*3), 3));
+    const idx=[];
+    for(let s=0;s<FOOT_SEG;s++){ const a=s*2; idx.push(a,a+1,a+2, a+1,a+3,a+2); }
+    fg.setIndex(idx);
+    const fm = new THREE.MeshBasicMaterial({transparent:true, side:THREE.DoubleSide, depthWrite:false, depthTest:false});
+    const foot = new THREE.Mesh(fg, fm); foot.renderOrder = 4; foot.frustumCulled = false; footGroup.add(foot);
+
+    beams.push({ray, foot});
+  }
+
+  // ---------- subsolar bullseye: where the Sun is directly overhead ----------
+  // rings of constant angular radius about the subsolar direction, so they sit on
+  // the curved surface rather than on a flat tangent disc
+  const bullseye = new THREE.Object3D(); scene.add(bullseye);
+  (function(){
+    const dot = new THREE.Mesh(
+      new THREE.SphereGeometry(0.15, 16, 12),
+      new THREE.MeshBasicMaterial({color:0xffffff})
+    );
+    dot.position.z = EARTH_R*1.01;
+    bullseye.add(dot);
+    [0.13, 0.26, 0.40].forEach((alpha,i)=>{
+      const r = EARTH_R*1.006*Math.sin(alpha), z = EARTH_R*1.006*Math.cos(alpha);
+      const pts=[];
+      for(let a=0;a<=72;a++){const t=a/72*Math.PI*2; pts.push(new THREE.Vector3(r*Math.cos(t), r*Math.sin(t), z));}
+      const l = new THREE.LineLoop(
+        new THREE.BufferGeometry().setFromPoints(pts),
+        new THREE.LineBasicMaterial({color:0xffffff, transparent:true, opacity:0.6-i*0.15})
+      );
+      bullseye.add(l);
+    });
+  })();
+
+  // ---------- maths ----------
+  const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const MLEN=[31,28,31,30,31,30,31,31,30,31,30,31];
+  function dateLabel(d){
+    let n=d, i=0;
+    while(n>MLEN[i]){ n-=MLEN[i]; i++; }
+    return n+' '+MONTHS[i];
+  }
+  // exact for a circular orbit: this is the same geometry the 3D scene uses,
+  // so the numbers and the bullseye always agree
+  function declination(day){
+    const phi = 2*Math.PI*(day+10)/365.25;
+    return Math.asin(-Math.sin(TILT_DEG*Math.PI/180)*Math.cos(phi))*180/Math.PI;
+  }
+  function dayLength(latDeg, decDeg){
+    const la=latDeg*Math.PI/180, de=decDeg*Math.PI/180;
+    const c = -Math.tan(la)*Math.tan(de);
+    if(c<=-1) return 24; if(c>=1) return 0;
+    return 2*Math.acos(c)*180/Math.PI/15;
+  }
+  function noonAltitude(latDeg, decDeg){
+    return 90 - Math.abs(latDeg - decDeg);
+  }
+  // total sunlight energy landing on one hemisphere in a day, area weighted
+  function hemisphereEnergy(sign, decDeg){
+    const de = decDeg*Math.PI/180;
+    let sum = 0;
+    for(let lat=0.5; lat<90; lat+=1){
+      const la = sign*lat*Math.PI/180;
+      let c = -Math.tan(la)*Math.tan(de);
+      c = Math.max(-1, Math.min(1, c));
+      const H = Math.acos(c);
+      const q = H*Math.sin(la)*Math.sin(de) + Math.cos(la)*Math.cos(de)*Math.sin(H);
+      sum += Math.max(0,q)*Math.cos(la);
+    }
+    return sum;
+  }
+  const ENERGY_REF = hemisphereEnergy(1, TILT_DEG);   // a hemisphere at its own solstice
+  function seasonNH(day){
+    if(day>=355 || day<80) return 'Winter';
+    if(day<172) return 'Spring';
+    if(day<266) return 'Summer';
+    return 'Autumn';
+  }
+  const OPP={Winter:'Summer',Summer:'Winter',Spring:'Autumn',Autumn:'Spring'};
+
+  // ---------- 2D cross section through the Earth and the Sun ----------
+  // Sunlight is fixed and horizontal, arriving from the left. The globe carries the
+  // real 23.5 degree tilt and rocks by the declination through the year, so the axis
+  // is drawn leaning exactly as far towards the Sun as it truly is on that date.
+  const CV = {cx:196, cy:116, r:72, rin:57.6, step:15};
+  const NSVG = 'http://www.w3.org/2000/svg';
+  const CV_COLD = new THREE.Color(0x2b3566), CV_HOT = new THREE.Color(0xea008a);
+
+  function sv(tag, attrs, parent){
+    const n = document.createElementNS(NSVG, tag);
+    for(const k in attrs) n.setAttribute(k, attrs[k]);
+    parent.appendChild(n); return n;
+  }
+  function cvRim(psi, rad){
+    const a = psi*Math.PI/180, R = rad===undefined ? CV.r : rad;
+    return {x: CV.cx + R*Math.cos(a), y: CV.cy - R*Math.sin(a)};
+  }
+
+  // Everything to do with the light is built once, because it never changes.
+  (function buildLight(){
+    const R = CV.r, rin = CV.rin;
+    const night = document.getElementById('cvNight');
+    sv('path',{d:'M '+CV.cx+','+(CV.cy-R)+' A '+R+','+R+' 0 0 1 '+CV.cx+','+(CV.cy+R)+' Z',
+               fill:'#0a0d24', 'fill-opacity':0.75}, night);
+
+    const rg = document.getElementById('cvRays'), ag = document.getElementById('cvArcs');
+    const psis = [];
+    for(let p=90; p<=270; p+=CV.step) psis.push(p);
+    psis.forEach(p=>{
+      const h = cvRim(p);
+      sv('line',{x1:6, y1:h.y.toFixed(1), x2:h.x.toFixed(1), y2:h.y.toFixed(1),
+                 stroke:'#ffd24a', 'stroke-width':1,
+                 'stroke-opacity':(0.15+0.6*Math.max(0,-Math.cos(p*Math.PI/180))).toFixed(2)}, rg);
+    });
+    for(let i=0;i<psis.length-1;i++){
+      const a = psis[i], b = psis[i+1], m = (a+b)/2;
+      const cos = -Math.cos(m*Math.PI/180);
+      const oa = cvRim(a), ob = cvRim(b), ia = cvRim(a, rin), ib = cvRim(b, rin);
+      sv('path',{d:'M '+oa.x.toFixed(1)+','+oa.y.toFixed(1)+
+                   ' A '+R+','+R+' 0 0 0 '+ob.x.toFixed(1)+','+ob.y.toFixed(1)+
+                   ' L '+ib.x.toFixed(1)+','+ib.y.toFixed(1)+
+                   ' A '+rin+','+rin+' 0 0 1 '+ia.x.toFixed(1)+','+ia.y.toFixed(1)+' Z',
+                 fill:'#'+CV_COLD.clone().lerp(CV_HOT, cos).getHexString(),
+                 'fill-opacity':(0.45+0.5*cos).toFixed(2)}, ag);
+    }
+    // the point where the Sun is directly overhead never moves in this view
+    const sp = cvRim(180);
+    sv('circle',{cx:sp.x, cy:sp.y, r:3.2, fill:'#ffffff'}, ag);
+  })();
+
+  function updateCrossView(decDeg){
+    const de = decDeg*Math.PI/180, R = CV.r;
+    // north pole leans towards the Sun, which sits to the left
+    const u = {x:-Math.sin(de), y:-Math.cos(de)};
+    const v = {x:-Math.cos(de), y: Math.sin(de)};
+    const pt = (lat, side, scale) => {
+      const la = lat*Math.PI/180, S = R*(scale||1);
+      return {x: CV.cx + S*(u.x*Math.sin(la) + side*v.x*Math.cos(la)),
+              y: CV.cy + S*(u.y*Math.sin(la) + side*v.y*Math.cos(la))};
+    };
+    const g = document.getElementById('cvGlobe'), L = document.getElementById('cvLabels');
+    while(g.firstChild) g.removeChild(g.firstChild);
+    while(L.firstChild) L.removeChild(L.firstChild);
+
+    // upright reference and the lean the axis currently has towards the Sun
+    sv('line',{x1:CV.cx, y1:CV.cy-R*1.24, x2:CV.cx, y2:CV.cy+R*1.24,
+               stroke:'#ffffff', 'stroke-opacity':0.16, 'stroke-width':1,
+               'stroke-dasharray':'3 4'}, g);
+
+    // lines of latitude
+    function chord(lat, op, dash, w){
+      const a = pt(lat, 1), b = pt(lat, -1);
+      sv('line',{x1:a.x.toFixed(1), y1:a.y.toFixed(1), x2:b.x.toFixed(1), y2:b.y.toFixed(1),
+                 stroke:'#ffffff', 'stroke-opacity':op, 'stroke-width':w,
+                 'stroke-dasharray':dash}, g);
+    }
+    chord(0, 0.55, '', 1.3);
+    sv('g',{}, g);
+    [[TILT_DEG,0.75],[-TILT_DEG,0.75]].forEach(([l,op])=>{
+      const a = pt(l,1), b = pt(l,-1);
+      sv('line',{x1:a.x.toFixed(1), y1:a.y.toFixed(1), x2:b.x.toFixed(1), y2:b.y.toFixed(1),
+                 stroke:'#ea008a', 'stroke-opacity':op, 'stroke-width':1.2}, g);
+    });
+    chord(90-TILT_DEG, 0.28, '2 4', 1);
+    chord(-(90-TILT_DEG), 0.28, '2 4', 1);
+
+    // axis
+    const n = pt(90, 1, 1.26), sP = pt(-90, 1, 1.26);
+    sv('line',{x1:n.x.toFixed(1), y1:n.y.toFixed(1), x2:sP.x.toFixed(1), y2:sP.y.toFixed(1),
+               stroke:'#ea008a', 'stroke-width':2.4}, g);
+    sv('circle',{cx:n.x.toFixed(1), cy:n.y.toFixed(1), r:3, fill:'#ffffff'}, g);
+    sv('circle',{cx:sP.x.toFixed(1), cy:sP.y.toFixed(1), r:3, fill:'#ffffff'}, g);
+
+    // Brisbane at midday, always on the sunlit side
+    const bri = pt(BRISBANE.lat, 1, 1.0);
+    sv('circle',{cx:bri.x.toFixed(1), cy:bri.y.toFixed(1), r:3.4,
+                 fill:'#1b1f45', stroke:'#ffffff', 'stroke-width':1.6}, g);
+
+    function txt(x,y,str,size,op,anchor){
+      const t = sv('text',{x:x.toFixed(1), y:y.toFixed(1), 'font-size':size,
+                           'fill-opacity':op, 'letter-spacing':1.2,
+                           'text-anchor':anchor||'middle'}, L);
+      t.textContent = str;
+    }
+    txt(n.x, n.y-6, 'N', 9, 0.85);
+    txt(sP.x, sP.y+11, 'S', 9, 0.85);
+    txt(bri.x-7, bri.y+3, 'BRISBANE', 6.5, 0.7, 'end');
+    txt(8, 14, '\u25CF  SUN DIRECTLY OVERHEAD', 6.5, 0.5, 'start');
+    txt(292, 14, 'AXIS LEANING ' + Math.abs(decDeg).toFixed(1) + '\u00B0 ' +
+        (Math.abs(decDeg) < 0.6 ? 'SIDEWAYS' : (decDeg > 0 ? 'NORTH' : 'SOUTH')), 6.5, 0.5, 'end');
+    txt(292, 24, 'TILT IN SPACE IS ALWAYS 23.5\u00B0', 6.5, 0.35, 'end');
+    txt(8, 238, 'GLANCING', 6.5, 0.45, 'start');
+    txt(292, 238, 'DIRECT', 6.5, 0.45, 'end');
+    for(let i=0;i<26;i++){
+      sv('rect',{x:(78+i*5.6).toFixed(1), y:231, width:5.6, height:5,
+                 fill:'#'+CV_COLD.clone().lerp(CV_HOT, i/25).getHexString()}, L);
+    }
+  }
+
+  // ---------- state ----------
+  let day = 172, playing = false, spin = 0, tiltOn = true, lockNoon = true, spinning = false;
+
+  const $ = id => document.getElementById(id);
+  const slider = $('daySlider');
+
+  function update(){
+    const tilt = tiltOn ? TILT_DEG : 0;
+    const dec = tiltOn ? declination(day) : 0;
+
+    // orbit position: day 355 (Dec solstice) at angle 0, north pole tilted away
+    const phi = 2*Math.PI*(day+10)/365.25;
+    const px = ORBIT_R*Math.cos(phi), pz = -ORBIT_R*Math.sin(phi);
+    earthPivot.position.set(px,0,pz);
+    earthPivot.rotation.set(0,0,-tilt*Math.PI/180);   // axis leans towards +x, fixed
+    // daily rotation: either locked so Brisbane faces the Sun, or free spinning
+    if(lockNoon){
+      const toSun = new THREE.Vector3(-px, 0, -pz).normalize();
+      const local = toSun.applyQuaternion(earthPivot.quaternion.clone().invert());
+      spin = Math.atan2(local.x, local.z) - BRISBANE.lon*Math.PI/180;
+    }
+    earth.rotation.y = spin;
+
+    // sunlight: parallel beam, each ray traced to where it actually lands
+    if(rayGroup.visible || footGroup.visible){
+      const C = new THREE.Vector3(px,0,pz);
+      const d = C.clone().normalize();                 // travel direction, sun to Earth
+      const Y = new THREE.Vector3(0,1,0);
+      const spread = EARTH_R*0.94;
+      const w = 2*spread/(N_RAYS-1);                   // width of one beam
+
+      beams.forEach((b,i)=>{
+        const h = -spread + i*w;                       // offset across the beam
+        const k = Math.sqrt(Math.max(0.0001, EARTH_R*EARTH_R - h*h));
+        const hit = C.clone().addScaledVector(Y,h).addScaledVector(d,-k);
+        const n = hit.clone().sub(C).divideScalar(EARTH_R);
+        const cos = k/EARTH_R;                         // cos of the angle of incidence
+
+        // incoming ray, from the edge of the Sun to the point it strikes
+        const start = d.clone().multiplyScalar(5.2).addScaledVector(Y,h);
+        b.ray.geometry.setFromPoints([start, hit]);
+        b.ray.geometry.attributes.position.needsUpdate = true;
+        b.ray.material.color.copy(DIM).lerp(HOT, cos);
+        b.ray.material.opacity = 0.18 + 0.62*cos;
+
+        // footprint: the same beam width spread across the curved surface
+        const t = Y.clone().addScaledVector(n, -Y.dot(n));
+        if(t.lengthSq() < 1e-6) t.set(1,0,0).addScaledVector(n, -n.x);
+        t.normalize();
+        const half = Math.min(0.60, (w/Math.max(cos,0.08))/(2*EARTH_R));
+        const pos = b.foot.geometry.attributes.position;
+        for(let s=0;s<=FOOT_SEG;s++){
+          const a = -half + 2*half*s/FOOT_SEG;
+          const ns = n.clone().multiplyScalar(Math.cos(a)).addScaledVector(t, Math.sin(a));
+          const centre = C.clone().addScaledVector(ns, EARTH_R*1.008);
+          const side = new THREE.Vector3().crossVectors(ns, t).normalize().multiplyScalar(w*0.42);
+          pos.setXYZ(s*2,   centre.x-side.x, centre.y-side.y, centre.z-side.z);
+          pos.setXYZ(s*2+1, centre.x+side.x, centre.y+side.y, centre.z+side.z);
+        }
+        pos.needsUpdate = true;
+        b.foot.material.color.copy(COLD_PATCH).lerp(HOT_PATCH, cos);
+        b.foot.material.opacity = 0.35 + 0.5*cos;
+      });
+    }
+
+    // bullseye sits where the Sun is directly overhead
+    {
+      const C = new THREE.Vector3(px,0,pz);
+      const d = C.clone().normalize();
+      bullseye.position.copy(C);
+      bullseye.lookAt(C.clone().addScaledVector(d,-1));   // local +Z points at the Sun
+      sunTarget.position.copy(C);
+      sunLight.position.copy(C).addScaledVector(d,-60);   // parallel light travelling along d
+    }
+
+    // which hemisphere is getting more energy today
+    {
+      const eN = hemisphereEnergy(1, dec)/ENERGY_REF;
+      const eS = hemisphereEnergy(-1, dec)/ENERGY_REF;
+      $('nEnergy').textContent = Math.round(eN*100)+'%';
+      $('sEnergy').textContent = Math.round(eS*100)+'%';
+      $('nEnergyBar').style.width = Math.round(eN*100)+'%';
+      $('sEnergyBar').style.width = Math.round(eS*100)+'%';
+      const diff = Math.round(Math.abs(eN-eS)*100);
+      $('energyVerdict').textContent = diff < 2
+        ? 'Both hemispheres are receiving almost exactly the same amount.'
+        : 'The ' + (eN>eS ? 'northern' : 'southern') + ' hemisphere is receiving ' + diff + ' per cent more.';
+      updateCrossView(dec);
+    }
+
+    // readouts
+    const dRound = Math.max(1, Math.round(day));
+    $('dateLabel').textContent = dateLabel(dRound);
+    $('dayLabel').textContent = 'Day '+dRound;
+    const nS = tiltOn ? seasonNH(dRound) : 'No seasons';
+    const sS = tiltOn ? OPP[seasonNH(dRound)] : 'No seasons';
+    $('nSeason').textContent = nS; $('sSeason').textContent = sS;
+    $('nCard').className = 'card' + (tiltOn && dec>0.4 ? ' sun' : '');
+    $('sCard').className = 'card' + (tiltOn && dec<-0.4 ? ' sun' : '');
+
+    $('subsolar').textContent = Math.abs(dec).toFixed(1)+'\u00B0 '+(dec>=0?'N':'S');
+    $('sinceSol').textContent = Math.round(((dRound-355)+365)%365);
+
+    [['bri',-27.47],['ber',60.39]].forEach(([k,lat])=>{
+      const alt = noonAltitude(lat,dec);
+      const inten = Math.max(0, Math.sin(alt*Math.PI/180));
+      const dl = dayLength(lat,dec);
+      $(k+'Alt').textContent = alt.toFixed(0)+'\u00B0';
+      $(k+'Day').textContent = dl.toFixed(1)+' h';
+      $(k+'Int').textContent = Math.round(inten*100)+'%';
+      $(k+'Bar').style.width = Math.round(inten*100)+'%';
+    });
+
+    document.querySelectorAll('#jumps button').forEach(b=>{
+      b.classList.toggle('on', +b.dataset.day === dRound);
+    });
+  }
+
+  // ---------- interaction ----------
+  slider.addEventListener('input', e => { day = +e.target.value; update(); });
+  document.querySelectorAll('#jumps button').forEach(b=>{
+    b.addEventListener('click', ()=>{ day=+b.dataset.day; slider.value=day; update(); });
+  });
+  $('playBtn').addEventListener('click', function(){
+    playing=!playing; this.textContent = playing ? 'Pause orbit' : 'Play orbit';
+  });
+  $('tRays').addEventListener('change', e=>{ rayGroup.visible=e.target.checked; update(); });
+  $('tFoot').addEventListener('change', e=>{ footGroup.visible=e.target.checked; update(); });
+  $('tSub').addEventListener('change', e=>{ bullseye.visible=e.target.checked; });
+  $('tOrbit').addEventListener('change', e=>{ orbitGroup.visible=e.target.checked; });
+  $('tAxis').addEventListener('change', e=>{ axisGroup.visible=e.target.checked; ringGroup.visible=e.target.checked; });
+  $('tTilt').addEventListener('change', e=>{ tiltOn=!e.target.checked; update(); });
+  $('tLock').addEventListener('change', e=>{
+    lockNoon = e.target.checked;
+    $('tSpin').disabled = lockNoon;
+    if(lockNoon){ $('tSpin').checked = false; spinning = false; }
+    update();
+  });
+  $('tSpin').addEventListener('change', e=>{ spinning=e.target.checked; });
+
+  // camera drag
+  const HOME = {az:-0.9, el:0.85, dist:78, target:new THREE.Vector3(0,0,0)};
+  let mode=null, lx=0, ly=0;
+  const el0 = renderer.domElement;
+  el0.addEventListener('contextmenu', e=>e.preventDefault());
+  el0.addEventListener('pointerdown', e=>{
+    mode = (e.button===2 || e.button===1 || e.shiftKey) ? 'pan' : 'orbit';
+    lx=e.clientX; ly=e.clientY; el0.setPointerCapture(e.pointerId);
+  });
+  el0.addEventListener('pointerup', ()=>{ mode=null; });
+  el0.addEventListener('pointercancel', ()=>{ mode=null; });
+  el0.addEventListener('pointermove', e=>{
+    if(!mode) return;
+    const dx = e.clientX-lx, dy = e.clientY-ly;
+    lx=e.clientX; ly=e.clientY;
+    if(mode==='orbit'){
+      az -= dx*0.006; el -= dy*0.006;
+    } else {
+      const right = new THREE.Vector3().setFromMatrixColumn(camera.matrix,0);
+      const up = new THREE.Vector3().setFromMatrixColumn(camera.matrix,1);
+      const k = dist*0.0016;
+      target.addScaledVector(right, -dx*k).addScaledVector(up, dy*k);
+    }
+    placeCamera();
+  });
+  el0.addEventListener('wheel', e=>{
+    e.preventDefault();
+    dist = Math.max(6, Math.min(220, dist * (1 + e.deltaY*0.0012)));
+    placeCamera();
+  }, {passive:false});
+
+  // pinch to zoom on touch
+  let pinch = 0;
+  el0.addEventListener('touchmove', e=>{
+    if(e.touches.length!==2) return;
+    e.preventDefault();
+    const d = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+    if(pinch) { dist = Math.max(6, Math.min(220, dist * pinch/d)); placeCamera(); }
+    pinch = d;
+  }, {passive:false});
+  el0.addEventListener('touchend', ()=>{ pinch = 0; });
+
+  function resetCamera(){
+    az=HOME.az; el=HOME.el; dist=HOME.dist; target.copy(HOME.target); placeCamera();
+  }
+  function followEarth(){
+    target.copy(earthPivot.position); dist=12; az=-0.9; el=1.0; placeCamera();
+  }
+  $('resetBtn').addEventListener('click', resetCamera);
+  $('followBtn').addEventListener('click', followEarth);
+  window.addEventListener('keydown', e=>{
+    if(e.key==='r' || e.key==='R') resetCamera();
+  });
+
+  // ---------- loop ----------
+  function resize(){
+    const w = wrap.clientWidth, h = wrap.clientHeight;
+    renderer.setSize(w,h);
+    camera.aspect = w/h; camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resize);
+
+  let last = performance.now();
+  function loop(now){
+    const dt = Math.min(0.06,(now-last)/1000); last = now;
+    if(playing){
+      day += dt*22;
+      if(day>365) day -= 365;
+      slider.value = Math.round(day);
+    }
+    if(spinning) spin += dt*1.2;
+    if(playing || spinning) update();
+    renderer.render(scene, camera);
+    requestAnimationFrame(loop);
+  }
+
+  resize(); placeCamera(); update(); requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
