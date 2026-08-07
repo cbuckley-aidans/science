@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What's Missing? Statement, Evidence, Reasoning</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Barlow+Condensed:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+    --navy: #1b1f45;
+    --pink: #ea008a;
+    --s-col: #1b1f45;
+    --s-light: #eaebf2;
+    --e-col: #ea008a;
+    --e-light: #fdeaf5;
+    --r-col: #0f7a6f;
+    --r-light: #e4f4f1;
+    --white: #ffffff;
+    --off-white: #f5f4f0;
+    --light-grey: #e2e0da;
+    --mid-grey: #9a9a9a;
+    --correct: #16a34a;
+    --incorrect: #dc2626;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { min-height: 100%; font-family: 'Barlow', sans-serif; background: var(--off-white); color: var(--navy); overflow-x: hidden; }
+
+.placemat { min-height: 100vh; display: flex; flex-direction: column; padding: 32px 36px 28px; max-width: 1200px; margin: 0 auto; width: 100%; }
+
+/* HEADER */
+.mat-header { display: flex; align-items: flex-end; justify-content: space-between; padding-bottom: 14px; border-bottom: 4px solid var(--navy); margin-bottom: 16px; gap: 20px; flex-wrap: wrap; }
+.sheet-label { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pink); margin-bottom: 2px; }
+.sheet-title { font-family: 'Barlow Condensed', sans-serif; font-size: 38px; font-weight: 900; text-transform: uppercase; color: var(--navy); letter-spacing: 0.01em; line-height: 1; }
+.score-display { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.score-label { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mid-grey); }
+.score-pips { display: flex; gap: 5px; align-items: center; }
+.pip { width: 17px; height: 17px; border-radius: 50%; border: 2.5px solid var(--light-grey); background: transparent; transition: background 0.35s, border-color 0.35s, transform 0.25s; }
+.pip.correct   { background: var(--correct);   border-color: var(--correct);   transform: scale(1.2); }
+.pip.incorrect { background: var(--incorrect); border-color: var(--incorrect); transform: scale(1.2); }
+.progress-text { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; color: var(--navy); min-width: 56px; text-align: right; }
+
+/* FORMULA BAR */
+.formula-bar { background: var(--navy); padding: 10px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.formula-plain { font-family: 'Barlow', sans-serif; font-size: 14px; font-weight: 400; font-style: italic; color: rgba(255,255,255,0.6); }
+.formula-pill { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--white); padding: 3px 10px 2px; }
+.formula-pill.s { background: #4a5290; }
+.formula-pill.e { background: var(--e-col); }
+.formula-pill.r { background: var(--r-col); }
+.formula-arrow { color: rgba(255,255,255,0.4); font-weight: 700; }
+
+/* STAGE */
+.stage { flex: 1; display: grid; grid-template-columns: 1.35fr 1fr; gap: 26px; align-items: start; }
+
+/* PARAGRAPH PANEL */
+.para-panel { background: var(--white); border: 3px solid var(--navy); padding: 26px 30px 28px; }
+.para-meta { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
+.para-topic { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: var(--pink); }
+.para-count { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid-grey); }
+.para-question { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.02em; color: var(--navy); line-height: 1.1; padding-bottom: 14px; border-bottom: 2px solid var(--light-grey); margin-bottom: 18px; }
+.para-body { font-size: 17.5px; line-height: 1.7; color: var(--navy); }
+
+/* REVEAL STRIPS */
+.reveal-stack { display: flex; flex-direction: column; gap: 8px; }
+.rev-strip { display: flex; align-items: stretch; border: 2px solid; animation: slideIn 0.35s cubic-bezier(0.22,1,0.36,1) backwards; }
+.rev-strip.s { border-color: var(--s-col); background: var(--white); }
+.rev-strip.e { border-color: var(--e-col); background: var(--white); }
+.rev-strip.r { border-color: var(--r-col); background: var(--white); }
+.rev-tag { flex-shrink: 0; width: 34px; display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 900; color: var(--white); }
+.rev-strip.s .rev-tag { background: var(--s-col); }
+.rev-strip.e .rev-tag { background: var(--e-col); }
+.rev-strip.r .rev-tag { background: var(--r-col); }
+.rev-body { padding: 11px 15px; font-size: 15px; line-height: 1.55; }
+.rev-strip.missing { border-style: dashed; border-width: 3px; }
+.rev-strip.missing.s { background: var(--s-light); }
+.rev-strip.missing.e { background: var(--e-light); }
+.rev-strip.missing.r { background: var(--r-light); }
+.rev-added { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--pink); display: block; margin-bottom: 4px; }
+@keyframes slideIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+
+/* CONTROL PANEL */
+.control-panel { display: flex; flex-direction: column; gap: 14px; }
+.control-prompt { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid-grey); }
+.choice-btns { display: flex; flex-direction: column; gap: 10px; }
+.choice-btn { display: flex; align-items: center; gap: 14px; text-align: left; padding: 15px 18px; border: 3px solid transparent; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; transition: transform 0.14s, box-shadow 0.15s, background 0.15s, border-color 0.15s, opacity 0.2s; }
+.choice-btn:hover:not(:disabled) { transform: translateX(5px); box-shadow: 0 8px 22px rgba(0,0,0,0.14); }
+.choice-btn:disabled { cursor: default; }
+.cb-letter { font-size: 30px; font-weight: 900; line-height: 1; width: 26px; flex-shrink: 0; }
+.cb-name { font-size: 18px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+.cb-sub { display: block; font-family: 'Barlow', sans-serif; font-size: 12.5px; font-weight: 500; letter-spacing: 0; text-transform: none; opacity: 0.72; margin-top: 3px; line-height: 1.4; }
+.choice-btn.s { background: var(--s-light); color: var(--s-col); border-color: #b8bcd6; }
+.choice-btn.s:hover:not(:disabled) { background: #b8bcd6; border-color: var(--s-col); }
+.choice-btn.e { background: var(--e-light); color: var(--e-col); border-color: #f7b3d8; }
+.choice-btn.e:hover:not(:disabled) { background: #f7b3d8; border-color: var(--e-col); }
+.choice-btn.r { background: var(--r-light); color: var(--r-col); border-color: #a3ddd4; }
+.choice-btn.r:hover:not(:disabled) { background: #a3ddd4; border-color: var(--r-col); }
+.choice-btn.dimmed { opacity: 0.3; }
+.choice-btn.marked-correct { border-color: var(--correct) !important; box-shadow: 0 0 0 3px rgba(22,163,74,0.18); }
+.choice-btn.marked-incorrect { border-color: var(--incorrect) !important; box-shadow: 0 0 0 3px rgba(220,38,38,0.18); }
+
+/* FEEDBACK */
+.feedback { display: none; flex-direction: column; gap: 14px; }
+.feedback.active { display: flex; animation: slideIn 0.4s cubic-bezier(0.22,1,0.36,1); }
+.verdict { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em; }
+.verdict.yes { color: var(--correct); }
+.verdict.no  { color: var(--incorrect); }
+.verdict-note { font-size: 15px; line-height: 1.6; color: var(--navy); margin-top: -6px; }
+.model-box { background: var(--navy); padding: 18px 22px; border-left: 6px solid var(--pink); }
+.model-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pink); margin-bottom: 7px; }
+.model-text { font-size: 16px; line-height: 1.6; color: var(--white); }
+.why-box { border-left: 4px solid var(--light-grey); padding-left: 16px; }
+.why-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: var(--mid-grey); margin-bottom: 6px; }
+.why-text { font-size: 14.5px; line-height: 1.6; color: var(--navy); }
+
+/* BUTTONS */
+.big-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 19px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; background: var(--pink); color: var(--white); border: none; padding: 14px 32px; cursor: pointer; transition: background 0.15s, transform 0.12s; align-self: flex-start; }
+.big-btn:hover { background: #c4006e; transform: translateY(-2px); }
+
+/* START / END OVERLAYS */
+.full-overlay { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; background: var(--navy); opacity: 0; pointer-events: none; transition: opacity 0.35s; }
+.full-overlay.visible { opacity: 1; pointer-events: all; }
+.overlay-panel { max-width: 620px; padding: 36px; text-align: center; }
+.ov-label { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.24em; text-transform: uppercase; color: var(--pink); margin-bottom: 10px; }
+.ov-heading { font-family: 'Barlow Condensed', sans-serif; font-size: 46px; font-weight: 900; text-transform: uppercase; color: var(--white); line-height: 1.03; margin-bottom: 16px; }
+.ov-body { font-size: 16px; line-height: 1.65; color: rgba(255,255,255,0.75); margin-bottom: 28px; }
+.ov-score { font-family: 'Barlow Condensed', sans-serif; font-size: 84px; font-weight: 900; color: var(--white); line-height: 1; margin-bottom: 14px; }
+.ov-denom { font-size: 36px; color: rgba(255,255,255,0.45); }
+.ov-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; background: var(--pink); color: var(--white); border: none; padding: 15px 40px; cursor: pointer; transition: background 0.15s, transform 0.12s; }
+.ov-btn:hover { background: #c4006e; transform: translateY(-2px); }
+
+/* STATUS BAR */
+.status-bar { border-top: 2px solid var(--light-grey); margin-top: 20px; padding-top: 12px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--pink); animation: pulse 1.6s ease-in-out infinite; flex-shrink: 0; }
+.status-dot.done { background: var(--correct); animation: none; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+.status-text { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mid-grey); }
+
+@media (max-width: 900px) {
+    .placemat { padding: 20px 18px; }
+    .stage { grid-template-columns: 1fr; }
+    .sheet-title { font-size: 28px; }
+    .para-body { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="placemat">
+    <div class="mat-header">
+        <div>
+            <p class="sheet-label">Activity 2 &ndash; Scientific Arguments</p>
+            <h1 class="sheet-title">What's Missing?</h1>
+        </div>
+        <div class="score-display">
+            <span class="score-label">Score</span>
+            <div class="score-pips" id="scorePips"></div>
+            <span class="progress-text" id="progressText">0 / 0</span>
+        </div>
+    </div>
+
+    <div class="formula-bar">
+        <span class="formula-plain">A complete argument needs all three:</span>
+        <span class="formula-pill s">S Statement</span>
+        <span class="formula-arrow">&rarr;</span>
+        <span class="formula-pill e">E Evidence</span>
+        <span class="formula-arrow">&rarr;</span>
+        <span class="formula-pill r">R Reasoning</span>
+    </div>
+
+    <div class="stage">
+        <div class="para-panel">
+            <div class="para-meta">
+                <span class="para-topic" id="paraTopic">Topic</span>
+                <span class="para-count" id="paraCount">1 of 6</span>
+            </div>
+            <p class="para-question" id="paraQuestion">Question</p>
+            <div id="paraBodyWrap">
+                <p class="para-body" id="paraBody"></p>
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <p class="control-prompt" id="controlPrompt">Which part is missing?</p>
+            <div class="choice-btns" id="choiceBtns">
+                <button class="choice-btn s" data-role="S" onclick="choose('S')">
+                    <span class="cb-letter">S</span>
+                    <span><span class="cb-name">Statement</span><span class="cb-sub">The claim that answers the question</span></span>
+                </button>
+                <button class="choice-btn e" data-role="E" onclick="choose('E')">
+                    <span class="cb-letter">E</span>
+                    <span><span class="cb-name">Evidence</span><span class="cb-sub">Data, measurements or facts</span></span>
+                </button>
+                <button class="choice-btn r" data-role="R" onclick="choose('R')">
+                    <span class="cb-letter">R</span>
+                    <span><span class="cb-name">Reasoning</span><span class="cb-sub">Why the evidence answers the question</span></span>
+                </button>
+            </div>
+
+            <div class="feedback" id="feedback">
+                <p class="verdict" id="verdict"></p>
+                <p class="verdict-note" id="verdictNote"></p>
+                <div class="model-box">
+                    <p class="model-label" id="modelLabel">Model answer</p>
+                    <p class="model-text" id="modelText"></p>
+                </div>
+                <div class="why-box">
+                    <p class="why-label">Why</p>
+                    <p class="why-text" id="whyText"></p>
+                </div>
+                <button class="big-btn" id="nextBtn" onclick="nextItem()">Next item &rarr;</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-dot" id="statusDot"></div>
+        <span class="status-text" id="statusText">Read the paragraph, then name the missing part</span>
+    </div>
+</div>
+
+<!-- START OVERLAY -->
+<div class="full-overlay visible" id="startOverlay">
+    <div class="overlay-panel">
+        <p class="ov-label">Activity 2</p>
+        <h2 class="ov-heading">Find the missing element</h2>
+        <p class="ov-body">Each paragraph below is an incomplete scientific argument. Two of the three parts are there. Read carefully, work out which part is missing, and name it as S, E or R. Six items, one guess each.</p>
+        <button class="ov-btn" onclick="startActivity()">Start activity</button>
+    </div>
+</div>
+
+<!-- END OVERLAY -->
+<div class="full-overlay" id="endOverlay">
+    <div class="overlay-panel">
+        <p class="ov-label">Activity complete</p>
+        <div class="ov-score" id="endScore"></div>
+        <p class="ov-body" id="endMessage"></p>
+        <button class="ov-btn" onclick="restartActivity()">Try again</button>
+    </div>
+</div>
+
+<script>
+/* Items are stored deliberately out of order so the missing part never
+   follows a predictable pattern, and are shuffled again at run time. */
+const ITEMS = [
+    {
+        topic: 'Orbital period',
+        question: 'How does distance from the Sun affect a planet\u2019s orbit?',
+        missing: 'S',
+        parts: [
+            { role:'E', text:"Mercury completes an orbit in 88 days while Neptune takes about 165 years." },
+            { role:'R', text:"A planet further out has a longer path and travels more slowly along it, so it needs more time to get around the Sun once." }
+        ],
+        model: "Planets further from the Sun take longer to complete one orbit.",
+        why: "The paragraph gives figures and then explains what they mean, but it never states the claim those figures support. Without a statement the reader has to work out the point for themselves."
+    },
+    {
+        topic: 'Seasons',
+        question: 'Why does Australia experience hot weather in January?',
+        missing: 'R',
+        parts: [
+            { role:'S', text:"Australia experiences hot weather in January because of Earth's axial tilt." },
+            { role:'E', text:"During the December solstice the Southern Hemisphere is tilted towards the Sun and solar noon angles approach 90 degrees." }
+        ],
+        model: "Sunlight arriving at a steeper angle concentrates the same energy over a smaller area, so the surface heats up more.",
+        why: "There is a claim and there is data, but nothing links them. The reader is left to guess why a steeper solar angle produces hotter weather."
+    },
+    {
+        topic: 'Day and night',
+        question: 'What causes day and night?',
+        missing: 'E',
+        parts: [
+            { role:'S', text:"Earth experiences day and night because it rotates on its axis." },
+            { role:'R', text:"Since only the half of Earth facing the Sun is lit at any moment, every location passes through light and then darkness." }
+        ],
+        model: "Earth completes one full rotation every 24 hours.",
+        why: "The claim is explained, but no measurement is offered. Reasoning without data is just an assertion, so the argument needs the rotation period."
+    },
+    {
+        topic: 'The Sun as an energy source',
+        question: 'Where does the energy for life on Earth come from?',
+        missing: 'R',
+        parts: [
+            { role:'S', text:"The Sun supplies almost all of the energy that supports life on Earth." },
+            { role:'E', text:"At midday, sunlight delivers roughly 1000 watts of power to each square metre of Earth's surface." }
+        ],
+        model: "Plants convert that light into chemical energy by photosynthesis, and nearly every food chain on Earth begins with those plants.",
+        why: "A power figure on its own does not show how that energy reaches living things. The reasoning has to connect the sunlight to life."
+    },
+    {
+        topic: 'Phases of the Moon',
+        question: 'Why does the Moon seem to change shape?',
+        missing: 'E',
+        parts: [
+            { role:'S', text:"The Moon appears to change shape across a month." },
+            { role:'R', text:"We only ever see the sunlit part of the Moon that faces Earth, and that fraction changes as the Moon moves around us." }
+        ],
+        model: "The Moon takes about 29.5 days to complete one full cycle of phases.",
+        why: "The paragraph says the shape changes and explains why, but gives no measurement of how long the cycle takes. The word 'month' is a description, not data."
+    },
+    {
+        topic: 'Classifying Pluto',
+        question: 'Why is Pluto not counted as a planet?',
+        missing: 'S',
+        parts: [
+            { role:'E', text:"In 2006 the International Astronomical Union set a definition requiring a planet to have cleared the neighbourhood around its orbit, and Pluto shares its region with other Kuiper Belt objects." },
+            { role:'R', text:"Defining a planet by measurable properties rather than tradition lets astronomers classify newly discovered objects consistently." }
+        ],
+        model: "Pluto is classified as a dwarf planet rather than a planet.",
+        why: "The definition and the explanation are both there, but the conclusion about Pluto is never actually stated. An argument should open with its claim."
+    }
+];
+
+const ROLE_WORD = { S:'scientific statement', E:'evidence', R:'reasoning' };
+const ROLE_TITLE = { S:'Statement', E:'Evidence', R:'Reasoning' };
+
+let queue = [], idx = 0, score = 0, answered = 0, locked = false;
+
+const pipsEl     = document.getElementById('scorePips');
+const progressEl = document.getElementById('progressText');
+const statusDot  = document.getElementById('statusDot');
+const statusText = document.getElementById('statusText');
+const feedback   = document.getElementById('feedback');
+const btnWrap    = document.getElementById('choiceBtns');
+
+function shuffle(a) { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; }
+
+function buildPips(n) {
+    pipsEl.innerHTML = '';
+    for (let i = 0; i < n; i++) {
+        const p = document.createElement('div');
+        p.className = 'pip';
+        pipsEl.appendChild(p);
+    }
+}
+
+function startActivity() {
+    document.getElementById('startOverlay').classList.remove('visible');
+    queue = shuffle(ITEMS);
+    idx = 0; score = 0; answered = 0;
+    buildPips(queue.length);
+    updateProgress();
+    renderItem();
+}
+
+function renderItem() {
+    locked = false;
+    const item = queue[idx];
+    document.getElementById('paraTopic').textContent = item.topic;
+    document.getElementById('paraCount').textContent = (idx + 1) + ' of ' + queue.length;
+    document.getElementById('paraQuestion').textContent = item.question;
+
+    const wrap = document.getElementById('paraBodyWrap');
+    wrap.innerHTML = '<p class="para-body" id="paraBody"></p>';
+    document.getElementById('paraBody').textContent = item.parts.map(p => p.text).join(' ');
+
+    feedback.classList.remove('active');
+    document.getElementById('controlPrompt').textContent = 'Which part is missing?';
+    Array.from(btnWrap.children).forEach(b => {
+        b.disabled = false;
+        b.classList.remove('dimmed','marked-correct','marked-incorrect');
+    });
+    statusDot.className = 'status-dot';
+    statusText.textContent = 'Read the paragraph, then name the missing part';
+}
+
+function choose(role) {
+    if (locked) return;
+    locked = true;
+    const item = queue[idx];
+    const correct = role === item.missing;
+
+    pipsEl.children[idx].classList.add(correct ? 'correct' : 'incorrect');
+    if (correct) score++;
+    answered++;
+    updateProgress();
+
+    Array.from(btnWrap.children).forEach(b => {
+        b.disabled = true;
+        const r = b.dataset.role;
+        if (r === item.missing) b.classList.add('marked-correct');
+        else if (r === role)    b.classList.add('marked-incorrect');
+        else                    b.classList.add('dimmed');
+    });
+
+    const v = document.getElementById('verdict');
+    v.textContent = correct ? 'Correct' : 'Not quite';
+    v.className = 'verdict ' + (correct ? 'yes' : 'no');
+    document.getElementById('verdictNote').textContent = correct
+        ? 'The ' + ROLE_WORD[item.missing] + ' was missing.'
+        : 'You chose ' + ROLE_WORD[role] + '. The missing part was the ' + ROLE_WORD[item.missing] + '.';
+    document.getElementById('modelLabel').textContent = 'Model answer \u2013 the missing ' + ROLE_TITLE[item.missing];
+    document.getElementById('modelText').textContent = item.model;
+    document.getElementById('whyText').textContent = item.why;
+
+    document.getElementById('nextBtn').textContent = (idx + 1 < queue.length) ? 'Next item \u2192' : 'See results \u2192';
+    feedback.classList.add('active');
+
+    document.getElementById('controlPrompt').textContent = 'The complete argument now reads:';
+    revealStrips(item);
+
+    statusDot.className = 'status-dot done';
+    statusText.textContent = correct ? 'Correct' : 'Check the model answer, then continue';
+}
+
+function revealStrips(item) {
+    const order = ['S','E','R'];
+    const byRole = {};
+    item.parts.forEach(p => byRole[p.role] = p.text);
+    byRole[item.missing] = item.model;
+
+    const wrap = document.getElementById('paraBodyWrap');
+    wrap.innerHTML = '<div class="reveal-stack" id="revealStack"></div>';
+    const stack = document.getElementById('revealStack');
+
+    order.forEach((role, i) => {
+        const strip = document.createElement('div');
+        strip.className = 'rev-strip ' + role.toLowerCase() + (role === item.missing ? ' missing' : '');
+        strip.style.animationDelay = (i * 0.09) + 's';
+        strip.innerHTML = '<div class="rev-tag">' + role + '</div><div class="rev-body"></div>';
+        const body = strip.querySelector('.rev-body');
+        if (role === item.missing) {
+            const lab = document.createElement('span');
+            lab.className = 'rev-added';
+            lab.textContent = 'Added';
+            body.appendChild(lab);
+        }
+        const txt = document.createElement('span');
+        txt.textContent = byRole[role];
+        body.appendChild(txt);
+        stack.appendChild(strip);
+    });
+}
+
+function nextItem() {
+    idx++;
+    if (idx < queue.length) renderItem();
+    else showEnd();
+}
+
+function updateProgress() {
+    progressEl.textContent = score + ' / ' + answered;
+}
+
+function showEnd() {
+    const total = queue.length;
+    document.getElementById('endScore').innerHTML = score + '<span class="ov-denom"> / ' + total + '</span>';
+    const pct = score / total;
+    const msg = document.getElementById('endMessage');
+    if (pct === 1)       msg.textContent = 'Every one correct. You can spot a gap in an argument without being told where to look, which is exactly the skill you need when checking your own writing.';
+    else if (pct >= 0.7) msg.textContent = 'Strong work. When you write your own arguments, run the same check: is there a claim, is there data, and does something explain the link between them?';
+    else                 msg.textContent = 'Worth another go. A quick test for each paragraph: find the numbers or facts, that is the evidence. Find the sentence with so or because, that is usually the reasoning. Whatever is left should be the claim.';
+    document.getElementById('endOverlay').classList.add('visible');
+}
+
+function restartActivity() {
+    document.getElementById('endOverlay').classList.remove('visible');
+    startActivity();
+}
+
+buildPips(ITEMS.length);
+</script>
+</body>
+</html>
