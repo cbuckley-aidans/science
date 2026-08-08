@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Find It: Statement, Evidence, Reasoning</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Barlow+Condensed:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+    --navy: #1b1f45;
+    --pink: #ea008a;
+    --s-col: #1b1f45;
+    --s-light: #eaebf2;
+    --e-col: #ea008a;
+    --e-light: #fdeaf5;
+    --r-col: #0f7a6f;
+    --r-light: #e4f4f1;
+    --white: #ffffff;
+    --off-white: #f5f4f0;
+    --light-grey: #e2e0da;
+    --mid-grey: #9a9a9a;
+    --correct: #16a34a;
+    --incorrect: #dc2626;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { min-height: 100%; font-family: 'Barlow', sans-serif; background: var(--off-white); color: var(--navy); overflow-x: hidden; }
+
+.placemat { min-height: 100vh; display: flex; flex-direction: column; padding: 32px 36px 26px; max-width: 1260px; margin: 0 auto; width: 100%; }
+
+/* HEADER */
+.mat-header { display: flex; align-items: flex-end; justify-content: space-between; padding-bottom: 12px; border-bottom: 4px solid var(--navy); margin-bottom: 14px; gap: 20px; flex-wrap: wrap; }
+.sheet-label { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pink); margin-bottom: 2px; }
+.sheet-title { font-family: 'Barlow Condensed', sans-serif; font-size: 36px; font-weight: 900; text-transform: uppercase; color: var(--navy); letter-spacing: 0.01em; line-height: 1; }
+.score-display { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.score-label { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mid-grey); }
+.score-pips { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; max-width: 320px; }
+.pip { width: 15px; height: 15px; border-radius: 50%; border: 2.5px solid var(--light-grey); background: transparent; transition: background 0.35s, border-color 0.35s, transform 0.25s; }
+.pip.correct   { background: var(--correct);   border-color: var(--correct);   transform: scale(1.2); }
+.pip.incorrect { background: var(--incorrect); border-color: var(--incorrect); transform: scale(1.2); }
+.progress-text { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; color: var(--navy); min-width: 58px; text-align: right; }
+
+/* FORMULA BAR */
+.formula-bar { background: var(--navy); padding: 9px 18px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.formula-plain { font-size: 14px; font-style: italic; color: rgba(255,255,255,0.6); }
+.formula-pill { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--white); padding: 3px 10px 2px; }
+.formula-pill.s { background: #4a5290; }
+.formula-pill.e { background: var(--e-col); }
+.formula-pill.r { background: var(--r-col); }
+.formula-arrow { color: rgba(255,255,255,0.4); font-weight: 700; }
+
+/* STAGE */
+.stage { flex: 1; display: grid; grid-template-columns: 1.5fr 1fr; gap: 26px; align-items: start; }
+
+/* ARGUMENT PANEL */
+.arg-panel { background: var(--white); border: 3px solid var(--navy); padding: 24px 28px 26px; }
+.arg-meta { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 10px; flex-wrap: wrap; }
+.arg-topic { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: var(--pink); }
+.arg-count { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid-grey); }
+.arg-question { font-family: 'Barlow Condensed', sans-serif; font-size: 21px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.02em; color: var(--navy); line-height: 1.1; padding-bottom: 12px; border-bottom: 2px solid var(--light-grey); margin-bottom: 18px; }
+
+/* SENTENCE ROWS */
+.sent-stack { display: flex; flex-direction: column; gap: 9px; }
+.sent { display: flex; align-items: stretch; border: 2px solid var(--light-grey); background: var(--white); text-align: left; font-family: 'Barlow', sans-serif; color: var(--navy); width: 100%; cursor: pointer; transition: border-color 0.14s, background 0.14s, transform 0.14s, box-shadow 0.15s; }
+.sent-tag { flex-shrink: 0; width: 34px; display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-size: 17px; font-weight: 900; background: var(--off-white); color: #cdc9c1; transition: background 0.2s, color 0.2s; }
+.sent-body { flex: 1; padding: 13px 17px; font-size: 16.5px; line-height: 1.6; }
+.sent:hover:not(:disabled) { border-color: var(--pink); background: #fff6fb; transform: translateX(4px); box-shadow: 0 6px 20px rgba(234,0,138,0.12); }
+.sent:hover:not(:disabled) .sent-tag { background: var(--pink); color: var(--white); }
+.sent:hover:not(:disabled) .sent-tag::after { content: '?'; }
+.sent:disabled { cursor: default; }
+
+.sent.tagged-S { border-color: var(--s-col); background: var(--s-light); }
+.sent.tagged-E { border-color: var(--e-col); background: var(--e-light); }
+.sent.tagged-R { border-color: var(--r-col); background: var(--r-light); }
+.sent.tagged-S .sent-tag { background: var(--s-col); color: var(--white); }
+.sent.tagged-E .sent-tag { background: var(--e-col); color: var(--white); }
+.sent.tagged-R .sent-tag { background: var(--r-col); color: var(--white); }
+.sent.flash-wrong { animation: shake 0.42s ease; border-color: var(--incorrect); background: #fdf0f0; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)} }
+.sent.just-right { animation: pop 0.45s cubic-bezier(0.22,1,0.36,1); }
+@keyframes pop { 0%{transform:scale(1)} 40%{transform:scale(1.025)} 100%{transform:scale(1)} }
+
+.arg-hint { font-family: 'Barlow Condensed', sans-serif; font-size: 12.5px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid-grey); margin-top: 16px; display: block; }
+
+/* CONTROL PANEL */
+.control-panel { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 24px; }
+.ask-box { border-left: 6px solid var(--pink); padding: 4px 0 4px 18px; }
+.ask-label { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pink); margin-bottom: 8px; }
+.ask-text { font-family: 'Barlow Condensed', sans-serif; font-size: 27px; font-weight: 900; text-transform: uppercase; line-height: 1.1; color: var(--navy); }
+.ask-sub { font-size: 14.5px; line-height: 1.6; color: var(--mid-grey); margin-top: 9px; }
+
+.role-card { border-top: 5px solid; padding: 15px 18px; }
+.role-card.S { border-color: var(--s-col); background: var(--s-light); }
+.role-card.E { border-color: var(--e-col); background: var(--e-light); }
+.role-card.R { border-color: var(--r-col); background: var(--r-light); }
+.role-card-name { font-family: 'Barlow Condensed', sans-serif; font-size: 17px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; }
+.role-card.S .role-card-name { color: var(--s-col); }
+.role-card.E .role-card-name { color: var(--e-col); }
+.role-card.R .role-card-name { color: var(--r-col); }
+.role-card-text { font-size: 14.5px; line-height: 1.6; color: var(--navy); }
+
+/* FEEDBACK */
+.feedback { display: none; flex-direction: column; gap: 12px; }
+.feedback.active { display: flex; animation: slideIn 0.4s cubic-bezier(0.22,1,0.36,1); }
+@keyframes slideIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+.verdict { font-family: 'Barlow Condensed', sans-serif; font-size: 25px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em; }
+.verdict.yes { color: var(--correct); }
+.verdict.no  { color: var(--incorrect); }
+.why-text { font-size: 15px; line-height: 1.6; color: var(--navy); }
+.big-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 19px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; background: var(--pink); color: var(--white); border: none; padding: 14px 32px; cursor: pointer; transition: background 0.15s, transform 0.12s; align-self: flex-start; }
+.big-btn:hover { background: #c4006e; transform: translateY(-2px); }
+
+/* OVERLAYS */
+.full-overlay { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; background: var(--navy); opacity: 0; pointer-events: none; transition: opacity 0.35s; }
+.full-overlay.visible { opacity: 1; pointer-events: all; }
+.overlay-panel { max-width: 640px; padding: 36px; text-align: center; }
+.ov-label { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.24em; text-transform: uppercase; color: var(--pink); margin-bottom: 10px; }
+.ov-heading { font-family: 'Barlow Condensed', sans-serif; font-size: 44px; font-weight: 900; text-transform: uppercase; color: var(--white); line-height: 1.03; margin-bottom: 16px; }
+.ov-body { font-size: 16px; line-height: 1.65; color: rgba(255,255,255,0.75); margin-bottom: 26px; }
+.ov-score { font-family: 'Barlow Condensed', sans-serif; font-size: 82px; font-weight: 900; color: var(--white); line-height: 1; margin-bottom: 8px; }
+.ov-denom { font-size: 34px; color: rgba(255,255,255,0.45); }
+.ov-breakdown { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 18px; }
+.ov-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; background: var(--pink); color: var(--white); border: none; padding: 15px 40px; cursor: pointer; transition: background 0.15s, transform 0.12s; }
+.ov-btn:hover { background: #c4006e; transform: translateY(-2px); }
+
+/* STATUS BAR */
+.status-bar { border-top: 2px solid var(--light-grey); margin-top: 20px; padding-top: 12px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--pink); animation: pulse 1.6s ease-in-out infinite; flex-shrink: 0; }
+.status-dot.done { background: var(--correct); animation: none; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+.status-text { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mid-grey); }
+
+@media (max-width: 950px) {
+    .placemat { padding: 20px 16px; }
+    .stage { grid-template-columns: 1fr; }
+    .control-panel { position: static; }
+    .sheet-title { font-size: 28px; }
+    .sent-body { font-size: 15.5px; }
+    .ask-text { font-size: 23px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="placemat">
+    <div class="mat-header">
+        <div>
+            <p class="sheet-label">Activity 1 &ndash; Scientific Arguments</p>
+            <h1 class="sheet-title">Find It: S, E, R</h1>
+        </div>
+        <div class="score-display">
+            <span class="score-label">Score</span>
+            <div class="score-pips" id="scorePips"></div>
+            <span class="progress-text" id="progressText">0 / 0</span>
+        </div>
+    </div>
+
+    <div class="formula-bar">
+        <span class="formula-plain">Every scientific argument has the same shape:</span>
+        <span class="formula-pill s">S Statement</span>
+        <span class="formula-arrow">&rarr;</span>
+        <span class="formula-pill e">E Evidence</span>
+        <span class="formula-arrow">&rarr;</span>
+        <span class="formula-pill r">R Reasoning</span>
+    </div>
+
+    <div class="stage">
+        <div class="arg-panel">
+            <div class="arg-meta">
+                <span class="arg-topic" id="argTopic">Topic</span>
+                <span class="arg-count" id="argCount">Question 1 of 18</span>
+            </div>
+            <p class="arg-question" id="argQuestion">Question</p>
+            <div class="sent-stack" id="sentStack"></div>
+            <span class="arg-hint">Hover to highlight a sentence, then click to select it</span>
+        </div>
+
+        <div class="control-panel">
+            <div class="ask-box">
+                <p class="ask-label">Your task</p>
+                <p class="ask-text" id="askText">Select the sentence which is the evidence</p>
+                <p class="ask-sub" id="askSub"></p>
+            </div>
+
+            <div class="role-card" id="roleCard">
+                <p class="role-card-name" id="roleCardName">Evidence</p>
+                <p class="role-card-text" id="roleCardText"></p>
+            </div>
+
+            <div class="feedback" id="feedback">
+                <p class="verdict" id="verdict"></p>
+                <p class="why-text" id="whyText"></p>
+                <button class="big-btn" id="nextBtn" onclick="nextQuestion()">Next question &rarr;</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-dot" id="statusDot"></div>
+        <span class="status-text" id="statusText">Read the whole argument before you choose</span>
+    </div>
+</div>
+
+<!-- START OVERLAY -->
+<div class="full-overlay visible" id="startOverlay">
+    <div class="overlay-panel">
+        <p class="ov-label">Activity 1</p>
+        <h2 class="ov-heading">Statement, evidence, reasoning</h2>
+        <p class="ov-body">You will read six complete scientific arguments. For each one you will be asked to find the statement, the evidence and the reasoning. Read the whole argument first, then hover over the sentences and click the one that matches.</p>
+        <button class="ov-btn" onclick="startActivity()">Start activity</button>
+    </div>
+</div>
+
+<!-- END OVERLAY -->
+<div class="full-overlay" id="endOverlay">
+    <div class="overlay-panel">
+        <p class="ov-label">Activity complete</p>
+        <div class="ov-score" id="endScore"></div>
+        <p class="ov-breakdown" id="endBreakdown"></p>
+        <p class="ov-body" id="endMessage"></p>
+        <button class="ov-btn" onclick="restartActivity()">Try again</button>
+    </div>
+</div>
+
+<script>
+const ARGUMENTS = [
+    { topic:'Seasons', question:'Why does Australia experience hot weather in January?',
+      S:"Australia experiences hot weather in January because of Earth's axial tilt.",
+      E:"During the December solstice the Southern Hemisphere is tilted towards the Sun, and solar noon angles approach 90 degrees.",
+      R:"When sunlight strikes at a steeper angle the same energy is concentrated over a smaller area, so Australia heats up more in January.",
+      whyS:"This sentence answers the question directly. It names the cause without offering any proof yet.",
+      whyE:"This sentence gives measurable detail: the solstice, the direction of tilt and the solar noon angle.",
+      whyR:"This sentence explains why a steeper angle produces more heat, linking the measurement back to the claim." },
+    { topic:'Day and night', question:'What causes day and night?',
+      S:"Day and night are caused by Earth's rotation on its axis.",
+      E:"Earth completes one rotation every 24 hours.",
+      R:"Only the half of Earth facing the Sun is lit at any moment, so every location passes through light and then darkness once per rotation.",
+      whyS:"This is the claim. It names rotation as the cause and nothing more.",
+      whyE:"This is the measurement, a rotation period of 24 hours. Data usually carries a number.",
+      whyR:"This sentence explains how rotation turns into a cycle of light and darkness, which is what the question asked." },
+    { topic:'Orbital period', question:'How does distance from the Sun affect a planet\u2019s orbit?',
+      S:"Planets further from the Sun take longer to complete one orbit.",
+      E:"Mercury completes an orbit in 88 days, while Neptune takes about 165 years.",
+      R:"A more distant planet has a longer path to travel and moves more slowly along it, so its orbital period increases with distance.",
+      whyS:"This is the general claim about distance and orbital time, with no examples attached.",
+      whyE:"Two specific figures for two named planets. This is the data the claim rests on.",
+      whyR:"This sentence explains why distance changes the orbital period, using path length and speed." },
+    { topic:'Classifying Pluto', question:'Why is Pluto not counted as a planet?',
+      S:"Pluto is classified as a dwarf planet rather than a planet.",
+      E:"In 2006 the International Astronomical Union required a planet to have cleared the neighbourhood around its orbit, and Pluto shares its region with other Kuiper Belt objects.",
+      R:"Defining a planet by measurable properties rather than tradition lets astronomers classify newly discovered objects consistently.",
+      whyS:"This is the classification being claimed. It answers the question in one line.",
+      whyE:"A dated definition and a factual observation about Pluto's orbit. Both can be checked.",
+      whyR:"This sentence explains why classifying by measurable properties matters, which is the point of the evidence." },
+    { topic:'Phases of the Moon', question:'Why does the Moon seem to change shape?',
+      S:"The Moon appears to change shape over the course of a month.",
+      E:"The Moon takes about 29.5 days to complete one full cycle of phases as it orbits Earth.",
+      R:"We see only the sunlit part of the Moon that faces Earth, and that fraction changes as the Moon moves around us.",
+      whyS:"This states what we observe. It is the claim the rest of the argument supports.",
+      whyE:"A measured figure of 29.5 days for one full cycle. That is data, not explanation.",
+      whyR:"This sentence explains why the visible shape changes, linking the orbit to what we see." },
+    { topic:'The Sun as an energy source', question:'Where does the energy for life on Earth come from?',
+      S:"The Sun is a star that supplies almost all of the energy that supports life on Earth.",
+      E:"At midday, sunlight delivers roughly 1000 watts of power to each square metre of Earth's surface.",
+      R:"Plants convert that light into chemical energy by photosynthesis, and nearly every food chain on Earth begins with those plants.",
+      whyS:"This is the claim: the Sun is the source. It answers the question directly.",
+      whyE:"A power measurement per square metre. It shows how much energy actually arrives.",
+      whyR:"This sentence explains how that arriving energy reaches living things, connecting the data to the claim." }
+];
+
+const ROLE_NAME = { S:'statement', E:'evidence', R:'reasoning' };
+const ROLE_TITLE = { S:'Scientific statement', E:'Evidence', R:'Reasoning' };
+const ROLE_DEF = {
+    S:'The claim. A direct answer to the question, with no proof attached yet.',
+    E:'The data or facts that support the claim. Usually a number, a measurement or a checkable observation.',
+    R:'The link. It explains why the evidence answers the question, often using words like so, because or which means.'
+};
+const ASK_PHRASE = {
+    S:'Select the sentence which is the scientific statement',
+    E:'Select the sentence which is the evidence',
+    R:'Select the sentence which is the reasoning'
+};
+
+let queue = [], idx = 0, score = 0, answered = 0, locked = false;
+let tagged = {};
+
+const pipsEl     = document.getElementById('scorePips');
+const progressEl = document.getElementById('progressText');
+const statusDot  = document.getElementById('statusDot');
+const statusText = document.getElementById('statusText');
+const feedback   = document.getElementById('feedback');
+const sentStack  = document.getElementById('sentStack');
+
+function shuffle(a) { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; }
+
+/* Six arguments in random order. Within each argument the three roles are
+   asked in random order, and the sentences themselves are displayed in a
+   random order so position never gives the answer away. */
+function makeQueue() {
+    const q = [];
+    shuffle(ARGUMENTS.map((a, i) => i)).forEach(ai => {
+        const display = shuffle(['S','E','R']);
+        shuffle(['S','E','R']).forEach((role, step) => {
+            q.push({ argIndex: ai, role: role, display: display, first: step === 0 });
+        });
+    });
+    return q;
+}
+
+function buildPips(n) {
+    pipsEl.innerHTML = '';
+    for (let i = 0; i < n; i++) {
+        const p = document.createElement('div');
+        p.className = 'pip';
+        pipsEl.appendChild(p);
+    }
+}
+
+function startActivity() {
+    document.getElementById('startOverlay').classList.remove('visible');
+    queue = makeQueue();
+    idx = 0; score = 0; answered = 0;
+    buildPips(queue.length);
+    updateProgress();
+    renderQuestion();
+}
+
+function renderQuestion() {
+    locked = false;
+    const item = queue[idx];
+    const arg = ARGUMENTS[item.argIndex];
+    if (item.first) tagged = {};
+
+    document.getElementById('argTopic').textContent = arg.topic;
+    document.getElementById('argCount').textContent = 'Question ' + (idx + 1) + ' of ' + queue.length;
+    document.getElementById('argQuestion').textContent = arg.question;
+
+    document.getElementById('askText').textContent = ASK_PHRASE[item.role];
+    document.getElementById('askSub').textContent = 'Three sentences, one of them is the ' + ROLE_NAME[item.role] + '.';
+    const rc = document.getElementById('roleCard');
+    rc.className = 'role-card ' + item.role;
+    document.getElementById('roleCardName').textContent = ROLE_TITLE[item.role];
+    document.getElementById('roleCardText').textContent = ROLE_DEF[item.role];
+
+    sentStack.innerHTML = '';
+    item.display.forEach(role => {
+        const btn = document.createElement('button');
+        btn.className = 'sent' + (tagged[role] ? ' tagged-' + role : '');
+        btn.innerHTML = '<span class="sent-tag">' + (tagged[role] ? role : '') + '</span>' +
+                        '<span class="sent-body"></span>';
+        btn.querySelector('.sent-body').textContent = arg[role];
+        if (tagged[role]) btn.disabled = true;
+        else btn.onclick = () => pick(btn, role);
+        sentStack.appendChild(btn);
+    });
+
+    feedback.classList.remove('active');
+    statusDot.className = 'status-dot';
+    statusText.textContent = 'Read the whole argument before you choose';
+}
+
+function pick(btn, role) {
+    if (locked) return;
+    const item = queue[idx];
+    const arg = ARGUMENTS[item.argIndex];
+    const correct = role === item.role;
+    locked = true;
+
+    pipsEl.children[idx].classList.add(correct ? 'correct' : 'incorrect');
+    if (correct) score++;
+    answered++;
+    updateProgress();
+
+    Array.from(sentStack.children).forEach(b => b.disabled = true);
+
+    if (!correct) {
+        btn.classList.add('flash-wrong');
+        setTimeout(() => btn.classList.remove('flash-wrong'), 440);
+    }
+
+    /* Tag the correct sentence so it stays labelled for the rest of this argument */
+    tagged[item.role] = true;
+    const rightBtn = Array.from(sentStack.children)[item.display.indexOf(item.role)];
+    setTimeout(() => {
+        rightBtn.classList.add('tagged-' + item.role, 'just-right');
+        rightBtn.querySelector('.sent-tag').textContent = item.role;
+    }, correct ? 0 : 460);
+
+    const v = document.getElementById('verdict');
+    v.textContent = correct ? 'Correct' : 'Not quite';
+    v.className = 'verdict ' + (correct ? 'yes' : 'no');
+    document.getElementById('whyText').textContent = arg['why' + item.role];
+
+    document.getElementById('nextBtn').textContent = (idx + 1 < queue.length) ? 'Next question \u2192' : 'See results \u2192';
+    feedback.classList.add('active');
+
+    statusDot.className = 'status-dot done';
+    statusText.textContent = correct
+        ? 'Correct, that was the ' + ROLE_NAME[item.role]
+        : 'The ' + ROLE_NAME[item.role] + ' is now labelled for you';
+}
+
+function nextQuestion() {
+    idx++;
+    if (idx < queue.length) renderQuestion();
+    else showEnd();
+}
+
+function updateProgress() {
+    progressEl.textContent = score + ' / ' + answered;
+}
+
+function showEnd() {
+    const total = queue.length;
+    document.getElementById('endScore').innerHTML = score + '<span class="ov-denom"> / ' + total + '</span>';
+    document.getElementById('endBreakdown').textContent = Math.round(score / total * 100) + ' per cent correct across six arguments';
+    const pct = score / total;
+    const msg = document.getElementById('endMessage');
+    if (pct === 1)        msg.textContent = 'Every sentence identified correctly. You can reliably tell a claim from the data that backs it up and the reasoning that explains it.';
+    else if (pct >= 0.8)  msg.textContent = 'Strong work. Look back at the ones you missed and ask whether the sentence gave data or explained why the data matters.';
+    else if (pct >= 0.6)  msg.textContent = 'Solid start. Evidence and reasoning are the easiest pair to mix up. Evidence gives you numbers or facts, reasoning tells you what they mean.';
+    else                  msg.textContent = 'Keep practising. For each sentence ask one question: is this the answer, the proof, or the explanation?';
+    document.getElementById('endOverlay').classList.add('visible');
+}
+
+function restartActivity() {
+    document.getElementById('endOverlay').classList.remove('visible');
+    startActivity();
+}
+
+buildPips(ARGUMENTS.length * 3);
+</script>
+</body>
+</html>
