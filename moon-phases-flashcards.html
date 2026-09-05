@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moon Phases: Southern Hemisphere Flashcards</title>
+<style>
+  :root{
+    --navy:#1b1f45;
+    --pink:#ea008a;
+    --paper:#f2f1ec;
+    --dim:rgba(242,241,236,0.55);
+    --line:rgba(242,241,236,0.18);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--navy);
+    color:var(--paper);
+    font-family:Helvetica, "Helvetica Neue", Arial, sans-serif;
+    font-size:16px;
+    line-height:1.45;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{
+    max-width:900px;
+    margin:0 auto;
+    padding:28px 24px 64px;
+  }
+
+  /* header */
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:16px;
+    border-bottom:2px solid var(--paper);
+    padding-bottom:10px;
+  }
+  h1{
+    font-size:22px;
+    letter-spacing:-0.02em;
+    font-weight:700;
+    margin:0;
+  }
+  .locale{
+    font-size:13px;
+    color:var(--dim);
+    letter-spacing:0.01em;
+    white-space:nowrap;
+  }
+
+  /* progress */
+  .progress{
+    display:flex;
+    gap:3px;
+    margin:14px 0 0;
+  }
+  .tick{
+    height:6px;
+    flex:1;
+    background:var(--line);
+  }
+  .tick.done{background:var(--paper);}
+  .tick.now{background:var(--pink);}
+  .meta{
+    display:flex;
+    justify-content:space-between;
+    font-size:13px;
+    color:var(--dim);
+    margin-top:8px;
+  }
+
+  /* card */
+  .card{
+    display:grid;
+    grid-template-columns:260px 1fr;
+    gap:36px;
+    align-items:start;
+    margin-top:36px;
+  }
+  .moonbox{
+    background:#12162f;
+    padding:22px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .moonbox svg{width:100%;height:auto;display:block;}
+  .tag{
+    display:inline-block;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:0.06em;
+    color:var(--navy);
+    background:var(--pink);
+    padding:4px 8px;
+  }
+  .q{
+    font-size:26px;
+    line-height:1.2;
+    letter-spacing:-0.02em;
+    font-weight:700;
+    margin:14px 0 20px;
+  }
+  .options{display:grid;gap:8px;}
+  button.opt{
+    font-family:inherit;
+    font-size:16px;
+    text-align:left;
+    padding:13px 15px;
+    background:transparent;
+    color:var(--paper);
+    border:1px solid var(--line);
+    border-radius:0;
+    cursor:pointer;
+  }
+  button.opt:hover:not(:disabled){border-color:var(--paper);}
+  button.opt:focus-visible{outline:3px solid var(--pink);outline-offset:2px;}
+  button.opt:disabled{cursor:default;}
+  button.opt.right{border-color:var(--pink);background:var(--pink);color:var(--navy);font-weight:700;}
+  button.opt.wrong{border-color:var(--paper);opacity:0.45;text-decoration:line-through;}
+  button.opt.reveal{border-color:var(--pink);color:var(--pink);font-weight:700;}
+
+  .feedback{
+    margin-top:18px;
+    border-top:1px solid var(--line);
+    padding-top:14px;
+    font-size:15px;
+    color:var(--dim);
+    display:none;
+  }
+  .feedback strong{color:var(--paper);}
+  .feedback.show{display:block;}
+
+  .next{
+    font-family:inherit;
+    margin-top:16px;
+    font-size:15px;
+    font-weight:700;
+    padding:12px 22px;
+    background:var(--paper);
+    color:var(--navy);
+    border:none;
+    border-radius:0;
+    cursor:pointer;
+  }
+  .next:focus-visible{outline:3px solid var(--pink);outline-offset:2px;}
+
+  /* summary */
+  .overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(11,13,32,0.92);
+    display:none;
+    align-items:flex-start;
+    justify-content:center;
+    padding:24px;
+    overflow-y:auto;
+  }
+  .overlay.show{display:flex;}
+  .panel{
+    background:var(--navy);
+    border:2px solid var(--paper);
+    max-width:640px;
+    width:100%;
+    padding:28px;
+    margin:auto;
+  }
+  .score{
+    font-size:64px;
+    font-weight:700;
+    letter-spacing:-0.04em;
+    line-height:1;
+  }
+  .score span{font-size:24px;color:var(--dim);letter-spacing:0;}
+  .panel h2{font-size:20px;margin:0 0 4px;letter-spacing:-0.02em;}
+  .breakdown{margin-top:26px;display:grid;gap:16px;}
+  .row-top{display:flex;justify-content:space-between;font-size:15px;font-weight:700;gap:12px;}
+  .bar{height:8px;background:var(--line);margin-top:6px;}
+  .bar i{display:block;height:100%;background:var(--pink);}
+  .row-note{font-size:14px;color:var(--dim);margin-top:6px;}
+  .disclaimer{
+    background:var(--pink);
+    color:var(--navy);
+    padding:18px 20px;
+    margin:0 0 26px;
+    font-size:16px;
+    line-height:1.4;
+  }
+  .disclaimer b{
+    display:block;
+    font-size:19px;
+    letter-spacing:-0.01em;
+    margin-bottom:6px;
+  }
+  .again{
+    font-family:inherit;
+    margin-top:20px;
+    font-size:15px;
+    font-weight:700;
+    padding:12px 22px;
+    background:transparent;
+    color:var(--paper);
+    border:1px solid var(--paper);
+    border-radius:0;
+    cursor:pointer;
+  }
+  .again:focus-visible{outline:3px solid var(--pink);outline-offset:2px;}
+
+  @media (max-width:680px){
+    .card{grid-template-columns:1fr;gap:22px;}
+    .moonbox{max-width:230px;}
+    .q{font-size:22px;}
+    .score{font-size:52px;}
+  }
+  @media (prefers-reduced-motion:no-preference){
+    .card{animation:fade .18s ease-out;}
+    @keyframes fade{from{opacity:0}to{opacity:1}}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Phases of the Moon</h1>
+    <div class="locale">As seen from Australia</div>
+  </header>
+
+  <div class="progress" id="progress"></div>
+  <div class="meta">
+    <span id="counter"></span>
+    <span id="running"></span>
+  </div>
+
+  <div id="card"></div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="sumTitle">
+    <div class="disclaimer">
+      <b>Screenshot this now</b>
+      Take a screenshot of this summary and paste it into your Stile lesson. Nothing is saved here, so your results disappear as soon as you close or refresh the page.
+    </div>
+    <h2 id="sumTitle">Your results</h2>
+    <div class="score" id="score"></div>
+    <div class="breakdown" id="breakdown"></div>
+    <button class="again" id="again">Start again</button>
+  </div>
+</div>
+
+<script>
+/* ---------- Moon rendering (Southern Hemisphere) ----------
+   In the Southern Hemisphere a waxing Moon is lit on the LEFT,
+   a waning Moon is lit on the RIGHT. */
+let uid = 0;
+function moon(shape){
+  const id = 'clip' + (uid++);
+  const R = 100;
+  let lit = '';
+  if(shape === 'full'){
+    lit = `M 0,-${R} A ${R},${R} 0 0,1 0,${R} A ${R},${R} 0 0,1 0,-${R} Z`;
+  } else if(shape === 'new'){
+    lit = '';
+  } else {
+    const side = shape.side;           // 'left' or 'right'
+    const k = shape.k * R;             // terminator ellipse width
+    const outer = side === 'left'
+      ? `M 0,-${R} A ${R},${R} 0 0,0 0,${R}`
+      : `M 0,-${R} A ${R},${R} 0 0,1 0,${R}`;
+    let term;
+    if(shape.type === 'quarter'){
+      term = 'Z';
+    } else if(side === 'left'){
+      term = shape.type === 'crescent'
+        ? ` A ${k},${R} 0 0,1 0,-${R} Z`
+        : ` A ${k},${R} 0 0,0 0,-${R} Z`;
+    } else {
+      term = shape.type === 'crescent'
+        ? ` A ${k},${R} 0 0,0 0,-${R} Z`
+        : ` A ${k},${R} 0 0,1 0,-${R} Z`;
+    }
+    lit = outer + term;
+  }
+  const craters = `
+    <circle cx="-34" cy="-30" r="17"/>
+    <circle cx="22" cy="-52" r="9"/>
+    <circle cx="40" cy="14" r="21"/>
+    <circle cx="-16" cy="46" r="12"/>
+    <circle cx="-52" cy="26" r="7"/>
+    <circle cx="8" cy="8" r="6"/>`;
+  return `
+  <svg viewBox="-110 -110 220 220" role="img" aria-label="Moon phase diagram">
+    <circle cx="0" cy="0" r="100" fill="#0d1026" stroke="rgba(242,241,236,0.22)" stroke-width="1.5"/>
+    ${lit ? `<defs><clipPath id="${id}"><path d="${lit}"/></clipPath></defs>
+    <path d="${lit}" fill="#f2f1ec"/>
+    <g clip-path="url(#${id})" fill="#1b1f45" opacity="0.14">${craters}</g>` : ''}
+  </svg>`;
+}
+
+const SHAPES = {
+  new:            'new',
+  waxingCrescent: {side:'left',  type:'crescent', k:0.55},
+  firstQuarter:   {side:'left',  type:'quarter',  k:0},
+  waxingGibbous:  {side:'left',  type:'gibbous',  k:0.55},
+  full:           'full',
+  waningGibbous:  {side:'right', type:'gibbous',  k:0.55},
+  lastQuarter:    {side:'right', type:'quarter',  k:0},
+  waningCrescent: {side:'right', type:'crescent', k:0.55}
+};
+
+/* ---------- Cards ---------- */
+const CATS = {
+  id:    'Identify the phase',
+  dir:   'Waxing or waning',
+  order: 'Order of the phases'
+};
+
+const CARDS = [
+  { cat:'id', shape:'waxingCrescent',
+    q:'Which phase is this?',
+    options:['Waxing crescent','Waning crescent','Waxing gibbous','New moon'],
+    answer:0,
+    why:'Only a thin sliver is lit, and from Australia the lit edge is on the left, so the Moon is growing.' },
+
+  { cat:'dir', shape:'firstQuarter',
+    q:'Is this Moon waxing or waning?',
+    options:['Waxing','Waning'],
+    answer:0,
+    why:'The left half is lit. From the Southern Hemisphere, light on the left means the lit area is increasing each night.' },
+
+  { cat:'id', shape:'waningGibbous',
+    q:'Which phase is this?',
+    options:['Waxing gibbous','Waning gibbous','Last quarter','Full moon'],
+    answer:1,
+    why:'More than half is lit but not all of it, and the lit side is on the right, so it is shrinking towards last quarter.' },
+
+  { cat:'order', shape:'full',
+    q:'Which phase comes straight after this one?',
+    options:['Waning gibbous','Waxing gibbous','Last quarter','New moon'],
+    answer:0,
+    why:'After the full moon the lit area shrinks. The very next phase is waning gibbous, then last quarter.' },
+
+  { cat:'id', shape:'lastQuarter',
+    q:'Which phase is this?',
+    options:['First quarter','Last quarter','Waning crescent','Waxing gibbous'],
+    answer:1,
+    why:'Exactly half is lit and the lit half is on the right, which is last quarter when viewed from Australia.' },
+
+  { cat:'dir', shape:'waningCrescent',
+    q:'Is this Moon waxing or waning?',
+    options:['Waxing','Waning'],
+    answer:1,
+    why:'The lit sliver sits on the right, so the Moon is losing light and heading towards new moon.' },
+
+  { cat:'id', shape:'waxingGibbous',
+    q:'Which phase is this?',
+    options:['Waning gibbous','First quarter','Waxing gibbous','Full moon'],
+    answer:2,
+    why:'More than half is lit, with the dark part on the right. It is filling out towards full moon.' },
+
+  { cat:'order', shape:'waningCrescent',
+    q:'Which phase comes straight after this one?',
+    options:['Last quarter','New moon','Waxing crescent','Full moon'],
+    answer:1,
+    why:'A waning crescent keeps thinning until no lit side faces Earth, which is new moon.' },
+
+  { cat:'dir', shape:'waxingGibbous',
+    q:'Is this Moon waxing or waning?',
+    options:['Waxing','Waning'],
+    answer:0,
+    why:'The dark part is on the right and shrinking, so the lit area is growing towards full moon.' },
+
+  { cat:'id', shape:'new',
+    q:'Which phase is this?',
+    options:['New moon','Full moon','Last quarter','Waning crescent'],
+    answer:0,
+    why:'The side of the Moon facing Earth gets no sunlight, so nothing is visible. This is new moon.' },
+
+  { cat:'order', shape:'firstQuarter',
+    q:'Which phase comes straight after this one?',
+    options:['Waxing crescent','New moon','Waxing gibbous','Waning gibbous'],
+    answer:2,
+    why:'First quarter keeps gaining light, so the next phase is waxing gibbous, then full moon.' },
+
+  { cat:'dir', shape:'waningGibbous',
+    q:'Is this Moon waxing or waning?',
+    options:['Waxing','Waning'],
+    answer:1,
+    why:'The lit side is on the right and the dark side is spreading from the left, so it is waning.' }
+];
+
+/* ---------- State ---------- */
+let i = 0, score = 0, answered = false;
+const results = {};
+Object.keys(CATS).forEach(k => results[k] = {right:0, total:0});
+CARDS.forEach(c => results[c.cat].total++);
+const tally = {}; Object.keys(CATS).forEach(k => tally[k] = 0);
+
+const cardEl = document.getElementById('card');
+const progEl = document.getElementById('progress');
+const counterEl = document.getElementById('counter');
+const runningEl = document.getElementById('running');
+
+function drawProgress(){
+  progEl.innerHTML = CARDS.map((c, n) =>
+    `<div class="tick ${n < i ? 'done' : (n === i ? 'now' : '')}"></div>`).join('');
+  counterEl.textContent = 'Card ' + Math.min(i + 1, CARDS.length) + ' of ' + CARDS.length;
+  runningEl.textContent = score + ' correct so far';
+}
+
+function render(){
+  const c = CARDS[i];
+  answered = false;
+  drawProgress();
+  cardEl.innerHTML = `
+    <div class="card">
+      <div class="moonbox">${moon(SHAPES[c.shape])}</div>
+      <div>
+        <span class="tag">${CATS[c.cat]}</span>
+        <p class="q">${c.q}</p>
+        <div class="options" id="options">
+          ${c.options.map((o, n) => `<button class="opt" data-n="${n}">${o}</button>`).join('')}
+        </div>
+        <div class="feedback" id="feedback"></div>
+        <button class="next" id="next" style="display:none">
+          ${i === CARDS.length - 1 ? 'See my results' : 'Next card'}
+        </button>
+      </div>
+    </div>`;
+
+  document.querySelectorAll('.opt').forEach(b =>
+    b.addEventListener('click', () => choose(parseInt(b.dataset.n, 10))));
+  document.getElementById('next').addEventListener('click', next);
+}
+
+function choose(n){
+  if(answered) return;
+  answered = true;
+  const c = CARDS[i];
+  const correct = n === c.answer;
+  if(correct){ score++; results[c.cat].right++; } else { tally[c.cat]++; }
+
+  document.querySelectorAll('.opt').forEach(b => {
+    const bn = parseInt(b.dataset.n, 10);
+    b.disabled = true;
+    if(bn === c.answer) b.classList.add(correct ? 'right' : 'reveal');
+    else if(bn === n) b.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('feedback');
+  fb.innerHTML = `<strong>${correct ? 'Correct.' : 'Not quite. The answer is ' + c.options[c.answer] + '.'}</strong> ${c.why}`;
+  fb.classList.add('show');
+
+  const nx = document.getElementById('next');
+  nx.style.display = 'inline-block';
+  nx.focus();
+  runningEl.textContent = score + ' correct so far';
+}
+
+function next(){
+  i++;
+  if(i >= CARDS.length){ finish(); return; }
+  render();
+}
+
+function advice(cat, right, total){
+  const pct = right / total;
+  if(pct === 1) return 'Solid. You can pick these out without hesitating.';
+  if(pct >= 0.5){
+    return {
+      id:    'Close. Check the lit side before you name the phase: left lit means waxing, right lit means waning.',
+      dir:   'Nearly there. From Australia, light on the left is growing, light on the right is shrinking.',
+      order: 'Almost. Redraw the cycle in order and say each phase out loud as you go.'
+    }[cat];
+  }
+  return {
+    id:    'Work on this first. Sort the eight phase names into waxing and waning, then match each one to a picture.',
+    dir:   'Work on this first. Remember the Southern Hemisphere rule: waxing is lit on the left, waning is lit on the right.',
+    order: 'Work on this first. Learn the cycle in sequence from new moon to full moon and back again.'
+  }[cat];
+}
+
+function finish(){
+  const pct = Math.round(score / CARDS.length * 100);
+  document.getElementById('score').innerHTML =
+    `${score}<span> / ${CARDS.length} correct (${pct}%)</span>`;
+
+  document.getElementById('breakdown').innerHTML = Object.keys(CATS).map(k => {
+    const r = results[k];
+    const w = Math.round(r.right / r.total * 100);
+    return `
+      <div>
+        <div class="row-top"><span>${CATS[k]}</span><span>${r.right} / ${r.total}</span></div>
+        <div class="bar"><i style="width:${w}%"></i></div>
+        <div class="row-note">${advice(k, r.right, r.total)}</div>
+      </div>`;
+  }).join('');
+
+  progEl.innerHTML = CARDS.map(() => '<div class="tick done"></div>').join('');
+  counterEl.textContent = 'Finished';
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('again').focus();
+}
+
+document.getElementById('again').addEventListener('click', () => {
+  i = 0; score = 0;
+  Object.keys(CATS).forEach(k => { results[k].right = 0; tally[k] = 0; });
+  document.getElementById('overlay').classList.remove('show');
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
