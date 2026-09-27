@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Balanced and Unbalanced Forces</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --navy: #1b1f45;
+        --pink: #ea008a;
+        --white: #ffffff;
+        --off-white: #f5f5f5;
+        --light-grey: #e8e8e8;
+        --mid-grey: #9a9a9a;
+        --blank: #f0f3f6;
+        --ease: cubic-bezier(.2,.8,.2,1);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+        font-family: 'Barlow', Helvetica Neue, Helvetica, Arial, sans-serif;
+        margin: 0; background: #eaeaea; color: var(--navy);
+        display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden;
+    }
+    .viewport { flex: 1; width: 100%; display: flex; align-items: center; justify-content: center; min-height: 0; }
+    .stage {
+        width: 1280px; height: 720px; background: var(--white); border-top: 6px solid var(--navy);
+        position: relative; padding: 36px 64px 0 64px; transform-origin: center center; flex-shrink: 0; overflow: hidden;
+    }
+    .top { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 4px solid var(--navy); padding-bottom: 12px; min-height: 72px; }
+    .sheet-title { white-space: nowrap; font-family: 'Barlow Condensed', sans-serif; font-size: 44px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.01em; margin: 0; line-height: 1; }
+    .sheet-title span { color: var(--pink); }
+    .topr { display: flex; align-items: center; gap: 20px; }
+    .counter { white-space: nowrap; font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: 0.08em; color: var(--mid-grey); }
+    .counter b { color: var(--navy); }
+    .content { position: absolute; left: 64px; right: 64px; top: 130px; bottom: 110px; }
+    .caption {
+        position: absolute; left: 64px; right: 64px; bottom: 30px;
+        font-size: 27px; font-weight: 500; line-height: 1.35;
+        display: flex; align-items: center; gap: 16px; min-height: 60px;
+    }
+    .caption::before { content: ''; width: 10px; height: 10px; background: var(--pink); flex-shrink: 0; }
+    .caption b { font-weight: 800; color: var(--pink); }
+    .caption.in { animation: capIn .45s var(--ease); }
+    @keyframes capIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .progress { position: absolute; left: 0; bottom: 0; height: 6px; background: var(--pink); width: 0; }
+
+    .hide { opacity: 0; transform: translateY(14px); }
+    .rev { transition: opacity .45s var(--ease), transform .45s var(--ease), background-color .35s, color .35s, border-color .35s; }
+    .center { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+    .stack { display: flex; flex-direction: column; justify-content: center; height: 100%; }
+    .dlbl { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid-grey); }
+
+    /* check for understanding badge */
+    .cfu { display: none; align-items: center; gap: 9px; height: 46px; padding: 0 18px; border-radius: 23px; color: var(--white);
+        font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
+    .cfu.tt { display: flex; background: var(--pink); }
+    .cfu.sj { display: flex; background: var(--navy); }
+    .cfu svg { width: 24px; height: 24px; fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .cfu .ar { opacity: .75; width: 20px; }
+    .cfu.pop { animation: pop .6s var(--ease); }
+    @keyframes pop { 0% { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.08); opacity: 1; } 100% { transform: none; } }
+    .cfu.big { height: 54px; border-radius: 27px; font-size: 24px; padding: 0 22px; }
+    .cfu.big svg { width: 28px; height: 28px; }
+
+    /* force diagrams */
+    svg { overflow: visible; }
+    .obj { fill: var(--blank); stroke: var(--navy); stroke-width: 4; }
+    .oname { font-family: 'Barlow Condensed', sans-serif; font-size: 19px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; fill: var(--navy); }
+    .flbl { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; fill: var(--navy); }
+    .fa.hide { opacity: 0; transform: scale(.001); }
+    .fig line, .fig polyline { stroke: var(--navy); stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+    .fig circle { fill: var(--navy); }
+    .ground { stroke: #c9ccd6; stroke-width: 4; }
+    .rope { stroke: var(--navy); stroke-width: 5; stroke-linecap: round; }
+    .whl { fill: var(--navy); }
+    .mv { transition: transform 2.4s cubic-bezier(.45,0,.3,1); }
+    .mv.go { transform: translateX(var(--dx)); }
+    .carbody { fill: var(--pink); }
+    .carwin { fill: #fff; }
+    .wheel circle { fill: var(--navy); }
+    .wheel line { stroke: #fff; stroke-width: 3; stroke-linecap: round; }
+    .spin .spk { transform-box: fill-box; transform-origin: center; animation: spin .45s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .sball { fill: #fff; stroke: var(--navy); stroke-width: 4; }
+    .spent { fill: var(--navy); }
+
+    /* panels and cards */
+    .row2 { display: flex; gap: 30px; }
+    .pan { border: 3px solid var(--navy); border-radius: 8px; padding: 14px 18px; }
+    .pan.pink { border-color: var(--pink); }
+    .pan svg { display: block; }
+    .unit { margin-top: 20px; font-size: 26px; font-weight: 600; border: 3px solid var(--pink); border-radius: 8px; padding: 8px 26px; }
+    .unit b { color: var(--pink); font-weight: 800; }
+    .tag { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+        padding: 5px 14px; border-radius: 6px; background: var(--navy); color: #fff; }
+    .tag.pk { background: var(--pink); }
+    .tag.ol { background: none; color: var(--navy); box-shadow: inset 0 0 0 3px var(--navy); }
+    .ptag { display: flex; justify-content: center; margin-top: 8px; }
+
+    /* title scene */
+    .intro { display: grid; grid-template-columns: 1fr 360px; gap: 48px; align-items: center; height: 100%; }
+    .libox { border-left: 8px solid var(--pink); padding: 4px 0 4px 22px; margin-bottom: 22px; }
+    .libox .t { font-size: 32px; font-weight: 700; line-height: 1.2; margin-top: 4px; }
+    .sc { display: flex; gap: 18px; align-items: baseline; padding: 11px 0; border-top: 2px solid var(--light-grey); font-size: 23px; font-weight: 500; line-height: 1.3; }
+    .sc b { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 900; color: var(--pink); min-width: 46px; }
+
+    /* legend */
+    .legend { display: flex; gap: 32px; }
+    .lcard { width: 540px; border: 3px solid var(--pink); border-radius: 8px; padding: 26px 30px; }
+    .lcard.nv { border-color: var(--navy); }
+    .lcard .cfu.tt, .lcard .cfu.sj { display: inline-flex; }
+    .lh { font-family: 'Barlow Condensed', sans-serif; font-size: 38px; font-weight: 900; text-transform: uppercase; margin: 20px 0 6px; line-height: 1; }
+    .st { display: flex; gap: 14px; font-size: 24px; line-height: 1.3; font-weight: 500; margin-top: 12px; }
+    .st b { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 900; color: var(--pink); min-width: 18px; }
+    .nv .st b { color: var(--navy); }
+
+    /* force arrow rules */
+    .split { display: grid; grid-template-columns: 560px 1fr; gap: 40px; align-items: center; height: 100%; }
+    .split.r { grid-template-columns: 1fr 440px; }
+    .rules { display: flex; flex-direction: column; gap: 24px; }
+    .rule { display: flex; gap: 18px; align-items: flex-start; font-size: 27px; font-weight: 500; line-height: 1.3; }
+    .rule b { flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%; background: var(--pink); color: #fff; font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 900; display: flex; align-items: center; justify-content: center; margin-top: -3px; }
+    .rule strong { font-weight: 800; color: var(--pink); }
+    .mkr line { stroke: var(--pink); stroke-width: 2.5; }
+    .mkr circle { fill: var(--pink); }
+    .mkr text { fill: #fff; font-family: 'Barlow Condensed', sans-serif; font-size: 21px; font-weight: 900; }
+    .notes { border: 3px solid var(--navy); border-radius: 8px; padding: 22px 30px 26px; }
+    .notes p { font-size: 25px; line-height: 1.35; margin: 14px 0 0; }
+    .notes b { color: var(--pink); font-weight: 800; }
+    .col2 { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+
+    /* net force */
+    .nwrap { display: flex; flex-direction: column; justify-content: center; gap: 12px; height: 100%; }
+    .nline { display: flex; align-items: center; gap: 22px; }
+    .na { width: 340px; }
+    .nb { width: 300px; }
+    .eqs { font-family: 'Barlow Condensed', sans-serif; font-size: 64px; font-weight: 900; color: var(--pink); }
+    .eqt { font-size: 30px; font-weight: 600; }
+    .eqt b { color: var(--pink); font-weight: 900; }
+    .pill { align-self: flex-start; border: 3px solid var(--navy); border-radius: 8px; padding: 10px 24px; font-size: 26px; font-weight: 600; margin-top: 6px; }
+    .pill b { color: var(--pink); font-weight: 800; }
+
+    /* tug of war */
+    .flag { fill: var(--pink); }
+    .cline { stroke: var(--pink); stroke-width: 3; stroke-dasharray: 6 6; }
+    .knot { fill: var(--navy); }
+    .knotl { stroke: #c9ccd6; stroke-width: 2.5; stroke-dasharray: 5 6; }
+    .tw { transition: transform 3s cubic-bezier(.5,0,.6,1); }
+    .tw.wob { animation: wob .9s ease-in-out infinite alternate; }
+    @keyframes wob { from { transform: translateX(-3px); } to { transform: translateX(3px); } }
+    .tw.gor { transform: translateX(70px); }
+    .tw.gol { transform: translateX(-70px); }
+    .readout { display: flex; gap: 28px; margin-top: 10px; justify-content: center; }
+    .rbox { border: 3px solid var(--navy); border-radius: 8px; padding: 10px 30px; min-width: 300px; text-align: center; }
+    .rbox .lbl { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid-grey); }
+    .rbox .num { font-family: 'Barlow Condensed', sans-serif; font-size: 50px; font-weight: 900; line-height: 1.1; letter-spacing: 0.02em; }
+    .rbox.pink { border-color: var(--pink); }
+    .rbox.pink .num { color: var(--pink); }
+
+    /* questions */
+    .qgrid { display: flex; gap: 10px; justify-content: center; }
+    .qcard { position: relative; width: 280px; border: 3px solid var(--navy); border-radius: 8px; padding: 12px 3px 14px; display: flex; flex-direction: column; align-items: center; }
+    .qcard .let { position: absolute; left: 10px; top: 10px; width: 42px; height: 42px; border-radius: 50%; background: var(--navy); color: #fff;
+        font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 900; display: flex; align-items: center; justify-content: center; transition: background-color .35s; }
+    .qcard.right { border-color: var(--pink); box-shadow: 0 0 0 5px rgba(234,0,138,.18); }
+    .qcard.right .let { background: var(--pink); }
+    .qcard .tag { margin-top: 4px; }
+    .mov { font-family: 'Barlow Condensed', sans-serif; font-size: 19px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mid-grey); height: 22px; margin-left: 40px; }
+    .qrow { display: flex; align-items: center; gap: 30px; margin-top: 18px; }
+    .qbox { flex: 1; border-left: 8px solid var(--pink); padding: 10px 0 10px 24px; font-size: 28px; font-weight: 600; line-height: 1.3; }
+    .qbox.sj { border-color: var(--navy); }
+    .qbox b { color: var(--pink); font-weight: 800; }
+    .ans { font-size: 25px; font-weight: 500; line-height: 1.35; }
+    .ans b { color: var(--pink); font-weight: 800; }
+    .qa { padding: 12px 0; border-top: 2px solid var(--light-grey); }
+    .qa .q { display: flex; gap: 14px; font-size: 26px; font-weight: 600; line-height: 1.3; }
+    .qa .q b { flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; background: var(--navy); color: #fff; font-family: 'Barlow Condensed', sans-serif; font-size: 21px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+    .qa .a { margin: 6px 0 0 48px; font-size: 25px; font-weight: 700; color: var(--pink); }
+
+    /* timer */
+    .tmr { display: flex; flex-direction: column; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; color: var(--navy); padding: 0; flex-shrink: 0; }
+    .tmr:focus-visible { outline: 3px solid var(--pink); outline-offset: 4px; border-radius: 8px; }
+    .tmr .ring { position: relative; width: 104px; height: 104px; }
+    .tmr svg { width: 104px; height: 104px; transform: rotate(-90deg); display: block; }
+    .tmr .tb { fill: none; stroke: var(--light-grey); stroke-width: 9; }
+    .tmr .tf { fill: none; stroke: var(--pink); stroke-width: 9; stroke-dasharray: 1; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear; }
+    .tmr.sj .tf { stroke: var(--navy); }
+    .tmr .tv { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-size: 34px; font-weight: 900; font-variant-numeric: tabular-nums; }
+    .tmr .tl { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid-grey); }
+    .tmr.done .tv { color: var(--pink); }
+
+    /* balanced motion */
+    .tbl { fill: #d7dae2; }
+    .tleg { stroke: #d7dae2; stroke-width: 10; }
+    .road { fill: var(--light-grey); }
+    .dash line { stroke: #fff; stroke-width: 5; }
+    .dash.run { animation: road .5s linear infinite; }
+    @keyframes road { to { transform: translateX(-60px); } }
+    .spd { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; fill: var(--mid-grey); }
+    .trail { fill: none; stroke: #c9ccd6; stroke-width: 3; stroke-dasharray: 6 7; }
+    .ballc { fill: var(--pink); }
+    .pan3 { width: 370px; padding: 12px 13px 14px; cursor: pointer; }
+
+    /* effects */
+    .lane { font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 900; text-transform: uppercase; fill: var(--navy); }
+    .lanel { stroke: var(--light-grey); stroke-width: 3; }
+    .erow { display: flex; gap: 20px; justify-content: center; margin-top: 10px; }
+    .ecard { width: 364px; border: 3px solid var(--navy); border-radius: 8px; padding: 12px 20px 16px; }
+    .ecard svg { display: block; margin: 0 auto 6px; }
+    .eh { font-family: 'Barlow Condensed', sans-serif; font-size: 30px; font-weight: 900; text-transform: uppercase; line-height: 1; }
+    .et { font-size: 21px; font-weight: 500; margin-top: 4px; }
+    .ea-speed { animation: easpd 1.8s cubic-bezier(.6,0,1,.6) infinite; }
+    @keyframes easpd { from { transform: translate(24px, 88px); } to { transform: translate(296px, 88px); } }
+    .ea-dir { animation: eadir 2.4s linear infinite; }
+    @keyframes eadir { 0% { transform: translate(30px, 98px); } 50% { transform: translate(279px, 60px); } 100% { transform: translate(30px, 22px); } }
+    .wall { fill: var(--navy); }
+    .ea-squash { transform-box: fill-box; transform-origin: 50% 100%; animation: squash 2.4s ease-in-out infinite; }
+    @keyframes squash { 0%, 25% { transform: none; } 50%, 70% { transform: scale(1.35, .6); } 100% { transform: none; } }
+    .ea-press { animation: press 2.4s ease-in-out infinite; }
+    @keyframes press { 0%, 25% { transform: none; } 50%, 70% { transform: translateY(27px); } 100% { transform: none; } }
+
+    /* lab */
+    .lab { display: flex; align-items: stretch; gap: 16px; justify-content: center; margin-top: 14px; }
+    .stp { border: 3px solid var(--navy); border-radius: 8px; padding: 10px 16px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .stp.pink { border-color: var(--pink); }
+    .sr { display: flex; align-items: center; gap: 12px; }
+    .sbtn { width: 44px; height: 44px; border: none; border-radius: 6px; background: var(--navy); color: #fff; font-family: 'Barlow Condensed', sans-serif; font-size: 30px; font-weight: 800; cursor: pointer; line-height: 1; padding: 0; }
+    .sbtn:focus-visible, .rst:focus-visible { outline: 3px solid var(--pink); outline-offset: 2px; }
+    .sv { font-family: 'Barlow Condensed', sans-serif; font-size: 40px; font-weight: 900; min-width: 84px; text-align: center; font-variant-numeric: tabular-nums; }
+    .lab + .lab { margin-top: 12px; }
+    .stp { width: 300px; }
+    .stp .dlbl, .lab .rbox .lbl { white-space: nowrap; }
+    .lab .rbox { min-width: 0; width: 260px; padding: 8px 18px; display: flex; flex-direction: column; justify-content: center; }
+    .lab .rbox .num { font-size: 36px; white-space: nowrap; }
+    .lab .rbox.mo { width: 360px; }
+    .rst { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 8px; padding: 0 18px; cursor: pointer; }
+
+    /* summary and exit */
+    .sumgrid { display: grid; grid-template-columns: repeat(2, 540px); gap: 22px 32px; }
+    .dcard { border: 3px solid var(--navy); border-radius: 8px; padding: 20px 28px; }
+    .dcard.pink { border-color: var(--pink); }
+    .sct { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 900; color: var(--pink); letter-spacing: 0.06em; }
+    .dex { font-family: 'Barlow Condensed', sans-serif; font-size: 40px; font-weight: 900; margin: 2px 0 6px; line-height: 1; text-transform: uppercase; }
+    .dhow { font-size: 23px; font-weight: 500; line-height: 1.3; }
+    .xgrid { display: grid; grid-template-columns: 1fr 130px; gap: 30px; align-items: center; }
+    .xq { display: flex; gap: 18px; padding: 16px 0; border-top: 2px solid var(--light-grey); font-size: 27px; font-weight: 500; line-height: 1.3; }
+    .xq b { flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%; background: var(--navy); color: #fff; font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+    .xq strong { color: var(--pink); font-weight: 800; }
+
+    /* controls */
+    .controls { display: flex; align-items: center; gap: 10px; padding: 14px 0 18px 0; font-family: 'Barlow Condensed', sans-serif; }
+    .controls button {
+        font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+        background: var(--navy); color: var(--white); border: none; border-radius: 6px; padding: 9px 16px; cursor: pointer;
+    }
+    .controls button.alt { background: var(--white); color: var(--navy); }
+    .controls button:focus-visible { outline: 3px solid var(--pink); outline-offset: 2px; }
+    .dots { display: flex; gap: 8px; margin: 0 10px; }
+    .dots button { width: 14px; height: 14px; padding: 0; border-radius: 50%; background: #c9ccd6; }
+    .dots button.cur { background: var(--pink); }
+    .steplbl { font-size: 18px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mid-grey); margin-left: 6px; min-width: 110px; }
+    .ink { position: absolute; inset: 0; width: 1280px; height: 720px; pointer-events: none; z-index: 5; touch-action: none; }
+    .ink.active { pointer-events: auto; cursor: crosshair; }
+    .controls button#pen.on { background: var(--pink); color: var(--white); }
+    .controls .swatch { width: 26px; height: 26px; padding: 0; border-radius: 50%; border: 3px solid var(--white); box-shadow: 0 0 0 1px #c9ccd6; }
+    .controls .swatch.cur { box-shadow: 0 0 0 3px var(--navy); }
+    .stage.instant *, .stage.instant *::before { transition: none !important; animation: none !important; }
+
+    /* tools, hide UI, export */
+    .controls { flex-wrap: wrap; justify-content: center; gap: 10px 26px; padding: 12px 20px 16px; width: 100%; }
+    .grp { display: flex; align-items: center; gap: 10px; }
+    .controls button#eraser.on { background: var(--pink); color: var(--white); }
+    .ink.erase { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30'%3E%3Ccircle cx='15' cy='15' r='13' fill='white' fill-opacity='.55' stroke='%231b1f45' stroke-width='2'/%3E%3C/svg%3E") 15 15, cell; }
+    body.noui .controls { display: none; }
+    body.nosubs .caption { visibility: hidden; }
+    .showui {
+        display: none; position: fixed; right: 14px; bottom: 14px; z-index: 10;
+        font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+        background: var(--navy); color: var(--white); border: none; border-radius: 6px; padding: 8px 14px; cursor: pointer;
+        opacity: 0; transition: opacity .2s;
+    }
+    body.noui .showui { display: block; }
+    .showui:hover, .showui:focus-visible { opacity: 1; }
+    #print { display: none; }
+    @media print {
+        @page { size: 1280px 720px; margin: 0; }
+        * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        html, body { height: auto; overflow: visible; display: block; margin: 0; background: #fff; }
+        body > .viewport, body > .controls, .showui { display: none !important; }
+        #print { display: block; }
+        #print .stage { transform: none !important; margin: 0 !important; break-after: page; page-break-after: always; }
+        #print .stage:last-child { break-after: auto; page-break-after: auto; }
+        #print *, #print *::before { animation: none !important; transition: none !important; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .rev, .mv, .tw { transition: none !important; }
+        .caption.in, .cfu.pop, .tw.wob, .dash.run, .spin .spk, .ea-speed, .ea-dir, .ea-squash, .ea-press { animation: none !important; }
+    }
+</style>
+</head>
+<body>
+
+<div class="viewport">
+    <div class="stage" id="stage">
+        <div class="top">
+            <div><h1 class="sheet-title" id="title"></h1></div>
+            <div class="topr"><div class="cfu" id="cfu"></div><div class="counter" id="counter"></div></div>
+        </div>
+        <div class="content" id="content"></div>
+        <div class="caption" id="caption"></div>
+        <div class="progress" id="progress"></div>
+        <canvas class="ink" id="ink" width="2560" height="1440"></canvas>
+    </div>
+</div>
+
+<div class="controls">
+    <div class="grp">
+        <button class="alt" id="back" aria-label="Previous scene">Back</button>
+        <button class="alt" id="replay" aria-label="Replay scene">Replay</button>
+        <button id="next" aria-label="Next scene">Next</button>
+        <div class="dots" id="dots"></div>
+        <button class="alt" id="auto">Autoplay: Off</button>
+        <span class="steplbl" id="steplbl"></span>
+    </div>
+    <div class="grp">
+        <button class="alt" id="pen" aria-pressed="false">Pen</button>
+        <button class="swatch cur" data-c="#ea008a" style="background:#ea008a" aria-label="Pink pen"></button>
+        <button class="swatch" data-c="#1b1f45" style="background:#1b1f45" aria-label="Navy pen"></button>
+        <button class="swatch" data-c="#111111" style="background:#111111" aria-label="Black pen"></button>
+        <button class="swatch" data-c="#0a7bd6" style="background:#0a7bd6" aria-label="Blue pen"></button>
+        <button class="swatch" data-c="#12a150" style="background:#12a150" aria-label="Green pen"></button>
+        <button class="swatch" data-c="#f28c00" style="background:#f28c00" aria-label="Orange pen"></button>
+        <button class="alt" id="eraser" aria-pressed="false">Eraser</button>
+        <button class="alt" id="clear">Clear</button>
+    </div>
+    <div class="grp">
+        <button class="alt" id="pdf">Export PDF</button>
+        <button class="alt" id="subs" aria-pressed="true">Subtitles: On</button>
+        <button class="alt" id="hideui">Hide UI</button>
+    </div>
+</div>
+<button class="showui" id="showui">Show UI</button>
+<div id="print"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const content = $('#content'), caption = $('#caption'), titleEl = $('#title'), counter = $('#counter'), progress = $('#progress'), cfuEl = $('#cfu');
+let timers = [], events = [], beats = [], idx = 0, beat = 0, autoplay = false, instantMode = false;
+let segFrom = 0, segTo = 0, segStart = 0;
+let ptimers = [], cleanups = [];
+const stage = document.getElementById('stage');
+const PK = '#ea008a', NV = '#1b1f45';
+
+function at(ms, fn) { events.push({ t: ms, fn, done: false }); }
+function beatAt(ms, html) { beats.push(ms); at(ms, () => say(html)); }
+function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
+function show(e) { if (e) e.classList.remove('hide'); }
+function say(html) { caption.innerHTML = '<span>' + html + '</span>'; caption.classList.remove('in'); void caption.offsetWidth; caption.classList.add('in'); }
+function stopInteractive() { ptimers.forEach(clearTimeout); ptimers = []; cleanups.forEach(f => f()); cleanups = []; }
+function later(ms, fn) { if (exporting || instantMode) fn(); else ptimers.push(setTimeout(fn, ms)); }
+const tws = {};
+function tween(D, f, ease = t => t, key) {
+    if (key && tws[key]) tws[key]();
+    if (exporting || instantMode) { f(ease(1)); return; }
+    const st = performance.now(); let raf = 0;
+    const step = n => { const p = Math.min(1, (n - st) / D); f(ease(p)); if (p < 1) raf = requestAnimationFrame(step); };
+    f(ease(0)); raf = requestAnimationFrame(step);
+    const cancel = () => cancelAnimationFrame(raf);
+    if (key) tws[key] = cancel;
+    cleanups.push(cancel);
+}
+const easeIn = t => t * t, easeOut = t => 1 - (1 - t) * (1 - t);
+
+/* ---------- badge ---------- */
+const ICON = {
+    talk: '<svg viewBox="0 0 24 24"><path d="M2 4h12v8H8l-4 3v-3H2z"/><path d="M17 8h5v8h-2v3l-3-3h-6v-2"/></svg>',
+    arrow: '<svg class="ar" viewBox="0 0 24 24"><path d="M3 12h16M13 6l6 6-6 6"/></svg>',
+    person: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>',
+    pencil: '<svg viewBox="0 0 24 24"><path d="M4 20l1.2-4.8L16 4.4l3.6 3.6L8.8 18.8z"/><path d="M13.6 6.8l3.6 3.6"/></svg>'
+};
+function badgeHTML(k) { return k === 'tt' ? `${ICON.talk}<span>Turn &amp; talk</span>${ICON.arrow}${ICON.person}<span>Cold call</span>` : `${ICON.pencil}<span>Stop &amp; jot</span>`; }
+function setBadge(k) {
+    cfuEl.className = 'cfu'; cfuEl.innerHTML = '';
+    if (!k) return;
+    void cfuEl.offsetWidth;
+    cfuEl.className = 'cfu ' + k + ' pop'; cfuEl.innerHTML = badgeHTML(k);
+}
+
+/* ---------- timer ---------- */
+function timer(sec, kind = 'tt') {
+    const t = el('button', 'tmr ' + kind);
+    t.type = 'button';
+    t.innerHTML = '<div class="ring"><svg viewBox="0 0 100 100"><circle class="tb" cx="50" cy="50" r="44"/><circle class="tf" cx="50" cy="50" r="44" pathLength="1"/></svg><div class="tv"></div></div><div class="tl">Tap to start</div>';
+    const tv = t.querySelector('.tv'), tf = t.querySelector('.tf'), tl = t.querySelector('.tl');
+    let left = sec, iv = null;
+    const fmt = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+    const draw = () => { tv.textContent = fmt(left); tf.style.strokeDashoffset = (1 - left / sec).toFixed(4); };
+    const stop = () => { clearInterval(iv); iv = null; };
+    t.onclick = () => {
+        t.blur();
+        if (iv || left === 0) { stop(); left = sec; t.classList.remove('done'); tl.textContent = 'Tap to start'; draw(); return; }
+        tl.textContent = 'Tap to reset';
+        iv = setInterval(() => { left--; draw(); if (left <= 0) { stop(); t.classList.add('done'); tl.textContent = 'Time is up'; } }, 1000);
+    };
+    cleanups.push(stop);
+    draw();
+    return t;
+}
+
+/* ---------- drawing helpers ---------- */
+function farrow(x, y, d, len, lbl, o = {}) {
+    const c = o.c || PK, sw = o.sw || 8, hl = o.hl || 22, hw = o.hw || 13, fs = o.fs || 22;
+    const v = { r: [1, 0], l: [-1, 0], u: [0, -1], d: [0, 1] }[d];
+    const ex = x + v[0] * len, ey = y + v[1] * len, bx = ex - v[0] * hl, by = ey - v[1] * hl, px = -v[1] * hw, py = v[0] * hw;
+    const hz = d === 'r' || d === 'l';
+    let tx, ty, an;
+    if (o.lp === 'end') { tx = hz ? ex + v[0] * 12 : x; ty = hz ? y + 8 : ey + (v[1] > 0 ? 28 : -12); an = hz ? (v[0] > 0 ? 'start' : 'end') : 'middle'; }
+    else if (hz) {
+        ty = o.lb ? y + 32 : y - 16;
+        const est = lbl ? String(lbl).replace(/&[a-z]+;/g, 'x').length * fs * 0.5 : 0;
+        if (est <= len - 8) { tx = x + v[0] * len / 2; an = 'middle'; }
+        else { tx = x + v[0] * 4; an = v[0] > 0 ? 'start' : 'end'; }
+    }
+    else { tx = o.lb ? x - 16 : x + 16; ty = y + v[1] * len / 2 + 8; an = o.lb ? 'end' : 'start'; }
+    const cls = 'fa' + (o.cls ? ' ' + o.cls : '') + (o.hide === false ? '' : ' rev hide');
+    return `<g class="${cls}" style="transform-origin:${x}px ${y}px">` +
+        (len > hl ? `<line x1="${x}" y1="${y}" x2="${bx}" y2="${by}" stroke="${c}" stroke-width="${sw}"/>` : '') +
+        `<polygon points="${ex},${ey} ${bx + px},${by + py} ${bx - px},${by - py}" fill="${c}"/>` +
+        (lbl ? `<text class="flbl" x="${tx}" y="${ty}" text-anchor="${an}" style="font-size:${fs}px">${lbl}</text>` : '') + `</g>`;
+}
+
+function fdiag(forces, o = {}) {
+    const w = o.w || 360, h = o.h || 300, s = o.size || 80, k = o.k || 3, cx = w / 2, cy = h / 2;
+    const E = { r: [cx + s / 2, cy], l: [cx - s / 2, cy], u: [cx, cy - s / 2], d: [cx, cy + s / 2] };
+    const arrows = forces.map(f => farrow(E[f.d][0], E[f.d][1], f.d, f.n * k, (f.lbl ? f.lbl + ' ' : '') + f.n + ' N', { hide: o.hide, c: f.c, lb: f.lb })).join('');
+    const obj = `<rect class="obj" x="${cx - s / 2}" y="${cy - s / 2}" width="${s}" height="${s}" rx="6"/>` + (o.name ? `<text class="oname" x="${cx}" y="${cy + 7}" text-anchor="middle">${o.name}</text>` : '');
+    return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">${obj}${arrows}</svg>`;
+}
+
+const POSE = {
+    push: { f1: [-30, 0], f2: [10, 0], hip: [-8, -58], sh: [14, -100], hd: [22, -118], h: [52, -82] },
+    pull: { f1: [20, 0], f2: [-18, 0], hip: [-6, -58], sh: [-20, -100], hd: [-27, -117], h: [22, -72] }
+};
+function fig(x, gy, pose, flip) {
+    const p = POSE[pose], q = a => a.join(','), h2 = [p.h[0] - 5, p.h[1] + 7];
+    return `<g class="fig" transform="translate(${x} ${gy}) scale(${flip ? -1 : 1} 1)"><polyline points="${q(p.f1)} ${q(p.hip)} ${q(p.f2)}"/><line x1="${p.hip[0]}" y1="${p.hip[1]}" x2="${p.sh[0]}" y2="${p.sh[1]}"/><polyline points="${q(p.sh)} ${q(h2)}"/><polyline points="${q(p.sh)} ${q(p.h)}"/><circle cx="${p.hd[0]}" cy="${p.hd[1]}" r="14"/></g>`;
+}
+
+function carBody() {
+    const wheel = x => `<g class="wheel" transform="translate(${x} 42)"><circle r="16"/><g class="spk"><line x1="-9" x2="9" y1="0" y2="0"/><line x1="0" x2="0" y1="-9" y2="9"/></g></g>`;
+    return `<path class="carbody" d="M4 40 L4 24 Q4 16 14 14 L42 10 L64 -8 Q68 -12 76 -12 L128 -12 Q136 -12 142 -4 L158 12 L184 16 Q196 18 196 30 L196 40 Z"/>
+        <polygon class="carwin" points="72,8 84,-3 105,-3 105,8"/><polygon class="carwin" points="112,8 112,-3 128,-3 141,8"/>${wheel(44)}${wheel(156)}`;
+}
+
+function soccer(r) {
+    const k = r / 26;
+    const pts = [0, 1, 2, 3, 4].map(i => { const a = -Math.PI / 2 + i * 2 * Math.PI / 5; return (Math.cos(a) * 10 * k).toFixed(1) + ',' + (Math.sin(a) * 10 * k).toFixed(1); }).join(' ');
+    return `<circle class="sball" r="${r}"/><polygon class="spent" points="${pts}"/>`;
+}
+
+function tug(o) {
+    const gy = o.gy, ry = gy - 72, ay = gy - 170, cx = 560;
+    let s = `<svg viewBox="0 0 1152 ${o.h}" width="1152" height="${o.h}"><line class="ground" x1="0" x2="1152" y1="${gy + 2}" y2="${gy + 2}"/><line class="cline" x1="${cx}" x2="${cx}" y1="${gy - 40}" y2="${gy + 18}"/><g class="tw${o.wob ? ' wob' : ''}">`;
+    s += `<line class="rope" x1="150" x2="${o.extra ? 1060 : 970}" y1="${ry}" y2="${ry}"/><path class="flag" d="M${cx} ${ry} L${cx - 12} ${ry + 34} L${cx + 12} ${ry + 34} Z"/>`;
+    [170, 260, 350].forEach(x => s += fig(x, gy, 'pull'));
+    [950, 860, 770].forEach((x, i) => s += `<g class="${o.leave && i === 0 ? 'leaver rev' : ''}">${fig(x, gy, 'pull', true)}</g>`);
+    if (o.extra) s += `<g class="late rev hide">${fig(1040, gy, 'pull', true)}</g>`;
+    s += `<line class="knotl" x1="${cx}" x2="${cx}" y1="${ay}" y2="${ry}"/><circle class="knot" cx="${cx}" cy="${ay}" r="7"/>`;
+    s += farrow(cx - 8, ay, 'l', 180, '300 N', { cls: 'la' }) + farrow(cx + 8, ay, 'r', 180, '300 N', { cls: 'ra' }) + farrow(cx + 8, ay, 'r', o.alt * 0.6, o.alt + ' N', { cls: 'alt' });
+    return s + '</g></svg>';
+}
+
+function rbox(lbl, val, pink) { return el('div', 'rbox rev hide' + (pink ? ' pink' : ''), `<div class="lbl">${lbl}</div><div class="num">${val}</div>`); }
+function setR(b, v) { b.querySelector('.num').innerHTML = v; }
+
+function choices(items, o = {}) {
+    const wrap = el('div', 'qgrid');
+    const cards = items.map((it, i) => {
+        const c = el('div', 'qcard rev hide', `<div class="let">${'ABCD'[i]}</div>${o.moving ? '<div class="mov">Moving &rarr;</div>' : ''}${fdiag(it.f, { w: 270, h: o.h || 230, size: 60, k: 3, name: o.name, hide: false })}<div class="tag ${it.cls || ''} rev hide">${it.t}</div>`);
+        wrap.appendChild(c);
+        return { c, tag: c.querySelector('.tag') };
+    });
+    return { wrap, cards };
+}
+
+/* ---------- scenes ---------- */
+const scenes = [
+{
+    title: 'Balanced and <span>unbalanced forces</span>',
+    dur: 14500,
+    run() {
+        const w = el('div', 'intro'), L = el('div');
+        const li = el('div', 'libox rev hide', '<div class="dlbl">Learning intention</div><div class="t">To investigate balanced and unbalanced forces acting on objects</div>');
+        L.appendChild(li);
+        const scs = [
+            ['SC3', 'I can identify whether forces acting upon an object are balanced or unbalanced'],
+            ['SC4', 'I can analyse forces using force arrow diagrams'],
+            ['SC5', `I can recognise that changes to an object's motion is caused by unbalanced forces acting on the object`],
+            ['SC6', 'I can identify the effect of applying different forces to an object']
+        ].map(([a, b]) => { const r = el('div', 'sc rev hide', `<b>${a}</b><span>${b}</span>`); L.appendChild(r); return r; });
+        const R = el('div', 'rev hide', fdiag([{ d: 'u', n: 30 }, { d: 'd', n: 30 }, { d: 'l', n: 15 }, { d: 'r', n: 35 }], { w: 360, h: 360, size: 100, name: 'Object' }));
+        w.append(L, R); content.appendChild(w);
+        beatAt(0, `Today we are investigating <b>forces</b>: the pushes and pulls acting on everything around us.`);
+        at(400, () => show(R)); R.querySelectorAll('.fa').forEach((a, i) => at(900 + i * 350, () => show(a)));
+        beatAt(4500, `Here is our <b>learning intention</b>.`);
+        at(4900, () => show(li));
+        beatAt(8000, `By the end of the lesson, you should be able to do these <b>four things</b>.`);
+        scs.forEach((s, i) => at(8500 + i * 500, () => show(s)));
+    }
+},
+{
+    title: 'What is a <span>force</span>?',
+    dur: 19000,
+    run() {
+        const c = el('div', 'center'), row = el('div', 'row2');
+        const push = el('div', 'pan rev hide', `<div class="dlbl">Push</div><svg viewBox="0 0 500 270" width="500" height="270">
+            <line class="ground" x1="0" x2="500" y1="252" y2="252"/>
+            <g class="mv" style="--dx:110px">${fig(98, 250, 'push')}<rect class="obj" x="150" y="150" width="100" height="100" rx="6"/><text class="oname" x="200" y="207" text-anchor="middle">Box</text>${farrow(250, 200, 'r', 110, 'Push')}</g></svg>`);
+        const pull = el('div', 'pan rev hide', `<div class="dlbl">Pull</div><svg viewBox="0 0 500 270" width="500" height="270">
+            <line class="ground" x1="0" x2="500" y1="252" y2="252"/>
+            <g class="mv" style="--dx:110px"><rect class="obj" x="60" y="160" width="130" height="72" rx="6"/><text class="oname" x="125" y="203" text-anchor="middle">Cart</text><circle class="whl" cx="85" cy="238" r="12"/><circle class="whl" cx="165" cy="238" r="12"/>
+            <line class="rope" x1="190" y1="172" x2="260" y2="178"/>${fig(282, 250, 'pull', true)}${farrow(190, 205, 'r', 62, 'Pull', { lb: 1 })}</g></svg>`);
+        const unit = el('div', 'unit rev hide', 'Forces are measured in <b>newtons</b>, written as <b>N</b>');
+        row.append(push, pull); c.append(row, unit); content.appendChild(c);
+        const q = (p, s) => p.querySelector(s);
+        beatAt(0, `A <b>force</b> is a <b>push</b> or a <b>pull</b>.`);
+        at(400, () => show(push)); at(700, () => show(pull));
+        beatAt(3500, `When you <b>push</b> a box, the force acts away from you, and the box moves.`);
+        at(4000, () => show(q(push, '.fa'))); at(4800, () => q(push, '.mv').classList.add('go'));
+        beatAt(8500, `When you <b>pull</b> a cart, the force acts towards you.`);
+        at(9000, () => show(q(pull, '.fa'))); at(9800, () => q(pull, '.mv').classList.add('go'));
+        beatAt(13500, `Forces are measured in <b>newtons</b>, written with the symbol <b>N</b>.`);
+        at(14000, () => show(unit));
+    }
+},
+{
+    title: 'Force <span>arrows</span>',
+    dur: 21000,
+    run() {
+        const g = el('div', 'split'), L = el('div');
+        const topD = el('div', 'rev hide', `<svg viewBox="0 0 540 200" width="540" height="200">
+            <rect class="obj" x="60" y="40" width="90" height="90" rx="6"/><text class="oname" x="105" y="92" text-anchor="middle">Box</text>
+            ${farrow(150, 85, 'r', 240, '30 N', { hide: false })}
+            ${[[150, 1], [270, 3], [380, 2]].map(([x, n]) => `<g class="mkr rev hide m${n}"><line x1="${x}" x2="${x}" y1="100" y2="138"/><circle cx="${x}" cy="156" r="17"/><text x="${x}" y="163" text-anchor="middle">${n}</text></g>`).join('')}</svg>`);
+        const cmp = el('div', 'rev hide', `<svg viewBox="0 0 540 190" width="540" height="190">${[[10, 35], [20, 95], [40, 155]].map(([n, y]) => `<rect class="obj" x="20" y="${y - 20}" width="40" height="40" rx="4"/>${farrow(60, y, 'r', n * 6, n + ' N', { hide: false, lp: 'end', sw: 7, hl: 18, hw: 11 })}`).join('')}</svg>`);
+        L.append(topD, cmp);
+        const R = el('div', 'rules');
+        const rules = [
+            'The arrow <strong>starts on the object</strong>.',
+            'The arrow <strong>points in the direction</strong> of the force.',
+            'A <strong>longer arrow</strong> means a <strong>bigger force</strong>. Label it in newtons (N).'
+        ].map((t, i) => { const r = el('div', 'rule rev hide', `<b>${i + 1}</b><div>${t}</div>`); R.appendChild(r); return r; });
+        g.append(L, R); content.appendChild(g);
+        const m = n => topD.querySelector('.m' + n);
+        beatAt(0, `Scientists show forces using <b>force arrows</b>. A force arrow diagram shows the forces acting on an object.`);
+        at(500, () => show(topD));
+        beatAt(4000, `Rule one: the arrow <b>starts on the object</b> the force is acting on.`);
+        at(4400, () => { show(rules[0]); show(m(1)); });
+        beatAt(8000, `Rule two: the arrow <b>points in the direction</b> of the force.`);
+        at(8400, () => { show(rules[1]); show(m(2)); });
+        beatAt(12000, `Rule three: the <b>length</b> of the arrow shows the <b>size</b> of the force. We label it in newtons.`);
+        at(12400, () => { show(rules[2]); show(m(3)); });
+        beatAt(16500, `So a 40 newton force gets an arrow <b>twice as long</b> as a 20 newton force.`);
+        at(17000, () => show(cmp));
+    }
+},
+{
+    title: 'Notes: <span>forces</span>',
+    cfu: 'sj',
+    dur: 11000,
+    run() {
+        const g = el('div', 'split r');
+        const notes = el('div', 'notes rev hide', `<div class="dlbl">Copy into your book</div>
+            <p>A <b>force</b> is a push or a pull.</p>
+            <p>Forces are measured in <b>newtons (N)</b>.</p>
+            <p>A <b>force arrow diagram</b> shows the forces acting on an object.</p>
+            <p>Force arrows <b>start on the object</b>, <b>point in the direction</b> of the force and are <b>longer for bigger forces</b>.</p>`);
+        const R = el('div', 'col2 rev hide', `<div class="dlbl">Draw this example</div>` + fdiag([{ d: 'r', n: 20, lbl: 'Push' }], { w: 420, h: 220, size: 90, k: 4, name: 'Box', hide: false }));
+        R.appendChild(timer(180, 'sj'));
+        g.append(notes, R); content.appendChild(g);
+        beatAt(0, `<b>Stop and jot.</b> Copy these notes into your book.`);
+        at(400, () => show(notes));
+        beatAt(5000, `Then draw the example force arrow diagram. Remember the three rules for force arrows.`);
+        at(5400, () => show(R));
+    }
+},
+{
+    title: 'Adding <span>forces</span>',
+    dur: 22500,
+    run() {
+        const col = el('div', 'nwrap');
+        const mk = (lab, a, b, eq) => {
+            const r = el('div', 'rev hide');
+            r.innerHTML = `<div class="dlbl">${lab}</div><div class="nline"><div class="na">${a}</div><div class="eqs rev hide">=</div><div class="nb rev hide">${b}</div><div class="eqt rev hide">${eq}</div></div>`;
+            col.appendChild(r); return r;
+        };
+        const r1 = mk('Same direction: add the forces',
+            `<svg viewBox="0 0 280 150" width="280" height="150"><rect class="obj" x="40" y="45" width="70" height="70" rx="6"/>${farrow(110, 65, 'r', 60, '20 N')}${farrow(110, 97, 'r', 90, '30 N', { lb: 1 })}</svg>`,
+            `<svg viewBox="0 0 300 150" width="300" height="150"><rect class="obj" x="30" y="45" width="70" height="70" rx="6"/>${farrow(100, 80, 'r', 150, 'Net force 50 N', { c: NV, hide: false })}</svg>`,
+            '20 N + 30 N = <b>50 N</b> right');
+        const r2 = mk('Opposite directions: subtract the smaller force',
+            `<svg viewBox="0 0 340 150" width="340" height="150"><rect class="obj" x="100" y="45" width="70" height="70" rx="6"/>${farrow(170, 80, 'r', 150, '50 N')}${farrow(100, 80, 'l', 60, '20 N')}</svg>`,
+            `<svg viewBox="0 0 260 150" width="260" height="150"><rect class="obj" x="30" y="45" width="70" height="70" rx="6"/>${farrow(100, 80, 'r', 90, 'Net force 30 N', { c: NV, hide: false })}</svg>`,
+            '50 N &minus; 20 N = <b>30 N</b> right');
+        const pill = el('div', 'pill rev hide', 'The overall force on an object is called the <b>net force</b>');
+        col.appendChild(pill); content.appendChild(col);
+        const parts = r => [r.querySelector('.eqs'), r.querySelector('.nb'), r.querySelector('.eqt')];
+        beatAt(0, `When more than one force acts on an object, we can combine them into one overall force.`);
+        at(400, () => show(r1)); r1.querySelectorAll('.na .fa').forEach((a, i) => at(900 + i * 500, () => show(a)));
+        beatAt(4500, `Forces in the <b>same direction</b> add together. 20 newtons plus 30 newtons makes 50 newtons.`);
+        parts(r1).forEach((p, i) => at(5000 + i * 500, () => show(p)));
+        beatAt(9500, `Forces in <b>opposite directions</b> work against each other, so we subtract.`);
+        at(9900, () => show(r2)); r2.querySelectorAll('.na .fa').forEach((a, i) => at(10400 + i * 500, () => show(a)));
+        beatAt(13500, `50 newtons to the right minus 20 newtons to the left leaves <b>30 newtons</b> to the right.`);
+        parts(r2).forEach((p, i) => at(14000 + i * 500, () => show(p)));
+        beatAt(18000, `The overall force on an object is called the <b>net force</b>.`);
+        at(18400, () => show(pill));
+    }
+},
+{
+    title: 'Tug of <span>war</span>',
+    dur: 24500,
+    run() {
+        const c = el('div', 'stack');
+        const t = el('div', 'rev hide', tug({ gy: 300, h: 320, alt: 400, extra: true, wob: true }));
+        const ro = el('div', 'readout'), r1 = rbox('Net force', '0 N'), r2 = rbox('The forces are', 'Balanced', true);
+        ro.append(r1, r2); c.append(t, ro); content.appendChild(c);
+        const q = s => t.querySelector(s);
+        beatAt(0, `In a <b>tug of war</b>, two teams pull on a rope in opposite directions.`);
+        at(400, () => show(t));
+        beatAt(3500, `Each team pulls with <b>300 newtons</b>. The forces are equal in size and opposite in direction.`);
+        at(4000, () => show(q('.la'))); at(4400, () => show(q('.ra')));
+        beatAt(8500, `The forces cancel out, so the net force is <b>0 newtons</b>. The forces are <b>balanced</b> and the rope does not move.`);
+        at(9000, () => show(r1)); at(9500, () => show(r2));
+        beatAt(14000, `Now another player joins the right team. The right team pulls with <b>400 newtons</b>.`);
+        at(14500, () => show(q('.late')));
+        at(15300, () => { q('.ra').classList.add('hide'); show(q('.alt')); setR(r1, '100 N &rarr;'); setR(r2, 'Unbalanced'); const g = q('.tw'); g.classList.remove('wob'); g.classList.add('gor'); });
+        beatAt(19000, `The forces are now <b>unbalanced</b>. The net force is 100 newtons to the right, so the rope moves right.`);
+    }
+},
+{
+    title: 'Balanced or <span>unbalanced</span>?',
+    cfu: 'tt',
+    dur: 21000,
+    run() {
+        const c = el('div', 'stack');
+        const { wrap, cards } = choices([
+            { f: [{ d: 'r', n: 20 }, { d: 'l', n: 20 }], t: 'Balanced' },
+            { f: [{ d: 'r', n: 30 }, { d: 'l', n: 10 }], t: 'Unbalanced', cls: 'pk' },
+            { f: [{ d: 'u', n: 25 }, { d: 'd', n: 25 }, { d: 'r', n: 15 }], t: 'Unbalanced', cls: 'pk' },
+            { f: [{ d: 'u', n: 20 }, { d: 'd', n: 20 }, { d: 'l', n: 10 }, { d: 'r', n: 10 }], t: 'Balanced' }
+        ]);
+        const row = el('div', 'qrow rev hide');
+        row.append(el('div', 'qbox', 'Which diagrams show <b>balanced</b> forces and which show <b>unbalanced</b> forces? How do you know?'), timer(60, 'tt'));
+        c.append(wrap, row); content.appendChild(c);
+        beatAt(0, `<b>Turn and talk.</b> Which of these force arrow diagrams show balanced forces, and which show unbalanced forces?`);
+        cards.forEach((k, i) => at(400 + i * 250, () => show(k.c))); at(1600, () => show(row));
+        beatAt(4500, `Be ready to explain <b>how you know</b>. I will cold call someone to share their pair's answer.`);
+        beatAt(9500, `<b>A</b> and <b>D</b> are balanced. The opposite forces are equal in size, so the net force is zero.`);
+        at(10000, () => { show(cards[0].tag); show(cards[3].tag); });
+        beatAt(15000, `<b>B</b> and <b>C</b> are unbalanced. In C, up and down cancel out, but nothing balances the 15 newtons to the right.`);
+        at(15500, () => { show(cards[1].tag); show(cards[2].tag); });
+    }
+},
+{
+    title: 'Balanced forces and <span>motion</span>',
+    dur: 21000,
+    run() {
+        const c = el('div', 'center'), row = el('div', 'row2');
+        const book = el('div', 'pan rev hide', `<div class="dlbl">A book on a table</div><svg viewBox="0 0 520 300" width="520" height="300">
+            <rect class="tbl" x="100" y="192" width="320" height="14" rx="3"/><line class="tleg" x1="130" x2="130" y1="206" y2="296"/><line class="tleg" x1="390" x2="390" y1="206" y2="296"/>
+            <rect class="obj" x="200" y="152" width="120" height="40" rx="4"/><text class="oname" x="260" y="179" text-anchor="middle">Book</text>
+            ${farrow(260, 152, 'u', 90, 'Support 10 N')}${farrow(260, 192, 'd', 90, 'Weight 10 N')}</svg><div class="ptag"><span class="tag ol rev hide">Stays still</span></div>`);
+        let dashes = ''; for (let x = -60; x < 600; x += 60) dashes += `<line x1="${x}" x2="${x + 30}" y1="245" y2="245"/>`;
+        const car = el('div', 'pan pink rev hide', `<div class="dlbl">A car at a steady speed</div><svg viewBox="0 0 520 300" width="520" height="300">
+            <text class="spd" x="260" y="70" text-anchor="middle">Speed: 60 km/h</text>
+            <rect class="road" x="0" y="215" width="520" height="60"/><g class="dash run">${dashes}</g>
+            <g class="spin" transform="translate(170 165) scale(.85)">${carBody()}</g>
+            ${farrow(173, 187, 'l', 100, 'Friction')}${farrow(337, 187, 'r', 100, 'Driving force')}</svg><div class="ptag"><span class="tag ol rev hide">Keeps a steady speed</span></div>`);
+        row.append(book, car); c.appendChild(row); content.appendChild(c);
+        beatAt(0, `Balanced forces do <b>not</b> change an object's motion.`);
+        beatAt(3500, `A book resting on a table has balanced forces. Gravity pulls it down, and the table pushes up just as hard.`);
+        at(3900, () => show(book)); book.querySelectorAll('.fa').forEach((a, i) => at(4600 + i * 500, () => show(a)));
+        beatAt(9000, `A car driving at a <b>steady speed</b> also has balanced forces. The driving force equals the friction pushing back.`);
+        at(9400, () => show(car)); car.querySelectorAll('.fa').forEach((a, i) => at(10100 + i * 500, () => show(a)));
+        beatAt(15500, `So balanced forces mean an object stays still, <b>or</b> keeps moving at a steady speed in a straight line.`);
+        at(16000, () => document.querySelectorAll('#content .ptag .tag').forEach(show));
+    }
+},
+{
+    title: 'Unbalanced forces change <span>motion</span>',
+    dur: 25500,
+    run() {
+        const c = el('div', 'center'), row = el('div', 'row2'); row.style.gap = '14px';
+        const road = `<line class="ground" x1="0" x2="340" y1="90" y2="90"/><g class="car" transform="translate(10 62) scale(.45)">${carBody()}</g>`;
+        const card = (title, strip, forces, k, name, tag) => {
+            const p = el('div', 'pan pink pan3 rev hide', `<div class="dlbl">${title}</div><svg viewBox="0 0 340 110" width="340" height="110">${strip}</svg>${fdiag(forces, { w: 340, h: 170, size: 60, k, name, hide: false })}<div class="ptag"><span class="tag pk">${tag}</span></div>`);
+            row.appendChild(p); return p;
+        };
+        const p1 = card('Speeding up', road, [{ d: 'r', n: 600 }, { d: 'l', n: 200 }], .15, 'Car', 'Speeds up');
+        const p2 = card('Slowing down', road, [{ d: 'r', n: 200 }, { d: 'l', n: 600 }], .15, 'Car', 'Slows down');
+        const p3 = card('Changing direction', `<path class="trail rev hide" d="M20 80 L160 80 Q240 80 320 16"/><circle class="ballc" cx="20" cy="80" r="11"/>`, [{ d: 'u', n: 20, lbl: 'Kick' }], 2.5, 'Ball', 'Changes direction');
+        c.appendChild(row); content.appendChild(c);
+        const carT = (p, x) => p.querySelector('.car').setAttribute('transform', `translate(${x.toFixed(1)} 62) scale(.45)`);
+        const run1 = () => tween(2200, e => carT(p1, 10 + 230 * e), easeIn, 'u1');
+        const run2 = () => tween(2200, e => carT(p2, 10 + 230 * e), easeOut, 'u2');
+        const ball = p3.querySelector('.ballc');
+        const run3 = () => tween(2400, p => {
+            let x, y;
+            if (p < .45) { x = 20 + 140 * p / .45; y = 80; }
+            else { const t = (p - .45) / .55, u = 1 - t; x = u * u * 160 + 2 * u * t * 240 + t * t * 320; y = u * u * 80 + 2 * u * t * 80 + t * t * 16; }
+            ball.setAttribute('cx', x.toFixed(1)); ball.setAttribute('cy', y.toFixed(1));
+            if (p === 1) show(p3.querySelector('.trail'));
+        }, t => t, 'u3');
+        p1.onclick = run1; p2.onclick = run2; p3.onclick = run3;
+        beatAt(0, `<b>Unbalanced</b> forces always change an object's motion. Motion can change in three ways.`);
+        beatAt(4000, `When the forward force is bigger, the net force points forwards and the car <b>speeds up</b>.`);
+        at(4400, () => show(p1)); at(5200, run1);
+        beatAt(9500, `When the backward force is bigger, the net force points backwards and the car <b>slows down</b>.`);
+        at(9900, () => show(p2)); at(10700, run2);
+        beatAt(15000, `A force from the side makes a moving object <b>change direction</b>, like kicking a rolling ball.`);
+        at(15400, () => show(p3)); at(16200, run3);
+        beatAt(20500, `Speeding up, slowing down and changing direction are all caused by <b>unbalanced forces</b>.`);
+    }
+},
+{
+    title: 'Analyse the <span>diagram</span>',
+    cfu: 'sj',
+    dur: 24000,
+    run() {
+        const g = el('div', 'split'); g.style.gridTemplateColumns = '480px 1fr';
+        const D = el('div', 'rev hide', fdiag([{ d: 'u', n: 40 }, { d: 'd', n: 40 }, { d: 'r', n: 30 }, { d: 'l', n: 10 }], { w: 480, h: 400, size: 116, name: 'Trolley' }));
+        const R = el('div');
+        const intro = el('div', 'qbox sj', 'The trolley <b>starts still</b>. Answer these questions in your book.');
+        const ir = el('div', 'qrow rev hide'); ir.style.margin = '0 0 10px'; ir.append(intro, timer(120, 'sj'));
+        R.appendChild(ir);
+        const qa = [
+            ['Are the up and down forces balanced?', 'Yes. 40 N up and 40 N down cancel out.'],
+            ['What is the net force?', '30 N &minus; 10 N = 20 N to the right.'],
+            ['What happens to the trolley\u2019s motion?', 'It starts moving to the right and speeds up.']
+        ].map(([qq, aa], i) => { const b = el('div', 'qa rev hide', `<div class="q"><b>${i + 1}</b><span>${qq}</span></div><div class="a rev hide">${aa}</div>`); R.appendChild(b); return b; });
+        g.append(D, R); content.appendChild(g);
+        const ans = i => qa[i].querySelector('.a');
+        beatAt(0, `<b>Stop and jot.</b> The trolley starts still. Look carefully at this force arrow diagram.`);
+        at(400, () => show(D)); D.querySelectorAll('.fa').forEach((a, i) => at(900 + i * 400, () => show(a)));
+        beatAt(4500, `Answer the three questions in your book. Take your time and work on your own.`);
+        at(4900, () => show(ir)); qa.forEach((b, i) => at(5300 + i * 300, () => show(b)));
+        beatAt(9500, `Check your answers. The up and down forces are both 40 newtons, so they are <b>balanced</b>.`);
+        at(9900, () => show(ans(0)));
+        beatAt(14000, `The left and right forces are unbalanced. 30 minus 10 gives a <b>net force of 20 newtons</b> to the right.`);
+        at(14400, () => show(ans(1)));
+        beatAt(19500, `So the trolley starts moving to the right and <b>speeds up</b>.`);
+        at(19900, () => show(ans(2)));
+    }
+},
+{
+    title: 'The rolling <span>ball</span>',
+    cfu: 'tt',
+    dur: 24500,
+    run() {
+        const c = el('div', 'stack');
+        let tufts = ''; for (let x = 20; x < 1152; x += 46) tufts += `<path d="M${x} 120 l4 -10 l4 10 M${x + 8} 120 l3 -7" stroke="#c9ccd6" stroke-width="2.5" fill="none" stroke-linecap="round"/>`;
+        const sv = el('div', 'rev hide', `<svg viewBox="0 0 1152 150" width="1152" height="150" style="cursor:pointer"><line class="ground" x1="0" x2="1152" y1="122" y2="122"/>${tufts}<text class="spd" x="1152" y="150" text-anchor="end">Grass</text><g class="ballg" transform="translate(60 94)">${soccer(26)}</g></svg>`);
+        const bot = el('div', 'qrow'); bot.style.alignItems = 'flex-start'; bot.style.marginTop = '8px';
+        const left = el('div'); left.style.flex = '1';
+        const qb = el('div', 'qbox rev hide', 'The ball slows down and stops. Are the forces on the ball <b>balanced</b> or <b>unbalanced</b>? How do you know?');
+        const lr = el('div', 'qrow'); lr.style.alignItems = 'flex-start';
+        const tm = el('div', 'rev hide'); tm.appendChild(timer(60, 'tt'));
+        const ans = el('div', 'ans rev hide', '<b>Unbalanced.</b> The ball slowed down, so its motion changed. Friction from the grass pushes backwards, and no force pushes forwards to balance it.');
+        lr.append(tm, ans); left.append(qb, lr);
+        const D = el('div', 'rev hide', `<div class="mov" style="margin:0;text-align:center">Moving &rarr;</div>` + fdiag([{ d: 'u', n: 20, lbl: 'Support' }, { d: 'd', n: 20, lbl: 'Weight' }, { d: 'l', n: 15, lbl: 'Friction', lb: 1 }], { w: 340, h: 260, size: 70, name: 'Ball' }));
+        bot.append(left, D); c.append(sv, bot); content.appendChild(c);
+        const bg = sv.querySelector('.ballg');
+        const roll = () => tween(3200, e => { const x = 60 + 700 * e; bg.setAttribute('transform', `translate(${x.toFixed(1)} 94) rotate(${((x - 60) / 26 * 57.3).toFixed(1)})`); }, easeOut, 'roll');
+        sv.onclick = roll;
+        const fas = D.querySelectorAll('.fa');
+        beatAt(0, `Watch the ball as it rolls across the grass.`);
+        at(300, () => show(sv)); at(900, roll);
+        beatAt(4500, `<b>Turn and talk.</b> Are the forces on the ball balanced or unbalanced? How do you know?`);
+        at(4900, () => show(qb)); at(5300, () => show(tm));
+        beatAt(9500, `Be ready. I will cold call someone to share their pair's answer.`);
+        beatAt(14000, `The forces are <b>unbalanced</b>. The ball slowed down, so its motion changed.`);
+        at(14400, () => { show(ans); show(D); show(fas[0]); show(fas[1]); });
+        beatAt(19000, `Friction from the grass pushes <b>backwards</b>, and there is nothing pushing forwards to balance it.`);
+        at(19500, () => show(fas[2]));
+    }
+},
+{
+    title: 'Different forces, <span>different effects</span>',
+    dur: 23500,
+    run() {
+        const c = el('div', 'stack');
+        const lanes = [{ y: 55, n: 10, end: 470, D: 2000, lab: 'Small force' }, { y: 140, n: 40, end: 1100, D: 3000, lab: 'Large force' }];
+        const sv = el('div', 'rev hide', `<svg viewBox="0 0 1152 180" width="1152" height="180" style="cursor:pointer">${lanes.map((l, i) => `<text class="lane" x="0" y="${l.y + 10}">${l.lab}</text><line class="lanel" x1="200" x2="1152" y1="${l.y + 24}" y2="${l.y + 24}"/>${farrow(252, l.y, 'r', l.n * 3, 'Kick ' + l.n + ' N', { cls: 'k' + i })}<g class="bl${i}" transform="translate(230 ${l.y})">${soccer(22)}</g>`).join('')}</svg>`);
+        const cards = [
+            ['Change speed', 'Speed up, slow down, start or stop', `<line class="ground" x1="10" x2="310" y1="104" y2="104"/><circle class="ballc ea-speed" r="14"/>`],
+            ['Change direction', 'Like a ball bouncing off a wall', `<rect class="wall" x="296" y="8" width="12" height="104"/><circle class="ballc ea-dir" r="14"/>`],
+            ['Change shape', 'Like squashing a stress ball', `<line class="ground" x1="60" x2="260" y1="112" y2="112"/><rect class="wall ea-press" x="110" y="14" width="100" height="14" rx="3"/><ellipse class="ballc ea-squash" cx="160" cy="77" rx="33" ry="33"/>`]
+        ].map(([h, t, s]) => el('div', 'ecard rev hide', `<svg viewBox="0 0 320 120" width="320" height="120">${s}</svg><div class="eh">${h}</div><div class="et">${t}</div>`));
+        const er = el('div', 'erow'); cards.forEach(k => er.appendChild(k));
+        c.append(sv, er); content.appendChild(c);
+        const kick = () => lanes.forEach((l, i) => {
+            show(sv.querySelector('.k' + i));
+            const b = sv.querySelector('.bl' + i);
+            b.setAttribute('transform', `translate(230 ${l.y})`);
+            later(600, () => tween(l.D, e => { const x = 230 + (l.end - 230) * e; b.setAttribute('transform', `translate(${x.toFixed(1)} ${l.y}) rotate(${((x - 230) / 22 * 57.3).toFixed(1)})`); }, easeOut, 'kick' + i));
+        });
+        sv.onclick = kick;
+        beatAt(0, `The <b>size</b> of a force changes how big its effect is. Watch two kicks of different sizes.`);
+        at(300, () => show(sv)); at(1200, kick);
+        beatAt(6000, `The <b>bigger</b> force causes a <b>bigger</b> change in motion. The ball goes faster and further.`);
+        beatAt(10500, `Forces can have different effects. A force can change an object's <b>speed</b>.`);
+        at(10900, () => show(cards[0]));
+        beatAt(14500, `A force can change an object's <b>direction</b>, like a ball bouncing off a wall.`);
+        at(14900, () => show(cards[1]));
+        beatAt(18500, `A force can also change an object's <b>shape</b>, like squashing a stress ball.`);
+        at(18900, () => show(cards[2]));
+    }
+},
+{
+    title: 'Force <span>lab</span>',
+    dur: 29500,
+    run() {
+        const c = el('div', 'stack');
+        const sv = el('div', '', `<svg viewBox="0 0 1152 210" width="1152" height="210"><line class="ground" x1="0" x2="1152" y1="182" y2="182"/><text class="spd" x="1152" y="208" text-anchor="end">No friction in this lab</text>
+            <g class="lb"><rect class="obj" x="-50" y="80" width="100" height="100" rx="6"/><text class="oname" x="0" y="137" text-anchor="middle">Box</text><g class="arrs"></g></g></svg>`);
+        const lab = el('div', 'lab'), lab2 = el('div', 'lab');
+        const stp = (lbl, pink) => el('div', 'stp' + (pink ? ' pink' : ''), `<div class="dlbl">${lbl}</div><div class="sr"><button class="sbtn" aria-label="Decrease">&minus;</button><span class="sv">0 N</span><button class="sbtn" aria-label="Increase">+</button></div>`);
+        const sL = stp('Force to the left'), sR = stp('Force to the right');
+        const rN = el('div', 'rbox', '<div class="lbl">Net force</div><div class="num">0 N</div>');
+        const rF = el('div', 'rbox pink', '<div class="lbl">The forces are</div><div class="num">Balanced</div>');
+        const rM = el('div', 'rbox mo', '<div class="lbl">Motion</div><div class="num">Still</div>');
+        const rst = el('button', 'rst', 'Reset');
+        lab.append(sL, sR, rst); lab2.append(rN, rF, rM);
+        c.append(sv, lab, lab2); content.appendChild(c);
+        const S = { L: 0, R: 0, x: 260, v: 0 };
+        const box = sv.querySelector('.lb'), arrs = sv.querySelector('.arrs');
+        const render = () => {
+            box.setAttribute('transform', `translate(${S.x.toFixed(1)} 0)`);
+            arrs.innerHTML = (S.R ? farrow(50, 130, 'r', S.R * 3, S.R + ' N', { hide: false }) : '') + (S.L ? farrow(-50, 130, 'l', S.L * 3, S.L + ' N', { hide: false }) : '');
+            const net = S.R - S.L, moving = Math.abs(S.v) > 3;
+            sL.querySelector('.sv').textContent = S.L + ' N'; sR.querySelector('.sv').textContent = S.R + ' N';
+            setR(rN, net === 0 ? '0 N' : Math.abs(net) + ' N ' + (net > 0 ? '&rarr;' : '&larr;'));
+            setR(rF, net === 0 ? 'Balanced' : 'Unbalanced');
+            let m;
+            if (net === 0) m = moving ? 'Steady speed' : 'Still';
+            else if (!moving || Math.sign(S.v) === Math.sign(net)) m = 'Speeding up ' + (net > 0 ? 'right' : 'left');
+            else m = 'Slowing down';
+            setR(rM, m);
+        };
+        const setF = (l, r) => { S.L = Math.max(0, Math.min(50, l)); S.R = Math.max(0, Math.min(50, r)); render(); };
+        const [lm, lp] = sL.querySelectorAll('.sbtn'), [rm, rp] = sR.querySelectorAll('.sbtn');
+        lm.onclick = () => setF(S.L - 10, S.R); lp.onclick = () => setF(S.L + 10, S.R);
+        rm.onclick = () => setF(S.L, S.R - 10); rp.onclick = () => setF(S.L, S.R + 10);
+        rst.onclick = () => { S.x = 260; S.v = 0; setF(0, 0); };
+        [lm, lp, rm, rp, rst].forEach(b => b.addEventListener('click', () => b.blur()));
+        render();
+        if (!exporting) {
+            let raf = 0, last = performance.now();
+            const loop = n => {
+                const dt = Math.min(0.05, (n - last) / 1000); last = n;
+                S.v = Math.max(-350, Math.min(350, S.v + (S.R - S.L) * 1.5 * dt));
+                if (S.R === S.L && Math.abs(S.v) < 0.5) S.v = 0;
+                S.x += S.v * dt;
+                if (S.x > 1202) S.x -= 1304; if (S.x < -52) S.x += 1304;
+                render();
+                raf = requestAnimationFrame(loop);
+            };
+            raf = requestAnimationFrame(loop);
+            cleanups.push(() => cancelAnimationFrame(raf));
+        }
+        beatAt(0, `Let's investigate in the <b>force lab</b>. There is no friction here, so we can see the effect of each force clearly.`);
+        beatAt(4500, `Apply a force of 20 newtons to the right. The forces are unbalanced, so the box <b>speeds up</b>.`);
+        at(5000, () => setF(0, 20));
+        beatAt(10500, `Now add 20 newtons to the left. The forces are balanced, so the box keeps moving at a <b>steady speed</b>.`);
+        at(11000, () => setF(20, 20));
+        beatAt(17000, `Make the left force bigger. The box <b>slows down</b>, stops, then speeds up to the left.`);
+        at(17500, () => setF(40, 20));
+        beatAt(24500, `Try your own combinations. <b>Predict</b> what the box will do before you change the forces.`);
+        at(25000, () => { S.x = 260; S.v = 0; setF(0, 0); });
+    }
+},
+{
+    title: 'Which car is <span>slowing down</span>?',
+    cfu: 'sj',
+    dur: 19500,
+    run() {
+        const c = el('div', 'stack');
+        const { wrap, cards } = choices([
+            { f: [{ d: 'r', n: 30 }, { d: 'l', n: 10 }], t: 'Speeds up', cls: 'ol' },
+            { f: [{ d: 'r', n: 20 }, { d: 'l', n: 20 }], t: 'Steady speed', cls: 'ol' },
+            { f: [{ d: 'r', n: 10 }, { d: 'l', n: 30 }], t: 'Slows down', cls: 'pk' },
+            { f: [{ d: 'u', n: 20 }, { d: 'd', n: 20 }, { d: 'r', n: 20 }], t: 'Speeds up', cls: 'ol' }
+        ], { moving: true, name: 'Car', h: 200 });
+        const row = el('div', 'qrow rev hide');
+        row.append(el('div', 'qbox sj', 'Each car is moving to the right. Which diagram shows a car that is <b>slowing down</b>? Write the letter on your mini whiteboard.'), timer(30, 'sj'));
+        c.append(wrap, row); content.appendChild(c);
+        beatAt(0, `<b>Stop and jot.</b> Each of these cars is moving to the right.`);
+        cards.forEach((k, i) => at(400 + i * 250, () => show(k.c))); at(1600, () => show(row));
+        beatAt(3500, `Which diagram shows a car that is <b>slowing down</b>? Write the letter on your mini whiteboard.`);
+        beatAt(9000, `The answer is <b>C</b>. The bigger force points backwards, against the motion, so the car slows down.`);
+        at(9500, () => { cards[2].c.classList.add('right'); show(cards[2].tag); });
+        beatAt(14000, `A and D speed up, because the net force points forwards. B has balanced forces, so its speed stays the same.`);
+        at(14500, () => [0, 1, 3].forEach(i => show(cards[i].tag)));
+    }
+},
+{
+    title: 'Predict: <span>tug of war</span>',
+    cfu: 'tt',
+    dur: 25500,
+    run() {
+        const c = el('div', 'stack');
+        const t = el('div', 'rev hide', tug({ gy: 258, h: 270, alt: 200, leave: true, wob: true }));
+        const row = el('div', 'qrow'); row.style.alignItems = 'flex-start'; row.style.marginTop = '12px';
+        const left = el('div'); left.style.flex = '1';
+        const qb = el('div', 'qbox rev hide', 'One player on the right team lets go. Predict what happens to the rope. Use the words <b>balanced</b>, <b>unbalanced</b> and <b>net force</b>.');
+        const ans = el('div', 'ans rev hide', 'The forces become <b>unbalanced</b>: 300 N left and 200 N right. The <b>net force</b> is 100 N to the left, so the rope moves left.');
+        ans.style.marginTop = '10px'; ans.style.paddingLeft = '32px';
+        left.append(qb, ans);
+        const tm = el('div', 'rev hide'); tm.appendChild(timer(90, 'tt'));
+        row.append(left, tm); c.append(t, row); content.appendChild(c);
+        const q = s => t.querySelector(s);
+        beatAt(0, `Both teams are pulling with <b>300 newtons</b>, so the rope is not moving.`);
+        at(300, () => show(t)); at(800, () => show(q('.la'))); at(1100, () => show(q('.ra')));
+        beatAt(4500, `<b>Turn and talk.</b> If one player on the right team lets go, what will happen to the rope? Explain why.`);
+        at(4900, () => show(qb)); at(5300, () => show(tm));
+        beatAt(11000, `I will cold call someone to share their pair's prediction. Use the words on the screen.`);
+        beatAt(15500, `Let's see. The player lets go, so the right team now pulls with only <b>200 newtons</b>.`);
+        at(16000, () => q('.leaver').classList.add('hide'));
+        at(16600, () => { q('.ra').classList.add('hide'); show(q('.alt')); const g = q('.tw'); g.classList.remove('wob'); g.classList.add('gol'); });
+        beatAt(20500, `The forces are <b>unbalanced</b>. The net force is 100 newtons to the left, so the rope moves left.`);
+        at(21000, () => show(ans));
+    }
+},
+{
+    title: '<span>Summary</span>',
+    dur: 16500,
+    run() {
+        const c = el('div', 'center'), g = el('div', 'sumgrid');
+        const data = [
+            ['SC3', 'Balanced or unbalanced', 'Balanced forces are equal in size and opposite in direction, so the net force is 0 N.', false],
+            ['SC4', 'Force arrows', 'Arrows start on the object, point in the direction of the force and are longer for bigger forces.', true],
+            ['SC5', 'Forces and motion', 'Only unbalanced forces change motion: speeding up, slowing down or changing direction.', true],
+            ['SC6', 'Effects of forces', 'Bigger forces cause bigger changes. Forces can change speed, direction and shape.', false]
+        ];
+        const cards = data.map(([s, t, d, p]) => { const k = el('div', 'dcard rev hide' + (p ? ' pink' : ''), `<div class="sct">${s}</div><div class="dex">${t}</div><div class="dhow">${d}</div>`); g.appendChild(k); return k; });
+        c.appendChild(g); content.appendChild(c);
+        beatAt(0, `<b>Balanced forces</b> are equal in size and opposite in direction. The net force is zero.`);
+        at(400, () => show(cards[0]));
+        beatAt(4000, `<b>Force arrows</b> start on the object, point in the direction of the force and show its size.`);
+        at(4400, () => show(cards[1]));
+        beatAt(8000, `Only <b>unbalanced forces</b> change motion: speeding up, slowing down or changing direction.`);
+        at(8400, () => show(cards[2]));
+        beatAt(12000, `<b>Bigger forces</b> cause bigger changes, and forces can change speed, direction and shape.`);
+        at(12400, () => show(cards[3]));
+    }
+},
+{
+    title: 'Exit <span>ticket</span>',
+    cfu: 'sj',
+    dur: 15000,
+    run() {
+        const c = el('div', 'stack'), g = el('div', 'xgrid'), L = el('div');
+        const qs = [
+            'Draw a force arrow diagram for a box pushed to the right with <strong>25 N</strong>, while friction pushes back with <strong>5 N</strong>.',
+            'Calculate the <strong>net force</strong>. The box starts still. Describe what happens to its motion.',
+            'Rate yourself from <strong>1 to 3</strong> for each success criterion, SC3 to SC6.'
+        ].map((t, i) => { const r = el('div', 'xq rev hide', `<b>${i + 1}</b><div>${t}</div>`); L.appendChild(r); return r; });
+        const tm = el('div', 'rev hide'); tm.appendChild(timer(300, 'sj'));
+        g.append(L, tm); c.appendChild(g); content.appendChild(c);
+        beatAt(0, `<b>Exit ticket.</b> Stop and jot your answers on your own.`);
+        qs.forEach((q, i) => at(400 + i * 400, () => show(q))); at(1800, () => show(tm));
+        beatAt(5000, `Use the words <b>balanced</b>, <b>unbalanced</b> and <b>net force</b> in your answers where you can.`);
+        beatAt(10000, `Finally, rate yourself against today's success criteria. Well done today.`);
+    }
+}
+];
+
+/* ---------- player ---------- */
+const dots = $('#dots');
+scenes.forEach((_, i) => { const d = el('button'); d.setAttribute('aria-label', 'Scene ' + (i + 1)); d.onclick = () => go(i); dots.appendChild(d); });
+
+const stepLbl = $('#steplbl');
+const dur = () => scenes[idx].dur;
+const beatEnd = b => (b + 1 < beats.length ? beats[b + 1] : dur());
+function label() { stepLbl.textContent = `Step ${beat + 1} of ${beats.length}`; }
+
+function build(i) {
+    clearTimers();
+    stopInteractive();
+    const ni = Math.max(0, Math.min(scenes.length - 1, i));
+    if (ni !== idx) { saveInk(); idx = ni; loadInk(); }
+    events = []; beats = [];
+    const sc = scenes[idx];
+    content.innerHTML = ''; caption.innerHTML = '';
+    titleEl.innerHTML = sc.title;
+    counter.innerHTML = `<b>${idx + 1}</b> / ${scenes.length}`;
+    setBadge(sc.cfu);
+    [...dots.children].forEach((d, j) => d.classList.toggle('cur', j === idx));
+    sc.run();
+    beats = [...new Set(beats)].sort((a, b) => a - b);
+}
+
+function jumpTo(to) {
+    stage.classList.add('instant');
+    instantMode = true;
+    events.filter(e => !e.done && e.t < to).sort((a, b) => a.t - b.t).forEach(e => { e.done = true; e.fn(); });
+    instantMode = false;
+    void stage.offsetWidth;
+    requestAnimationFrame(() => requestAnimationFrame(() => stage.classList.remove('instant')));
+}
+
+function setProgress(from, to) {
+    progress.style.transition = 'none';
+    progress.style.width = (from / dur() * 100) + '%';
+    void progress.offsetWidth;
+    progress.style.transition = `width ${Math.max(0, to - from)}ms linear`;
+    progress.style.width = (to / dur() * 100) + '%';
+}
+
+function play(from, to, onEnd) {
+    clearTimers();
+    segFrom = from; segTo = to; segStart = performance.now();
+    events.filter(e => !e.done && e.t >= from && e.t < to)
+        .forEach(e => timers.push(setTimeout(() => { e.done = true; e.fn(); }, e.t - from)));
+    beats.forEach((bt, k) => { if (bt > from && bt < to) timers.push(setTimeout(() => { beat = k; label(); }, bt - from)); });
+    if (onEnd) timers.push(setTimeout(onEnd, to - from));
+    setProgress(from, to);
+}
+
+function now() { return Math.min(segTo, segFrom + performance.now() - segStart); }
+
+function startBeat(b) {
+    beat = b; label();
+    jumpTo(beats[b]);
+    if (autoplay) play(beats[b], dur(), () => { if (idx < scenes.length - 1) go(idx + 1); });
+    else play(beats[b], beatEnd(b));
+}
+
+function go(i, b = 0) {
+    build(i);
+    startBeat(b === 'last' ? beats.length - 1 : b);
+}
+
+function next() {
+    if (autoplay) { if (idx < scenes.length - 1) go(idx + 1); return; }
+    clearTimers();
+    if (beat < beats.length - 1) { jumpTo(beatEnd(beat)); startBeat(beat + 1); }
+    else if (idx < scenes.length - 1) go(idx + 1);
+    else { jumpTo(dur()); setProgress(dur(), dur()); }
+}
+
+function back() {
+    if (autoplay) { go(idx - 1); return; }
+    if (beat > 0) go(idx, beat - 1);
+    else if (idx > 0) go(idx - 1, 'last');
+    else go(0);
+}
+
+function toggleAuto() {
+    autoplay = !autoplay;
+    autoBtn.textContent = 'Autoplay: ' + (autoplay ? 'On' : 'Off');
+    const cur = now();
+    clearTimers();
+    if (autoplay) {
+        play(cur, dur(), () => { if (idx < scenes.length - 1) go(idx + 1); });
+    } else {
+        let b = 0; beats.forEach((bt, k) => { if (bt <= cur) b = k; });
+        beat = b; label();
+        jumpTo(beatEnd(b));
+        setProgress(beatEnd(b), beatEnd(b));
+    }
+}
+
+const autoBtn = $('#auto');
+$('#next').onclick = next;
+$('#back').onclick = back;
+$('#replay').onclick = () => go(idx);
+autoBtn.onclick = toggleAuto;
+const typing = e => e.target && e.target.tagName === 'INPUT';
+document.addEventListener('keydown', e => {
+    if (typing(e)) return;
+    if (e.key === 'ArrowRight') next();
+    if (e.key === 'ArrowLeft') back();
+    if (e.key === 'r' || e.key === 'R') go(idx);
+    if (e.key === ' ') { e.preventDefault(); toggleAuto(); }
+});
+
+/* ---------- pen and eraser ---------- */
+const ink = $('#ink'), ctx = ink.getContext('2d'), penBtn = $('#pen'), eraserBtn = $('#eraser');
+let tool = null, penColour = '#ea008a', drawing = false, last = null, inkMarked = false, scaleK = 1, exporting = false;
+const inkStore = {};
+const isTyping = e => e.target && e.target.tagName === 'INPUT';
+ctx.scale(2, 2); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+
+function setTool(t) {
+    tool = t;
+    ink.classList.toggle('active', !!t);
+    ink.classList.toggle('erase', t === 'eraser');
+    penBtn.classList.toggle('on', t === 'pen'); penBtn.setAttribute('aria-pressed', t === 'pen');
+    eraserBtn.classList.toggle('on', t === 'eraser'); eraserBtn.setAttribute('aria-pressed', t === 'eraser');
+}
+function clearInk() { ctx.clearRect(0, 0, 1280, 720); inkMarked = false; }
+function saveInk() {
+    if (!inkMarked) { delete inkStore[idx]; return; }
+    const c = document.createElement('canvas'); c.width = ink.width; c.height = ink.height;
+    c.getContext('2d').drawImage(ink, 0, 0);
+    inkStore[idx] = c;
+}
+function loadInk() {
+    clearInk();
+    const c = inkStore[idx]; if (!c) return;
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'source-over'; ctx.drawImage(c, 0, 0); ctx.restore();
+    inkMarked = true;
+}
+function brush() {
+    const er = tool === 'eraser';
+    ctx.globalCompositeOperation = er ? 'destination-out' : 'source-over';
+    ctx.strokeStyle = ctx.fillStyle = er ? '#000' : penColour;
+    ctx.lineWidth = er ? 26 / scaleK : 5;
+}
+function pt(e) { const r = ink.getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * 1280, y: (e.clientY - r.top) / r.height * 720 }; }
+ink.addEventListener('pointerdown', e => {
+    if (!tool) return;
+    drawing = true; last = pt(e); ink.setPointerCapture(e.pointerId); brush();
+    if (tool === 'pen') inkMarked = true;
+    ctx.beginPath(); ctx.arc(last.x, last.y, ctx.lineWidth / 2, 0, Math.PI * 2); ctx.fill();
+});
+ink.addEventListener('pointermove', e => {
+    if (!drawing) return;
+    const p = pt(e), mid = { x: (last.x + p.x) / 2, y: (last.y + p.y) / 2 };
+    ctx.beginPath(); ctx.moveTo(last.midX ?? last.x, last.midY ?? last.y); ctx.quadraticCurveTo(last.x, last.y, mid.x, mid.y); ctx.stroke();
+    last = { x: p.x, y: p.y, midX: mid.x, midY: mid.y };
+});
+['pointerup', 'pointercancel'].forEach(t => ink.addEventListener(t, () => {
+    if (drawing && last && last.midX !== undefined) { ctx.beginPath(); ctx.moveTo(last.midX, last.midY); ctx.lineTo(last.x, last.y); ctx.stroke(); }
+    drawing = false; ctx.globalCompositeOperation = 'source-over';
+}));
+penBtn.onclick = () => setTool(tool === 'pen' ? null : 'pen');
+eraserBtn.onclick = () => setTool(tool === 'eraser' ? null : 'eraser');
+$('#clear').onclick = clearInk;
+document.querySelectorAll('.swatch').forEach(b => b.onclick = () => {
+    penColour = b.dataset.c; setTool('pen');
+    document.querySelectorAll('.swatch').forEach(x => x.classList.toggle('cur', x === b));
+});
+
+/* ---------- hide UI ---------- */
+function setUI(hidden) { document.body.classList.toggle('noui', hidden); if (document.activeElement) document.activeElement.blur(); fit(); }
+$('#hideui').onclick = () => setUI(true);
+$('#showui').onclick = () => setUI(false);
+
+/* ---------- subtitles ---------- */
+const subsBtn = $('#subs');
+function toggleSubs() {
+    const off = document.body.classList.toggle('nosubs');
+    subsBtn.textContent = 'Subtitles: ' + (off ? 'Off' : 'On');
+    subsBtn.setAttribute('aria-pressed', !off);
+    subsBtn.blur();
+}
+subsBtn.onclick = toggleSubs;
+
+/* ---------- export PDF ---------- */
+const printBox = $('#print');
+async function exportPDF() {
+    const keepIdx = idx, keepBeat = beat;
+    exporting = true;
+    printBox.innerHTML = '';
+    const imgs = [];
+    for (let i = 0; i < scenes.length; i++) {
+        build(i);
+        events.slice().sort((a, b) => a.t - b.t).forEach(e => { if (!e.done) { e.done = true; e.fn(); } });
+        progress.style.transition = 'none'; progress.style.width = '100%';
+        stage.querySelectorAll('input').forEach(n => n.setAttribute('value', n.value));
+        const page = stage.cloneNode(true);
+        page.removeAttribute('id'); page.removeAttribute('style'); page.classList.remove('instant');
+        page.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'));
+        const cv = page.querySelector('canvas.ink');
+        if (inkMarked) { const img = new Image(); img.className = 'ink'; img.alt = ''; img.src = ink.toDataURL(); cv.replaceWith(img); imgs.push(img); }
+        else cv.remove();
+        printBox.appendChild(page);
+    }
+    exporting = false;
+    go(keepIdx, keepBeat);
+    await Promise.all(imgs.map(im => im.decode().catch(() => {})));
+    window.print();
+}
+$('#pdf').onclick = exportPDF;
+window.addEventListener('afterprint', () => { printBox.innerHTML = ''; });
+
+document.addEventListener('keydown', e => {
+    if (isTyping(e)) return;
+    if (e.key === 'p' || e.key === 'P') setTool(tool === 'pen' ? null : 'pen');
+    if (e.key === 'e' || e.key === 'E') setTool(tool === 'eraser' ? null : 'eraser');
+    if (e.key === 'c' || e.key === 'C') clearInk();
+    if (e.key === 's' || e.key === 'S') toggleSubs();
+    if (e.key === 'h' || e.key === 'H') setUI(!document.body.classList.contains('noui'));
+    if (e.key === 'Escape') setTool(null);
+});
+
+const controlsEl = document.querySelector('.controls');
+function fit() {
+    const st = $('#stage'), noui = document.body.classList.contains('noui');
+    const vw = window.innerWidth - (noui ? 0 : 40), vh = window.innerHeight - (noui ? 0 : controlsEl.offsetHeight + 20);
+    const k = Math.min(vw / 1280, vh / 720);
+    scaleK = k;
+    st.style.transform = `scale(${k})`;
+    st.style.margin = `${(720 * k - 720) / 2}px ${(1280 * k - 1280) / 2}px`;
+}
+window.addEventListener('resize', fit);
+fit();
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { fit(); go(0); });
+</script>
+
+</body>
+</html>
