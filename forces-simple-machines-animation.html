@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forces and Simple Machines</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --navy: #1b1f45;
+        --pink: #ea008a;
+        --white: #ffffff;
+        --off-white: #f5f5f5;
+        --light-grey: #e8e8e8;
+        --mid-grey: #9a9a9a;
+        --blank: #f0f3f6;
+        --ease: cubic-bezier(.2,.8,.2,1);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+        font-family: 'Barlow', Helvetica Neue, Helvetica, Arial, sans-serif;
+        margin: 0; background: #eaeaea; color: var(--navy);
+        display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden;
+    }
+    .viewport { flex: 1; width: 100%; display: flex; align-items: center; justify-content: center; min-height: 0; }
+    .stage {
+        width: 1280px; height: 720px; background: var(--white); border-top: 6px solid var(--navy);
+        position: relative; padding: 36px 64px 0 64px; transform-origin: center center; flex-shrink: 0; overflow: hidden;
+    }
+    .top { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 4px solid var(--navy); padding-bottom: 12px; }
+    .sheet-title { font-family: 'Barlow Condensed', sans-serif; font-size: 44px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.01em; margin: 0; line-height: 1; }
+    .sheet-title span { color: var(--pink); }
+    .counter { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: 0.08em; color: var(--mid-grey); }
+    .counter b { color: var(--navy); }
+    .content { position: absolute; left: 64px; right: 64px; top: 130px; bottom: 110px; }
+    .caption {
+        position: absolute; left: 64px; right: 64px; bottom: 30px;
+        font-size: 27px; font-weight: 500; line-height: 1.35;
+        display: flex; align-items: center; gap: 16px; min-height: 60px;
+    }
+    .caption::before { content: ''; width: 10px; height: 10px; background: var(--pink); flex-shrink: 0; }
+    .caption b { font-weight: 800; color: var(--pink); }
+    .caption.in { animation: capIn .45s var(--ease); }
+    @keyframes capIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .progress { position: absolute; left: 0; bottom: 0; height: 6px; background: var(--pink); width: 0; }
+
+    .hide { opacity: 0; transform: translateY(14px); }
+    .rev { transition: opacity .45s var(--ease), transform .45s var(--ease), background-color .35s, color .35s, border-color .35s; }
+    .center { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+    .hint { margin-top: 22px; font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid-grey); }
+    .dlbl { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid-grey); }
+
+    /* top bar: SC tag and response badge */
+    .tl { display: flex; align-items: flex-end; gap: 16px; }
+    .sctag { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 800; letter-spacing: .08em; color: var(--pink); border: 2px solid var(--pink); border-radius: 5px; padding: 1px 8px; margin-bottom: 5px; white-space: nowrap; }
+    .sctag:empty { display: none; }
+    .topr { display: flex; align-items: center; gap: 22px; }
+    .badge { display: flex; align-items: center; gap: 9px; height: 46px; padding: 0 16px; border-radius: 8px; color: #fff; font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
+    .badge.tt { background: var(--pink); }
+    .badge.sj { background: var(--navy); }
+    .badge svg { height: 26px; width: auto; fill: none; stroke: #fff; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .badge svg.ba { height: 14px; margin: 0 3px; }
+    .badge em { font-style: normal; margin-left: 6px; padding: 2px 8px; border-radius: 4px; background: rgba(255,255,255,.22); font-size: 17px; }
+    #badge.clickable .badge { cursor: pointer; }
+
+    /* svg basics */
+    .t { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: .03em; fill: var(--navy); }
+    .t.mid { text-anchor: middle; } .t.end { text-anchor: end; }
+    .t.pk { fill: var(--pink); } .t.gr { fill: var(--mid-grey); } .t.wh { fill: #fff; }
+    .t.sm { font-size: 19px; } .t.lg { font-size: 34px; font-weight: 900; }
+    .t.up2 { font-size: 18px; text-transform: uppercase; letter-spacing: .12em; }
+    .gnd { stroke: var(--navy); stroke-width: 4; }
+    .hatch { stroke: #c3c6d0; stroke-width: 2; }
+    .plank, .fulc, .solid { fill: var(--navy); }
+    .load { fill: var(--blank); stroke: var(--navy); stroke-width: 3; }
+    .rampp { fill: var(--blank); stroke: var(--navy); stroke-width: 4; stroke-linejoin: round; }
+    .fa line { stroke: var(--pink); stroke-width: 7; } .fa polygon { fill: var(--pink); }
+    .fn line { stroke: var(--navy); stroke-width: 7; } .fn polygon { fill: var(--navy); }
+    .fg line { stroke: #c3c6d0; stroke-width: 5; } .fg polygon { fill: #c3c6d0; }
+    .ti line { stroke-width: 4; }
+    .armR { stroke: var(--navy); stroke-width: 5; } .armE { stroke: var(--pink); stroke-width: 5; }
+    .gd { stroke: #b4b8c4; stroke-width: 2; stroke-dasharray: 5 6; fill: none; }
+    .ln { fill: none; stroke: var(--navy); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+    .lnp { fill: none; stroke: var(--pink); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+    .heat { fill: none; stroke: var(--pink); stroke-width: 3.5; stroke-linecap: round; }
+    .angarc { fill: none; stroke: var(--pink); stroke-width: 3; }
+    .mkr circle { stroke-width: 3; }
+    .mkr text { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 900; text-anchor: middle; }
+    .mF circle { fill: var(--navy); stroke: var(--navy); } .mF text { fill: #fff; }
+    .mL circle { fill: #fff; stroke: var(--navy); } .mL text { fill: var(--navy); }
+    .mE circle { fill: var(--pink); stroke: var(--pink); } .mE text { fill: #fff; }
+    .snap, .snap * { transition: none !important; }
+
+    /* motion */
+    .tilt, .arm, .spin2 { transform-box: view-box; transition: transform 1.8s var(--ease); }
+    .tilt { transform: rotate(-8deg); } .tilt.go { transform: rotate(8deg); }
+    .arm { transform: rotate(var(--a0)); } .go .arm { transform: rotate(var(--a1)); }
+    .spin2 { transform: rotate(0deg); } .go .spin2 { transform: rotate(100deg); }
+    .trace { fill: none; stroke-width: 5; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 1.8s var(--ease); }
+    .trace.p { stroke: var(--pink); } .trace.n { stroke: var(--navy); }
+    .go .trace { stroke-dashoffset: 0; }
+    .ghost { fill: none; stroke: #b4b8c4; stroke-width: 2.5; stroke-dasharray: 6 5; opacity: 0; transition: opacity .4s; }
+    .go .ghost { opacity: 1; }
+    .ropeL rect, .ropeR rect { transform-box: fill-box; transform-origin: top; transition: transform 1.6s var(--ease); }
+    .ld, .hd { transition: transform 1.6s var(--ease); }
+    .go .ropeL rect { transform: scaleY(.5455); } .go .ropeR rect { transform: scaleY(1.8333); }
+    .go .ld { transform: translateY(-50px); } .go .hd { transform: translateY(50px); }
+    .slide { transition: transform 2.6s cubic-bezier(.25,.6,.35,1); } .slide.go { transform: translateX(360px); }
+    .slide2 { transition: transform 2.4s cubic-bezier(.55,0,.7,1); } .slide2.go { transform: translateX(200px); }
+
+    /* shared blocks */
+    .dcard { border: 3px solid var(--navy); border-radius: 8px; padding: 22px 26px; }
+    .dcard.pink { border-color: var(--pink); }
+    .dex { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; text-transform: uppercase; }
+    .dcard.pink .dex { color: var(--pink); }
+    .dhow { font-size: 22px; font-weight: 600; line-height: 1.3; }
+    .card { border: 3px solid var(--navy); border-radius: 8px; padding: 18px 28px; }
+    .card.pink { border-color: var(--pink); }
+    .prompt { font-size: 30px; font-weight: 600; line-height: 1.3; text-align: center; max-width: 1060px; margin-bottom: 22px; }
+    .prompt b { color: var(--pink); font-weight: 800; }
+    .ans { margin-top: 16px; border-left: 6px solid var(--pink); padding: 4px 0 4px 16px; font-size: 23px; font-weight: 600; line-height: 1.35; }
+    .ans b { color: var(--pink); font-weight: 800; }
+    .atext { font-size: 27px; font-weight: 600; line-height: 1.3; margin-top: 6px; }
+    .atext b { color: var(--pink); font-weight: 800; }
+    .aex { font-size: 22px; color: var(--mid-grey); font-weight: 700; margin-top: 10px; line-height: 1.3; }
+    .aex b { color: var(--navy); }
+    .qn { flex-shrink: 0; width: 38px; height: 38px; border-radius: 50%; background: var(--navy); color: #fff; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 24px; display: flex; align-items: center; justify-content: center; }
+    .qn.p { background: var(--pink); }
+    .chips { display: flex; flex-wrap: wrap; gap: 12px; }
+    .chip { font-family: 'Barlow Condensed', sans-serif; font-size: 25px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; border: 3px solid var(--navy); border-radius: 30px; padding: 5px 20px; background: #fff; color: var(--navy); transition: background-color .35s, color .35s, border-color .35s, opacity .45s var(--ease), transform .45s var(--ease); }
+    .chip.c, .chip.on-f { background: var(--navy); color: #fff; }
+    .chip.n, .chip.on-s { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .chip.used { opacity: .22; }
+
+    /* title + SC list */
+    .lg { margin-top: 10px; border-left: 8px solid var(--pink); padding: 4px 0 4px 22px; }
+    .lgt { font-size: 30px; font-weight: 700; margin-top: 4px; }
+    .sclist { display: flex; flex-direction: column; gap: 8px; width: 1020px; }
+    .scrow { display: flex; align-items: center; gap: 22px; font-size: 24px; font-weight: 500; border-bottom: 2px solid var(--light-grey); padding-bottom: 8px; }
+    .scrow .code { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 26px; color: var(--pink); width: 58px; flex-shrink: 0; }
+    .scrow b { font-weight: 800; }
+
+    /* key */
+    .keys { display: flex; gap: 32px; }
+    .kcard { width: 540px; border: 3px solid var(--navy); border-radius: 8px; padding: 26px 30px; min-height: 250px; }
+    .kcard.pink { border-color: var(--pink); }
+    .kcard .badge { display: inline-flex; margin-bottom: 22px; }
+    .kstep { display: flex; gap: 14px; font-size: 24px; font-weight: 600; line-height: 1.35; margin-bottom: 12px; }
+    .kstep i { font-style: normal; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; color: var(--pink); font-size: 26px; min-width: 18px; }
+
+    /* question panels */
+    .qpanels { display: flex; gap: 32px; }
+    .qpanel { width: 560px; border: 3px solid var(--navy); border-radius: 8px; padding: 22px 26px; min-height: 360px; }
+    .qhead { display: flex; gap: 16px; align-items: flex-start; font-size: 25px; font-weight: 600; line-height: 1.3; margin-bottom: 20px; }
+    .qhead b { color: var(--pink); font-weight: 800; }
+    .legend { display: flex; gap: 12px; margin-top: 20px; align-items: center; }
+    .legend .chip { font-size: 18px; padding: 2px 14px; }
+
+    /* friction columns */
+    .cols2 { display: flex; gap: 32px; }
+    .fcol { width: 540px; }
+    .fhead { display: flex; align-items: center; gap: 12px; font-family: 'Barlow Condensed', sans-serif; font-size: 30px; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: #fff; background: var(--navy); border-radius: 8px; padding: 7px 20px; margin-bottom: 12px; }
+    .fcol.pink .fhead { background: var(--pink); }
+    .fhead svg { fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .fitem { border: 3px solid var(--light-grey); border-left: 8px solid var(--navy); border-radius: 6px; padding: 8px 18px; margin-bottom: 10px; font-size: 21px; line-height: 1.3; }
+    .fitem b { display: block; font-size: 24px; font-weight: 800; }
+    .fcol.pink .fitem { border-left-color: var(--pink); }
+
+    /* simple machines */
+    .defn { border: 3px solid var(--pink); border-radius: 8px; padding: 18px 30px; width: 1098px; margin-bottom: 28px; }
+    .defn .txt { font-size: 29px; font-weight: 600; line-height: 1.3; margin-top: 6px; }
+    .defn b { color: var(--pink); font-weight: 800; }
+    .icons { display: flex; gap: 18px; }
+    .micon { width: 168px; border: 3px solid var(--navy); border-radius: 8px; padding: 14px 10px 12px; text-align: center; }
+    .micon svg { display: block; margin: 0 auto 8px; overflow: visible; }
+    .micon .nm { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; line-height: 1.1; }
+    .jotwrap { display: flex; flex-direction: column; gap: 22px; width: 1060px; }
+    .starter { font-size: 26px; color: var(--mid-grey); font-weight: 600; border-bottom: 3px dashed #c3c6d0; padding-bottom: 10px; margin-top: 18px; }
+
+    /* advantages */
+    .apanels { display: flex; gap: 24px; }
+    .apanel { width: 368px; border: 3px solid var(--navy); border-radius: 8px; padding: 12px 18px 14px; cursor: pointer; }
+    .apanel svg { display: block; margin: 4px auto 6px; overflow: visible; }
+    .ptext { font-size: 22px; font-weight: 600; text-align: center; }
+    .ptext b { color: var(--pink); font-weight: 800; }
+    .fbox { margin-top: 18px; display: flex; align-items: center; gap: 28px; border: 3px solid var(--pink); border-radius: 8px; padding: 12px 28px; width: 1152px; }
+    .feq { font-family: 'Barlow Condensed', sans-serif; font-size: 36px; font-weight: 900; letter-spacing: .02em; }
+    .feq b { color: var(--pink); }
+    .fnote { font-size: 22px; font-weight: 600; }
+
+    /* incline */
+    .ipl { display: flex; gap: 40px; align-items: flex-start; }
+    .ipl svg { display: block; overflow: visible; }
+    .srow { display: flex; align-items: center; gap: 18px; margin-top: 14px; font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+    .srow input { flex: 1; accent-color: var(--pink); height: 28px; cursor: pointer; }
+    .srow .av { color: var(--pink); min-width: 52px; }
+    .stats { display: flex; gap: 20px; }
+    .stat { flex: 1; border: 3px solid var(--navy); border-radius: 8px; padding: 8px 18px; }
+    .stat.pink { border-color: var(--pink); }
+    .stat .num { font-family: 'Barlow Condensed', sans-serif; font-size: 52px; font-weight: 900; line-height: 1.05; font-variant-numeric: tabular-nums; }
+    .stat.pink .num { color: var(--pink); }
+    .graph { margin-top: 14px; }
+    .axis { stroke: var(--navy); stroke-width: 2.5; }
+    .curve { fill: none; stroke: var(--pink); stroke-width: 4; }
+    .gdot { fill: var(--pink); stroke: #fff; stroke-width: 3; }
+    .note { font-family: 'Barlow Condensed', sans-serif; font-size: 17px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--mid-grey); margin-top: 8px; }
+    .stack { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+
+    /* efficiency */
+    .erow { display: flex; gap: 24px; margin-top: 16px; width: 1100px; }
+    .erow .card { display: flex; align-items: center; }
+    .erow .feq { font-size: 32px; }
+    .effwrap { display: flex; gap: 24px; align-items: flex-start; }
+    .qlist { width: 440px; }
+    .qitem { display: flex; gap: 14px; font-size: 23px; font-weight: 600; line-height: 1.3; margin-bottom: 14px; }
+    .qitem b { color: var(--pink); font-weight: 800; }
+    .pcard { width: 330px; border: 3px solid var(--navy); border-radius: 8px; padding: 14px 22px 18px; }
+    .pcard .dex { font-size: 30px; }
+    .pline { display: flex; justify-content: space-between; align-items: baseline; font-size: 21px; font-weight: 600; border-bottom: 2px solid var(--light-grey); padding: 6px 0; }
+    .pline b { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 900; }
+    .pres { margin-top: 12px; }
+    .pcalc { font-size: 21px; font-weight: 600; color: var(--mid-grey); }
+    .pbigp { font-family: 'Barlow Condensed', sans-serif; font-size: 58px; font-weight: 900; color: var(--pink); line-height: 1.05; }
+    .ebar { height: 16px; background: var(--light-grey); border-radius: 3px; margin-top: 6px; overflow: hidden; }
+    .ebar i { display: block; height: 100%; width: 0; background: var(--pink); transition: width 1.4s var(--ease); }
+    .fmini { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; border: 2px solid var(--pink); border-radius: 6px; padding: 6px 12px; margin-bottom: 16px; }
+
+    /* levers */
+    .cpanels { display: flex; gap: 24px; }
+    .cpanel { width: 368px; border: 3px solid var(--navy); border-radius: 8px; padding: 14px 18px; }
+    .cpanel svg { display: block; margin: 10px auto 6px; overflow: visible; }
+    .chd { font-family: 'Barlow Condensed', sans-serif; font-size: 32px; font-weight: 900; text-transform: uppercase; color: var(--pink); line-height: 1; }
+    .csub { font-size: 22px; font-weight: 800; margin-top: 4px; }
+    .cex { font-size: 20px; font-weight: 600; color: var(--mid-grey); margin-top: 4px; }
+    .keyrow { display: flex; align-items: center; justify-content: center; gap: 30px; margin-top: 20px; font-size: 22px; font-weight: 600; }
+    .kl { display: inline-block; width: 40px; height: 5px; vertical-align: middle; margin-right: 10px; }
+    .mnem { border: 3px solid var(--pink); border-radius: 8px; padding: 6px 18px; font-family: 'Barlow Condensed', sans-serif; font-size: 25px; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; }
+    .mnem b { color: var(--pink); }
+    .ctag { display: inline-block; margin-top: 6px; font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; color: #fff; background: var(--pink); border-radius: 6px; padding: 3px 14px; }
+    .kmk { display: inline-flex; align-items: center; gap: 8px; }
+    .kmk svg { overflow: visible; }
+
+    /* multipliers */
+    .mpanels { display: flex; gap: 28px; }
+    .mpanel { width: 562px; border: 3px solid var(--navy); border-radius: 8px; padding: 12px 20px 14px; cursor: pointer; }
+    .mpanel.pink { border-color: var(--pink); }
+    .mpanel svg { display: block; overflow: visible; margin: 2px auto 4px; }
+    .mline { font-size: 21px; font-weight: 600; line-height: 1.35; }
+    .mline b { color: var(--pink); font-weight: 800; }
+    .mex { font-size: 19px; color: var(--mid-grey); font-weight: 700; margin-top: 2px; }
+    .trade { margin-top: 14px; width: 1152px; border-left: 8px solid var(--pink); padding: 6px 0 6px 20px; font-size: 24px; font-weight: 600; }
+    .trade b { color: var(--pink); font-weight: 800; }
+
+    /* sort */
+    .pool { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; max-width: 1000px; }
+    .sortcols { display: flex; gap: 32px; margin-top: 28px; }
+    .scol { width: 540px; border: 3px solid var(--navy); border-radius: 8px; padding: 14px 22px; min-height: 210px; }
+    .scol.s { border-color: var(--pink); }
+    .scol-h { font-family: 'Barlow Condensed', sans-serif; font-size: 32px; font-weight: 900; text-transform: uppercase; line-height: 1; }
+    .scol.s .scol-h { color: var(--pink); }
+    .slist { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+
+    /* net force */
+    .nrows { display: flex; flex-direction: column; gap: 8px; width: 1120px; }
+    .nrow { display: grid; grid-template-columns: 220px 460px 1fr; align-items: center; gap: 20px; border-bottom: 2px solid var(--light-grey); padding-bottom: 6px; }
+    .nrow svg { display: block; overflow: visible; }
+    .nlab { font-family: 'Barlow Condensed', sans-serif; font-size: 27px; font-weight: 900; text-transform: uppercase; line-height: 1.05; }
+    .nlab small { display: block; font-size: 21px; color: var(--pink); letter-spacing: .05em; margin-top: 4px; }
+    .ncalc { font-family: 'Barlow Condensed', sans-serif; font-size: 30px; font-weight: 800; white-space: nowrap; }
+    .ncalc b { color: var(--pink); }
+    .tip { margin-top: 14px; border-left: 8px solid var(--pink); padding: 6px 0 6px 20px; font-size: 24px; font-weight: 600; width: 1120px; }
+    .tip b { color: var(--pink); font-weight: 800; }
+    .wk { display: flex; gap: 36px; align-items: center; }
+    .wk svg { display: block; overflow: visible; }
+    .steps { width: 540px; }
+    .step { display: flex; gap: 14px; margin-bottom: 16px; }
+    .step .s1 { font-size: 21px; font-weight: 600; color: var(--mid-grey); }
+    .step .s2 { font-family: 'Barlow Condensed', sans-serif; font-size: 30px; font-weight: 900; line-height: 1.1; }
+    .step .s2 b { color: var(--pink); }
+    .ngrid { display: grid; grid-template-columns: repeat(2, 560px); gap: 18px 32px; }
+    .ncard { border: 3px solid var(--navy); border-radius: 8px; padding: 10px 16px; display: flex; align-items: center; gap: 12px; position: relative; }
+    .ncard .qn { position: absolute; left: 12px; top: 12px; }
+    .ncard svg { display: block; overflow: visible; }
+    .nans { flex: 1; }
+    .nq { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--mid-grey); }
+    .nans .ans { margin-top: 8px; font-size: 21px; }
+    .rq { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 36px; width: 1120px; margin-top: 12px; }
+    .rqi { font-size: 22px; font-weight: 600; line-height: 1.3; display: flex; gap: 12px; }
+    .rqi .ai { color: var(--pink); font-weight: 800; display: block; margin-top: 2px; }
+    .b2 { opacity: 0; transition: opacity .45s; }
+    .brk .b1 { opacity: 0; } .brk .b2 { opacity: 1; }
+    .b1 { transition: opacity .45s; }
+
+    /* summary */
+    .sum4 { display: grid; grid-template-columns: repeat(4, 270px); gap: 22px 24px; }
+    .sum4 .dcard { padding: 16px 20px; }
+    .sum4 .dex { font-size: 29px; line-height: 1.05; margin: 2px 0 8px; }
+    .sum4 .dhow { font-size: 20px; }
+
+    .fbox .feq { white-space: nowrap; }
+
+    /* controls */
+    .controls { display: flex; align-items: center; gap: 10px; padding: 14px 0 18px 0; font-family: 'Barlow Condensed', sans-serif; }
+    .controls button {
+        font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+        background: var(--navy); color: var(--white); border: none; border-radius: 6px; padding: 9px 16px; cursor: pointer;
+    }
+    .controls button.alt { background: var(--white); color: var(--navy); }
+    .controls button:focus-visible { outline: 3px solid var(--pink); outline-offset: 2px; }
+    .dots { display: flex; gap: 8px; margin: 0 10px; }
+    .dots button { width: 14px; height: 14px; padding: 0; border-radius: 50%; background: #c9ccd6; }
+    .dots button.cur { background: var(--pink); }
+    .steplbl { font-size: 18px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mid-grey); margin-left: 6px; min-width: 110px; }
+    .ink { position: absolute; inset: 0; width: 1280px; height: 720px; pointer-events: none; z-index: 5; touch-action: none; }
+    .ink.active { pointer-events: auto; cursor: crosshair; }
+    .controls button#pen.on { background: var(--pink); color: var(--white); }
+    .controls .swatch { width: 26px; height: 26px; padding: 0; border-radius: 50%; border: 3px solid var(--white); box-shadow: 0 0 0 1px #c9ccd6; }
+    .controls .swatch.cur { box-shadow: 0 0 0 3px var(--navy); }
+    .sep { width: 1.5px; height: 28px; background: #c9ccd6; margin: 0 6px; }
+    .stage.instant *, .stage.instant *::before { transition: none !important; animation: none !important; }
+
+    .controls kbd, .showui kbd { display: inline-block; margin-left: 7px; padding: 0 5px; min-width: 18px; text-align: center; border: 1.5px solid currentColor; border-radius: 4px;
+        font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 800; letter-spacing: 0.04em; line-height: 16px; opacity: .6; vertical-align: 1px; }
+
+    /* floating timer */
+    .ftimer { position: fixed; z-index: 20; left: 24px; top: 24px; width: 250px; background: #fff; border-top: 6px solid var(--navy); border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(27,31,69,.25), 0 0 0 1px rgba(27,31,69,.08); padding: 0 16px 16px; font-family: 'Barlow Condensed', sans-serif; color: var(--navy); user-select: none; }
+    .ftimer[hidden] { display: none; }
+    .fth { display: flex; justify-content: space-between; align-items: center; height: 40px; cursor: grab; touch-action: none; }
+    .fth:active { cursor: grabbing; }
+    .fth span { font-size: 16px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mid-grey); }
+    .fth button { width: 30px; height: 30px; border: none; background: none; color: var(--navy); cursor: pointer; border-radius: 6px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+    .fth button:hover { background: var(--light-grey); }
+    .fth svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; }
+    .ftring { position: relative; width: 150px; height: 150px; margin: 2px auto 12px; }
+    .ftring svg { width: 100%; height: 100%; transform: rotate(-90deg); display: block; }
+    .ftring .tb { fill: none; stroke: var(--light-grey); stroke-width: 8; }
+    .ftring .tf { fill: none; stroke: var(--pink); stroke-width: 8; stroke-dasharray: 1; stroke-dashoffset: 0; transition: stroke-dashoffset .25s linear; }
+    .ftv { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 46px; font-weight: 900; font-variant-numeric: tabular-nums; }
+    .ftimer.done .ftring { animation: ftflash .6s ease-in-out 6 alternate; }
+    .ftimer.done .ftv { color: var(--pink); }
+    @keyframes ftflash { to { transform: scale(1.06); opacity: .55; } }
+    .ftrow { display: flex; gap: 6px; justify-content: center; margin-top: 6px; }
+    .ftrow button { flex: 1; font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; border: 2px solid var(--navy);
+        background: #fff; color: var(--navy); border-radius: 6px; padding: 6px 0; cursor: pointer; }
+    .ftrow button.pri { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .ftrow button:focus-visible, .fth button:focus-visible { outline: 3px solid var(--pink); outline-offset: 2px; }
+    .ftimer.big { width: 400px; }
+    .ftimer.big .ftring { width: 280px; height: 280px; }
+    .ftimer.big .ftv { font-size: 88px; }
+    .ftimer.big .ftrow button { font-size: 19px; padding: 8px 0; }
+
+    /* tools, hide UI, export */
+    .controls { flex-wrap: wrap; justify-content: center; gap: 10px 26px; padding: 12px 20px 16px; width: 100%; }
+    .grp { display: flex; align-items: center; gap: 10px; }
+    .controls button#eraser.on, .controls button#timerbtn.on { background: var(--pink); color: var(--white); }
+    .ink.erase { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30'%3E%3Ccircle cx='15' cy='15' r='13' fill='white' fill-opacity='.55' stroke='%231b1f45' stroke-width='2'/%3E%3C/svg%3E") 15 15, cell; }
+    body.noui .controls { display: none; }
+    body.nosubs .caption { visibility: hidden; }
+    .showui {
+        display: none; position: fixed; right: 14px; bottom: 14px; z-index: 10;
+        font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+        background: var(--navy); color: var(--white); border: none; border-radius: 6px; padding: 8px 14px; cursor: pointer;
+        opacity: 0; transition: opacity .2s;
+    }
+    body.noui .showui { display: block; }
+    .showui:hover, .showui:focus-visible { opacity: 1; }
+    #print { display: none; }
+    @media print {
+        @page { size: 1280px 720px; margin: 0; }
+        * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        html, body { height: auto; overflow: visible; display: block; margin: 0; background: #fff; }
+        body > .viewport, body > .controls, .showui, .ftimer { display: none !important; }
+        #print { display: block; }
+        #print .stage { transform: none !important; margin: 0 !important; break-after: page; page-break-after: always; }
+        #print .stage:last-child { break-after: auto; page-break-after: auto; }
+        #print *, #print *::before { animation: none !important; transition: none !important; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .rev { transition: none !important; }
+        .caption.in { animation: none !important; }
+    }
+</style>
+</head>
+<body>
+
+<div class="viewport">
+    <div class="stage" id="stage">
+        <div class="top">
+            <div class="tl"><h1 class="sheet-title" id="title"></h1><span class="sctag" id="sctag"></span></div>
+            <div class="topr"><div id="badge"></div><div class="counter" id="counter"></div></div>
+        </div>
+        <div class="content" id="content"></div>
+        <div class="caption" id="caption"></div>
+        <div class="progress" id="progress"></div>
+        <canvas class="ink" id="ink" width="2560" height="1440"></canvas>
+    </div>
+</div>
+
+<div class="controls">
+    <div class="grp">
+        <button class="alt" id="back" aria-label="Previous scene">Back<kbd>&larr;</kbd></button>
+        <button class="alt" id="replay" aria-label="Replay scene">Replay<kbd>R</kbd></button>
+        <button id="next" aria-label="Next scene">Next<kbd>&rarr;</kbd></button>
+        <div class="dots" id="dots"></div>
+        <button class="alt" id="auto"><span class="bl">Autoplay: Off</span><kbd>Space</kbd></button>
+        <span class="steplbl" id="steplbl"></span>
+    </div>
+    <div class="grp">
+        <button class="alt" id="pen" aria-pressed="false">Pen<kbd>P</kbd></button>
+        <button class="swatch cur" data-c="#ea008a" style="background:#ea008a" aria-label="Pink pen"></button>
+        <button class="swatch" data-c="#1b1f45" style="background:#1b1f45" aria-label="Navy pen"></button>
+        <button class="swatch" data-c="#111111" style="background:#111111" aria-label="Black pen"></button>
+        <button class="swatch" data-c="#0a7bd6" style="background:#0a7bd6" aria-label="Blue pen"></button>
+        <button class="swatch" data-c="#12a150" style="background:#12a150" aria-label="Green pen"></button>
+        <button class="swatch" data-c="#f28c00" style="background:#f28c00" aria-label="Orange pen"></button>
+        <button class="alt" id="eraser" aria-pressed="false">Eraser<kbd>E</kbd></button>
+        <button class="alt" id="clear">Clear<kbd>C</kbd></button>
+    </div>
+    <div class="grp">
+        <button class="alt" id="pdf">Export PDF</button>
+        <button class="alt" id="timerbtn" aria-pressed="false">Timer<kbd>T</kbd></button>
+        <button class="alt" id="subs" aria-pressed="true"><span class="bl">Subtitles: On</span><kbd>S</kbd></button>
+        <button class="alt" id="hideui">Hide UI<kbd>U</kbd></button>
+    </div>
+</div>
+<button class="showui" id="showui">Show UI<kbd>U</kbd></button>
+<div class="ftimer" id="ftimer" hidden role="dialog" aria-label="Timer">
+    <div class="fth" id="fth"><span>Timer</span><div>
+        <button id="ftsize" aria-label="Toggle timer size"><svg viewBox="0 0 24 24"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
+        <button id="ftclose" aria-label="Close timer"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div></div>
+    <div class="ftring"><svg viewBox="0 0 100 100"><circle class="tb" cx="50" cy="50" r="44"/><circle class="tf" id="ftf" cx="50" cy="50" r="44" pathLength="1"/></svg><div class="ftv" id="ftv">1:00</div></div>
+    <div class="ftrow"><button data-set="30">0:30</button><button data-set="60">1:00</button><button data-set="120">2:00</button><button data-set="180">3:00</button><button data-set="300">5:00</button></div>
+    <div class="ftrow"><button data-adj="-30">&minus;30s</button><button data-adj="30">+30s</button><button data-adj="60">+1 min</button></div>
+    <div class="ftrow"><button class="pri" id="ftstart">Start</button><button id="ftreset">Reset</button></div>
+</div>
+<div id="print"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const content = $('#content'), caption = $('#caption'), titleEl = $('#title'), counter = $('#counter'), progress = $('#progress');
+let timers = [], events = [], beats = [], idx = 0, beat = 0, autoplay = false;
+let segFrom = 0, segTo = 0, segStart = 0;
+let ptimers = [], cleanups = [];
+const stage = document.getElementById('stage');
+
+function at(ms, fn) { events.push({ t: ms, fn, done: false }); }
+function beatAt(ms, html) { beats.push(ms); at(ms, () => say(html)); }
+function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
+function show(e) { e.classList.remove('hide'); }
+function say(html) { caption.innerHTML = '<span>' + html + '</span>'; caption.classList.remove('in'); void caption.offsetWidth; caption.classList.add('in'); }
+function stopInteractive() { ptimers.forEach(clearTimeout); ptimers = []; cleanups.forEach(f => f()); cleanups = []; }
+
+/* ---------- deck helpers ---------- */
+const badgeEl = $('#badge'), sctagEl = $('#sctag');
+const deg = a => a * Math.PI / 180;
+const f1 = n => String(Math.round(n * 10) / 10);
+const svgBox = (w, h, inner, cls = '') => el('div', cls, `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" aria-hidden="true">${inner}</svg>`);
+const tx = (x, y, s, cls = '') => `<text class="t ${cls}" x="${f1(x)}" y="${f1(y)}">${s}</text>`;
+const mark = (x, y, t) => `<g class="mkr m${t}"><circle cx="${x}" cy="${y}" r="17"/><text x="${x}" y="${y + 7}">${t}</text></g>`;
+const heat = (x, y) => `<path class="heat" d="M${x} ${y} q6 -7 0 -14 q-6 -7 0 -14 q6 -7 0 -14"/>`;
+const q1 = (r, s) => r.querySelector(s), qa = (r, s) => [...r.querySelectorAll(s)];
+function arrow(x1, y1, x2, y2, cls = 'fa', hw = 12) {
+    const a = Math.atan2(y2 - y1, x2 - x1), L = Math.hypot(x2 - x1, y2 - y1), hl = Math.min(hw * 1.6, L * 0.6);
+    const bx = x2 - Math.cos(a) * hl, by = y2 - Math.sin(a) * hl, px = Math.sin(a) * hw, py = -Math.cos(a) * hw;
+    return `<g class="${cls}"><line x1="${f1(x1)}" y1="${f1(y1)}" x2="${f1(bx + Math.cos(a))}" y2="${f1(by + Math.sin(a))}"/><polygon points="${f1(x2)},${f1(y2)} ${f1(bx + px)},${f1(by + py)} ${f1(bx - px)},${f1(by - py)}"/></g>`;
+}
+function rng(seed) {
+    return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+}
+function replayable(p) {
+    p.addEventListener('click', () => {
+        p.classList.add('snap'); p.classList.remove('go'); void p.offsetWidth;
+        p.classList.remove('snap');
+        requestAnimationFrame(() => requestAnimationFrame(() => p.classList.add('go')));
+    });
+}
+
+const ICON = {
+    talk: '<svg viewBox="0 0 34 28"><path d="M3 2h17a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H10l-5 4.5V15H3a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M25 9h6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2v4.5L24 21h-7a2 2 0 0 1-2-2v-1"/></svg>',
+    call: '<svg viewBox="0 0 30 28"><circle cx="15" cy="9" r="5.5"/><path d="M5 26c0-6 4.5-9.5 10-9.5S25 20 25 26"/><path d="M2 4v4M28 4v4M1 11h3M26 11h3"/></svg>',
+    jot: '<svg viewBox="0 0 28 28"><path d="M5 23l1.5-6L19 4.5l4.5 4.5L11 21.5z"/><path d="M16 7.5l4.5 4.5"/><path d="M3 26h22"/></svg>',
+    arr: '<svg class="ba" viewBox="0 0 22 14"><path d="M1 7h18M13 1l6 6-6 6"/></svg>'
+};
+function badgeHTML(m, t) {
+    const tm = t ? `<em>${t >= 60 ? (t / 60) + ' min' : t + ' s'}</em>` : '';
+    if (m === 'tt') return `<div class="badge tt">${ICON.talk}<span>Turn &amp; Talk</span>${ICON.arr}${ICON.call}<span>Cold Call</span>${tm}</div>`;
+    if (m === 'sj') return `<div class="badge sj">${ICON.jot}<span>Stop &amp; Jot</span>${tm}</div>`;
+    return '';
+}
+
+const MI = {
+    lever: `<line class="ln" x1="8" y1="58" x2="112" y2="74"/><polygon points="62,69 48,92 76,92" style="fill:var(--pink)"/><rect class="load" x="14" y="36" width="26" height="22"/>${arrow(102, 20, 102, 66, 'fa ti', 7)}`,
+    wheel: `<circle cx="60" cy="50" r="40" fill="#fff" stroke="#1b1f45" stroke-width="5"/>${[0, 60, 120].map(a => `<line class="ln" style="stroke-width:3" x1="${f1(60 + 38 * Math.cos(deg(a)))}" y1="${f1(50 + 38 * Math.sin(deg(a)))}" x2="${f1(60 - 38 * Math.cos(deg(a)))}" y2="${f1(50 - 38 * Math.sin(deg(a)))}"/>`).join('')}<circle cx="60" cy="50" r="12" style="fill:var(--pink)"/>`,
+    pulley: `<line class="ln" x1="28" y1="6" x2="92" y2="6"/><line class="ln" x1="60" y1="6" x2="60" y2="24"/><line class="ln" style="stroke-width:3" x1="43" y1="40" x2="43" y2="68"/><line class="ln" style="stroke-width:3" x1="77" y1="40" x2="77" y2="74"/><circle cx="60" cy="40" r="17" fill="#fff" stroke="#1b1f45" stroke-width="5"/><circle cx="60" cy="40" r="4" class="solid"/><rect class="load" x="31" y="68" width="24" height="22"/>${arrow(77, 72, 77, 98, 'fa ti', 7)}`,
+    incline: `<polygon class="rampp" points="8,92 112,92 112,32"/><g transform="rotate(-30 60 62)"><rect class="solid" x="47" y="40" width="26" height="22" rx="2"/></g>`,
+    wedge: `<path class="load" d="M8 92 V56 H50 L60 78 L70 56 H112 V92 Z"/><polygon points="46,8 74,8 60,72" style="fill:var(--pink)"/>`,
+    screw: `<rect class="load" x="36" y="8" width="48" height="12" rx="2"/><rect class="load" x="50" y="20" width="20" height="60"/><polygon class="solid" points="50,80 70,80 60,96"/>${[32, 44, 56, 68].map(y => `<line class="ln" style="stroke-width:4" x1="44" y1="${y + 6}" x2="76" y2="${y - 4}"/>`).join('')}`
+};
+
+/* lever used in class diagrams */
+function classDiag(fx, lx, ex, up) {
+    const y = 86, ry = up ? 160 : 150, ey = up ? 174 : 150;
+    const tick = (x, yy, c) => `<line class="${c}" x1="${x}" y1="${yy - 7}" x2="${x}" y2="${yy + 7}"/>`;
+    return `<rect class="plank" x="18" y="${y - 10}" width="284" height="10" rx="2"/>
+        <polygon class="fulc" points="${fx},${y} ${fx - 22},${y + 36} ${fx + 22},${y + 36}"/>
+        <rect class="load" x="${lx - 24}" y="${y - 54}" width="48" height="44" rx="3"/>
+        ${up ? arrow(ex, y + 60, ex, y + 4, 'fa', 10) : arrow(ex, y - 84, ex, y - 14, 'fa', 10)}
+        <line class="armR" x1="${fx}" y1="${ry}" x2="${lx}" y2="${ry}"/>${tick(fx, ry, 'armR')}${tick(lx, ry, 'armR')}
+        <line class="armE" x1="${fx}" y1="${ey}" x2="${ex}" y2="${ey}"/>${tick(fx, ey, 'armE')}${tick(ex, ey, 'armE')}`;
+}
+
+/* rotating lever with traced paths */
+function leverArm(o) {
+    const P = (d, a) => [o.fx + d * Math.cos(deg(a)), o.fy + d * Math.sin(deg(a))];
+    const arc = (d, cls) => { const [x0, y0] = P(d, o.a0), [x1, y1] = P(d, o.a1), r = Math.abs(d); return `<path class="trace ${cls}" pathLength="1" d="M${f1(x0)} ${f1(y0)} A${r} ${r} 0 0 ${o.a1 > o.a0 ? 1 : 0} ${f1(x1)} ${f1(y1)}"/>`; };
+    const w = o.px2 - o.px1;
+    const eff = o.up ? arrow(o.ex, o.fy + 56, o.ex, o.fy + 4, 'fa', 11) + tx(o.ex + 14, o.fy + 44, o.et || 'Effort', 'pk sm')
+        : arrow(o.ex, o.fy - 100, o.ex, o.fy - 16, 'fa', 11) + tx(o.ex - 14, o.fy - 70, o.et || 'Effort', 'pk sm end');
+    return `<line class="gnd" x1="${o.gnd[0]}" y1="${o.fy + 60}" x2="${o.gnd[1]}" y2="${o.fy + 60}"/>
+        <polygon class="fulc" points="${o.fx},${o.fy} ${o.fx - 28},${o.fy + 60} ${o.fx + 28},${o.fy + 60}"/>
+        <rect class="ghost" x="${o.px1}" y="${o.fy - 12}" width="${w}" height="12" transform="rotate(${o.a0} ${o.fx} ${o.fy})"/>
+        ${(o.arcs || []).map(([d, c]) => arc(d, c)).join('')}
+        <g class="arm" style="--a0:${o.a0}deg;--a1:${o.a1}deg;transform-origin:${o.fx}px ${o.fy}px">
+            <rect class="plank" x="${o.px1}" y="${o.fy - 12}" width="${w}" height="12" rx="2"/>
+            <rect class="load" x="${o.lx - 24}" y="${o.fy - 56}" width="48" height="44" rx="3"/>${tx(o.lx, o.lt ? o.fy - 26 : o.fy - 64, o.lt || 'Load', 'mid sm')}
+            ${eff}
+        </g>`;
+}
+
+/* horizontal force diagram */
+function fdiag(forces, W = 460, H = 110, bw = 68) {
+    const cx = W / 2, cy = H / 2 + 4, hb = bw / 2;
+    let s = `<rect class="load" x="${cx - hb}" y="${cy - 26}" width="${bw}" height="52" rx="3"/>`;
+    forces.forEach(f => {
+        const x0 = cx + f.d * hb, x1 = x0 + f.d * f.n * f.k, y = cy + (f.dy || 0);
+        s += arrow(x0, y, x1, y, f.d > 0 ? 'fa' : 'fn', 10);
+        s += tx((x0 + x1) / 2, f.lb ? y + 28 : y - 13, f.n + ' N', 'mid sm' + (f.d > 0 ? ' pk' : ''));
+    });
+    return s;
+}
+
+/* wheelchair, drawn with its wheels touching y = 0 */
+const CHAIR = `<circle cx="-4" cy="-20" r="19" fill="#fff" stroke="#1b1f45" stroke-width="4"/><circle cx="-4" cy="-20" r="3" class="solid"/><circle cx="22" cy="-5" r="5" fill="#fff" stroke="#1b1f45" stroke-width="3"/><path class="ln" style="stroke-width:4" d="M-18 -64 L-14 -34 H14 L22 -10"/><circle cx="-8" cy="-80" r="8" style="fill:var(--pink)"/><path class="lnp" style="stroke-width:7" d="M-10 -68 L-6 -40 H12 L16 -20"/>`;
+
+/* ---------- scenes ---------- */
+const scenes = [
+{
+    title: 'Forces and <span>simple machines</span>',
+    dur: 10000,
+    run() {
+        const c = el('div', 'center');
+        const lv = svgBox(760, 280, `
+            <line class="gnd" x1="40" y1="266" x2="720" y2="266"/>
+            <polygon class="fulc" points="300,200 256,266 344,266"/>
+            <g class="tilt" style="transform-origin:300px 200px">
+                <rect class="plank" x="80" y="186" width="600" height="14" rx="3"/>
+                <rect class="load" x="100" y="106" width="90" height="80" rx="4"/>
+                ${tx(145, 154, 'Load', 'mid')}
+                ${arrow(655, 70, 655, 182, 'fa', 14)}
+                ${tx(632, 120, 'Effort', 'pk end')}
+            </g>`, 'rev hide');
+        const lg = el('div', 'lg rev hide', '<div class="dlbl">Learning goal 3</div><div class="lgt">To investigate common forces and simple machines</div>');
+        c.append(lv, lg); content.appendChild(c);
+        beatAt(0, 'Today we are investigating <b>common forces</b> and <b>simple machines</b>.');
+        at(400, () => show(lv));
+        at(1600, () => q1(lv, '.tilt').classList.add('go'));
+        beatAt(4500, "Simple machines help us lift, move and cut things using <b>less effort</b>. Let's find out how.");
+        at(5000, () => show(lg));
+    }
+},
+{
+    title: 'Success <span>criteria</span>',
+    dur: 11000,
+    run() {
+        const c = el('div', 'center');
+        const list = el('div', 'sclist');
+        const SC = [
+            ['SC7', 'I can <b>recognise</b> the beneficial and unwanted effects of friction.'],
+            ['SC8', 'I can <b>define</b> the term simple machine.'],
+            ['SC9', 'I can <b>identify</b> the advantages of simple machines.'],
+            ['SC10', 'I can <b>describe</b> the relationship between angle of inclination and effort force.'],
+            ['SC11', 'I can <b>compare</b> the efficiency of different simple machines.'],
+            ['SC12', 'I can <b>recognise</b> the location of the fulcrum, resistance arm and effort arm of different levers.'],
+            ['SC13', 'I can <b>contrast</b> force multipliers and speed multipliers.'],
+            ['SC14', 'I can <b>calculate</b> the net force acting on an object.']
+        ];
+        const rows = SC.map(([k, t]) => { const r = el('div', 'scrow rev hide', `<span class="code">${k}</span><span>${t}</span>`); list.appendChild(r); return r; });
+        c.appendChild(list); content.appendChild(c);
+        beatAt(0, 'Here are the <b>success criteria</b> for this topic. Each one is an I can statement.');
+        rows.forEach((r, i) => at(500 + i * 280, () => show(r)));
+        beatAt(6000, 'We will check our understanding of each one as we go.');
+    }
+},
+{
+    title: 'Spaced <span>review</span>',
+    sc: 'SC2, SC3, SC5', cfu: 'sj', time: 180,
+    dur: 16000,
+    run() {
+        const c = el('div', 'center');
+        const w = el('div', 'qpanels');
+        const p1 = el('div', 'qpanel rev hide', '<div class="qhead"><div class="qn">1</div><div>Classify each force as a <b>contact</b> or <b>non-contact</b> force.</div></div>');
+        const chips = el('div', 'chips');
+        const F = [['Friction', 'c'], ['Gravity', 'n'], ['Magnetic force', 'n'], ['Air resistance', 'c']];
+        const ch = F.map(([n]) => { const k = el('div', 'chip', n); chips.appendChild(k); return k; });
+        const leg = el('div', 'legend rev hide', '<div class="chip c">Contact</div><div class="chip n">Non-contact</div>');
+        p1.append(chips, leg);
+        const p2 = el('div', 'qpanel rev hide', '<div class="qhead"><div class="qn">2</div><div>Two teams pull on a rope. Are the forces <b>balanced</b> or <b>unbalanced</b>? Will the rope start to move?</div></div>');
+        const rope = svgBox(500, 130, `<line x1="30" y1="95" x2="470" y2="95" stroke="#1b1f45" stroke-width="6" stroke-linecap="round"/><rect x="243" y="83" width="14" height="24" style="fill:var(--pink)"/>${arrow(236, 60, 56, 60, 'fn', 12)}${arrow(264, 60, 444, 60, 'fn', 12)}${tx(146, 40, '250 N', 'mid')}${tx(354, 40, '250 N', 'mid')}`);
+        const a2 = el('div', 'ans rev hide', '<b>Balanced.</b> The forces are equal in size and opposite in direction, so the net force is zero. The rope does not start to move.');
+        p2.append(rope, a2);
+        w.append(p1, p2); c.appendChild(w); content.appendChild(c);
+        beatAt(0, "Before we begin, let's review what we learnt earlier. Stop and jot your answers to both questions.");
+        at(400, () => show(p1)); at(700, () => show(p2));
+        beatAt(6000, 'Question 1: friction and air resistance are <b>contact</b> forces. Gravity and magnetic force are <b>non-contact</b> forces.');
+        F.forEach(([, t], i) => at(6500 + i * 300, () => ch[i].classList.add(t)));
+        at(7800, () => show(leg));
+        beatAt(11000, 'Question 2: the forces are equal and opposite, so they are <b>balanced</b>. The rope does not start to move.');
+        at(11500, () => show(a2));
+    }
+},
+{
+    title: 'What is <span>friction</span>?',
+    sc: 'SC7',
+    dur: 21000,
+    run() {
+        const hatch = Array.from({ length: 30 }, (_, i) => `<line class="hatch" x1="${50 + i * 24}" y1="303" x2="${36 + i * 24}" y2="318"/>`).join('');
+        const r = rng(5), N = 14, top = [], bot = [];
+        for (let i = 0; i <= N; i++) {
+            const x = 790 + i * 290 / N, j = (r() - .5) * 8;
+            top.push(`${f1(x)},${f1((i % 2 ? 214 : 192) + j)}`);
+            bot.push(`${f1(x)},${f1((i % 2 ? 224 : 202) + j)}`);
+        }
+        const s = svgBox(1100, 420, `
+            <line class="gnd" x1="30" y1="300" x2="750" y2="300"/>${hatch}
+            <g class="slide">
+                <rect class="solid" x="120" y="190" width="150" height="110" rx="4"/>${tx(195, 252, 'Box', 'mid wh')}
+                <g class="rev hide fr1">${arrow(20, 245, 114, 245, 'fa', 13)}${tx(62, 228, 'Push', 'mid pk')}${arrow(272, 338, 160, 338, 'fn', 11)}${tx(216, 372, 'Friction', 'mid')}${arrow(150, 170, 240, 170, 'fg', 9)}${tx(195, 156, 'Motion', 'mid gr sm')}</g>
+            </g>
+            <g class="rev hide fz">
+                <circle cx="555" cy="300" r="20" fill="none" stroke="#ea008a" stroke-width="3"/><line class="gd" x1="575" y1="294" x2="790" y2="206"/>
+                <polygon class="solid" points="790,60 1080,60 ${top.slice().reverse().join(' ')}"/>
+                <polygon points="${bot.join(' ')} 1080,350 790,350" fill="#c3c6d0"/>
+                <rect x="790" y="60" width="290" height="290" fill="none" stroke="#1b1f45" stroke-width="4"/>
+                ${tx(935, 44, 'Up close', 'mid up2 gr')}${tx(935, 130, 'Box surface', 'mid wh')}${tx(935, 300, 'Floor surface', 'mid')}
+            </g>
+            <g class="rev hide fh">${heat(640, 296)}${heat(655, 296)}${heat(670, 296)}${tx(690, 262, 'Heat', 'pk')}${heat(850, 190)}${heat(935, 190)}${heat(1020, 190)}</g>`);
+        content.appendChild(el('div', 'center')).appendChild(s);
+        beatAt(0, '<b>Friction</b> is a contact force between two surfaces that are sliding, or trying to slide, past each other.');
+        beatAt(4500, 'Friction always acts in the <b>opposite direction</b> to the motion.');
+        at(4800, () => show(q1(s, '.fr1')));
+        at(5200, () => q1(s, '.slide').classList.add('go'));
+        beatAt(10000, 'Even surfaces that look smooth are rough up close. The tiny bumps catch on each other and <b>resist</b> the sliding.');
+        at(10500, () => show(q1(s, '.fz')));
+        beatAt(15500, 'Friction also changes some movement energy into <b>heat</b>. Rub your hands together quickly and you will feel it.');
+        at(16000, () => show(q1(s, '.fh')));
+    }
+},
+{
+    title: 'Helpful or <span>unwanted</span>?',
+    sc: 'SC7',
+    dur: 16500,
+    run() {
+        const c = el('div', 'center'), w = el('div', 'cols2');
+        const col = (pink, head, items) => {
+            const k = el('div', 'fcol' + (pink ? ' pink' : ''));
+            const h = el('div', 'fhead rev hide', head); k.appendChild(h);
+            const its = items.map(([t, d]) => { const it = el('div', 'fitem rev hide', `<b>${t}</b>${d}`); k.appendChild(it); return it; });
+            w.appendChild(k);
+            return [h, ...its];
+        };
+        const A = col(true, 'Beneficial (helpful)', [
+            ['Shoes on the ground', 'Grip stops us slipping when we walk and run.'],
+            ['Brakes on a bike or car', 'Brake pads rub on the wheel to slow it down.'],
+            ['Pencil on paper', 'Friction rubs graphite off to leave a mark.'],
+            ['Striking a match', 'Friction makes enough heat to light it.']
+        ]);
+        const B = col(false, 'Unwanted', [
+            ['Moving machine parts', 'Parts rub together, heat up and wear out.'],
+            ['Tyres and shoe soles', 'Rubbing slowly wears the surfaces away.'],
+            ['Pushing a heavy box', 'Friction makes it harder to slide.'],
+            ['Air resistance on a cyclist', 'Slows the rider down and wastes energy.']
+        ]);
+        c.appendChild(w); content.appendChild(c);
+        beatAt(0, 'Friction is not simply good or bad. It depends on the situation.');
+        beatAt(3500, 'Friction is <b>beneficial</b> when we need grip. Without it, we could not walk, write or stop a bike.');
+        A.forEach((e, i) => at(3900 + i * 450, () => show(e)));
+        beatAt(10000, 'Friction is <b>unwanted</b> when it wears parts out, wastes energy as heat or makes things harder to move.');
+        B.forEach((e, i) => at(10400 + i * 450, () => show(e)));
+    }
+},
+{
+    title: 'Changing <span>friction</span>',
+    sc: 'SC7', cfu: 'tt', time: 120,
+    dur: 16000,
+    run() {
+        const c = el('div', 'center');
+        const p = el('div', 'prompt rev hide', 'How could we <b>increase</b> friction? How could we <b>reduce</b> friction? Give a real example of each.');
+        const w = el('div', 'cols2');
+        const up = '<svg width="22" height="24" viewBox="0 0 22 24"><path d="M11 22V3M3 11l8-8 8 8"/></svg>';
+        const dn = '<svg width="22" height="24" viewBox="0 0 22 24"><path d="M11 2v19M3 13l8 8 8-8"/></svg>';
+        const col = (pink, head, items) => {
+            const k = el('div', 'fcol' + (pink ? ' pink' : ''));
+            const h = el('div', 'fhead rev hide', head); k.appendChild(h);
+            const its = items.map(([t, d]) => { const it = el('div', 'fitem rev hide', `<b>${t}</b>${d}`); k.appendChild(it); return it; });
+            w.appendChild(k);
+            return [h, ...its];
+        };
+        const A = col(true, up + 'Increase friction', [['Tyre tread and rubber soles', 'Grip the road or ground better.'], ['Grip tape on a skateboard', 'Stops feet sliding off the deck.'], ['Sand or grit on icy paths', 'Makes the surface rougher.']]);
+        const B = col(false, dn + 'Reduce friction', [['Oil or grease', 'Lubricates moving parts in engines and bikes.'], ['Wheels and ball bearings', 'Things roll instead of sliding.'], ['Smooth or waxed surfaces', 'Help skis and slides glide.']]);
+        c.append(p, w); content.appendChild(c);
+        beatAt(0, "Turn and talk. How could we <b>increase</b> or <b>reduce</b> friction? Be ready to share your pair's ideas.");
+        at(400, () => show(p));
+        beatAt(6000, 'To increase friction, we use rougher or grippier surfaces, like <b>tyre tread</b> and <b>grip tape</b>.');
+        A.forEach((e, i) => at(6400 + i * 400, () => show(e)));
+        beatAt(11000, 'To reduce friction, we use <b>lubricants</b> such as oil, or add wheels and ball bearings.');
+        B.forEach((e, i) => at(11400 + i * 400, () => show(e)));
+    }
+},
+{
+    title: 'What is a <span>simple machine</span>?',
+    sc: 'SC8',
+    dur: 16000,
+    run() {
+        const c = el('div', 'center');
+        const d = el('div', 'defn rev hide', '<div class="dlbl">Definition</div><div class="txt">A <b>simple machine</b> is a device with few or no moving parts that makes work easier by changing the <b>size</b> or <b>direction</b> of a force.</div>');
+        const row = el('div', 'icons');
+        const names = [['lever', 'Lever'], ['wheel', 'Wheel and axle'], ['pulley', 'Pulley'], ['incline', 'Inclined plane'], ['wedge', 'Wedge'], ['screw', 'Screw']];
+        const cells = names.map(([k, n]) => { const m = el('div', 'micon rev hide', `<svg viewBox="0 0 120 100" width="120" height="100" aria-hidden="true">${MI[k]}</svg><div class="nm">${n}</div>`); row.appendChild(m); return m; });
+        c.append(d, row); content.appendChild(c);
+        beatAt(0, 'A <b>simple machine</b> is a device that makes work easier by changing the <b>size</b> or <b>direction</b> of a force.');
+        at(400, () => show(d));
+        beatAt(6000, 'There are <b>six</b> types of simple machine.');
+        cells.forEach((m, i) => at(6400 + i * 350, () => show(m)));
+        beatAt(11000, 'Complex machines, like bikes and cars, are made from many simple machines working together.');
+    }
+},
+{
+    title: 'Define it: <span>simple machine</span>',
+    sc: 'SC8', cfu: 'sj', time: 120,
+    dur: 13000,
+    run() {
+        const c = el('div', 'center'), w = el('div', 'jotwrap');
+        const pc = el('div', 'card rev hide', '<div class="atext">In your own words, <b>define</b> the term <b>simple machine</b>. Then name two simple machines you have used this week.</div><div class="starter">A simple machine is a device that ...</div>');
+        const ac = el('div', 'card pink rev hide', '<div class="dlbl">Check your definition</div><div class="atext">A simple machine is a device that makes work easier by changing the <b>size</b> or <b>direction</b> of a force.</div><div class="aex">Examples: <b>scissors</b> (lever), <b>door handle</b> (wheel and axle), <b>ramp</b> (inclined plane), <b>zip</b> (wedge)</div>');
+        w.append(pc, ac); c.appendChild(w); content.appendChild(c);
+        beatAt(0, 'Stop and jot. Write a definition of a <b>simple machine</b> in your own words, then name two you have used.');
+        at(400, () => show(pc));
+        beatAt(7000, 'Check your definition. Does it say a simple machine makes work easier by changing the <b>size</b> or <b>direction</b> of a force?');
+        at(7500, () => show(ac));
+    }
+},
+{
+    title: 'Why use a <span>simple machine</span>?',
+    sc: 'SC9',
+    dur: 26000,
+    run() {
+        const c = el('div', 'center'), w = el('div', 'apanels');
+        const pA = svgBox(320, 220, `
+            <line class="gnd" x1="90" y1="10" x2="230" y2="10"/><line class="ln" x1="160" y1="10" x2="160" y2="36"/>
+            <g class="ropeL"><rect x="132" y="60" width="4" height="110" class="solid"/></g>
+            <g class="ropeR"><rect x="184" y="60" width="4" height="60" class="solid"/></g>
+            <circle cx="160" cy="60" r="26" fill="#fff" stroke="#1b1f45" stroke-width="5"/><circle cx="160" cy="60" r="5" class="solid"/>
+            <g class="ld"><rect class="load" x="104" y="170" width="60" height="46" rx="3"/>${tx(134, 200, '100 N', 'mid sm')}</g>
+            <g class="hd"><circle cx="186" cy="124" r="7" class="solid"/>${arrow(208, 108, 208, 160, 'fa', 9)}${tx(222, 140, 'Pull', 'pk sm')}</g>`);
+        const pB = svgBox(320, 220, leverArm({ fx: 110, fy: 160, px1: 30, px2: 300, a0: -8, a1: 8, lx: 65, lt: '100 N', ex: 285, et: '25 N', gnd: [20, 300] }));
+        const pC = svgBox(320, 220, `
+            <path class="trace n" pathLength="1" d="M160 13 A102 102 0 0 1 ${f1(160 + 102 * Math.cos(deg(10)))} ${f1(115 + 102 * Math.sin(deg(10)))}"/>
+            <g class="spin2" style="transform-origin:160px 115px">
+                <circle cx="160" cy="115" r="88" fill="#fff" stroke="#1b1f45" stroke-width="6"/>
+                ${[0, 60, 120].map(a => `<line class="ln" style="stroke-width:3" x1="${f1(160 + 86 * Math.cos(deg(a)))}" y1="${f1(115 + 86 * Math.sin(deg(a)))}" x2="${f1(160 - 86 * Math.cos(deg(a)))}" y2="${f1(115 - 86 * Math.sin(deg(a)))}"/>`).join('')}
+                <circle cx="160" cy="115" r="24" style="fill:var(--pink)"/>
+                <circle cx="160" cy="27" r="9" class="solid"/><circle cx="160" cy="97" r="5" fill="#fff"/>
+            </g>
+            <path class="trace p" pathLength="1" style="stroke:#fff" d="M160 97 A18 18 0 0 1 ${f1(160 + 18 * Math.cos(deg(10)))} ${f1(115 + 18 * Math.sin(deg(10)))}"/>`);
+        const mk = (svg, head, text) => { const p = el('div', 'apanel rev hide', `<div class="dlbl">${head}</div>`); p.appendChild(svg); p.appendChild(el('div', 'ptext', text)); replayable(p); w.appendChild(p); return p; };
+        const A = mk(pA, '1. Direction', 'Changes the <b>direction</b> of a force');
+        const B = mk(pB, '2. Force', 'Multiplies the <b>force</b>');
+        const C = mk(pC, '3. Distance and speed', 'Multiplies <b>distance</b> and <b>speed</b>');
+        const fb = el('div', 'fbox rev hide', '<div class="dlbl">Mechanical<br>advantage</div><div class="feq">MA = load &divide; effort = 100 N &divide; 25 N = <b>4</b></div><div class="fnote">This lever makes the effort 4 times more powerful.</div>');
+        c.append(w, fb); content.appendChild(c);
+        beatAt(0, 'Simple machines make work easier in three main ways.');
+        beatAt(3000, 'They can change the <b>direction</b> of a force. Pulling down on the rope lifts the load up.');
+        at(3400, () => show(A)); at(4200, () => A.classList.add('go'));
+        beatAt(8500, 'They can <b>multiply force</b>. A small effort on the long side of this lever lifts a heavy load.');
+        at(8900, () => show(B)); at(9700, () => B.classList.add('go'));
+        beatAt(14000, 'They can <b>multiply distance and speed</b>. A small turn at the axle moves the rim a long way.');
+        at(14400, () => show(C)); at(15200, () => C.classList.add('go'));
+        beatAt(19500, 'We measure this with <b>mechanical advantage</b>: the load divided by the effort. This lever has a mechanical advantage of 4.');
+        at(20000, () => show(fb));
+    }
+},
+{
+    title: 'Angle and <span>effort force</span>',
+    sc: 'SC10',
+    dur: 27000,
+    run() {
+        const H = 100, TX = 600, GY = 262;
+        const rs = svgBox(640, 300, `
+            <line class="gnd" x1="0" y1="${GY}" x2="640" y2="${GY}"/>
+            <polygon class="rampp" points=""/>
+            <rect class="load" x="${TX}" y="${GY - H}" width="40" height="${H}"/>${tx(620, GY - H - 12, '1 m', 'mid sm')}
+            <path class="angarc" d=""/>
+            <g class="rgrp"><rect class="solid" x="-20" y="-32" width="40" height="32" rx="3"/><g class="rarr"></g></g>`);
+        const range = el('input'); range.type = 'range'; range.min = 10; range.max = 60; range.value = 30; range.setAttribute('aria-label', 'Angle of inclination');
+        const srow = el('div', 'srow', '<span>Angle</span><span class="av">30&deg;</span>'); srow.appendChild(range);
+        const note = el('div', 'note', 'Load weight 100 N &middot; Height 1 m &middot; Assumes no friction');
+        const left = el('div'); left.append(rs, srow, note);
+        const stats = el('div', 'stats', '<div class="stat pink"><div class="dlbl">Effort force</div><div class="num en">50 N</div></div><div class="stat"><div class="dlbl">Distance along ramp</div><div class="num ln2">2.00 m</div></div>');
+        const GX = a => 50 + a / 70 * 370, GP = e => 180 - e * 1.5;
+        let cur = '';
+        for (let a = 10; a <= 60; a++) cur += (a === 10 ? 'M' : 'L') + f1(GX(a)) + ' ' + f1(GP(100 * Math.sin(deg(a))));
+        let ticks = '';
+        for (let a = 0; a <= 70; a += 10) ticks += `<line class="axis" x1="${f1(GX(a))}" y1="180" x2="${f1(GX(a))}" y2="187"/>${tx(GX(a), 206, a, 'mid sm')}`;
+        [0, 50, 100].forEach(e => ticks += `<line class="axis" x1="43" y1="${GP(e)}" x2="50" y2="${GP(e)}"/>${tx(38, GP(e) + 6, e, 'end sm')}`);
+        const graph = svgBox(440, 240, `<line class="axis" x1="50" y1="20" x2="50" y2="180"/><line class="axis" x1="50" y1="180" x2="425" y2="180"/>${ticks}
+            <path class="curve" d="${cur}"/><circle class="gdot" r="9" cx="0" cy="0"/>
+            ${tx(237, 234, 'Angle of inclination (&deg;)', 'mid sm gr')}<text class="t sm gr mid" transform="translate(6 100) rotate(-90)">Effort force (N)</text>`, 'graph rev hide');
+        const right = el('div'); right.append(stats, graph);
+        const wrap = el('div', 'ipl rev hide'); wrap.append(left, right);
+        content.appendChild(el('div', 'center')).appendChild(wrap);
+        const poly = q1(rs, '.rampp'), arcp = q1(rs, '.angarc'), grp = q1(rs, '.rgrp'), rarr = q1(rs, '.rarr');
+        const av = q1(srow, '.av'), en = q1(stats, '.en'), ln = q1(stats, '.ln2'), dot = q1(graph, '.gdot');
+        function setA(a) {
+            a = Math.round(a);
+            const r = deg(a), len = H / Math.sin(r), x0 = TX - H / Math.tan(r), R = 46;
+            poly.setAttribute('points', `${f1(x0)},${GY} ${TX},${GY} ${TX},${GY - H}`);
+            arcp.setAttribute('d', `M${f1(x0 + R)} ${GY} A${R} ${R} 0 0 0 ${f1(x0 + R * Math.cos(r))} ${f1(GY - R * Math.sin(r))}`);
+            const s = len * 0.35;
+            grp.setAttribute('transform', `translate(${f1(x0 + s * Math.cos(r))} ${f1(GY - s * Math.sin(r))}) rotate(${-a})`);
+            const eff = 100 * Math.sin(r), L = Math.max(24, eff * 1.2);
+            rarr.innerHTML = arrow(24, -16, 24 + L, -16, 'fa', 11) + tx(24 + L / 2, -32, 'Effort', 'mid pk sm');
+            av.textContent = a + '°'; en.textContent = Math.round(eff) + ' N'; ln.textContent = (1 / Math.sin(r)).toFixed(2) + ' m';
+            dot.setAttribute('cx', f1(GX(a))); dot.setAttribute('cy', f1(GP(eff)));
+            range.value = a;
+        }
+        range.addEventListener('input', () => setA(+range.value));
+        range.addEventListener('change', () => range.blur());
+        setA(30);
+        const sweep = (from, to, t0, step) => { const d = Math.sign(to - from); for (let k = 1; k <= Math.abs(to - from); k++) at(t0 + k * step, () => setA(from + d * k)); };
+        beatAt(0, 'An <b>inclined plane</b> is a ramp. It lets us raise a load by pushing it along a slope instead of lifting it straight up.');
+        at(400, () => show(wrap));
+        beatAt(5500, 'Watch the <b>effort force</b> as the angle of inclination increases.');
+        sweep(30, 60, 6200, 80);
+        beatAt(10500, 'Now watch as the angle decreases and the ramp becomes gentler.');
+        sweep(60, 10, 11200, 60);
+        beatAt(15500, 'The <b>greater</b> the angle of inclination, the <b>greater</b> the effort force needed. The graph shows this relationship.');
+        at(16000, () => show(graph));
+        beatAt(21000, 'A gentle ramp needs less effort, but the load travels a <b>longer distance</b>. Try the slider to test it yourself.');
+        sweep(10, 30, 21500, 50);
+    }
+},
+{
+    title: 'Ramps in <span>real life</span>',
+    sc: 'SC10', cfu: 'tt', time: 120,
+    dur: 19500,
+    run() {
+        const c = el('div', 'center');
+        const p = el('div', 'prompt rev hide', 'Wheelchair ramps are built with a <b>gentle slope</b>. Explain why, using the terms <b>angle of inclination</b> and <b>effort force</b>.');
+        const gy = 180;
+        const ramp = (x0, base, h, label) => {
+            const a = Math.atan2(h, base), s = Math.hypot(base, h) * 0.5, tx0 = x0 + base, R = 40;
+            return `<polygon class="rampp" points="${x0},${gy} ${tx0},${gy} ${tx0},${gy - h}"/><rect class="load" x="${tx0}" y="${gy - h}" width="60" height="${h}"/>
+                <path class="angarc" d="M${x0 + R} ${gy} A${R} ${R} 0 0 0 ${f1(x0 + R * Math.cos(a))} ${f1(gy - R * Math.sin(a))}"/>
+                <g transform="translate(${f1(x0 + s * Math.cos(a))} ${f1(gy - s * Math.sin(a))}) rotate(${f1(-a * 180 / Math.PI)})">${CHAIR}</g>
+                ${tx(x0 + base / 2 + 30, gy + 28, label, 'mid')}`;
+        };
+        const s = svgBox(1000, 215, `<line class="gnd" x1="0" y1="${gy}" x2="1000" y2="${gy}"/>${ramp(40, 380, 90, 'Gentle ramp: smaller angle')}${ramp(640, 120, 90, 'Steep ramp: larger angle')}`, 'rev hide');
+        const ac = el('div', 'card pink rev hide', '<div class="atext">A smaller angle of inclination means <b>less effort force</b> is needed to push the wheelchair up. The trade-off is a <b>longer</b> ramp.</div>');
+        const fact = el('div', 'aex rev hide', 'In Australia, access ramps are usually no steeper than <b>1 in 14</b>: they rise 1 metre for every 14 metres along the ground.');
+        ac.appendChild(fact);
+        ac.style.width = '1000px'; ac.style.marginTop = '4px';
+        p.style.fontSize = '28px'; p.style.marginBottom = '10px';
+        const sv = q1(s, 'svg'); sv.setAttribute('width', 880); sv.setAttribute('height', 189);
+        c.append(p, s, ac); content.appendChild(c);
+        beatAt(0, 'Turn and talk. Why are wheelchair ramps built with a <b>gentle slope</b>? Use the terms angle of inclination and effort force.');
+        at(400, () => show(p)); at(800, () => show(s));
+        beatAt(8000, 'A smaller angle of inclination means <b>less effort force</b> is needed. The trade-off is a <b>longer</b> ramp.');
+        at(8500, () => show(ac));
+        beatAt(13500, 'In Australia, access ramps are usually no steeper than <b>1 in 14</b>: they rise 1 metre for every 14 metres along the ground.');
+        at(14000, () => show(fact));
+    }
+},
+{
+    title: 'Comparing <span>efficiency</span>',
+    sc: 'SC11',
+    dur: 21500,
+    run() {
+        const c = el('div', 'center');
+        const s = svgBox(1040, 250, `
+            <g class="rev hide e1"><rect class="solid" x="20" y="40" width="360" height="100"/>${tx(200, 80, 'Energy in', 'mid wh up2')}${tx(200, 118, '100 J', 'mid wh lg')}</g>
+            <g class="rev hide e3"><polygon points="530,40 960,40 1000,80 960,120 530,120" style="fill:var(--pink)"/>${tx(745, 72, 'Useful energy out', 'mid wh up2')}${tx(745, 108, '80 J', 'mid wh lg')}</g>
+            <g class="rev hide e4"><path d="M530 120 H552 Q592 120 592 160 V204 H606 L582 236 L558 204 H572 V160 Q572 140 552 140 H530 Z" fill="#c3c6d0"/>${tx(620, 214, 'Wasted: 20 J')}${tx(620, 240, 'as heat and sound', 'sm gr')}${heat(820, 240)}${heat(835, 240)}${heat(850, 240)}</g>
+            <g class="rev hide e2"><rect x="380" y="20" width="150" height="140" rx="8" fill="#fff" stroke="#1b1f45" stroke-width="4"/>${tx(455, 98, 'Machine', 'mid')}</g>`);
+        const r = el('div', 'erow');
+        const fcard = el('div', 'card rev hide', '<div class="feq">Efficiency = useful energy out &divide; energy in &times; 100</div>'); fcard.style.flex = '1.7';
+        const xcard = el('div', 'card pink rev hide', '<div class="feq">80 &divide; 100 &times; 100 = <b>80%</b></div>'); xcard.style.flex = '1';
+        r.append(fcard, xcard);
+        c.append(s, r); content.appendChild(c);
+        beatAt(0, 'When we use a machine, we put energy <b>in</b> and get useful energy <b>out</b>.');
+        at(400, () => show(q1(s, '.e1'))); at(900, () => show(q1(s, '.e2')));
+        beatAt(4500, 'Some energy is always wasted, mostly as <b>heat</b> and <b>sound</b> caused by friction. No machine is 100% efficient.');
+        at(5000, () => show(q1(s, '.e3'))); at(5800, () => show(q1(s, '.e4')));
+        beatAt(10500, '<b>Efficiency</b> is the percentage of the energy put in that becomes useful energy.');
+        at(11000, () => show(fcard));
+        beatAt(15500, 'This machine is <b>80% efficient</b>. The more efficient a machine is, the less energy it wastes.');
+        at(16000, () => show(xcard));
+    }
+},
+{
+    title: 'Calculate: <span>efficiency</span>',
+    sc: 'SC11', cfu: 'sj', time: 240,
+    dur: 20000,
+    run() {
+        const c = el('div', 'center'), w = el('div', 'effwrap');
+        const ql = el('div', 'qlist rev hide', '<div class="fmini">Efficiency = useful energy out &divide; energy in &times; 100</div>' +
+            '<div class="qitem"><div class="qn">1</div><div>Calculate the <b>efficiency</b> of each pulley.</div></div>' +
+            '<div class="qitem"><div class="qn">2</div><div>Which pulley is <b>more efficient</b>?</div></div>' +
+            '<div class="qitem"><div class="qn">3</div><div>Suggest one reason why the other pulley is <b>less efficient</b>.</div></div>');
+        const a23 = el('div', 'ans rev hide', '<b>Pulley B</b> is more efficient. Pulley A probably has more <b>friction</b>, for example a rusty or unoiled axle, so more energy is wasted as heat and sound.');
+        ql.appendChild(a23);
+        const card = (name, ein, eout) => {
+            const pct = Math.round(eout / ein * 100);
+            const k = el('div', 'pcard rev hide', `<svg viewBox="0 0 120 100" width="84" height="70" aria-hidden="true">${MI.pulley}</svg><div class="dex">${name}</div>
+                <div class="pline">Energy in <b>${ein} J</b></div><div class="pline">Useful energy out <b>${eout} J</b></div>`);
+            const res = el('div', 'pres rev hide', `<div class="pcalc">${eout} &divide; ${ein} &times; 100</div><div class="pbigp">${pct}%</div><div class="ebar"><i></i></div>`);
+            k.appendChild(res); w.appendChild(k);
+            return { k, res, bar: q1(res, 'i'), pct };
+        };
+        w.appendChild(ql);
+        const A = card('Pulley A', 400, 300), B = card('Pulley B', 500, 450);
+        c.appendChild(w); content.appendChild(c);
+        beatAt(0, 'Stop and jot. Use the formula to calculate the efficiency of each pulley, then answer questions 2 and 3.');
+        at(400, () => show(ql)); at(700, () => show(A.k)); at(1000, () => show(B.k));
+        beatAt(8000, 'Pulley A: 300 divided by 400, times 100, is <b>75%</b>. Pulley B: 450 divided by 500, times 100, is <b>90%</b>.');
+        at(8500, () => { show(A.res); A.bar.style.width = A.pct + '%'; });
+        at(9500, () => { show(B.res); B.bar.style.width = B.pct + '%'; });
+        beatAt(14000, 'Pulley B is more efficient. Pulley A probably has more <b>friction</b>, so more energy is wasted as heat and sound.');
+        at(14500, () => show(a23));
+    }
+},
+{
+    title: 'Parts of a <span>lever</span>',
+    sc: 'SC12', cfu: 'sj', time: 180,
+    dur: 27000,
+    run() {
+        const tick = (x, y, c) => `<line class="${c}" x1="${x}" y1="${y - 10}" x2="${x}" y2="${y + 10}"/>`;
+        const s = svgBox(1100, 420, `
+            <g class="rev hide g0"><line class="gnd" x1="60" y1="300" x2="1040" y2="300"/><rect class="plank" x="120" y="186" width="880" height="14" rx="3"/><polygon class="fulc" points="400,200 350,300 450,300"/></g>
+            <g class="rev hide g1">${tx(466, 262, 'Fulcrum', 'lg')}${tx(466, 288, '(pivot)', 'sm gr')}</g>
+            <g class="rev hide g2"><rect class="load" x="160" y="106" width="100" height="80" rx="4"/>${tx(210, 154, 'Load', 'mid')}${tx(210, 90, 'Load (resistance)', 'mid lg')}${arrow(960, 40, 960, 180, 'fa', 15)}${tx(938, 80, 'Effort', 'pk lg end')}</g>
+            <g class="rev hide g3"><line class="gd" x1="210" y1="204" x2="210" y2="350"/><line class="gd" x1="400" y1="304" x2="400" y2="350"/><line class="armR" x1="210" y1="360" x2="400" y2="360"/>${tick(210, 360, 'armR')}${tick(400, 360, 'armR')}${tx(305, 396, 'Resistance arm', 'mid')}</g>
+            <g class="rev hide g4"><line class="gd" x1="960" y1="204" x2="960" y2="350"/><line class="armE" x1="400" y1="372" x2="960" y2="372"/>${tick(400, 372, 'armE')}${tick(960, 372, 'armE')}${tx(680, 406, 'Effort arm', 'mid pk')}</g>`);
+        content.appendChild(el('div', 'center')).appendChild(s);
+        beatAt(0, 'A <b>lever</b> is a rigid bar that turns around a fixed point.');
+        at(400, () => show(q1(s, '.g0')));
+        beatAt(4000, 'The fixed turning point is called the <b>fulcrum</b>, or pivot.');
+        at(4400, () => show(q1(s, '.g1')));
+        beatAt(8000, 'The object being moved is the <b>load</b>, or resistance. The force we apply is the <b>effort</b>.');
+        at(8400, () => show(q1(s, '.g2')));
+        beatAt(13500, 'The <b>resistance arm</b> is the distance from the fulcrum to the load.');
+        at(14000, () => show(q1(s, '.g3')));
+        beatAt(18000, 'The <b>effort arm</b> is the distance from the fulcrum to where the effort is applied.');
+        at(18500, () => show(q1(s, '.g4')));
+        beatAt(22500, 'Stop and jot. Copy and label this lever diagram in your book.');
+    }
+},
+{
+    title: 'Three <span>classes</span> of lever',
+    sc: 'SC12',
+    dur: 24000,
+    run() {
+        const c = el('div', 'center'), w = el('div', 'cpanels');
+        const mk = (n, sub, ex, svg) => { const p = el('div', 'cpanel rev hide', `<div class="chd">Class ${n}</div><div class="csub">${sub}</div><svg viewBox="0 0 320 185" width="320" height="185" aria-hidden="true">${svg}</svg><div class="cex">${ex}</div>`); w.appendChild(p); return p; };
+        const P1 = mk(1, 'Fulcrum in the middle', 'Seesaw, scissors, crowbar', classDiag(160, 50, 290, false));
+        const P2 = mk(2, 'Load in the middle', 'Wheelbarrow, nutcracker, bottle opener', classDiag(34, 150, 292, true));
+        const P3 = mk(3, 'Effort in the middle', 'Tweezers, fishing rod, your forearm', classDiag(34, 284, 120, true));
+        const key = el('div', 'keyrow rev hide', '<span><i class="kl" style="background:var(--pink)"></i>Effort arm</span><span><i class="kl" style="background:var(--navy)"></i>Resistance arm</span><span class="mnem"><b>F L E</b> = 1 2 3: what is in the middle?</span>');
+        c.append(w, key); content.appendChild(c);
+        beatAt(0, 'Levers are sorted into three classes, depending on which part is in the <b>middle</b>.');
+        beatAt(3500, 'In a <b>class 1</b> lever, the fulcrum is in the middle, like a seesaw or scissors.');
+        at(3900, () => show(P1));
+        beatAt(8500, 'In a <b>class 2</b> lever, the load is in the middle, like a wheelbarrow.');
+        at(8900, () => show(P2));
+        beatAt(13500, 'In a <b>class 3</b> lever, the effort is in the middle, like tweezers or your forearm.');
+        at(13900, () => show(P3));
+        beatAt(18500, 'Remember <b>F, L, E</b> for classes 1, 2 and 3. Ask yourself: what is in the middle?');
+        at(18900, () => show(key));
+    }
+},
+{
+    title: 'Spot the <span>parts</span>',
+    sc: 'SC12', cfu: 'tt', time: 180,
+    dur: 23500,
+    run() {
+        const c = el('div', 'center'), w = el('div', 'cpanels');
+        const wb = `<line class="gnd" x1="20" y1="200" x2="340" y2="200"/><line class="ln" style="stroke-width:6" x1="70" y1="170" x2="322" y2="118"/><line class="ln" x1="240" y1="146" x2="240" y2="198"/>
+            <polygon class="load" points="90,80 250,80 232,136 104,136"/><circle cx="70" cy="170" r="28" fill="#fff" stroke="#1b1f45" stroke-width="5"/><circle cx="70" cy="170" r="4" class="solid"/>`;
+        const wbA = `${arrow(322, 180, 322, 126, 'fa', 9)}${mark(70, 170, 'F')}${mark(170, 104, 'L')}${mark(322, 94, 'E')}`;
+        const tw = `<rect x="22" y="100" width="22" height="20" rx="4" class="solid"/><line class="ln" style="stroke-width:9" x1="40" y1="110" x2="272" y2="97"/><line class="ln" style="stroke-width:9" x1="40" y1="110" x2="272" y2="123"/><circle cx="288" cy="110" r="13" class="load"/>`;
+        const twA = `${arrow(155, 40, 155, 95, 'fa', 9)}${arrow(155, 180, 155, 125, 'fa', 9)}${mark(33, 110, 'F')}${mark(288, 72, 'L')}${mark(192, 58, 'E')}`;
+        const sc = `<line class="ln" style="stroke-width:7" x1="76" y1="84" x2="318" y2="154"/><line class="ln" style="stroke-width:7" x1="76" y1="136" x2="318" y2="66"/>
+            <circle cx="62" cy="78" r="16" fill="#fff" stroke="#1b1f45" stroke-width="6"/><circle cx="62" cy="142" r="16" fill="#fff" stroke="#1b1f45" stroke-width="6"/>
+            <rect x="236" y="106" width="96" height="8" class="load" style="stroke-width:2"/><circle cx="170" cy="110" r="6" style="fill:var(--pink)"/>`;
+        const scA = `${arrow(62, 16, 62, 58, 'fa', 9)}${arrow(62, 204, 62, 162, 'fa', 9)}${mark(170, 76, 'F')}${mark(300, 110, 'L')}${mark(24, 110, 'E')}`;
+        const mk = (name, base, ans, cls) => {
+            const p = el('div', 'cpanel', `<div class="chd">${name}</div><svg viewBox="0 0 340 220" width="330" height="214" aria-hidden="true">${base}<g class="rev hide lab">${ans}</g></svg>`);
+            const tag = el('div', 'ctag rev hide', cls); p.appendChild(tag); w.appendChild(p);
+            return { lab: q1(p, '.lab'), tag };
+        };
+        const A = mk('Wheelbarrow', wb, wbA, 'Class 2 lever'), B = mk('Tweezers', tw, twA, 'Class 3 lever'), C = mk('Scissors', sc, scA, 'Class 1 lever');
+        const key = el('div', 'keyrow', `<span class="kmk"><svg width="36" height="36" viewBox="-18 -18 36 36">${mark(0, 0, 'F')}</svg>Fulcrum</span><span class="kmk"><svg width="36" height="36" viewBox="-18 -18 36 36">${mark(0, 0, 'L')}</svg>Load</span><span class="kmk"><svg width="36" height="36" viewBox="-18 -18 36 36">${mark(0, 0, 'E')}</svg>Effort</span>`);
+        c.append(w, key); content.appendChild(c);
+        beatAt(0, 'Turn and talk. For each object, find the <b>fulcrum</b>, <b>load</b> and <b>effort</b>, then decide the <b>class</b> of lever. Be ready to share.');
+        beatAt(8000, 'The wheelbarrow: the fulcrum is the wheel and the load is in the middle, so it is a <b>class 2</b> lever.');
+        at(8400, () => show(A.lab)); at(9200, () => show(A.tag));
+        beatAt(13000, 'The tweezers: the fulcrum is the hinge and the effort is in the middle, so they are a <b>class 3</b> lever.');
+        at(13400, () => show(B.lab)); at(14200, () => show(B.tag));
+        beatAt(18000, 'The scissors: the fulcrum is the pivot in the middle, so they are a <b>class 1</b> lever.');
+        at(18400, () => show(C.lab)); at(19200, () => show(C.tag));
+    }
+},
+{
+    title: 'Force and <span>speed</span> multipliers',
+    sc: 'SC13',
+    dur: 23500,
+    run() {
+        const c = el('div', 'center'), w = el('div', 'mpanels');
+        const sF = svgBox(520, 240, leverArm({ fx: 170, fy: 170, px1: 80, px2: 480, a0: -10, a1: 10, lx: 110, ex: 460, gnd: [20, 500], arcs: [[-100, 'n'], [318, 'p']] }));
+        const sS = svgBox(520, 240, leverArm({ fx: 50, fy: 170, px1: 36, px2: 486, a0: 8, a1: -12, lx: 460, ex: 120, up: true, gnd: [8, 100], arcs: [[70, 'p'], [444, 'n']] }));
+        const mk = (pink, head, svg, l1, l2, ex) => { const p = el('div', 'mpanel rev hide' + (pink ? ' pink' : ''), `<div class="chd"${pink ? '' : ' style="color:var(--navy)"'}>${head}</div>`); p.appendChild(svg); p.insertAdjacentHTML('beforeend', `<div class="mline">${l1}</div><div class="mline">${l2}</div><div class="mex">${ex}</div>`); replayable(p); w.appendChild(p); return p; };
+        const F = mk(false, 'Force multiplier', sF, 'Effort arm is <b>longer</b> than the resistance arm.', 'A small effort moves a heavy load a <b>short distance</b>.', 'Examples: crowbar, wheelbarrow, bottle opener');
+        const S = mk(true, 'Speed multiplier', sS, 'Effort arm is <b>shorter</b> than the resistance arm.', 'A large effort moves the load a <b>long distance</b>, quickly.', 'Examples: fishing rod, broom, cricket bat');
+        const tr = el('div', 'trade rev hide', 'Trade-off: gaining <b>force</b> means losing distance and speed. Gaining <b>distance and speed</b> means using more force.');
+        c.append(w, tr); content.appendChild(c);
+        beatAt(0, 'Levers can be used in two different ways, depending on the length of their arms.');
+        beatAt(3500, 'A <b>force multiplier</b> has a longer effort arm. A small effort moves a heavy load, but only a short distance.');
+        at(3900, () => show(F)); at(4700, () => F.classList.add('go'));
+        beatAt(10500, 'A <b>speed multiplier</b> has a shorter effort arm. It needs more effort, but the load moves further and faster.');
+        at(10900, () => show(S)); at(11700, () => S.classList.add('go'));
+        beatAt(17500, 'There is always a trade-off. Gaining force means losing distance, and gaining speed means using more force.');
+        at(18000, () => show(tr));
+    }
+},
+{
+    title: 'Sort: <span>force or speed?</span>',
+    sc: 'SC13', cfu: 'sj', time: 120,
+    dur: 17000,
+    run() {
+        const c = el('div', 'center');
+        const items = [['Crowbar', 'f'], ['Fishing rod', 's'], ['Wheelbarrow', 'f'], ['Broom', 's'], ['Bottle opener', 'f'], ['Cricket bat', 's']];
+        const pool = el('div', 'pool');
+        const chips = items.map(([n]) => { const k = el('div', 'chip rev hide', n); pool.appendChild(k); return k; });
+        const cols = el('div', 'sortcols');
+        const mk = (t, name, desc) => { const col = el('div', 'scol ' + t, `<div class="scol-h">${name}</div><div class="dhow">${desc}</div>`); const l = el('div', 'slist'); col.appendChild(l); cols.appendChild(col); return l; };
+        const lf = mk('f', 'Force multiplier', 'Effort arm longer than the resistance arm'), ls = mk('s', 'Speed multiplier', 'Effort arm shorter than the resistance arm');
+        const placed = items.map(([n, t]) => { const k = el('div', 'chip on-' + t + ' rev hide', n); (t === 'f' ? lf : ls).appendChild(k); return k; });
+        c.append(pool, cols); content.appendChild(c);
+        beatAt(0, 'Stop and jot. Sort each object into <b>force multiplier</b> or <b>speed multiplier</b>. Compare the effort arm with the resistance arm.');
+        chips.forEach((k, i) => at(400 + i * 200, () => show(k)));
+        const reveal = (t, t0) => items.forEach(([, tt], i) => { if (tt === t) at(t0 + i * 150, () => { chips[i].classList.add('used'); show(placed[i]); }); });
+        beatAt(7000, 'Force multipliers have a longer effort arm: the <b>crowbar</b>, <b>wheelbarrow</b> and <b>bottle opener</b>.');
+        reveal('f', 7500);
+        beatAt(12000, 'Speed multipliers have a shorter effort arm: the <b>fishing rod</b>, <b>broom</b> and <b>cricket bat</b>.');
+        reveal('s', 12500);
+    }
+},
+{
+    title: 'Calculating <span>net force</span>',
+    sc: 'SC14', cfu: 'sj', time: 180,
+    dur: 26500,
+    run() {
+        const c = el('div', 'center'), w = el('div', 'nrows');
+        const rdiag = n => `<svg viewBox="0 0 300 74" width="300" height="74" aria-hidden="true"><rect class="load" x="16" y="17" width="48" height="40" rx="3"/>${n ? arrow(64, 37, 64 + n * 3.2, 37, 'fa', 10) + tx(64 + n * 1.6, 22, n + ' N', 'mid sm pk') : tx(84, 44, 'No overall force', 'sm gr')}</svg>`;
+        const row = (lab, sub, forces, calc, n) => {
+            const r = el('div', 'nrow rev hide', `<div class="nlab">${lab}<small>${sub}</small></div><svg viewBox="0 0 460 110" width="460" height="110" aria-hidden="true">${fdiag(forces)}</svg><div class="nres"><div class="ncalc">${calc}</div>${rdiag(n)}</div>`);
+            w.appendChild(r); return r;
+        };
+        const R1 = row('Same direction', 'Add', [{ n: 30, d: 1, dy: -14, k: 4 }, { n: 20, d: 1, dy: 14, k: 4, lb: 1 }], '30 N + 20 N = <b>50 N right</b>', 50);
+        const R2 = row('Opposite directions', 'Subtract', [{ n: 50, d: 1, k: 3.2 }, { n: 20, d: -1, k: 3.2 }], '50 N &minus; 20 N = <b>30 N right</b>', 30);
+        const R3 = row('Equal and opposite', 'Balanced', [{ n: 40, d: 1, k: 3.2 }, { n: 40, d: -1, k: 3.2 }], '40 N &minus; 40 N = <b>0 N</b>', 0);
+        const tip = el('div', 'tip rev hide', 'Always give the <b>size</b>, the <b>unit</b> and the <b>direction</b>, for example 30 N right.');
+        c.append(w, tip); content.appendChild(c);
+        beatAt(0, 'The <b>net force</b> is the overall force on an object when all the forces acting on it are combined.');
+        beatAt(4500, 'Forces in the <b>same direction</b> are added together.');
+        at(4900, () => show(R1));
+        beatAt(9500, 'Forces in <b>opposite directions</b> are subtracted. The net force acts in the direction of the larger force.');
+        at(9900, () => show(R2));
+        beatAt(15500, 'If the forces are equal and opposite, the net force is <b>zero</b>, and the forces are balanced.');
+        at(15900, () => show(R3));
+        beatAt(20500, 'Always give the <b>size</b>, the <b>unit</b> and the <b>direction</b>. Stop and jot these rules in your book.');
+        at(20900, () => show(tip));
+    }
+},
+{
+    title: 'Worked <span>example</span>',
+    sc: 'SC14, SC5',
+    dur: 20500,
+    run() {
+        const c = el('div', 'center'), w = el('div', 'wk');
+        const hatch = Array.from({ length: 22 }, (_, i) => `<line class="hatch" x1="${34 + i * 24}" y1="253" x2="${20 + i * 24}" y2="268"/>`).join('');
+        const s = svgBox(560, 310, `<line class="gnd" x1="10" y1="250" x2="550" y2="250"/>${hatch}
+            <g class="slide2">
+                <rect class="solid" x="200" y="150" width="120" height="100" rx="4"/>
+                ${arrow(64, 200, 196, 200, 'fa', 13)}${tx(130, 182, 'Push 120 N', 'mid pk')}
+                ${arrow(318, 282, 266, 282, 'fn', 10)}${tx(292, 306, 'Friction 45 N', 'mid')}
+                <g class="rev hide nt">${arrow(200, 118, 285, 118, 'fa', 11)}${tx(250, 100, 'Net force 75 N', 'mid pk')}</g>
+            </g>`, 'rev hide');
+        const steps = el('div', 'steps');
+        const st = [
+            ['Identify each force and its direction', 'Push 120 N right, friction 45 N left'],
+            ['Opposite directions, so subtract', '120 N &minus; 45 N = <b>75 N</b>'],
+            ['Use the direction of the larger force', 'Net force = <b>75 N right</b>'],
+            ['Unbalanced forces change motion', 'The box <b>speeds up</b> to the right']
+        ].map(([a, b], i) => { const e = el('div', 'step rev hide', `<div class="qn${i ? ' p' : ''}">${i + 1}</div><div><div class="s1">${a}</div><div class="s2">${b}</div></div>`); steps.appendChild(e); return e; });
+        w.append(s, steps); c.appendChild(w); content.appendChild(c);
+        beatAt(0, "Let's work through an example. A student pushes a box with <b>120 N</b> to the right. Friction acts with <b>45 N</b> to the left.");
+        at(400, () => show(s)); at(1200, () => show(st[0]));
+        beatAt(5500, 'The forces act in opposite directions, so we subtract: 120 minus 45 equals <b>75 N</b>.');
+        at(6000, () => show(st[1]));
+        beatAt(10000, 'The larger force is to the right, so the net force is <b>75 N to the right</b>.');
+        at(10500, () => { show(st[2]); show(q1(s, '.nt')); });
+        beatAt(14500, 'The forces are unbalanced, so the box <b>speeds up</b> to the right. Unbalanced forces change motion.');
+        at(15000, () => show(st[3])); at(15600, () => q1(s, '.slide2').classList.add('go'));
+    }
+},
+{
+    title: 'Calculate: <span>net force</span>',
+    sc: 'SC14', cfu: 'sj', time: 240,
+    dur: 18500,
+    run() {
+        const c = el('div', 'center'), g = el('div', 'ngrid');
+        const vd = `<rect class="load" x="131" y="54" width="68" height="52" rx="3"/>${arrow(165, 106, 165, 152, 'fn', 10)}${arrow(165, 54, 165, 8, 'fa', 10)}${tx(184, 140, '600 N (weight)', 'sm')}${tx(184, 30, '600 N (support)', 'sm pk')}`;
+        const D = [
+            ['a', fdiag([{ n: 25, d: 1, k: 4 }, { n: 10, d: -1, k: 4 }], 330, 160), '25 N &minus; 10 N = <b>15 N right</b>'],
+            ['b', fdiag([{ n: 280, d: 1, k: .4 }, { n: 300, d: -1, k: .4 }], 330, 160), '300 N &minus; 280 N = <b>20 N left</b>'],
+            ['c', fdiag([{ n: 20, d: 1, dy: -14, k: 2.4 }, { n: 15, d: 1, dy: 14, k: 2.4, lb: 1 }, { n: 40, d: -1, k: 2.4 }], 330, 160), '20 + 15 = 35 N right<br>40 &minus; 35 = <b>5 N left</b>'],
+            ['d', vd, '600 N &minus; 600 N = <b>0 N</b> (balanced)']
+        ];
+        const cards = D.map(([k, svg, a]) => {
+            const card = el('div', 'ncard rev hide', `<div class="qn">${k}</div><svg viewBox="0 0 330 160" width="330" height="160" aria-hidden="true">${svg}</svg>`);
+            const ans = el('div', 'nans', '<div class="nq">Net force = ?</div>');
+            const ai = el('div', 'ans rev hide', a); ans.appendChild(ai); card.appendChild(ans); g.appendChild(card);
+            return { card, ai };
+        });
+        c.appendChild(g); content.appendChild(c);
+        beatAt(0, 'Stop and jot. Calculate the <b>net force</b> in each diagram. Include the size, unit and direction.');
+        cards.forEach((k, i) => at(400 + i * 250, () => show(k.card)));
+        beatAt(8000, 'Check your answers for <b>a</b> and <b>b</b>. The net force acts in the direction of the larger force.');
+        at(8500, () => show(cards[0].ai)); at(9000, () => show(cards[1].ai));
+        beatAt(12500, 'Check <b>c</b> and <b>d</b>. In c, add the two forces to the right first. In d, the forces are balanced.');
+        at(13000, () => show(cards[2].ai)); at(13500, () => show(cards[3].ai));
+    }
+},
+{
+    title: 'Review: <span>forces and motion</span>',
+    sc: 'SC3, SC5, SC14', cfu: 'sj', time: 180,
+    dur: 27000,
+    run() {
+        const c = el('div', 'center');
+        const car = `<g transform="translate(260 0)">
+            <path class="solid" d="M10 150 V118 Q12 104 28 102 L92 98 L132 60 Q138 54 148 54 L250 54 Q262 54 270 62 L306 98 L350 104 Q370 108 372 124 V150 Z"/>
+            <path fill="#f0f3f6" d="M144 66 H200 V94 H114 Z"/><path fill="#f0f3f6" d="M210 66 H254 Q260 66 264 72 L288 94 H210 Z"/>
+            <circle cx="84" cy="150" r="26" class="solid" stroke="#fff" stroke-width="4"/><circle cx="84" cy="150" r="8" fill="#fff"/>
+            <circle cx="298" cy="150" r="26" class="solid" stroke="#fff" stroke-width="4"/><circle cx="298" cy="150" r="8" fill="#fff"/></g>`;
+        const s = svgBox(960, 200, `<line class="gnd" x1="0" y1="180" x2="960" y2="180"/>${car}
+            ${arrow(460, 30, 540, 30, 'fg', 8)}${tx(450, 38, 'Moving at 60 km/h', 'end sm gr')}
+            ${arrow(642, 120, 792, 120, 'fa', 13)}${tx(717, 86, 'Driving force', 'mid pk sm')}${tx(717, 108, '2000 N', 'mid pk')}
+            <g class="b1">${arrow(260, 120, 110, 120, 'fn', 13)}${tx(170, 86, 'Friction and air resistance', 'mid sm')}${tx(185, 108, '2000 N', 'mid')}</g>
+            <g class="b2">${arrow(260, 120, 35, 120, 'fn', 13)}${tx(160, 86, 'Friction and air resistance', 'mid sm')}${tx(148, 108, '3000 N', 'mid pk')}</g>`, 'rev hide');
+        const rq = el('div', 'rq');
+        const item = (n, qq, a, pink) => { const it = el('div', 'rqi', `<div class="qn${pink ? ' p' : ''}">${n}</div><div>${qq}</div>`); const ai = el('span', 'ai rev hide', a); it.lastChild.appendChild(ai); rq.appendChild(it); return { it, ai }; };
+        const Q = [
+            item('1', 'What is the <b>net force</b> on the car?', '2000 N &minus; 2000 N = 0 N'),
+            item('2', 'Are the forces <b>balanced</b> or <b>unbalanced</b>?', 'Balanced'),
+            item('3', "Describe the car's <b>motion</b>.", 'It keeps moving at a steady 60 km/h. It does not stop.'),
+            item('!', 'Challenge: the driver brakes and the backward forces increase to 3000 N. What happens now?', 'Net force is 1000 N backwards, so the forces are unbalanced and the car slows down.', true)
+        ];
+        Q[3].it.classList.add('rev', 'hide');
+        c.append(s, rq); content.appendChild(c);
+        beatAt(0, 'Stop and jot. This car is already moving at <b>60 km/h</b>. Answer questions 1 to 3.');
+        at(400, () => show(s));
+        beatAt(7000, 'The forces are equal and opposite, so the net force is <b>0 N</b> and the forces are <b>balanced</b>.');
+        at(7500, () => show(Q[0].ai)); at(8000, () => show(Q[1].ai));
+        beatAt(12000, 'Balanced forces do not change motion. The car keeps moving at a <b>steady 60 km/h</b>. It does not stop.');
+        at(12500, () => show(Q[2].ai));
+        beatAt(17000, 'Challenge: the driver brakes and the backward forces increase to <b>3000 N</b>. What happens now?');
+        at(17500, () => { show(Q[3].it); s.classList.add('brk'); });
+        beatAt(22000, 'The net force is <b>1000 N backwards</b>. The forces are unbalanced, so the car <b>slows down</b>.');
+        at(22500, () => show(Q[3].ai));
+    }
+},
+{
+    title: '<span>Summary</span>',
+    dur: 27000,
+    run() {
+        const c = el('div', 'center'), g = el('div', 'sum4');
+        const data = [
+            ['Friction', 'A contact force that opposes motion. Helpful for grip, unwanted when it wears parts or wastes energy.', true],
+            ['Simple machines', 'Devices that make work easier by changing the size or direction of a force.', false],
+            ['Inclined planes', 'The greater the angle of inclination, the greater the effort force needed.', false],
+            ['Efficiency', 'Useful energy out &divide; energy in &times; 100. Friction means no machine is 100% efficient.', true],
+            ['Levers', 'Fulcrum, load and effort. The part in the middle gives the class: F, L, E = 1, 2, 3.', true],
+            ['Multipliers', 'Force multipliers have a longer effort arm. Speed multipliers have a shorter effort arm.', false],
+            ['Net force', 'Add forces in the same direction. Subtract forces in opposite directions.', false],
+            ['Answers', 'Always give the size, unit and direction of a net force, such as 30 N right.', true]
+        ];
+        const cards = data.map(([t, d, p]) => { const k = el('div', 'dcard rev hide' + (p ? ' pink' : ''), `<div class="dex">${t}</div><div class="dhow">${d}</div>`); g.appendChild(k); return k; });
+        c.appendChild(g); content.appendChild(c);
+        beatAt(0, 'Friction opposes motion. <b>Simple machines</b> make work easier by changing the size or direction of a force.');
+        at(400, () => show(cards[0])); at(800, () => show(cards[1]));
+        beatAt(5500, '<b>Steeper ramps</b> need more effort force, and no machine is 100% efficient because of friction.');
+        at(5900, () => show(cards[2])); at(6300, () => show(cards[3]));
+        beatAt(11000, 'The class of a <b>lever</b> depends on what is in the middle. Longer effort arms multiply force; shorter ones multiply speed.');
+        at(11400, () => show(cards[4])); at(11800, () => show(cards[5]));
+        beatAt(17000, 'To find the <b>net force</b>, add forces in the same direction and subtract forces in opposite directions.');
+        at(17400, () => show(cards[6])); at(17800, () => show(cards[7]));
+        beatAt(22000, 'Look back at the success criteria. Which ones can you now do with confidence?');
+    }
+}
+];
+
+/* ---------- player ---------- */
+const dots = $('#dots');
+scenes.forEach((_, i) => { const d = el('button'); d.setAttribute('aria-label', 'Scene ' + (i + 1)); d.onclick = () => go(i); dots.appendChild(d); });
+
+const stepLbl = $('#steplbl');
+const dur = () => scenes[idx].dur;
+const beatEnd = b => (b + 1 < beats.length ? beats[b + 1] : dur());
+function label() { stepLbl.textContent = `Step ${beat + 1} of ${beats.length}`; }
+
+function build(i) {
+    clearTimers();
+    stopInteractive();
+    const ni = Math.max(0, Math.min(scenes.length - 1, i));
+    if (ni !== idx) { saveInk(); idx = ni; loadInk(); }
+    events = []; beats = [];
+    const sc = scenes[idx];
+    content.innerHTML = ''; caption.innerHTML = '';
+    titleEl.innerHTML = sc.title;
+    counter.innerHTML = `<b>${idx + 1}</b> / ${scenes.length}`;
+    badgeEl.innerHTML = badgeHTML(sc.cfu, sc.time); badgeEl.classList.toggle('clickable', !!sc.time); badgeEl.onclick = sc.time ? () => { ftSet(sc.time); ftShow(true); } : null; sctagEl.textContent = sc.sc || '';
+    [...dots.children].forEach((d, j) => d.classList.toggle('cur', j === idx));
+    sc.run();
+    beats = [...new Set(beats)].sort((a, b) => a - b);
+}
+
+function jumpTo(to) {
+    stage.classList.add('instant');
+    events.filter(e => !e.done && e.t < to).sort((a, b) => a.t - b.t).forEach(e => { e.done = true; e.fn(); });
+    void stage.offsetWidth;
+    requestAnimationFrame(() => requestAnimationFrame(() => stage.classList.remove('instant')));
+}
+
+function setProgress(from, to) {
+    progress.style.transition = 'none';
+    progress.style.width = (from / dur() * 100) + '%';
+    void progress.offsetWidth;
+    progress.style.transition = `width ${Math.max(0, to - from)}ms linear`;
+    progress.style.width = (to / dur() * 100) + '%';
+}
+
+function play(from, to, onEnd) {
+    clearTimers();
+    segFrom = from; segTo = to; segStart = performance.now();
+    events.filter(e => !e.done && e.t >= from && e.t < to)
+        .forEach(e => timers.push(setTimeout(() => { e.done = true; e.fn(); }, e.t - from)));
+    beats.forEach((bt, k) => { if (bt > from && bt < to) timers.push(setTimeout(() => { beat = k; label(); }, bt - from)); });
+    if (onEnd) timers.push(setTimeout(onEnd, to - from));
+    setProgress(from, to);
+}
+
+function now() { return Math.min(segTo, segFrom + performance.now() - segStart); }
+
+function startBeat(b) {
+    beat = b; label();
+    jumpTo(beats[b]);
+    if (autoplay) play(beats[b], dur(), () => { if (idx < scenes.length - 1) go(idx + 1); });
+    else play(beats[b], beatEnd(b));
+}
+
+function go(i, b = 0) {
+    build(i);
+    startBeat(b === 'last' ? beats.length - 1 : b);
+}
+
+function next() {
+    if (autoplay) { if (idx < scenes.length - 1) go(idx + 1); return; }
+    clearTimers();
+    if (beat < beats.length - 1) { jumpTo(beatEnd(beat)); startBeat(beat + 1); }
+    else if (idx < scenes.length - 1) go(idx + 1);
+    else { jumpTo(dur()); setProgress(dur(), dur()); }
+}
+
+function back() {
+    if (autoplay) { go(idx - 1); return; }
+    if (beat > 0) go(idx, beat - 1);
+    else if (idx > 0) go(idx - 1, 'last');
+    else go(0);
+}
+
+function toggleAuto() {
+    autoplay = !autoplay;
+    autoBtn.querySelector('.bl').textContent = 'Autoplay: ' + (autoplay ? 'On' : 'Off');
+    const cur = now();
+    clearTimers();
+    if (autoplay) {
+        play(cur, dur(), () => { if (idx < scenes.length - 1) go(idx + 1); });
+    } else {
+        let b = 0; beats.forEach((bt, k) => { if (bt <= cur) b = k; });
+        beat = b; label();
+        jumpTo(beatEnd(b));
+        setProgress(beatEnd(b), beatEnd(b));
+    }
+}
+
+const autoBtn = $('#auto');
+$('#next').onclick = next;
+$('#back').onclick = back;
+$('#replay').onclick = () => go(idx);
+autoBtn.onclick = toggleAuto;
+const typing = e => e.target && e.target.tagName === 'INPUT';
+document.addEventListener('keydown', e => {
+    if (typing(e)) return;
+    if (e.key === 'ArrowRight') next();
+    if (e.key === 'ArrowLeft') back();
+    if (e.key === 'r' || e.key === 'R') go(idx);
+    if (e.key === ' ') { e.preventDefault(); toggleAuto(); }
+});
+
+/* ---------- pen and eraser ---------- */
+const ink = $('#ink'), ctx = ink.getContext('2d'), penBtn = $('#pen'), eraserBtn = $('#eraser');
+let tool = null, penColour = '#ea008a', drawing = false, last = null, inkMarked = false, scaleK = 1, exporting = false;
+const inkStore = {};
+const isTyping = e => e.target && e.target.tagName === 'INPUT';
+ctx.scale(2, 2); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+
+function setTool(t) {
+    tool = t;
+    ink.classList.toggle('active', !!t);
+    ink.classList.toggle('erase', t === 'eraser');
+    penBtn.classList.toggle('on', t === 'pen'); penBtn.setAttribute('aria-pressed', t === 'pen');
+    eraserBtn.classList.toggle('on', t === 'eraser'); eraserBtn.setAttribute('aria-pressed', t === 'eraser');
+}
+function clearInk() { ctx.clearRect(0, 0, 1280, 720); inkMarked = false; }
+function saveInk() {
+    if (!inkMarked) { delete inkStore[idx]; return; }
+    const c = document.createElement('canvas'); c.width = ink.width; c.height = ink.height;
+    c.getContext('2d').drawImage(ink, 0, 0);
+    inkStore[idx] = c;
+}
+function loadInk() {
+    clearInk();
+    const c = inkStore[idx]; if (!c) return;
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'source-over'; ctx.drawImage(c, 0, 0); ctx.restore();
+    inkMarked = true;
+}
+function brush() {
+    const er = tool === 'eraser';
+    ctx.globalCompositeOperation = er ? 'destination-out' : 'source-over';
+    ctx.strokeStyle = ctx.fillStyle = er ? '#000' : penColour;
+    ctx.lineWidth = er ? 26 / scaleK : 5;
+}
+function pt(e) { const r = ink.getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * 1280, y: (e.clientY - r.top) / r.height * 720 }; }
+ink.addEventListener('pointerdown', e => {
+    if (!tool) return;
+    drawing = true; last = pt(e); ink.setPointerCapture(e.pointerId); brush();
+    if (tool === 'pen') inkMarked = true;
+    ctx.beginPath(); ctx.arc(last.x, last.y, ctx.lineWidth / 2, 0, Math.PI * 2); ctx.fill();
+});
+ink.addEventListener('pointermove', e => {
+    if (!drawing) return;
+    const p = pt(e), mid = { x: (last.x + p.x) / 2, y: (last.y + p.y) / 2 };
+    ctx.beginPath(); ctx.moveTo(last.midX ?? last.x, last.midY ?? last.y); ctx.quadraticCurveTo(last.x, last.y, mid.x, mid.y); ctx.stroke();
+    last = { x: p.x, y: p.y, midX: mid.x, midY: mid.y };
+});
+['pointerup', 'pointercancel'].forEach(t => ink.addEventListener(t, () => {
+    if (drawing && last && last.midX !== undefined) { ctx.beginPath(); ctx.moveTo(last.midX, last.midY); ctx.lineTo(last.x, last.y); ctx.stroke(); }
+    drawing = false; ctx.globalCompositeOperation = 'source-over';
+}));
+penBtn.onclick = () => setTool(tool === 'pen' ? null : 'pen');
+eraserBtn.onclick = () => setTool(tool === 'eraser' ? null : 'eraser');
+$('#clear').onclick = clearInk;
+document.querySelectorAll('.swatch').forEach(b => b.onclick = () => {
+    penColour = b.dataset.c; setTool('pen');
+    document.querySelectorAll('.swatch').forEach(x => x.classList.toggle('cur', x === b));
+});
+
+/* ---------- hide UI ---------- */
+function setUI(hidden) { document.body.classList.toggle('noui', hidden); if (document.activeElement) document.activeElement.blur(); fit(); }
+$('#hideui').onclick = () => setUI(true);
+$('#showui').onclick = () => setUI(false);
+
+/* ---------- subtitles ---------- */
+const subsBtn = $('#subs');
+function toggleSubs() {
+    const off = document.body.classList.toggle('nosubs');
+    subsBtn.querySelector('.bl').textContent = 'Subtitles: ' + (off ? 'Off' : 'On');
+    subsBtn.setAttribute('aria-pressed', !off);
+    subsBtn.blur();
+}
+subsBtn.onclick = toggleSubs;
+
+
+/* ---------- floating timer ---------- */
+const ftEl = $('#ftimer'), ftV = $('#ftv'), ftF = $('#ftf'), ftStart = $('#ftstart'), ftBtn = $('#timerbtn');
+const FT = { total: 60, left: 60, iv: null, end: 0 };
+const ftFmt = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+function ftDraw() { ftV.textContent = ftFmt(Math.ceil(FT.left)); ftF.style.strokeDashoffset = (1 - FT.left / FT.total).toFixed(4); }
+function ftStop() { clearInterval(FT.iv); FT.iv = null; ftStart.textContent = 'Start'; }
+function ftBeep() {
+    try {
+        const ac = new (window.AudioContext || window.webkitAudioContext)();
+        [0, .35, .7].forEach(t => { const o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = 880; o.connect(g); g.connect(ac.destination);
+            g.gain.setValueAtTime(.0001, ac.currentTime + t); g.gain.exponentialRampToValueAtTime(.25, ac.currentTime + t + .02); g.gain.exponentialRampToValueAtTime(.0001, ac.currentTime + t + .25);
+            o.start(ac.currentTime + t); o.stop(ac.currentTime + t + .3); });
+    } catch (e) {}
+}
+function ftTick() {
+    FT.left = Math.max(0, (FT.end - performance.now()) / 1000);
+    ftDraw();
+    if (FT.left <= 0) { ftStop(); ftEl.classList.add('done'); ftBeep(); }
+}
+function ftSet(sec) { ftStop(); ftEl.classList.remove('done'); FT.total = FT.left = sec; ftDraw(); }
+function ftToggleRun() {
+    if (FT.iv) { ftTick(); ftStop(); return; }
+    if (FT.left <= 0) ftSet(FT.total);
+    ftEl.classList.remove('done');
+    FT.end = performance.now() + FT.left * 1000;
+    FT.iv = setInterval(ftTick, 200); ftStart.textContent = 'Pause';
+}
+function ftAdj(d) {
+    const nl = Math.max(10, Math.round(FT.left) + d);
+    const diff = nl - FT.left;
+    FT.left = nl; FT.total = Math.max(nl, FT.total + d, 10);
+    if (FT.iv) FT.end += diff * 1000;
+    ftEl.classList.remove('done'); ftDraw();
+}
+function ftShow(on) {
+    ftEl.hidden = !on; ftBtn.setAttribute('aria-pressed', on); ftBtn.classList.toggle('on', on);
+    if (!on) ftStop();
+}
+ftEl.querySelectorAll('[data-set]').forEach(b => b.onclick = () => ftSet(+b.dataset.set));
+ftEl.querySelectorAll('[data-adj]').forEach(b => b.onclick = () => ftAdj(+b.dataset.adj));
+ftStart.onclick = ftToggleRun;
+$('#ftreset').onclick = () => ftSet(FT.total);
+$('#ftclose').onclick = () => ftShow(false);
+$('#ftsize').onclick = () => { ftEl.classList.toggle('big'); ftClamp(); };
+ftBtn.onclick = () => ftShow(ftEl.hidden);
+ftEl.addEventListener('click', e => { if (e.target.closest('button')) e.target.closest('button').blur(); });
+function ftClamp() {
+    const r = ftEl.getBoundingClientRect();
+    ftEl.style.left = Math.max(0, Math.min(window.innerWidth - r.width, r.left)) + 'px';
+    ftEl.style.top = Math.max(0, Math.min(window.innerHeight - r.height, r.top)) + 'px';
+}
+(() => {
+    const h = $('#fth'); let dx = 0, dy = 0, drag = false;
+    h.addEventListener('pointerdown', e => { if (e.target.closest('button')) return; drag = true; const r = ftEl.getBoundingClientRect(); dx = e.clientX - r.left; dy = e.clientY - r.top; h.setPointerCapture(e.pointerId); });
+    h.addEventListener('pointermove', e => { if (!drag) return; ftEl.style.left = (e.clientX - dx) + 'px'; ftEl.style.top = (e.clientY - dy) + 'px'; ftClamp(); });
+    ['pointerup', 'pointercancel'].forEach(t => h.addEventListener(t, () => drag = false));
+    window.addEventListener('resize', () => { if (!ftEl.hidden) ftClamp(); });
+})();
+ftDraw();
+
+/* ---------- export PDF ---------- */
+const printBox = $('#print');
+async function exportPDF() {
+    const keepIdx = idx, keepBeat = beat;
+    exporting = true;
+    printBox.innerHTML = '';
+    const imgs = [];
+    for (let i = 0; i < scenes.length; i++) {
+        build(i);
+        events.slice().sort((a, b) => a.t - b.t).forEach(e => { if (!e.done) { e.done = true; e.fn(); } });
+        progress.style.transition = 'none'; progress.style.width = '100%';
+        stage.querySelectorAll('input').forEach(n => n.setAttribute('value', n.value));
+        const page = stage.cloneNode(true);
+        page.removeAttribute('id'); page.removeAttribute('style'); page.classList.remove('instant');
+        page.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'));
+        const cv = page.querySelector('canvas.ink');
+        if (inkMarked) { const img = new Image(); img.className = 'ink'; img.alt = ''; img.src = ink.toDataURL(); cv.replaceWith(img); imgs.push(img); }
+        else cv.remove();
+        printBox.appendChild(page);
+    }
+    exporting = false;
+    go(keepIdx, keepBeat);
+    await Promise.all(imgs.map(im => im.decode().catch(() => {})));
+    window.print();
+}
+$('#pdf').onclick = exportPDF;
+window.addEventListener('afterprint', () => { printBox.innerHTML = ''; });
+
+document.addEventListener('keydown', e => {
+    if (isTyping(e)) return;
+    if (e.key === 'p' || e.key === 'P') setTool(tool === 'pen' ? null : 'pen');
+    if (e.key === 'e' || e.key === 'E') setTool(tool === 'eraser' ? null : 'eraser');
+    if (e.key === 'c' || e.key === 'C') clearInk();
+    if (e.key === 's' || e.key === 'S') toggleSubs();
+    if (e.key === 't' || e.key === 'T') ftShow(ftEl.hidden);
+    if (e.key === 'u' || e.key === 'U') setUI(!document.body.classList.contains('noui'));
+    if (e.key === 'Escape') setTool(null);
+});
+
+const controlsEl = document.querySelector('.controls');
+function fit() {
+    const st = $('#stage'), noui = document.body.classList.contains('noui');
+    const vw = window.innerWidth - (noui ? 0 : 40), vh = window.innerHeight - (noui ? 0 : controlsEl.offsetHeight + 20);
+    const k = Math.min(vw / 1280, vh / 720);
+    scaleK = k;
+    st.style.transform = `scale(${k})`;
+    st.style.margin = `${(720 * k - 720) / 2}px ${(1280 * k - 1280) / 2}px`;
+}
+window.addEventListener('resize', fit);
+fit();
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { fit(); go(0); });
+</script>
+
+</body>
+</html>
