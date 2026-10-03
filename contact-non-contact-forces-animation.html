@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Balanced and Unbalanced Forces</title>
+<title>Contact and Non-Contact Forces</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
     :root {
@@ -251,6 +251,68 @@
     .xq { display: flex; gap: 18px; padding: 16px 0; border-top: 2px solid var(--light-grey); font-size: 27px; font-weight: 500; line-height: 1.3; }
     .xq b { flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%; background: var(--navy); color: #fff; font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
     .xq strong { color: var(--pink); font-weight: 800; }
+
+
+    /* contact and non-contact */
+    svg.clipv { overflow: hidden; }
+    .pole { fill: #fff; font-family: 'Barlow Condensed', sans-serif; font-size: 17px; font-weight: 900; text-anchor: middle; }
+    .clip { fill: none; stroke: var(--navy); stroke-width: 3; stroke-linecap: round; }
+    .defn { border-left: 8px solid var(--pink); padding: 6px 0 6px 24px; font-size: 34px; font-weight: 700; line-height: 1.2; }
+    .defn b { color: var(--pink); font-weight: 800; }
+    .vig { width: 272px; border: 3px solid var(--navy); border-radius: 8px; padding: 10px 12px 12px; text-align: center; }
+    .vig svg { display: block; margin: 0 auto; }
+    .vh { font-size: 21px; font-weight: 700; margin-top: 4px; line-height: 1.2; }
+    .ph { font-family: 'Barlow Condensed', sans-serif; font-size: 36px; font-weight: 900; text-transform: uppercase; line-height: 1; }
+    .pan .pt { font-size: 24px; font-weight: 500; margin-top: 6px; }
+    .pt b { color: var(--pink); font-weight: 800; }
+    .notes.pinkb { border-color: var(--pink); }
+    .ecard.big { width: 372px; padding: 16px 16px 20px; }
+    .pan3 .et { font-size: 20px; margin-top: 6px; }
+    .tbl2 { margin-top: 12px; }
+    .tr { display: grid; grid-template-columns: 230px 1fr; gap: 16px; padding: 8px 0; border-top: 2px solid var(--light-grey); font-size: 23px; line-height: 1.3; }
+    .tr b { color: var(--pink); font-weight: 800; }
+    .earth2 { fill: var(--blank); stroke: var(--navy); stroke-width: 4; }
+    .lat2 { fill: none; stroke: #c9ccd6; stroke-width: 2; }
+    .chg { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 900; fill: var(--pink); text-anchor: middle; }
+    .chg.w { fill: #fff; }
+    .sgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .scard { position: relative; display: flex; align-items: center; gap: 12px; border: 3px solid var(--navy); border-radius: 8px; padding: 10px 14px 10px 44px; }
+    .scard .let, .opt .let { position: absolute; left: 10px; top: 10px; width: 28px; height: 28px; border-radius: 50%; background: var(--navy); color: #fff; font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 900; display: flex; align-items: center; justify-content: center; transition: background-color .35s; }
+    .scard svg { flex-shrink: 0; }
+    .stx { font-size: 21px; font-weight: 600; line-height: 1.25; margin-bottom: 6px; }
+    .scard .tag { font-size: 17px; padding: 4px 10px; }
+    .ogrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .opt { position: relative; display: flex; align-items: center; gap: 18px; border: 3px solid var(--navy); border-radius: 8px; padding: 18px 20px 18px 70px; min-height: 104px; }
+    .opt .let { width: 44px; height: 44px; font-size: 26px; left: 14px; top: 50%; margin-top: -22px; }
+    .otx { font-size: 28px; font-weight: 700; line-height: 1.2; margin-bottom: 8px; }
+    .opt.right { border-color: var(--pink); box-shadow: 0 0 0 5px rgba(234,0,138,.18); }
+    .opt.right .let { background: var(--pink); }
+    .u-clip { animation: uclip 3s ease-in infinite; }
+    @keyframes uclip { 0%, 25% { transform: none; } 65%, 100% { transform: translateX(-120px); } }
+    .v-kick { animation: vkick 2.4s ease-out infinite; }
+    @keyframes vkick { 0%, 25% { transform: none; opacity: 1; } 70% { transform: translate(96px, -70px); opacity: 1; } 85%, 100% { transform: translate(110px, -80px); opacity: 0; } }
+    .v-door { transform-box: fill-box; transform-origin: 0% 50%; animation: vdoor 2.6s ease-in-out infinite alternate; }
+    @keyframes vdoor { 0%, 20% { transform: none; } 100% { transform: scaleX(.66); } }
+    .v-puller { animation: vpull 2.6s ease-in-out infinite alternate; }
+    @keyframes vpull { 0%, 20% { transform: none; } 100% { transform: translateX(-29px); } }
+    .v-apple { animation: vapple 2.2s cubic-bezier(.55,0,1,.45) infinite; }
+    @keyframes vapple { 0%, 30% { transform: none; } 90%, 100% { transform: translateY(116px); } }
+    .v-clip { animation: vclip 2.4s ease-in infinite; }
+    @keyframes vclip { 0%, 30% { transform: none; } 70%, 100% { transform: translateY(-84px); } }
+    .bob { animation: bob 1.6s ease-in-out infinite alternate; }
+    @keyframes bob { to { transform: translateY(-6px); } }
+    .air-p { fill: #c9ccd6; animation: rise 2s linear infinite; }
+    @keyframes rise { 0% { transform: translateY(60px); opacity: 0; } 20%, 80% { opacity: 1; } 100% { transform: translateY(-120px); opacity: 0; } }
+    .wat { stroke: #b8c4dc; stroke-width: 3; stroke-linecap: round; animation: flow 1.6s linear infinite; }
+    @keyframes flow { 0% { transform: translateX(80px); opacity: 0; } 20%, 80% { opacity: 1; } 100% { transform: translateX(-160px); opacity: 0; } }
+    .shake { animation: shake .18s linear infinite alternate; }
+    @keyframes shake { from { transform: translateX(-3px); } to { transform: translateX(3px); } }
+    .rub { animation: rub .3s ease-in-out infinite alternate; }
+    @keyframes rub { from { transform: translate(-10px, 6px); } to { transform: translate(10px, -6px); } }
+    .pulse { transform-box: fill-box; transform-origin: center; animation: pulse 1.2s ease-out infinite; }
+    @keyframes pulse { from { transform: scale(.6); opacity: 1; } to { transform: scale(1.8); opacity: 0; } }
+    .sway { transform-origin: 170px 18px; animation: sway 2.4s ease-in-out infinite alternate; }
+    @keyframes sway { from { transform: rotate(-4deg); } to { transform: rotate(4deg); } }
 
 
     .controls kbd, .showui kbd { display: inline-block; margin-left: 7px; padding: 0 5px; min-width: 18px; text-align: center; border: 1.5px solid currentColor; border-radius: 4px;
@@ -507,7 +569,7 @@
 
     @media (prefers-reduced-motion: reduce) {
         .rev, .mv, .tw { transition: none !important; }
-        .caption.in, .cfu.pop, .tw.wob, .dash.run, .spin .spk, .ea-speed, .ea-dir, .ea-squash, .ea-press { animation: none !important; }
+        .caption.in, .cfu.pop, .tw.wob, .dash.run, .spin .spk, .ea-speed, .ea-dir, .ea-squash, .ea-press, .u-clip, .v-kick, .v-door, .v-puller, .v-apple, .v-clip, .bob, .air-p, .wat, .shake, .rub, .pulse, .sway { animation: none !important; }
     }
 </style>
 </head>
@@ -762,451 +824,487 @@ function choices(items, o = {}) {
 }
 
 /* ---------- scenes ---------- */
+/* ---------- extra drawing helpers ---------- */
+POSE.stand = { f1: [-12, 0], f2: [12, 0], hip: [0, -58], sh: [0, -100], hd: [0, -117], h: [16, -60] };
+POSE.kick = { f1: [-12, 0], f2: [40, -34], hip: [0, -58], sh: [-6, -100], hd: [-8, -117], h: [-32, -72] };
+
+function magnetU(x, y, sc = 1, rot = 0) {
+    return `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${sc})"><path d="M44 -40 H0 A40 40 0 0 0 0 40 H44" fill="none" stroke="#b8bcc8" stroke-width="26"/>
+        <rect x="40" y="-53" width="30" height="26" fill="${PK}"/><rect x="40" y="27" width="30" height="26" fill="${NV}"/>
+        <text class="pole" x="55" y="-34" transform="rotate(${-rot} 55 -40)">N</text><text class="pole" x="55" y="46" transform="rotate(${-rot} 55 40)">S</text></g>`;
+}
+function clipSVG() { return `<path class="clip" d="M4 2 H30 A5 5 0 0 1 30 12 H6 A3.5 3.5 0 0 1 6 5 H26"/>`; }
+function barMag(flip) {
+    const a = flip ? NV : PK, b = flip ? PK : NV, la = flip ? 'S' : 'N', lb = flip ? 'N' : 'S';
+    return `<rect x="-60" y="-18" width="60" height="36" fill="${a}"/><rect x="0" y="-18" width="60" height="36" fill="${b}"/><text class="pole" x="-30" y="6">${la}</text><text class="pole" x="30" y="6">${lb}</text>`;
+}
+function balloonSVG(rx = 34) {
+    const ry = rx * 1.24;
+    return `<path d="M0 ${ry} q-6 24 5 44 q9 20 -3 44" fill="none" stroke="${NV}" stroke-width="2.5"/><ellipse rx="${rx}" ry="${ry}" fill="${PK}"/><path d="M-6 ${ry + 7} L0 ${ry - 2} L6 ${ry + 7} Z" fill="${PK}"/><ellipse cx="${-rx * .38}" cy="${-ry * .42}" rx="${rx * .16}" ry="${ry * .22}" fill="#fff" opacity=".45"/>`;
+}
+function appleSVG() { return `<circle r="16" fill="${PK}"/><line x1="0" y1="-16" x2="2" y2="-25" stroke="${NV}" stroke-width="3" stroke-linecap="round"/><ellipse cx="9" cy="-22" rx="7" ry="3.5" fill="${NV}" transform="rotate(-25 9 -22)"/>`; }
+function chuteSVG() {
+    return `<path d="M-70 0 Q-70 -60 0 -62 Q70 -60 70 0 Q52 -10 35 0 Q18 -10 0 0 Q-18 -10 -35 0 Q-52 -10 -70 0 Z" fill="${PK}"/>
+        <g stroke="${NV}" stroke-width="1.8"><line x1="-70" y1="0" x2="-12" y2="76"/><line x1="-35" y1="0" x2="-12" y2="76"/><line x1="35" y1="0" x2="12" y2="76"/><line x1="70" y1="0" x2="12" y2="76"/></g>
+        <g stroke="${NV}" stroke-width="6" stroke-linecap="round" fill="none"><line x1="0" y1="82" x2="0" y2="112"/><polyline points="-12,76 0,88 12,76"/><polyline points="-10,138 0,112 10,138"/></g><circle cx="0" cy="68" r="9" fill="${NV}"/>`;
+}
+function diverSVG() {
+    return `<g stroke="${NV}" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"><line x1="-34" y1="0" x2="22" y2="0"/><polyline points="-44,-26 -26,0 -16,-24"/><polyline points="46,-16 22,0 44,-4"/></g><circle cx="-47" cy="0" r="11" fill="${NV}"/>`;
+}
+function fishSVG() { return `<polygon points="-58,0 -86,-24 -86,24" fill="${PK}"/><ellipse rx="62" ry="27" fill="${PK}"/><circle cx="36" cy="-7" r="6" fill="#fff"/><circle cx="38" cy="-7" r="3" fill="${NV}"/>`; }
+function particles(n, w, h, cls, seed) {
+    const r = rng(seed); let s = '';
+    for (let i = 0; i < n; i++) s += `<circle class="${cls}" cx="${(r() * w).toFixed(0)}" cy="${(r() * h).toFixed(0)}" r="${(2 + r() * 2).toFixed(1)}" style="animation-delay:${(-r() * 2).toFixed(2)}s"/>`;
+    return s;
+}
+function rng(seed) {
+    return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+}
+const ICONS = {
+    magnet: `${magnetU(42, 50, .5)}<g stroke="${NV}" stroke-width="4" stroke-linecap="round"><line x1="92" y1="50" x2="124" y2="50"/><line x1="92" y1="42" x2="92" y2="58"/></g>`,
+    brake: `<circle cx="58" cy="50" r="38" fill="none" stroke="${NV}" stroke-width="5"/><g stroke="${NV}" stroke-width="2"><line x1="58" y1="14" x2="58" y2="86"/><line x1="22" y1="50" x2="94" y2="50"/><line x1="33" y1="25" x2="83" y2="75"/><line x1="83" y1="25" x2="33" y2="75"/></g><rect x="97" y="34" width="12" height="32" rx="2" fill="${PK}"/>`,
+    apple: `<path d="M8 16 Q60 4 122 20" fill="none" stroke="${NV}" stroke-width="5" stroke-linecap="round"/><g transform="translate(78 50)">${appleSVG()}</g><g stroke="#c9ccd6" stroke-width="3" stroke-dasharray="4 5"><line x1="70" y1="72" x2="70" y2="96"/><line x1="86" y1="72" x2="86" y2="96"/></g>`,
+    hair: `<circle cx="42" cy="66" r="26" fill="${'#f0f3f6'}" stroke="${NV}" stroke-width="3.5"/><g stroke="${NV}" stroke-width="3" stroke-linecap="round"><line x1="30" y1="43" x2="40" y2="20"/><line x1="40" y1="40" x2="56" y2="18"/><line x1="50" y1="42" x2="70" y2="24"/><line x1="58" y1="48" x2="80" y2="34"/></g><g transform="translate(102 34)">${balloonSVG(16)}</g>`,
+    chute: `<g transform="translate(65 28) scale(.5)">${chuteSVG()}</g>`,
+    swing: `<g stroke="${NV}" stroke-width="5" stroke-linecap="round"><line x1="14" y1="10" x2="116" y2="10"/></g><g stroke="${NV}" stroke-width="3"><line x1="40" y1="10" x2="40" y2="76"/><line x1="90" y1="10" x2="90" y2="76"/></g><rect x="30" y="76" width="70" height="10" rx="3" fill="${PK}"/>`
+};
+
+/* ---------- scenes ---------- */
 const scenes = [
 {
-    title: 'Balanced and <span>unbalanced forces</span>',
-    dur: 14500,
+    title: 'Contact and <span>non-contact forces</span>',
+    dur: 14000,
     run() {
         const w = el('div', 'intro'), L = el('div');
-        const li = el('div', 'libox rev hide', '<div class="dlbl">Learning intention</div><div class="t">To investigate balanced and unbalanced forces acting on objects</div>');
+        const li = el('div', 'libox rev hide', '<div class="dlbl">Learning intention</div><div class="t">To investigate common types of contact and non-contact forces</div>');
         L.appendChild(li);
-        const scs = [
-            ['SC3', 'I can identify whether forces acting upon an object are balanced or unbalanced'],
-            ['SC4', 'I can analyse forces using force arrow diagrams'],
-            ['SC5', `I can recognise that changes to an object's motion is caused by unbalanced forces acting on the object`],
-            ['SC6', 'I can identify the effect of applying different forces to an object']
-        ].map(([a, b]) => { const r = el('div', 'sc rev hide', `<b>${a}</b><span>${b}</span>`); L.appendChild(r); return r; });
-        const R = el('div', 'rev hide', fdiag([{ d: 'u', n: 30 }, { d: 'd', n: 30 }, { d: 'l', n: 15 }, { d: 'r', n: 35 }], { w: 360, h: 360, size: 100, name: 'Object' }));
+        const scs = [['SC1', 'I can <strong>define</strong> what forces are'], ['SC2', 'I can <strong>classify</strong> different types of forces as either contact or non-contact']]
+            .map(([a, b]) => { const r = el('div', 'sc rev hide', `<b>${a}</b><span>${b}</span>`); L.appendChild(r); return r; });
+        const R = el('div', 'col2');
+        const p1 = el('div', 'pan pink rev hide', `<div class="dlbl">Contact</div><svg viewBox="0 0 330 150" width="330" height="150"><line class="ground" x1="0" x2="330" y1="142" y2="142"/>${fig(100, 140, 'push')}<rect class="obj" x="152" y="60" width="80" height="80" rx="6"/>${farrow(232, 100, 'r', 70, '', { hide: false })}</svg>`);
+        const p2 = el('div', 'pan rev hide', `<div class="dlbl">Non-contact</div><svg viewBox="0 0 330 150" width="330" height="150">${magnetU(90, 75, .9)}<g class="u-clip" style="transform-origin:0 0"><g transform="translate(280 68)">${clipSVG()}</g></g></svg>`);
+        R.append(p1, p2);
         w.append(L, R); content.appendChild(w);
-        beatAt(0, `Today we are investigating <b>forces</b>: the pushes and pulls acting on everything around us.`);
-        at(400, () => show(R)); R.querySelectorAll('.fa').forEach((a, i) => at(900 + i * 350, () => show(a)));
+        beatAt(0, `Forces act on everything around us. Today we are sorting them into <b>two groups</b>.`);
+        at(400, () => show(p1)); at(900, () => show(p2));
         beatAt(4500, `Here is our <b>learning intention</b>.`);
         at(4900, () => show(li));
-        beatAt(8000, `By the end of the lesson, you should be able to do these <b>four things</b>.`);
-        scs.forEach((s, i) => at(8500 + i * 500, () => show(s)));
+        beatAt(8500, `By the end of the lesson, you should be able to <b>define</b> a force and <b>classify</b> forces as contact or non-contact.`);
+        scs.forEach((s, i) => at(9000 + i * 600, () => show(s)));
+    }
+},
+{
+    title: 'Forces are <span>everywhere</span>',
+    cfu: 'tt',
+    dur: 19500,
+    run() {
+        const c = el('div', 'stack'), row = el('div', 'qgrid');
+        let leaves = ''; [[40, 26], [110, 22], [190, 30]].forEach(([x, y]) => leaves += `<ellipse cx="${x}" cy="${y}" rx="16" ry="7" fill="${NV}" opacity=".85" transform="rotate(-18 ${x} ${y})"/>`);
+        const vig = [
+            ['Kicking a ball', 'Push', `<line class="ground" x1="0" x2="240" y1="186" y2="186"/>${fig(70, 184, 'kick')}<g class="v-kick"><circle class="sball" cx="126" cy="166" r="16"/></g>`],
+            ['Opening a door', 'Pull', `<line class="ground" x1="0" x2="240" y1="186" y2="186"/><rect x="66" y="26" width="108" height="160" fill="none" stroke="#c9ccd6" stroke-width="5"/><g class="v-door"><rect x="70" y="30" width="100" height="156" fill="#f0f3f6" stroke="${NV}" stroke-width="4"/><circle cx="156" cy="112" r="6" fill="${PK}"/></g><g class="v-puller">${fig(178, 184, 'pull', true)}</g>`],
+            ['An apple falling', 'Pull', `<line class="ground" x1="0" x2="240" y1="186" y2="186"/><path d="M0 34 Q120 12 240 38" fill="none" stroke="${NV}" stroke-width="6" stroke-linecap="round"/>${leaves}<g class="v-apple"><g transform="translate(150 54)">${appleSVG()}</g></g>`],
+            ['A magnet and a paperclip', 'Pull', `<line class="ground" x1="0" x2="240" y1="186" y2="186"/>${magnetU(120, 30, .8, 90)}<g class="v-clip"><g transform="translate(103 172)">${clipSVG()}</g></g>`]
+        ].map(([t, tag, s]) => { const v = el('div', 'vig rev hide', `<svg viewBox="0 0 240 200" width="240" height="200">${s}</svg><div class="vh">${t}</div><div class="ptag"><span class="tag pk rev hide">${tag}</span></div>`); row.appendChild(v); return v; });
+        const q = el('div', 'qrow rev hide');
+        q.append(el('div', 'qbox', 'What do <b>all four</b> of these situations have in common?'));
+        c.append(row, q); content.appendChild(c);
+        beatAt(0, `Look closely at these four everyday situations.`);
+        vig.forEach((v, i) => at(400 + i * 300, () => show(v)));
+        beatAt(4000, `<b>Turn and talk.</b> What do all four of these situations have in common?`);
+        at(4400, () => show(q));
+        beatAt(9000, `Be ready to share. I will cold call someone to share their pair's idea.`);
+        beatAt(14000, `They all involve a <b>force</b>. In each one, something is being <b>pushed</b> or <b>pulled</b>.`);
+        vig.forEach((v, i) => at(14400 + i * 250, () => show(v.querySelector('.tag'))));
     }
 },
 {
     title: 'What is a <span>force</span>?',
     dur: 19000,
     run() {
-        const c = el('div', 'center'), row = el('div', 'row2');
-        const push = el('div', 'pan rev hide', `<div class="dlbl">Push</div><svg viewBox="0 0 500 270" width="500" height="270">
-            <line class="ground" x1="0" x2="500" y1="252" y2="252"/>
-            <g class="mv" style="--dx:110px">${fig(98, 250, 'push')}<rect class="obj" x="150" y="150" width="100" height="100" rx="6"/><text class="oname" x="200" y="207" text-anchor="middle">Box</text>${farrow(250, 200, 'r', 110, 'Push')}</g></svg>`);
-        const pull = el('div', 'pan rev hide', `<div class="dlbl">Pull</div><svg viewBox="0 0 500 270" width="500" height="270">
-            <line class="ground" x1="0" x2="500" y1="252" y2="252"/>
-            <g class="mv" style="--dx:110px"><rect class="obj" x="60" y="160" width="130" height="72" rx="6"/><text class="oname" x="125" y="203" text-anchor="middle">Cart</text><circle class="whl" cx="85" cy="238" r="12"/><circle class="whl" cx="165" cy="238" r="12"/>
-            <line class="rope" x1="190" y1="172" x2="260" y2="178"/>${fig(282, 250, 'pull', true)}${farrow(190, 205, 'r', 62, 'Pull', { lb: 1 })}</g></svg>`);
-        const unit = el('div', 'unit rev hide', 'Forces are measured in <b>newtons</b>, written as <b>N</b>');
-        row.append(push, pull); c.append(row, unit); content.appendChild(c);
+        const c = el('div', 'stack');
+        const d = el('div', 'defn rev hide', 'A <b>force</b> is a <b>push</b> or a <b>pull</b> that acts on an object.');
+        const row = el('div', 'row2'); row.style.marginTop = '22px'; row.style.justifyContent = 'center';
+        const push = el('div', 'pan rev hide', `<div class="dlbl">Push</div><svg viewBox="0 0 500 230" width="500" height="230">
+            <line class="ground" x1="0" x2="500" y1="214" y2="214"/>
+            <g class="mv" style="--dx:110px">${fig(98, 212, 'push')}<rect class="obj" x="150" y="112" width="100" height="100" rx="6"/><text class="oname" x="200" y="169" text-anchor="middle">Box</text>${farrow(250, 162, 'r', 110, 'Push')}</g></svg>`);
+        const pull = el('div', 'pan rev hide', `<div class="dlbl">Pull</div><svg viewBox="0 0 500 230" width="500" height="230">
+            <line class="ground" x1="0" x2="500" y1="214" y2="214"/>
+            <g class="mv" style="--dx:110px"><rect class="obj" x="60" y="122" width="130" height="72" rx="6"/><text class="oname" x="125" y="165" text-anchor="middle">Cart</text><circle class="whl" cx="85" cy="200" r="12"/><circle class="whl" cx="165" cy="200" r="12"/>
+            <line class="rope" x1="190" y1="134" x2="260" y2="140"/>${fig(282, 212, 'pull', true)}${farrow(190, 167, 'r', 62, 'Pull', { lb: 1 })}</g></svg>`);
+        const unit = el('div', 'pill rev hide', 'Forces are measured in <b>newtons (N)</b>. Every force involves <b>two objects</b>.');
+        unit.style.alignSelf = 'center'; unit.style.marginTop = '18px';
+        row.append(push, pull); c.append(d, row, unit); content.appendChild(c);
         const q = (p, s) => p.querySelector(s);
-        beatAt(0, `A <b>force</b> is a <b>push</b> or a <b>pull</b>.`);
-        at(400, () => show(push)); at(700, () => show(pull));
-        beatAt(3500, `When you <b>push</b> a box, the force acts away from you, and the box moves.`);
-        at(4000, () => show(q(push, '.fa'))); at(4800, () => q(push, '.mv').classList.add('go'));
-        beatAt(8500, `When you <b>pull</b> a cart, the force acts towards you.`);
-        at(9000, () => show(q(pull, '.fa'))); at(9800, () => q(pull, '.mv').classList.add('go'));
-        beatAt(13500, `Forces are measured in <b>newtons</b>, written with the symbol <b>N</b>.`);
+        beatAt(0, `A <b>force</b> is a <b>push</b> or a <b>pull</b> that acts on an object.`);
+        at(400, () => show(d)); at(900, () => show(push)); at(1200, () => show(pull));
+        beatAt(4500, `When you <b>push</b> a box, the force acts away from you, and the box moves.`);
+        at(5000, () => show(q(push, '.fa'))); at(5800, () => q(push, '.mv').classList.add('go'));
+        beatAt(9000, `When you <b>pull</b> a cart, the force acts towards you.`);
+        at(9500, () => show(q(pull, '.fa'))); at(10300, () => q(pull, '.mv').classList.add('go'));
+        beatAt(13500, `Forces are measured in <b>newtons</b>. Every force involves two objects: one pushing or pulling, and one being pushed or pulled.`);
         at(14000, () => show(unit));
     }
 },
 {
-    title: 'Force <span>arrows</span>',
-    dur: 21000,
+    title: 'What can forces <span>do</span>?',
+    dur: 17500,
     run() {
-        const g = el('div', 'split'), L = el('div');
-        const topD = el('div', 'rev hide', `<svg viewBox="0 0 540 200" width="540" height="200">
-            <rect class="obj" x="60" y="40" width="90" height="90" rx="6"/><text class="oname" x="105" y="92" text-anchor="middle">Box</text>
-            ${farrow(150, 85, 'r', 240, '30 N', { hide: false })}
-            ${[[150, 1], [270, 3], [380, 2]].map(([x, n]) => `<g class="mkr rev hide m${n}"><line x1="${x}" x2="${x}" y1="100" y2="138"/><circle cx="${x}" cy="156" r="17"/><text x="${x}" y="163" text-anchor="middle">${n}</text></g>`).join('')}</svg>`);
-        const cmp = el('div', 'rev hide', `<svg viewBox="0 0 540 190" width="540" height="190">${[[10, 35], [20, 95], [40, 155]].map(([n, y]) => `<rect class="obj" x="20" y="${y - 20}" width="40" height="40" rx="4"/>${farrow(60, y, 'r', n * 6, n + ' N', { hide: false, lp: 'end', sw: 7, hl: 18, hw: 11 })}`).join('')}</svg>`);
-        L.append(topD, cmp);
-        const R = el('div', 'rules');
-        const rules = [
-            'The arrow <strong>starts on the object</strong>.',
-            'The arrow <strong>points in the direction</strong> of the force.',
-            'A <strong>longer arrow</strong> means a <strong>bigger force</strong>. Label it in newtons (N).'
-        ].map((t, i) => { const r = el('div', 'rule rev hide', `<b>${i + 1}</b><div>${t}</div>`); R.appendChild(r); return r; });
-        g.append(L, R); content.appendChild(g);
-        const m = n => topD.querySelector('.m' + n);
-        beatAt(0, `Scientists show forces using <b>force arrows</b>. A force arrow diagram shows the forces acting on an object.`);
-        at(500, () => show(topD));
-        beatAt(4000, `Rule one: the arrow <b>starts on the object</b> the force is acting on.`);
-        at(4400, () => { show(rules[0]); show(m(1)); });
-        beatAt(8000, `Rule two: the arrow <b>points in the direction</b> of the force.`);
-        at(8400, () => { show(rules[1]); show(m(2)); });
-        beatAt(12000, `Rule three: the <b>length</b> of the arrow shows the <b>size</b> of the force. We label it in newtons.`);
-        at(12400, () => { show(rules[2]); show(m(3)); });
-        beatAt(16500, `So a 40 newton force gets an arrow <b>twice as long</b> as a 20 newton force.`);
-        at(17000, () => show(cmp));
+        const c = el('div', 'center');
+        const cards = [
+            ['Change speed', 'Start, stop, speed up or slow down', `<line class="ground" x1="10" x2="310" y1="104" y2="104"/><circle class="ballc ea-speed" r="14"/>`],
+            ['Change direction', 'Like a ball bouncing off a wall', `<rect class="wall" x="296" y="8" width="12" height="104"/><circle class="ballc ea-dir" r="14"/>`],
+            ['Change shape', 'Squash, stretch, bend or twist', `<line class="ground" x1="60" x2="260" y1="112" y2="112"/><rect class="wall ea-press" x="110" y="14" width="100" height="14" rx="3"/><ellipse class="ballc ea-squash" cx="160" cy="77" rx="33" ry="33"/>`]
+        ].map(([h, t, s]) => el('div', 'ecard big rev hide', `<svg viewBox="0 0 320 120" width="340" height="128">${s}</svg><div class="eh">${h}</div><div class="et">${t}</div>`));
+        const er = el('div', 'erow'); cards.forEach(k => er.appendChild(k));
+        c.appendChild(er); content.appendChild(c);
+        beatAt(0, `Forces can change the way objects <b>move</b>, and they can change an object's <b>shape</b>.`);
+        beatAt(3500, `A force can make an object <b>start moving</b>, <b>stop</b>, <b>speed up</b> or <b>slow down</b>.`);
+        at(3900, () => show(cards[0]));
+        beatAt(8000, `A force can change the <b>direction</b> an object is moving in.`);
+        at(8400, () => show(cards[1]));
+        beatAt(12500, `A force can also change an object's <b>shape</b>, by squashing, stretching, bending or twisting it.`);
+        at(12900, () => show(cards[2]));
     }
 },
 {
-    title: 'Notes: <span>forces</span>',
+    title: 'Definition: <span>force</span>',
     cfu: 'sj',
     dur: 11000,
     run() {
         const g = el('div', 'split r');
         const notes = el('div', 'notes rev hide', `<div class="dlbl">Copy into your book</div>
-            <p>A <b>force</b> is a push or a pull.</p>
+            <p>A <b>force</b> is a push or a pull that acts on an object.</p>
             <p>Forces are measured in <b>newtons (N)</b>.</p>
-            <p>A <b>force arrow diagram</b> shows the forces acting on an object.</p>
-            <p>Force arrows <b>start on the object</b>, <b>point in the direction</b> of the force and are <b>longer for bigger forces</b>.</p>`);
-        const R = el('div', 'col2 rev hide', `<div class="dlbl">Draw this example</div>` + fdiag([{ d: 'r', n: 20, lbl: 'Push' }], { w: 420, h: 220, size: 90, k: 4, name: 'Box', hide: false }));
+            <p>Every force involves <b>two objects</b> interacting.</p>
+            <p>Forces can change an object's <b>speed</b>, <b>direction</b> or <b>shape</b>.</p>`);
+        const R = el('div', 'col2 rev hide');
+        R.append(el('div', 'notes pinkb', `<div class="dlbl">Challenge</div><p>Write one example of a <b>push</b> and one example of a <b>pull</b> from your own day.</p>`));
         g.append(notes, R); content.appendChild(g);
-        beatAt(0, `<b>Stop and jot.</b> Copy these notes into your book.`);
+        beatAt(0, `<b>Stop and jot.</b> Copy the definition of a force into your book.`);
         at(400, () => show(notes));
-        beatAt(5000, `Then draw the example force arrow diagram. Remember the three rules for force arrows.`);
+        beatAt(5000, `Finished? Try the challenge: think of a push and a pull from your own day.`);
         at(5400, () => show(R));
     }
 },
 {
-    title: 'Adding <span>forces</span>',
-    dur: 22500,
+    title: 'Two groups of <span>forces</span>',
+    dur: 19000,
     run() {
-        const col = el('div', 'nwrap');
-        const mk = (lab, a, b, eq) => {
-            const r = el('div', 'rev hide');
-            r.innerHTML = `<div class="dlbl">${lab}</div><div class="nline"><div class="na">${a}</div><div class="eqs rev hide">=</div><div class="nb rev hide">${b}</div><div class="eqt rev hide">${eq}</div></div>`;
-            col.appendChild(r); return r;
-        };
-        const r1 = mk('Same direction: add the forces',
-            `<svg viewBox="0 0 280 150" width="280" height="150"><rect class="obj" x="40" y="45" width="70" height="70" rx="6"/>${farrow(110, 65, 'r', 60, '20 N')}${farrow(110, 97, 'r', 90, '30 N', { lb: 1 })}</svg>`,
-            `<svg viewBox="0 0 300 150" width="300" height="150"><rect class="obj" x="30" y="45" width="70" height="70" rx="6"/>${farrow(100, 80, 'r', 150, 'Net force 50 N', { c: NV, hide: false })}</svg>`,
-            '20 N + 30 N = <b>50 N</b> right');
-        const r2 = mk('Opposite directions: subtract the smaller force',
-            `<svg viewBox="0 0 340 150" width="340" height="150"><rect class="obj" x="100" y="45" width="70" height="70" rx="6"/>${farrow(170, 80, 'r', 150, '50 N')}${farrow(100, 80, 'l', 60, '20 N')}</svg>`,
-            `<svg viewBox="0 0 260 150" width="260" height="150"><rect class="obj" x="30" y="45" width="70" height="70" rx="6"/>${farrow(100, 80, 'r', 90, 'Net force 30 N', { c: NV, hide: false })}</svg>`,
-            '50 N &minus; 20 N = <b>30 N</b> right');
-        const pill = el('div', 'pill rev hide', 'The overall force on an object is called the <b>net force</b>');
-        col.appendChild(pill); content.appendChild(col);
-        const parts = r => [r.querySelector('.eqs'), r.querySelector('.nb'), r.querySelector('.eqt')];
-        beatAt(0, `When more than one force acts on an object, we can combine them into one overall force.`);
-        at(400, () => show(r1)); r1.querySelectorAll('.na .fa').forEach((a, i) => at(900 + i * 500, () => show(a)));
-        beatAt(4500, `Forces in the <b>same direction</b> add together. 20 newtons plus 30 newtons makes 50 newtons.`);
-        parts(r1).forEach((p, i) => at(5000 + i * 500, () => show(p)));
-        beatAt(9500, `Forces in <b>opposite directions</b> work against each other, so we subtract.`);
-        at(9900, () => show(r2)); r2.querySelectorAll('.na .fa').forEach((a, i) => at(10400 + i * 500, () => show(a)));
-        beatAt(13500, `50 newtons to the right minus 20 newtons to the left leaves <b>30 newtons</b> to the right.`);
-        parts(r2).forEach((p, i) => at(14000 + i * 500, () => show(p)));
-        beatAt(18000, `The overall force on an object is called the <b>net force</b>.`);
-        at(18400, () => show(pill));
+        const c = el('div', 'center'), row = el('div', 'row2');
+        const a = el('div', 'pan pink rev hide', `<div class="ph">Contact</div><svg viewBox="0 0 500 250" width="500" height="250"><line class="ground" x1="0" x2="500" y1="232" y2="232"/>${fig(98, 230, 'push')}<rect class="obj" x="150" y="130" width="100" height="100" rx="6"/><text class="oname" x="200" y="187" text-anchor="middle">Box</text>${farrow(250, 180, 'r', 110, 'Push', { hide: false })}<g class="touch rev hide"><circle class="pulse" cx="150" cy="148" r="20" fill="none" stroke="${PK}" stroke-width="4"/><text class="flbl" x="150" y="100" text-anchor="middle" style="font-size:22px">Touching</text></g></svg><div class="pt rev hide">The objects must be <b>touching</b>.</div>`);
+        const b = el('div', 'pan rev hide', `<div class="ph">Non-contact</div><svg viewBox="0 0 500 250" width="500" height="250">${magnetU(110, 125)}
+            <g class="gap rev hide"><line x1="186" x2="330" y1="190" y2="190" stroke="${PK}" stroke-width="3"/><line x1="186" x2="186" y1="180" y2="200" stroke="${PK}" stroke-width="3"/><line x1="330" x2="330" y1="180" y2="200" stroke="${PK}" stroke-width="3"/><text class="flbl" x="258" y="222" text-anchor="middle" style="font-size:22px">Gap</text></g>
+            <g class="nclip" transform="translate(332 118)">${clipSVG()}</g></svg><div class="pt rev hide">The force acts across a <b>distance</b>, without touching.</div>`);
+        row.append(a, b); c.appendChild(row); content.appendChild(c);
+        const clip = b.querySelector('.nclip');
+        beatAt(0, `Scientists sort forces into <b>two groups</b>: contact forces and non-contact forces.`);
+        at(400, () => show(a)); at(800, () => show(b));
+        beatAt(4000, `<b>Contact forces</b> only act when the two objects are <b>touching</b>.`);
+        at(4400, () => show(a.querySelector('.touch'))); at(4900, () => show(a.querySelector('.pt')));
+        beatAt(9000, `<b>Non-contact forces</b> act across a gap. The objects do not need to touch.`);
+        at(9400, () => show(b.querySelector('.gap'))); at(9900, () => show(b.querySelector('.pt')));
+        at(11200, () => { b.querySelector('.gap').classList.add('hide'); tween(900, e => clip.setAttribute('transform', `translate(${(332 - 146 * e).toFixed(1)} 118)`), easeIn, 'nclip'); });
+        beatAt(14500, `Some non-contact forces work over huge distances. The Sun's gravity reaches all the way to Earth.`);
     }
 },
 {
-    title: 'Tug of <span>war</span>',
+    title: 'Contact force: <span>friction</span>',
     dur: 24500,
     run() {
         const c = el('div', 'stack');
-        const t = el('div', 'rev hide', tug({ gy: 300, h: 320, alt: 400, extra: true, wob: true }));
-        const ro = el('div', 'readout'), r1 = rbox('Net force', '0 N'), r2 = rbox('The forces are', 'Balanced', true);
-        ro.append(r1, r2); c.append(t, ro); content.appendChild(c);
-        const q = s => t.querySelector(s);
-        beatAt(0, `In a <b>tug of war</b>, two teams pull on a rope in opposite directions.`);
-        at(400, () => show(t));
-        beatAt(3500, `Each team pulls with <b>300 newtons</b>. The forces are equal in size and opposite in direction.`);
-        at(4000, () => show(q('.la'))); at(4400, () => show(q('.ra')));
-        beatAt(8500, `The forces cancel out, so the net force is <b>0 newtons</b>. The forces are <b>balanced</b> and the rope does not move.`);
-        at(9000, () => show(r1)); at(9500, () => show(r2));
-        beatAt(14000, `Now another player joins the right team. The right team pulls with <b>400 newtons</b>.`);
-        at(14500, () => show(q('.late')));
-        at(15300, () => { q('.ra').classList.add('hide'); show(q('.alt')); setR(r1, '100 N &rarr;'); setR(r2, 'Unbalanced'); const g = q('.tw'); g.classList.remove('wob'); g.classList.add('gor'); });
-        beatAt(19000, `The forces are now <b>unbalanced</b>. The net force is 100 newtons to the right, so the rope moves right.`);
+        let hatch = ''; for (let x = 0; x < 1152; x += 18) hatch += `<line x1="${x}" y1="152" x2="${x - 10}" y2="164" stroke="#c9ccd6" stroke-width="2"/>`;
+        const strip = el('div', 'rev hide', `<svg viewBox="0 0 1152 170" width="1152" height="170"><line class="ground" x1="0" x2="1152" y1="150" y2="150"/>${hatch}
+            <g class="sbox" transform="translate(60 0)"><text class="spd" x="50" y="44" text-anchor="middle">Moving &rarr;</text><rect class="obj" x="0" y="60" width="100" height="88" rx="6"/><text class="oname" x="50" y="111" text-anchor="middle">Box</text><g class="farr">${farrow(0, 104, 'l', 90, 'Friction', { hide: false })}</g></g></svg>`);
+        let top = 'M40 0 L320 0 ', flo = 'M40 230 L320 230 ';
+        const tp = [], fp = [];
+        for (let i = 0; i <= 18; i++) { tp.push(`${320 - i * 16},${i % 2 ? 128 : 108}`); fp.push(`${320 - i * 16 - 8},${i % 2 ? 132 : 112}`); }
+        top += 'L' + tp.join(' L') + ' Z'; flo += 'L' + fp.join(' L') + ' Z';
+        const zoom = el('div', 'pan rev hide', `<div class="dlbl">Zoomed in</div><svg viewBox="0 0 360 230" width="360" height="230"><defs><clipPath id="zc"><circle cx="180" cy="115" r="105"/></clipPath></defs>
+            <g clip-path="url(#zc)"><rect x="0" y="0" width="360" height="230" fill="#fff"/><path d="${flo}" fill="#d7dae2" stroke="${NV}" stroke-width="2.5"/><g class="shake"><path d="${top}" fill="#f0f3f6" stroke="${NV}" stroke-width="2.5"/></g></g>
+            <circle cx="180" cy="115" r="105" fill="none" stroke="${NV}" stroke-width="5"/><text class="flbl" x="180" y="60" text-anchor="middle" style="font-size:20px">Box</text><text class="flbl" x="180" y="185" text-anchor="middle" style="font-size:20px">Floor</text></svg>`);
+        const facts = el('div', 'col2'); facts.style.alignItems = 'stretch'; facts.style.flex = '1'; facts.style.gap = '16px';
+        const f1 = el('div', 'notes rev hide', `<div class="dlbl">Friction is useful</div><p>Brakes, shoe grip and a pencil writing on paper all rely on <b>friction</b>.</p>`);
+        const f2 = el('div', 'notes pinkb rev hide', `<div class="dlbl">Try it</div><p>Rub your hands together quickly. Friction turns movement into <b>heat</b>.</p>`);
+        facts.append(f1, f2);
+        const bot = el('div', 'row2'); bot.style.marginTop = '10px'; bot.style.alignItems = 'center'; bot.append(zoom, facts);
+        c.append(strip, bot); content.appendChild(c);
+        const sb = strip.querySelector('.sbox'), fa = strip.querySelector('.farr');
+        const slide = () => { fa.style.opacity = 1; tween(3200, e => { sb.setAttribute('transform', `translate(${(60 + 640 * e).toFixed(1)} 0)`); if (e === 1) fa.style.opacity = 0; }, easeOut, 'slide'); };
+        strip.style.cursor = 'pointer'; strip.onclick = slide;
+        beatAt(0, `<b>Friction</b> is a contact force. It acts when two surfaces rub or slide against each other.`);
+        at(300, () => show(strip)); at(900, slide);
+        beatAt(5000, `Friction acts <b>against</b> the direction of motion. That is why the sliding box slows down and stops.`);
+        beatAt(10000, `Zoom in and even smooth surfaces are bumpy. The tiny bumps <b>catch</b> on each other as they slide.`);
+        at(10400, () => show(zoom));
+        beatAt(15000, `Friction is often useful. Brakes, shoe grip and pencils all rely on it.`);
+        at(15400, () => show(f1));
+        beatAt(19500, `Try it: rub your hands together quickly. Friction turns movement into <b>heat</b>.`);
+        at(19900, () => show(f2));
     }
 },
 {
-    title: 'Balanced or <span>unbalanced</span>?',
-    cfu: 'tt',
+    title: 'Air and water <span>resistance</span>',
+    dur: 20000,
+    run() {
+        const c = el('div', 'center'), row = el('div', 'row2');
+        const air = el('div', 'pan pink rev hide', `<div class="dlbl">Air resistance</div><svg class="clipv" viewBox="0 0 500 320" width="500" height="320">${particles(38, 500, 320, 'air-p', 3)}
+            <g class="bob"><g transform="translate(250 130)">${chuteSVG()}</g></g>${farrow(250, 66, 'u', 56, 'Air resistance')}</svg>`);
+        const r = rng(9);
+        const wl = []; for (let i = 0; i < 16; i++) { const y = (20 + r() * 280).toFixed(0), x = (r() * 500).toFixed(0); wl.push(`<line class="wat" x1="${x}" x2="${+x + 50}" y1="${y}" y2="${y}" style="animation-delay:${(-r() * 1.6).toFixed(2)}s"/>`); }
+        const water = el('div', 'pan rev hide', `<div class="dlbl">Water resistance</div><svg class="clipv" viewBox="0 0 500 320" width="500" height="320"><rect x="0" y="0" width="500" height="320" fill="#eef1f8"/>${wl.join('')}
+            <g class="bob"><g transform="translate(270 160)">${fishSVG()}</g></g>${farrow(184, 160, 'l', 90, 'Water resistance', { lb: 1 })}<text class="spd" x="270" y="60" text-anchor="middle">Swimming &rarr;</text></svg>`);
+        row.append(air, water); c.appendChild(row); content.appendChild(c);
+        beatAt(0, `When an object moves through air or water, tiny particles push against its surface.`);
+        beatAt(4000, `<b>Air resistance</b> slows objects moving through air. A parachute's large canopy catches lots of air.`);
+        at(4400, () => show(air)); at(5200, () => show(air.querySelector('.fa')));
+        beatAt(9500, `<b>Water resistance</b> slows objects moving through water. A fish's smooth, streamlined shape helps reduce it.`);
+        at(9900, () => show(water)); at(10700, () => show(water.querySelector('.fa')));
+        beatAt(15000, `Both are <b>contact forces</b>, because the air or water particles touch the object's surface.`);
+    }
+},
+{
+    title: 'More <span>contact forces</span>',
     dur: 21000,
     run() {
-        const c = el('div', 'stack');
-        const { wrap, cards } = choices([
-            { f: [{ d: 'r', n: 20 }, { d: 'l', n: 20 }], t: 'Balanced' },
-            { f: [{ d: 'r', n: 30 }, { d: 'l', n: 10 }], t: 'Unbalanced', cls: 'pk' },
-            { f: [{ d: 'u', n: 25 }, { d: 'd', n: 25 }, { d: 'r', n: 15 }], t: 'Unbalanced', cls: 'pk' },
-            { f: [{ d: 'u', n: 20 }, { d: 'd', n: 20 }, { d: 'l', n: 10 }, { d: 'r', n: 10 }], t: 'Balanced' }
-        ]);
-        const row = el('div', 'qrow rev hide');
-        row.append(el('div', 'qbox', 'Which diagrams show <b>balanced</b> forces and which show <b>unbalanced</b> forces? How do you know?'));
-        c.append(wrap, row); content.appendChild(c);
-        beatAt(0, `<b>Turn and talk.</b> Which of these force arrow diagrams show balanced forces, and which show unbalanced forces?`);
-        cards.forEach((k, i) => at(400 + i * 250, () => show(k.c))); at(1600, () => show(row));
-        beatAt(4500, `Be ready to explain <b>how you know</b>. I will cold call someone to share their pair's answer.`);
-        beatAt(9500, `<b>A</b> and <b>D</b> are balanced. The opposite forces are equal in size, so the net force is zero.`);
-        at(10000, () => { show(cards[0].tag); show(cards[3].tag); });
-        beatAt(15000, `<b>B</b> and <b>C</b> are unbalanced. In C, up and down cancel out, but nothing balances the 15 newtons to the right.`);
-        at(15500, () => { show(cards[1].tag); show(cards[2].tag); });
+        const c = el('div', 'center'), row = el('div', 'row2'); row.style.gap = '14px';
+        const card = (t, s, d) => { const p = el('div', 'pan pink pan3 rev hide', `<div class="dlbl">${t}</div><svg viewBox="0 0 340 230" width="340" height="230">${s}</svg><div class="et">${d}</div>`); p.style.cursor = 'default'; row.appendChild(p); return p; };
+        const p1 = card('Applied force', `<line class="ground" x1="0" x2="340" y1="212" y2="212"/>${fig(90, 210, 'push')}<rect class="obj" x="142" y="120" width="90" height="90" rx="6"/>${farrow(232, 165, 'r', 70, 'Push')}`, 'A push or pull from a person or object.');
+        let ceil = ''; for (let x = 100; x < 250; x += 16) ceil += `<line x1="${x}" y1="18" x2="${x + 10}" y2="6" stroke="#c9ccd6" stroke-width="2"/>`;
+        const p2 = card('Tension', `<line x1="90" x2="250" y1="18" y2="18" stroke="${NV}" stroke-width="5"/>${ceil}<g class="sway"><line class="rope" x1="170" y1="18" x2="170" y2="120"/><rect class="obj" x="130" y="120" width="80" height="70" rx="6"/><text class="oname" x="170" y="161" text-anchor="middle">Lamp</text>${farrow(170, 120, 'u', 70, 'Tension', {})}</g>`, 'The pull in a stretched rope, string or cable.');
+        const p3 = card('Support force', `<rect class="tbl" x="50" y="170" width="240" height="14" rx="3"/><line class="tleg" x1="76" x2="76" y1="184" y2="228"/><line class="tleg" x1="264" x2="264" y1="184" y2="228"/><rect class="obj" x="115" y="130" width="110" height="40" rx="4"/><text class="oname" x="170" y="157" text-anchor="middle">Book</text>${farrow(170, 130, 'u', 80, 'Support')}`, 'A surface pushing up on an object resting on it.');
+        c.appendChild(row); content.appendChild(c);
+        beatAt(0, `Here are three more contact forces you will see often.`);
+        beatAt(3500, `An <b>applied force</b> is a push or pull from a person or another object.`);
+        at(3900, () => show(p1)); at(4600, () => show(p1.querySelector('.fa')));
+        beatAt(8000, `<b>Tension</b> is the pulling force in a stretched rope, string or cable, like the cord holding up this lamp.`);
+        at(8400, () => show(p2)); at(9100, () => show(p2.querySelector('.fa')));
+        beatAt(12500, `A <b>support force</b> is a surface pushing up on an object resting on it, like a table holding up a book.`);
+        at(12900, () => show(p3)); at(13600, () => show(p3.querySelector('.fa')));
+        beatAt(17000, `All three need the objects to be touching, so they are all <b>contact forces</b>.`);
     }
 },
 {
-    title: 'Balanced forces and <span>motion</span>',
+    title: 'Notes: <span>contact forces</span>',
+    cfu: 'sj',
+    dur: 11000,
+    run() {
+        const g = el('div', 'split r'); g.style.gridTemplateColumns = '1fr';
+        const rows = [
+            ['Friction', 'Two surfaces rubbing. Acts against motion.'],
+            ['Air resistance', 'An object moving through air.'],
+            ['Water resistance', 'An object moving through water.'],
+            ['Applied force', 'A push or pull from a person or object.'],
+            ['Tension', 'The pull in a stretched rope or string.'],
+            ['Support force', 'A surface pushing up on an object.']
+        ].map(([a, b]) => `<div class="tr"><b>${a}</b><span>${b}</span></div>`).join('');
+        const notes = el('div', 'notes rev hide', `<div class="dlbl">Copy into your book</div><p><b>Contact forces</b> act when two objects are <b>touching</b>.</p><div class="tbl2">${rows}</div>`);
+        const tm = el('div', 'col2 rev hide');
+        g.append(notes, tm); content.appendChild(g);
+        beatAt(0, `<b>Stop and jot.</b> Copy the definition of a contact force and the six examples into your book.`);
+        at(400, () => show(notes)); at(900, () => show(tm));
+        beatAt(5500, `For each force, write a short description so you remember what it does.`);
+    }
+},
+{
+    title: 'Non-contact force: <span>gravity</span>',
+    dur: 20000,
+    run() {
+        const c = el('div', 'center'), row = el('div', 'row2'); row.style.alignItems = 'center'; row.style.gap = '60px';
+        const E = 210, R = 130;
+        let figs = '';
+        [0, 90, 180, 270].forEach(t => { const a = t * Math.PI / 180; figs += `<g transform="translate(${(E + R * Math.sin(a)).toFixed(1)} ${(E - R * Math.cos(a)).toFixed(1)}) rotate(${t}) scale(.6)">${fig(0, 0, 'stand')}</g>`; });
+        const arr = farrow(236, 18, 'd', 52, 'Gravity', { hide: false }) + farrow(402, 236, 'l', 52, '', { hide: false }) + farrow(184, 402, 'u', 52, '', { hide: false }) + farrow(18, 184, 'r', 52, '', { hide: false });
+        const earth = el('div', 'rev hide', `<svg viewBox="0 0 420 420" width="420" height="420"><circle cx="${E}" cy="${E}" r="${R}" class="earth2"/><path d="M${E - R} ${E} H${E + R} M${E - 112} ${E - 66} H${E + 112} M${E - 112} ${E + 66} H${E + 112}" class="lat2"/><ellipse cx="${E}" cy="${E}" rx="58" ry="${R}" class="lat2"/>${figs}<g class="garr rev hide">${arr}</g><circle cx="${E}" cy="${E}" r="5" fill="${PK}"/></svg>`);
+        let ghosts = ''; [.25, .5, .75].forEach(t => ghosts += `<circle cx="150" cy="${(60 + 290 * t * t).toFixed(1)}" r="18" fill="none" stroke="${PK}" stroke-width="2.5" stroke-dasharray="4 4"/>`);
+        const drop = el('div', 'rev hide', `<svg viewBox="0 0 300 400" width="300" height="400" style="cursor:pointer"><rect x="40" y="30" width="80" height="12" rx="3" fill="${NV}"/><line class="ground" x1="0" x2="300" y1="372" y2="372"/><g class="ghosts rev hide">${ghosts}</g><g class="dball" transform="translate(150 60)"><circle r="18" fill="${PK}"/></g><g class="darr">${farrow(150, 78, 'd', 60, 'Gravity', { hide: false })}</g><text class="spd" x="150" y="398" text-anchor="middle">Faster and faster</text></svg>`);
+        row.append(earth, drop);
+        const pill = el('div', 'pill rev hide', 'The force of gravity on an object is called its <b>weight</b>, measured in newtons (N)');
+        pill.style.alignSelf = 'center';
+        c.append(row, pill); content.appendChild(c);
+        const db = drop.querySelector('.dball'), da = drop.querySelector('.darr'), gh = drop.querySelector('.ghosts');
+        const fall = () => { gh.classList.add('hide'); da.style.opacity = 1; later(400, () => { da.style.opacity = 0; tween(1300, e => { db.setAttribute('transform', `translate(150 ${(60 + 290 * e).toFixed(1)})`); if (e === 1) show(gh); }, easeIn, 'drop'); }); };
+        drop.onclick = fall;
+        beatAt(0, `<b>Gravity</b> is a non-contact force. It pulls objects towards each other, without touching.`);
+        beatAt(4000, `Earth's gravity pulls everything towards its <b>centre</b>. So "down" points towards the middle of Earth, wherever you are.`);
+        at(4400, () => show(earth)); at(5200, () => show(earth.querySelector('.garr')));
+        beatAt(9500, `When you drop a ball, nothing touches it, but gravity pulls it down <b>faster and faster</b>.`);
+        at(9900, () => show(drop)); at(10600, fall);
+        beatAt(15000, `The force of gravity on an object is called its <b>weight</b>. Like all forces, it is measured in newtons.`);
+        at(15400, () => show(pill));
+    }
+},
+{
+    title: 'Non-contact force: <span>magnetism</span>',
     dur: 21000,
     run() {
         const c = el('div', 'center'), row = el('div', 'row2');
-        const book = el('div', 'pan rev hide', `<div class="dlbl">A book on a table</div><svg viewBox="0 0 520 300" width="520" height="300">
-            <rect class="tbl" x="100" y="192" width="320" height="14" rx="3"/><line class="tleg" x1="130" x2="130" y1="206" y2="296"/><line class="tleg" x1="390" x2="390" y1="206" y2="296"/>
-            <rect class="obj" x="200" y="152" width="120" height="40" rx="4"/><text class="oname" x="260" y="179" text-anchor="middle">Book</text>
-            ${farrow(260, 152, 'u', 90, 'Support 10 N')}${farrow(260, 192, 'd', 90, 'Weight 10 N')}</svg><div class="ptag"><span class="tag ol rev hide">Stays still</span></div>`);
-        let dashes = ''; for (let x = -60; x < 600; x += 60) dashes += `<line x1="${x}" x2="${x + 30}" y1="245" y2="245"/>`;
-        const car = el('div', 'pan pink rev hide', `<div class="dlbl">A car at a steady speed</div><svg viewBox="0 0 520 300" width="520" height="300">
-            <text class="spd" x="260" y="70" text-anchor="middle">Speed: 60 km/h</text>
-            <rect class="road" x="0" y="215" width="520" height="60"/><g class="dash run">${dashes}</g>
-            <g class="spin" transform="translate(170 165) scale(.85)">${carBody()}</g>
-            ${farrow(173, 187, 'l', 100, 'Friction')}${farrow(337, 187, 'r', 100, 'Driving force')}</svg><div class="ptag"><span class="tag ol rev hide">Keeps a steady speed</span></div>`);
-        row.append(book, car); c.appendChild(row); content.appendChild(c);
-        beatAt(0, `Balanced forces do <b>not</b> change an object's motion.`);
-        beatAt(3500, `A book resting on a table has balanced forces. Gravity pulls it down, and the table pushes up just as hard.`);
-        at(3900, () => show(book)); book.querySelectorAll('.fa').forEach((a, i) => at(4600 + i * 500, () => show(a)));
-        beatAt(9000, `A car driving at a <b>steady speed</b> also has balanced forces. The driving force equals the friction pushing back.`);
-        at(9400, () => show(car)); car.querySelectorAll('.fa').forEach((a, i) => at(10100 + i * 500, () => show(a)));
-        beatAt(15500, `So balanced forces mean an object stays still, <b>or</b> keeps moving at a steady speed in a straight line.`);
-        at(16000, () => document.querySelectorAll('#content .ptag .tag').forEach(show));
+        const p1 = el('div', 'pan rev hide', `<div class="dlbl">Magnets attract some metals</div><svg viewBox="0 0 500 300" width="500" height="300">${magnetU(90, 150)}
+            <g class="mc" transform="translate(330 102)">${clipSVG()}</g><text class="flbl mcl" x="347" y="92" text-anchor="middle" style="font-size:18px">Steel</text>
+            <rect x="320" y="185" width="60" height="30" rx="5" fill="#f0f3f6" stroke="${NV}" stroke-width="3"/><text class="flbl" x="350" y="240" text-anchor="middle" style="font-size:18px">Plastic</text>
+            <text class="spd" x="250" y="292" text-anchor="middle">Iron, nickel and cobalt</text></svg>`);
+        const p2 = el('div', 'pan pink rev hide', `<div class="dlbl">Poles</div><svg viewBox="0 0 500 300" width="500" height="300">
+            <text class="flbl" x="250" y="40" text-anchor="middle" style="font-size:22px">Unlike poles attract</text>
+            <g class="mA" transform="translate(110 85)">${barMag(false)}</g><g class="mB" transform="translate(390 85)">${barMag(false)}</g>
+            <g class="rp rev hide"><text class="flbl" x="250" y="190" text-anchor="middle" style="font-size:22px">Like poles repel</text>
+            <g class="mC" transform="translate(190 235)">${barMag(false)}</g><g class="mD" transform="translate(310 235)">${barMag(true)}</g></g></svg>`);
+        row.append(p1, p2); c.appendChild(row); content.appendChild(c);
+        const q = (p, s) => p.querySelector(s);
+        const mT = (e, x, y) => e.setAttribute('transform', `translate(${x.toFixed(1)} ${y})`);
+        beatAt(0, `<b>Magnetic force</b> is a non-contact force. Magnets can push or pull without touching.`);
+        beatAt(4000, `Magnets attract some metals, such as <b>iron</b>, <b>nickel</b> and <b>cobalt</b>. Plastic is not attracted at all.`);
+        at(4400, () => show(p1));
+        at(5600, () => { q(p1, '.mcl').style.opacity = 0; tween(800, e => mT(q(p1, '.mc'), 330 - 168 * e, 102), easeIn, 'mc'); });
+        beatAt(10000, `Every magnet has a north and a south pole. <b>Unlike poles attract</b>, pulling the magnets together.`);
+        at(10400, () => show(p2));
+        at(11400, () => tween(900, e => { mT(q(p2, '.mA'), 110 + 80 * e, 85); mT(q(p2, '.mB'), 390 - 80 * e, 85); }, easeIn, 'att'));
+        beatAt(15500, `<b>Like poles repel</b>, pushing the magnets apart. That is a push without any touching.`);
+        at(15900, () => show(q(p2, '.rp')));
+        at(16800, () => tween(1000, e => { mT(q(p2, '.mC'), 190 - 70 * e, 235); mT(q(p2, '.mD'), 310 + 70 * e, 235); }, easeOut, 'rep'));
     }
 },
 {
-    title: 'Unbalanced forces change <span>motion</span>',
-    dur: 25500,
+    title: 'Non-contact force: <span>electrostatic</span>',
+    dur: 20500,
     run() {
-        const c = el('div', 'center'), row = el('div', 'row2'); row.style.gap = '14px';
-        const road = `<line class="ground" x1="0" x2="340" y1="90" y2="90"/><g class="car" transform="translate(10 62) scale(.45)">${carBody()}</g>`;
-        const card = (title, strip, forces, k, name, tag) => {
-            const p = el('div', 'pan pink pan3 rev hide', `<div class="dlbl">${title}</div><svg viewBox="0 0 340 110" width="340" height="110">${strip}</svg>${fdiag(forces, { w: 340, h: 170, size: 60, k, name, hide: false })}<div class="ptag"><span class="tag pk">${tag}</span></div>`);
-            row.appendChild(p); return p;
-        };
-        const p1 = card('Speeding up', road, [{ d: 'r', n: 600 }, { d: 'l', n: 200 }], .15, 'Car', 'Speeds up');
-        const p2 = card('Slowing down', road, [{ d: 'r', n: 200 }, { d: 'l', n: 600 }], .15, 'Car', 'Slows down');
-        const p3 = card('Changing direction', `<path class="trail rev hide" d="M20 80 L160 80 Q240 80 320 16"/><circle class="ballc" cx="20" cy="80" r="11"/>`, [{ d: 'u', n: 20, lbl: 'Kick' }], 2.5, 'Ball', 'Changes direction');
-        c.appendChild(row); content.appendChild(c);
-        const carT = (p, x) => p.querySelector('.car').setAttribute('transform', `translate(${x.toFixed(1)} 62) scale(.45)`);
-        const run1 = () => tween(2200, e => carT(p1, 10 + 230 * e), easeIn, 'u1');
-        const run2 = () => tween(2200, e => carT(p2, 10 + 230 * e), easeOut, 'u2');
-        const ball = p3.querySelector('.ballc');
-        const run3 = () => tween(2400, p => {
-            let x, y;
-            if (p < .45) { x = 20 + 140 * p / .45; y = 80; }
-            else { const t = (p - .45) / .55, u = 1 - t; x = u * u * 160 + 2 * u * t * 240 + t * t * 320; y = u * u * 80 + 2 * u * t * 80 + t * t * 16; }
-            ball.setAttribute('cx', x.toFixed(1)); ball.setAttribute('cy', y.toFixed(1));
-            if (p === 1) show(p3.querySelector('.trail'));
-        }, t => t, 'u3');
-        p1.onclick = run1; p2.onclick = run2; p3.onclick = run3;
-        beatAt(0, `<b>Unbalanced</b> forces always change an object's motion. Motion can change in three ways.`);
-        beatAt(4000, `When the forward force is bigger, the net force points forwards and the car <b>speeds up</b>.`);
-        at(4400, () => show(p1)); at(5200, run1);
-        beatAt(9500, `When the backward force is bigger, the net force points backwards and the car <b>slows down</b>.`);
-        at(9900, () => show(p2)); at(10700, run2);
-        beatAt(15000, `A force from the side makes a moving object <b>change direction</b>, like kicking a rolling ball.`);
-        at(15400, () => show(p3)); at(16200, run3);
-        beatAt(20500, `Speeding up, slowing down and changing direction are all caused by <b>unbalanced forces</b>.`);
-    }
-},
-{
-    title: 'Analyse the <span>diagram</span>',
-    cfu: 'sj',
-    dur: 24000,
-    run() {
-        const g = el('div', 'split'); g.style.gridTemplateColumns = '480px 1fr';
-        const D = el('div', 'rev hide', fdiag([{ d: 'u', n: 40 }, { d: 'd', n: 40 }, { d: 'r', n: 30 }, { d: 'l', n: 10 }], { w: 480, h: 400, size: 116, name: 'Trolley' }));
-        const R = el('div');
-        const intro = el('div', 'qbox sj', 'The trolley <b>starts still</b>. Answer these questions in your book.');
-        const ir = el('div', 'qrow rev hide'); ir.style.margin = '0 0 10px'; ir.append(intro);
-        R.appendChild(ir);
-        const qa = [
-            ['Are the up and down forces balanced?', 'Yes. 40 N up and 40 N down cancel out.'],
-            ['What is the net force?', '30 N &minus; 10 N = 20 N to the right.'],
-            ['What happens to the trolley\u2019s motion?', 'It starts moving to the right and speeds up.']
-        ].map(([qq, aa], i) => { const b = el('div', 'qa rev hide', `<div class="q"><b>${i + 1}</b><span>${qq}</span></div><div class="a rev hide">${aa}</div>`); R.appendChild(b); return b; });
-        g.append(D, R); content.appendChild(g);
-        const ans = i => qa[i].querySelector('.a');
-        beatAt(0, `<b>Stop and jot.</b> The trolley starts still. Look carefully at this force arrow diagram.`);
-        at(400, () => show(D)); D.querySelectorAll('.fa').forEach((a, i) => at(900 + i * 400, () => show(a)));
-        beatAt(4500, `Answer the three questions in your book. Take your time and work on your own.`);
-        at(4900, () => show(ir)); qa.forEach((b, i) => at(5300 + i * 300, () => show(b)));
-        beatAt(9500, `Check your answers. The up and down forces are both 40 newtons, so they are <b>balanced</b>.`);
-        at(9900, () => show(ans(0)));
-        beatAt(14000, `The left and right forces are unbalanced. 30 minus 10 gives a <b>net force of 20 newtons</b> to the right.`);
-        at(14400, () => show(ans(1)));
-        beatAt(19500, `So the trolley starts moving to the right and <b>speeds up</b>.`);
-        at(19900, () => show(ans(2)));
-    }
-},
-{
-    title: 'The rolling <span>ball</span>',
-    cfu: 'tt',
-    dur: 24500,
-    run() {
-        const c = el('div', 'stack');
-        let tufts = ''; for (let x = 20; x < 1152; x += 46) tufts += `<path d="M${x} 120 l4 -10 l4 10 M${x + 8} 120 l3 -7" stroke="#c9ccd6" stroke-width="2.5" fill="none" stroke-linecap="round"/>`;
-        const sv = el('div', 'rev hide', `<svg viewBox="0 0 1152 150" width="1152" height="150" style="cursor:pointer"><line class="ground" x1="0" x2="1152" y1="122" y2="122"/>${tufts}<text class="spd" x="1152" y="150" text-anchor="end">Grass</text><g class="ballg" transform="translate(60 94)">${soccer(26)}</g></svg>`);
-        const bot = el('div', 'qrow'); bot.style.alignItems = 'flex-start'; bot.style.marginTop = '8px';
-        const left = el('div'); left.style.flex = '1';
-        const qb = el('div', 'qbox rev hide', 'The ball slows down and stops. Are the forces on the ball <b>balanced</b> or <b>unbalanced</b>? How do you know?');
-        const lr = el('div', 'qrow'); lr.style.alignItems = 'flex-start';
-        const tm = el('div', 'rev hide');
-        const ans = el('div', 'ans rev hide', '<b>Unbalanced.</b> The ball slowed down, so its motion changed. Friction from the grass pushes backwards, and no force pushes forwards to balance it.');
-        lr.append(tm, ans); left.append(qb, lr);
-        const D = el('div', 'rev hide', `<div class="mov" style="margin:0;text-align:center">Moving &rarr;</div>` + fdiag([{ d: 'u', n: 20, lbl: 'Support' }, { d: 'd', n: 20, lbl: 'Weight' }, { d: 'l', n: 15, lbl: 'Friction', lb: 1 }], { w: 340, h: 260, size: 70, name: 'Ball' }));
-        bot.append(left, D); c.append(sv, bot); content.appendChild(c);
-        const bg = sv.querySelector('.ballg');
-        const roll = () => tween(3200, e => { const x = 60 + 700 * e; bg.setAttribute('transform', `translate(${x.toFixed(1)} 94) rotate(${((x - 60) / 26 * 57.3).toFixed(1)})`); }, easeOut, 'roll');
-        sv.onclick = roll;
-        const fas = D.querySelectorAll('.fa');
-        beatAt(0, `Watch the ball as it rolls across the grass.`);
-        at(300, () => show(sv)); at(900, roll);
-        beatAt(4500, `<b>Turn and talk.</b> Are the forces on the ball balanced or unbalanced? How do you know?`);
-        at(4900, () => show(qb)); at(5300, () => show(tm));
-        beatAt(9500, `Be ready. I will cold call someone to share their pair's answer.`);
-        beatAt(14000, `The forces are <b>unbalanced</b>. The ball slowed down, so its motion changed.`);
-        at(14400, () => { show(ans); show(D); show(fas[0]); show(fas[1]); });
-        beatAt(19000, `Friction from the grass pushes <b>backwards</b>, and there is nothing pushing forwards to balance it.`);
-        at(19500, () => show(fas[2]));
-    }
-},
-{
-    title: 'Different forces, <span>different effects</span>',
-    dur: 23500,
-    run() {
-        const c = el('div', 'stack');
-        const lanes = [{ y: 55, n: 10, end: 470, D: 2000, lab: 'Small force' }, { y: 140, n: 40, end: 1100, D: 3000, lab: 'Large force' }];
-        const sv = el('div', 'rev hide', `<svg viewBox="0 0 1152 180" width="1152" height="180" style="cursor:pointer">${lanes.map((l, i) => `<text class="lane" x="0" y="${l.y + 10}">${l.lab}</text><line class="lanel" x1="200" x2="1152" y1="${l.y + 24}" y2="${l.y + 24}"/>${farrow(252, l.y, 'r', l.n * 3, 'Kick ' + l.n + ' N', { cls: 'k' + i })}<g class="bl${i}" transform="translate(230 ${l.y})">${soccer(22)}</g>`).join('')}</svg>`);
-        const cards = [
-            ['Change speed', 'Speed up, slow down, start or stop', `<line class="ground" x1="10" x2="310" y1="104" y2="104"/><circle class="ballc ea-speed" r="14"/>`],
-            ['Change direction', 'Like a ball bouncing off a wall', `<rect class="wall" x="296" y="8" width="12" height="104"/><circle class="ballc ea-dir" r="14"/>`],
-            ['Change shape', 'Like squashing a stress ball', `<line class="ground" x1="60" x2="260" y1="112" y2="112"/><rect class="wall ea-press" x="110" y="14" width="100" height="14" rx="3"/><ellipse class="ballc ea-squash" cx="160" cy="77" rx="33" ry="33"/>`]
-        ].map(([h, t, s]) => el('div', 'ecard rev hide', `<svg viewBox="0 0 320 120" width="320" height="120">${s}</svg><div class="eh">${h}</div><div class="et">${t}</div>`));
-        const er = el('div', 'erow'); cards.forEach(k => er.appendChild(k));
-        c.append(sv, er); content.appendChild(c);
-        const kick = () => lanes.forEach((l, i) => {
-            show(sv.querySelector('.k' + i));
-            const b = sv.querySelector('.bl' + i);
-            b.setAttribute('transform', `translate(230 ${l.y})`);
-            later(600, () => tween(l.D, e => { const x = 230 + (l.end - 230) * e; b.setAttribute('transform', `translate(${x.toFixed(1)} ${l.y}) rotate(${((x - 230) / 22 * 57.3).toFixed(1)})`); }, easeOut, 'kick' + i));
-        });
-        sv.onclick = kick;
-        beatAt(0, `The <b>size</b> of a force changes how big its effect is. Watch two kicks of different sizes.`);
-        at(300, () => show(sv)); at(1200, kick);
-        beatAt(6000, `The <b>bigger</b> force causes a <b>bigger</b> change in motion. The ball goes faster and further.`);
-        beatAt(10500, `Forces can have different effects. A force can change an object's <b>speed</b>.`);
-        at(10900, () => show(cards[0]));
-        beatAt(14500, `A force can change an object's <b>direction</b>, like a ball bouncing off a wall.`);
-        at(14900, () => show(cards[1]));
-        beatAt(18500, `A force can also change an object's <b>shape</b>, like squashing a stress ball.`);
-        at(18900, () => show(cards[2]));
-    }
-},
-{
-    title: 'Force <span>lab</span>',
-    dur: 29500,
-    run() {
-        const c = el('div', 'stack');
-        const sv = el('div', '', `<svg viewBox="0 0 1152 210" width="1152" height="210"><line class="ground" x1="0" x2="1152" y1="182" y2="182"/><text class="spd" x="1152" y="208" text-anchor="end">No friction in this lab</text>
-            <g class="lb"><rect class="obj" x="-50" y="80" width="100" height="100" rx="6"/><text class="oname" x="0" y="137" text-anchor="middle">Box</text><g class="arrs"></g></g></svg>`);
-        const lab = el('div', 'lab'), lab2 = el('div', 'lab');
-        const stp = (lbl, pink) => el('div', 'stp' + (pink ? ' pink' : ''), `<div class="dlbl">${lbl}</div><div class="sr"><button class="sbtn" aria-label="Decrease">&minus;</button><span class="sv">0 N</span><button class="sbtn" aria-label="Increase">+</button></div>`);
-        const sL = stp('Force to the left'), sR = stp('Force to the right');
-        const rN = el('div', 'rbox', '<div class="lbl">Net force</div><div class="num">0 N</div>');
-        const rF = el('div', 'rbox pink', '<div class="lbl">The forces are</div><div class="num">Balanced</div>');
-        const rM = el('div', 'rbox mo', '<div class="lbl">Motion</div><div class="num">Still</div>');
-        const rst = el('button', 'rst', 'Reset');
-        lab.append(sL, sR, rst); lab2.append(rN, rF, rM);
-        c.append(sv, lab, lab2); content.appendChild(c);
-        const S = { L: 0, R: 0, x: 260, v: 0 };
-        const box = sv.querySelector('.lb'), arrs = sv.querySelector('.arrs');
-        const render = () => {
-            box.setAttribute('transform', `translate(${S.x.toFixed(1)} 0)`);
-            arrs.innerHTML = (S.R ? farrow(50, 130, 'r', S.R * 3, S.R + ' N', { hide: false }) : '') + (S.L ? farrow(-50, 130, 'l', S.L * 3, S.L + ' N', { hide: false }) : '');
-            const net = S.R - S.L, moving = Math.abs(S.v) > 3;
-            sL.querySelector('.sv').textContent = S.L + ' N'; sR.querySelector('.sv').textContent = S.R + ' N';
-            setR(rN, net === 0 ? '0 N' : Math.abs(net) + ' N ' + (net > 0 ? '&rarr;' : '&larr;'));
-            setR(rF, net === 0 ? 'Balanced' : 'Unbalanced');
-            let m;
-            if (net === 0) m = moving ? 'Steady speed' : 'Still';
-            else if (!moving || Math.sign(S.v) === Math.sign(net)) m = 'Speeding up ' + (net > 0 ? 'right' : 'left');
-            else m = 'Slowing down';
-            setR(rM, m);
-        };
-        const setF = (l, r) => { S.L = Math.max(0, Math.min(50, l)); S.R = Math.max(0, Math.min(50, r)); render(); };
-        const [lm, lp] = sL.querySelectorAll('.sbtn'), [rm, rp] = sR.querySelectorAll('.sbtn');
-        lm.onclick = () => setF(S.L - 10, S.R); lp.onclick = () => setF(S.L + 10, S.R);
-        rm.onclick = () => setF(S.L, S.R - 10); rp.onclick = () => setF(S.L, S.R + 10);
-        rst.onclick = () => { S.x = 260; S.v = 0; setF(0, 0); };
-        [lm, lp, rm, rp, rst].forEach(b => b.addEventListener('click', () => b.blur()));
-        render();
-        if (!exporting) {
-            let raf = 0, last = performance.now();
-            const loop = n => {
-                const dt = Math.min(0.05, (n - last) / 1000); last = n;
-                S.v = Math.max(-350, Math.min(350, S.v + (S.R - S.L) * 1.5 * dt));
-                if (S.R === S.L && Math.abs(S.v) < 0.5) S.v = 0;
-                S.x += S.v * dt;
-                if (S.x > 1202) S.x -= 1304; if (S.x < -52) S.x += 1304;
-                render();
-                raf = requestAnimationFrame(loop);
-            };
-            raf = requestAnimationFrame(loop);
-            cleanups.push(() => cancelAnimationFrame(raf));
+        const c = el('div', 'center'), row = el('div', 'row2');
+        const hx = 150, hy = 200, hr = 58;
+        const flat = `<path d="M${hx - 60} ${hy - 4} Q${hx - 62} ${hy - 72} ${hx} ${hy - 74} Q${hx + 62} ${hy - 72} ${hx + 60} ${hy - 4}" fill="none" stroke="${NV}" stroke-width="7" stroke-linecap="round"/><path d="M${hx - 40} ${hy - 50} Q${hx} ${hy - 80} ${hx + 40} ${hy - 50}" fill="none" stroke="${NV}" stroke-width="5"/>`;
+        let up = '', plus = '';
+        for (let i = 0; i < 9; i++) {
+            const a = (-160 + i * 17.5) * Math.PI / 180, x0 = hx + Math.cos(a) * hr, y0 = hy + Math.sin(a) * hr;
+            const dx = 350 - x0, dy = 90 - y0, L = Math.hypot(dx, dy);
+            up += `<line x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${(x0 + dx / L * 42).toFixed(1)}" y2="${(y0 + dy / L * 42).toFixed(1)}" stroke="${NV}" stroke-width="4" stroke-linecap="round"/>`;
         }
-        beatAt(0, `Let's investigate in the <b>force lab</b>. There is no friction here, so we can see the effect of each force clearly.`);
-        beatAt(4500, `Apply a force of 20 newtons to the right. The forces are unbalanced, so the box <b>speeds up</b>.`);
-        at(5000, () => setF(0, 20));
-        beatAt(10500, `Now add 20 newtons to the left. The forces are balanced, so the box keeps moving at a <b>steady speed</b>.`);
-        at(11000, () => setF(20, 20));
-        beatAt(17000, `Make the left force bigger. The box <b>slows down</b>, stops, then speeds up to the left.`);
-        at(17500, () => setF(40, 20));
-        beatAt(24500, `Try your own combinations. <b>Predict</b> what the box will do before you change the forces.`);
-        at(25000, () => { S.x = 260; S.v = 0; setF(0, 0); });
+        [[hx - 30, hy - 30], [hx + 5, hy - 40], [hx + 36, hy - 22]].forEach(([x, y]) => plus += `<text class="chg" x="${x}" y="${y}">+</text>`);
+        let minus = ''; [[-12, -14], [12, -8], [-4, 12], [14, 18], [-16, 6]].forEach(([x, y]) => minus += `<text class="chg w" x="${x}" y="${y + 6}">&minus;</text>`);
+        const p1 = el('div', 'pan rev hide', `<div class="dlbl">A balloon and your hair</div><svg viewBox="0 0 500 320" width="500" height="320">
+            <circle cx="${hx}" cy="${hy}" r="${hr}" fill="#f0f3f6" stroke="${NV}" stroke-width="4"/><circle cx="${hx + 18}" cy="${hy + 2}" r="4" fill="${NV}"/><circle cx="${hx + 40}" cy="${hy + 2}" r="4" fill="${NV}"/>
+            <path d="M${hx - 14} ${hy + 58} L${hx - 18} ${hy + 110} M${hx + 14} ${hy + 58} L${hx + 18} ${hy + 110}" stroke="${NV}" stroke-width="7" stroke-linecap="round"/>
+            <g class="hflat rev">${flat}</g><g class="hup rev hide">${up}${plus}</g>
+            <g class="bl" transform="translate(222 150)"><g class="rubber">${balloonSVG()}<g class="mins rev hide">${minus}</g></g></g></svg>`);
+        const r = rng(5); const bits = [];
+        let bs = ''; for (let i = 0; i < 9; i++) { const x = 150 + r() * 200, rot = (r() * 60 - 30).toFixed(0); bits.push({ x, tx: 225 + r() * 50, ty: 150 + r() * 10, rot }); bs += `<rect class="bit" width="14" height="9" fill="${NV}" x="-7" y="-4.5" transform="translate(${x.toFixed(1)} 262) rotate(${rot})"/>`; }
+        const p2 = el('div', 'pan pink rev hide', `<div class="dlbl">A charged balloon and paper</div><svg viewBox="0 0 500 320" width="500" height="320">
+            <rect class="tbl" x="80" y="268" width="340" height="12" rx="3"/><g transform="translate(250 95)">${balloonSVG()}<g>${minus}</g></g>${bs}</svg>`);
+        row.append(p1, p2); c.appendChild(row); content.appendChild(c);
+        const bl = p1.querySelector('.bl'), rub = p1.querySelector('.rubber');
+        beatAt(0, `<b>Electrostatic force</b> is a non-contact force caused by electric <b>charges</b>.`);
+        at(300, () => show(p1));
+        beatAt(4000, `Rubbing a balloon on your hair moves tiny <b>negative charges</b> onto the balloon.`);
+        at(4400, () => rub.classList.add('rub')); at(6600, () => show(p1.querySelector('.mins')));
+        beatAt(9500, `Pull the balloon away, and your hair rises <b>towards</b> it, even though the balloon is not touching it.`);
+        at(9900, () => { rub.classList.remove('rub'); tween(1100, e => bl.setAttribute('transform', `translate(${(222 + 128 * e).toFixed(1)} ${(150 - 60 * e).toFixed(1)})`), easeOut, 'bl'); });
+        at(11000, () => { p1.querySelector('.hflat').classList.add('hide'); show(p1.querySelector('.hup')); });
+        beatAt(15000, `A charged balloon can even lift tiny pieces of paper from a distance.`);
+        at(15400, () => show(p2));
+        at(16400, () => { const els = p2.querySelectorAll('.bit'); tween(900, e => els.forEach((b, i) => { const k = bits[i]; b.setAttribute('transform', `translate(${(k.x + (k.tx - k.x) * e).toFixed(1)} ${(262 + (k.ty - 262) * e).toFixed(1)}) rotate(${(k.rot * (1 - e) + 90 * e).toFixed(0)})`); }), easeIn, 'bits'); });
     }
 },
 {
-    title: 'Which car is <span>slowing down</span>?',
+    title: 'Notes: <span>non-contact forces</span>',
     cfu: 'sj',
-    dur: 19500,
+    dur: 11000,
     run() {
-        const c = el('div', 'stack');
-        const { wrap, cards } = choices([
-            { f: [{ d: 'r', n: 30 }, { d: 'l', n: 10 }], t: 'Speeds up', cls: 'ol' },
-            { f: [{ d: 'r', n: 20 }, { d: 'l', n: 20 }], t: 'Steady speed', cls: 'ol' },
-            { f: [{ d: 'r', n: 10 }, { d: 'l', n: 30 }], t: 'Slows down', cls: 'pk' },
-            { f: [{ d: 'u', n: 20 }, { d: 'd', n: 20 }, { d: 'r', n: 20 }], t: 'Speeds up', cls: 'ol' }
-        ], { moving: true, name: 'Car', h: 200 });
-        const row = el('div', 'qrow rev hide');
-        row.append(el('div', 'qbox sj', 'Each car is moving to the right. Which diagram shows a car that is <b>slowing down</b>? Write the letter on your mini whiteboard.'));
-        c.append(wrap, row); content.appendChild(c);
-        beatAt(0, `<b>Stop and jot.</b> Each of these cars is moving to the right.`);
-        cards.forEach((k, i) => at(400 + i * 250, () => show(k.c))); at(1600, () => show(row));
-        beatAt(3500, `Which diagram shows a car that is <b>slowing down</b>? Write the letter on your mini whiteboard.`);
-        beatAt(9000, `The answer is <b>C</b>. The bigger force points backwards, against the motion, so the car slows down.`);
-        at(9500, () => { cards[2].c.classList.add('right'); show(cards[2].tag); });
-        beatAt(14000, `A and D speed up, because the net force points forwards. B has balanced forces, so its speed stays the same.`);
-        at(14500, () => [0, 1, 3].forEach(i => show(cards[i].tag)));
+        const g = el('div', 'split r'); g.style.gridTemplateColumns = '1fr 380px';
+        const rows = [
+            ['Gravity', 'Pulls objects towards each other, such as towards Earth\u2019s centre.'],
+            ['Magnetic force', 'Magnets attract or repel other magnets and some metals.'],
+            ['Electrostatic force', 'Charged objects attract or repel each other.']
+        ].map(([a, b]) => `<div class="tr"><b>${a}</b><span>${b}</span></div>`).join('');
+        const notes = el('div', 'notes rev hide', `<div class="dlbl">Copy into your book</div><p><b>Non-contact forces</b> act across a <b>distance</b>, without the objects touching.</p><div class="tbl2">${rows}</div>`);
+        const R = el('div', 'col2 rev hide');
+        R.append(el('div', 'notes pinkb', `<div class="dlbl">Challenge</div><p>Gravity keeps the Moon moving around Earth. What does this tell you about how far <b>non-contact forces</b> can reach?</p>`));
+        g.append(notes, R); content.appendChild(g);
+        beatAt(0, `<b>Stop and jot.</b> Copy the definition of a non-contact force and the three examples into your book.`);
+        at(400, () => show(notes));
+        beatAt(5500, `Finished? Try the challenge question.`);
+        at(5900, () => show(R));
     }
 },
 {
-    title: 'Predict: <span>tug of war</span>',
+    title: 'Contact or <span>non-contact</span>?',
     cfu: 'tt',
-    dur: 25500,
+    dur: 21000,
     run() {
-        const c = el('div', 'stack');
-        const t = el('div', 'rev hide', tug({ gy: 258, h: 270, alt: 200, leave: true, wob: true }));
-        const row = el('div', 'qrow'); row.style.alignItems = 'flex-start'; row.style.marginTop = '12px';
-        const left = el('div'); left.style.flex = '1';
-        const qb = el('div', 'qbox rev hide', 'One player on the right team lets go. Predict what happens to the rope. Use the words <b>balanced</b>, <b>unbalanced</b> and <b>net force</b>.');
-        const ans = el('div', 'ans rev hide', 'The forces become <b>unbalanced</b>: 300 N left and 200 N right. The <b>net force</b> is 100 N to the left, so the rope moves left.');
-        ans.style.marginTop = '10px'; ans.style.paddingLeft = '32px';
-        left.append(qb, ans);
-        const tm = el('div', 'rev hide');
-        row.append(left, tm); c.append(t, row); content.appendChild(c);
-        const q = s => t.querySelector(s);
-        beatAt(0, `Both teams are pulling with <b>300 newtons</b>, so the rope is not moving.`);
-        at(300, () => show(t)); at(800, () => show(q('.la'))); at(1100, () => show(q('.ra')));
-        beatAt(4500, `<b>Turn and talk.</b> If one player on the right team lets go, what will happen to the rope? Explain why.`);
-        at(4900, () => show(qb)); at(5300, () => show(tm));
-        beatAt(11000, `I will cold call someone to share their pair's prediction. Use the words on the screen.`);
-        beatAt(15500, `Let's see. The player lets go, so the right team now pulls with only <b>200 newtons</b>.`);
-        at(16000, () => q('.leaver').classList.add('hide'));
-        at(16600, () => { q('.ra').classList.add('hide'); show(q('.alt')); const g = q('.tw'); g.classList.remove('wob'); g.classList.add('gol'); });
-        beatAt(20500, `The forces are <b>unbalanced</b>. The net force is 100 newtons to the left, so the rope moves left.`);
-        at(21000, () => show(ans));
+        const c = el('div', 'stack'), g = el('div', 'sgrid');
+        const items = [
+            ['magnet', 'A magnet picks up a steel nail.', 'Non-contact: magnetic', 1],
+            ['brake', 'Brakes slow down a bike wheel.', 'Contact: friction', 0],
+            ['apple', 'An apple falls from a tree.', 'Non-contact: gravity', 1],
+            ['hair', 'A rubbed balloon makes hair stand up.', 'Non-contact: electrostatic', 1],
+            ['chute', 'A parachute slows a skydiver down.', 'Contact: air resistance', 0],
+            ['swing', 'Ropes hold up a swing seat.', 'Contact: tension', 0]
+        ];
+        const cards = items.map(([ic, t, tag, nc], i) => {
+            const k = el('div', 'scard rev hide', `<div class="let">${'abcdef'[i]}</div><svg viewBox="0 0 130 100" width="130" height="100">${ICONS[ic]}</svg><div><div class="stx">${t}</div><span class="tag ${nc ? 'pk' : ''} rev hide">${tag}</span></div>`);
+            g.appendChild(k); return { k, nc, tag: k.querySelector('.tag') };
+        });
+        const q = el('div', 'qrow rev hide'); q.style.marginTop = '14px';
+        q.append(el('div', 'qbox', 'Is each force <b>contact</b> or <b>non-contact</b>? Can you <b>name</b> the force?'));
+        c.append(g, q); content.appendChild(c);
+        beatAt(0, `<b>Turn and talk.</b> Is the force in each situation a contact force or a non-contact force?`);
+        cards.forEach((k, i) => at(400 + i * 200, () => show(k.k))); at(1800, () => show(q));
+        beatAt(4500, `Can you also <b>name</b> each force? I will cold call pairs to share their answers.`);
+        beatAt(10000, `Magnetic force, gravity and electrostatic force act without touching. They are <b>non-contact</b> forces.`);
+        cards.filter(k => k.nc).forEach((k, i) => at(10400 + i * 300, () => show(k.tag)));
+        beatAt(15500, `Friction, air resistance and tension need surfaces to touch. They are <b>contact</b> forces.`);
+        cards.filter(k => !k.nc).forEach((k, i) => at(15900 + i * 300, () => show(k.tag)));
+    }
+},
+{
+    title: 'Which pair is <span>non-contact</span>?',
+    cfu: 'sj',
+    dur: 18000,
+    run() {
+        const c = el('div', 'stack'), g = el('div', 'ogrid');
+        const opts = [
+            ['Friction and gravity', 'Friction is contact'],
+            ['Magnetic force and electrostatic force', 'Both non-contact'],
+            ['Tension and magnetic force', 'Tension is contact'],
+            ['Air resistance and gravity', 'Air resistance is contact']
+        ].map(([t, tag], i) => { const k = el('div', 'opt rev hide', `<div class="let">${'ABCD'[i]}</div><div><div class="otx">${t}</div><span class="tag ${i === 1 ? 'pk' : 'ol'} rev hide">${tag}</span></div>`); g.appendChild(k); return k; });
+        const q = el('div', 'qrow rev hide'); q.style.marginTop = '18px';
+        q.append(el('div', 'qbox sj', 'Which pair are <b>both</b> non-contact forces? Write the letter on your mini whiteboard.'));
+        c.append(g, q); content.appendChild(c);
+        beatAt(0, `<b>Stop and jot.</b> Which pair are <b>both</b> non-contact forces? Write the letter on your mini whiteboard.`);
+        opts.forEach((k, i) => at(400 + i * 250, () => show(k))); at(1500, () => show(q));
+        beatAt(8000, `The answer is <b>B</b>. Magnetic force and electrostatic force both act without touching.`);
+        at(8400, () => { opts[1].classList.add('right'); show(opts[1].querySelector('.tag')); });
+        beatAt(13000, `Each other option includes a contact force: friction, tension or air resistance.`);
+        at(13400, () => [0, 2, 3].forEach(i => show(opts[i].querySelector('.tag'))));
+    }
+},
+{
+    title: 'The falling <span>skydiver</span>',
+    cfu: 'tt',
+    dur: 27000,
+    run() {
+        const g = el('div', 'split'); g.style.gridTemplateColumns = '500px 1fr';
+        const sv = el('div', 'pan rev hide', `<svg class="clipv" viewBox="0 0 460 380" width="460" height="380"><rect width="460" height="380" fill="#eef1f8"/>${particles(34, 460, 380, 'air-p', 21)}
+            <g class="bob"><g transform="translate(230 190)">${diverSVG()}</g></g>
+            <g class="ga">${farrow(230, 204, 'd', 110, 'Gravity')}</g><g class="aa">${farrow(230, 176, 'u', 110, 'Air resistance')}</g></svg>`);
+        const R = el('div');
+        const q = el('div', 'qrow rev hide'); q.style.margin = '0 0 16px';
+        q.append(el('div', 'qbox', '<b>Name</b> the two forces acting on the skydiver. Is each one <b>contact</b> or <b>non-contact</b>?'));
+        const a1 = el('div', 'qa rev hide', `<div class="q"><b>1</b><span>Gravity pulls the skydiver down.</span></div><div class="a">Non-contact: nothing touches the skydiver to pull them down.</div>`);
+        const a2 = el('div', 'qa rev hide', `<div class="q"><b>2</b><span>Air resistance pushes up.</span></div><div class="a">Contact: air particles hit the skydiver's body.</div>`);
+        const nx = el('div', 'pill rev hide', 'Next lesson: what happens when forces are <b>balanced</b> or <b>unbalanced</b>?');
+        nx.style.marginTop = '14px';
+        R.append(q, a1, a2, nx);
+        g.append(sv, R); content.appendChild(g);
+        const fas = sv.querySelectorAll('.fa');
+        beatAt(0, `This skydiver is falling towards the ground.`);
+        at(300, () => show(sv));
+        beatAt(3500, `<b>Turn and talk.</b> Name the two forces acting on the skydiver. Is each one contact or non-contact?`);
+        at(3900, () => show(q));
+        beatAt(9000, `I will cold call someone to share their pair's answer.`);
+        beatAt(13500, `<b>Gravity</b> pulls the skydiver down. It is a <b>non-contact</b> force.`);
+        at(13900, () => { show(fas[0]); show(a1); });
+        beatAt(18000, `<b>Air resistance</b> pushes up against the skydiver. It is a <b>contact</b> force.`);
+        at(18400, () => { show(fas[1]); show(a2); });
+        beatAt(22500, `Next lesson, we will find out what happens when forces like these are <b>balanced</b> or <b>unbalanced</b>.`);
+        at(22900, () => show(nx));
     }
 },
 {
@@ -1215,20 +1313,20 @@ const scenes = [
     run() {
         const c = el('div', 'center'), g = el('div', 'sumgrid');
         const data = [
-            ['SC3', 'Balanced or unbalanced', 'Balanced forces are equal in size and opposite in direction, so the net force is 0 N.', false],
-            ['SC4', 'Force arrows', 'Arrows start on the object, point in the direction of the force and are longer for bigger forces.', true],
-            ['SC5', 'Forces and motion', 'Only unbalanced forces change motion: speeding up, slowing down or changing direction.', true],
-            ['SC6', 'Effects of forces', 'Bigger forces cause bigger changes. Forces can change speed, direction and shape.', false]
+            ['SC1', 'What is a force?', 'A push or a pull that acts on an object, measured in newtons (N).', false],
+            ['SC1', 'What forces do', 'Forces can change an object\u2019s speed, direction or shape.', true],
+            ['SC2', 'Contact forces', 'Objects must touch: friction, air and water resistance, applied force, tension and support force.', true],
+            ['SC2', 'Non-contact forces', 'Act across a distance: gravity, magnetic force and electrostatic force.', false]
         ];
         const cards = data.map(([s, t, d, p]) => { const k = el('div', 'dcard rev hide' + (p ? ' pink' : ''), `<div class="sct">${s}</div><div class="dex">${t}</div><div class="dhow">${d}</div>`); g.appendChild(k); return k; });
         c.appendChild(g); content.appendChild(c);
-        beatAt(0, `<b>Balanced forces</b> are equal in size and opposite in direction. The net force is zero.`);
+        beatAt(0, `A <b>force</b> is a push or a pull that acts on an object, measured in newtons.`);
         at(400, () => show(cards[0]));
-        beatAt(4000, `<b>Force arrows</b> start on the object, point in the direction of the force and show its size.`);
+        beatAt(4000, `Forces can change an object's <b>speed</b>, <b>direction</b> or <b>shape</b>.`);
         at(4400, () => show(cards[1]));
-        beatAt(8000, `Only <b>unbalanced forces</b> change motion: speeding up, slowing down or changing direction.`);
+        beatAt(8000, `<b>Contact forces</b> need the objects to touch, like friction, tension and air resistance.`);
         at(8400, () => show(cards[2]));
-        beatAt(12000, `<b>Bigger forces</b> cause bigger changes, and forces can change speed, direction and shape.`);
+        beatAt(12000, `<b>Non-contact forces</b> act across a distance: gravity, magnetic force and electrostatic force.`);
         at(12400, () => show(cards[3]));
     }
 },
@@ -1239,15 +1337,16 @@ const scenes = [
     run() {
         const c = el('div', 'stack'), g = el('div', 'xgrid'), L = el('div');
         const qs = [
-            'Draw a force arrow diagram for a box pushed to the right with <strong>25 N</strong>, while friction pushes back with <strong>5 N</strong>.',
-            'Calculate the <strong>net force</strong>. The box starts still. Describe what happens to its motion.',
-            'Rate yourself from <strong>1 to 3</strong> for each success criterion, SC3 to SC6.'
+            'In your own words, <strong>define</strong> what a force is.',
+            '<strong>Classify</strong> each force as contact or non-contact: friction, gravity, tension, magnetic force.',
+            'Describe one everyday example of a <strong>non-contact</strong> force and what it does.',
+            'Rate yourself from <strong>1 to 3</strong> for SC1 and SC2.'
         ].map((t, i) => { const r = el('div', 'xq rev hide', `<b>${i + 1}</b><div>${t}</div>`); L.appendChild(r); return r; });
         const tm = el('div', 'rev hide');
         g.append(L, tm); c.appendChild(g); content.appendChild(c);
         beatAt(0, `<b>Exit ticket.</b> Stop and jot your answers on your own.`);
-        qs.forEach((q, i) => at(400 + i * 400, () => show(q))); at(1800, () => show(tm));
-        beatAt(5000, `Use the words <b>balanced</b>, <b>unbalanced</b> and <b>net force</b> in your answers where you can.`);
+        qs.forEach((q, i) => at(400 + i * 400, () => show(q))); at(2200, () => show(tm));
+        beatAt(5000, `Use the words <b>contact</b> and <b>non-contact</b> in your answers where you can.`);
         beatAt(10000, `Finally, rate yourself against today's success criteria. Well done today.`);
     }
 }
