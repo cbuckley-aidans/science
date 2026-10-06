@@ -66,6 +66,15 @@
     @keyframes pop { 0% { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.08); opacity: 1; } 100% { transform: none; } }
     .cfu.big { height: 54px; border-radius: 27px; font-size: 24px; padding: 0 22px; }
     .cfu.big svg { width: 28px; height: 28px; }
+    .cfu.tt, .cfu.sj { cursor: pointer; user-select: none; }
+    .cfu:hover { filter: brightness(1.12); }
+    .cfu:focus-visible { outline: 3px solid var(--pink); outline-offset: 3px; }
+    .cfu.tt:focus-visible { outline-color: var(--navy); }
+    .cfu .ct { display: inline-flex; align-items: center; gap: 5px; margin-left: 4px; padding: 3px 10px 3px 7px; border-radius: 14px; background: rgba(255,255,255,.22); font-variant-numeric: tabular-nums; }
+    .cfu .ct svg { width: 18px; height: 18px; }
+    .sctags { display: flex; gap: 8px; }
+    .sctags span { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; line-height: 1;
+        padding: 9px 12px 8px; border-radius: 6px; box-shadow: inset 0 0 0 3px var(--navy); color: var(--navy); }
 
     /* force diagrams */
     svg { overflow: visible; }
@@ -474,6 +483,27 @@
     .ui-tbb svg { width: 14px; height: 14px; fill: none; stroke: var(--navy); stroke-width: 3; stroke-linecap: round; }
     .ui-tbb.ui-sty span { width: 14px; height: 14px; border-radius: 50%; background: linear-gradient(135deg, var(--navy) 50%, var(--pink) 50%); }
 
+    /* header CFU badge and success criteria tags */
+    .ui-topr { display: flex; align-items: baseline; gap: 20px; }
+    .ui-cfu, .ui-sctags { margin: -14px 0; }
+    .ui-sctags { display: flex; gap: 8px; }
+    .ui-sctags span { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; line-height: 1;
+        padding: 9px 12px 8px; border-radius: 6px; box-shadow: inset 0 0 0 3px var(--navy); color: var(--navy); }
+    .ui-cfu { display: none; align-items: center; gap: 9px; height: 46px; padding: 0 18px; border-radius: 23px; color: var(--white); white-space: nowrap; user-select: none;
+        font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+    .ui-cfu.ui-pk { display: flex; background: var(--pink); }
+    .ui-cfu.ui-nv { display: flex; background: var(--navy); }
+    .ui-cfu.ui-click { cursor: pointer; }
+    .ui-cfu.ui-click:hover { filter: brightness(1.12); }
+    .ui-cfu:focus-visible { outline: 3px solid var(--pink); outline-offset: 3px; }
+    .ui-cfu.ui-pk:focus-visible { outline-color: var(--navy); }
+    .ui-cfu svg { width: 24px; height: 24px; fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .ui-cfu .ui-ar { opacity: .75; width: 20px; }
+    .ui-cfu .ui-ct { display: inline-flex; align-items: center; gap: 5px; margin-left: 4px; padding: 3px 10px 3px 7px; border-radius: 14px; background: rgba(255,255,255,.22); font-variant-numeric: tabular-nums; }
+    .ui-cfu .ui-ct svg { width: 18px; height: 18px; }
+    .ui-cfu.ui-cfuin { animation: uiCfuIn .6s var(--ease); }
+    @keyframes uiCfuIn { 0% { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.08); opacity: 1; } 100% { transform: none; } }
+
     /* floating engagement badges */
     .ui-blayer { position: absolute; left: 0; top: 0; width: 1280px; height: 714px; z-index: 8; pointer-events: none; }
     .ui-fb { position: absolute; display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 22px; border-radius: 28px; color: var(--white);
@@ -567,10 +597,6 @@
         #print .ui-hlc { mix-blend-mode: multiply; }
     }
 
-    @media (prefers-reduced-motion: reduce) {
-        .rev, .mv, .tw { transition: none !important; }
-        .caption.in, .cfu.pop, .tw.wob, .dash.run, .spin .spk, .ea-speed, .ea-dir, .ea-squash, .ea-press, .u-clip, .v-kick, .v-door, .v-puller, .v-apple, .v-clip, .bob, .air-p, .wat, .shake, .rub, .pulse, .sway { animation: none !important; }
-    }
 </style>
 </head>
 <body>
@@ -580,7 +606,7 @@
         <div class="ui-zoomer" id="zoomer">
         <div class="top">
             <div><h1 class="sheet-title" id="title"></h1></div>
-            <div class="topr"><div class="cfu" id="cfu"></div><div class="counter" id="counter"></div></div>
+            <div class="ui-topr"><div class="ui-sctags" id="ui-sctags"></div><div class="ui-cfu" id="ui-cfu" role="button"></div><div class="counter" id="counter"></div></div>
         </div>
         <div class="content" id="content"></div>
         <div class="caption" id="caption"></div>
@@ -740,12 +766,6 @@ const ICON = {
     pencil: '<svg viewBox="0 0 24 24"><path d="M4 20l1.2-4.8L16 4.4l3.6 3.6L8.8 18.8z"/><path d="M13.6 6.8l3.6 3.6"/></svg>'
 };
 function badgeHTML(k) { return k === 'tt' ? `${ICON.talk}<span>Turn &amp; talk</span>${ICON.arrow}${ICON.person}<span>Cold call</span>` : `${ICON.pencil}<span>Stop &amp; jot</span>`; }
-function setBadge(k) {
-    cfuEl.className = 'cfu'; cfuEl.innerHTML = '';
-    if (!k) return;
-    void cfuEl.offsetWidth;
-    cfuEl.className = 'cfu ' + k + ' pop'; cfuEl.innerHTML = badgeHTML(k);
-}
 
 /* ---------- drawing helpers ---------- */
 function farrow(x, y, d, len, lbl, o = {}) {
@@ -895,7 +915,9 @@ const scenes = [
 },
 {
     title: 'Forces are <span>everywhere</span>',
-    cfu: 'tt',
+    sc: ['SC1'],
+    time: 60,
+    cfu: 'cc',
     dur: 19500,
     run() {
         const c = el('div', 'stack'), row = el('div', 'qgrid');
@@ -920,6 +942,7 @@ const scenes = [
 },
 {
     title: 'What is a <span>force</span>?',
+    sc: ['SC1'],
     dur: 19000,
     run() {
         const c = el('div', 'stack');
@@ -948,6 +971,7 @@ const scenes = [
 },
 {
     title: 'What can forces <span>do</span>?',
+    sc: ['SC1'],
     dur: 17500,
     run() {
         const c = el('div', 'center');
@@ -969,6 +993,8 @@ const scenes = [
 },
 {
     title: 'Definition: <span>force</span>',
+    sc: ['SC1'],
+    time: 120,
     cfu: 'sj',
     dur: 11000,
     run() {
@@ -989,6 +1015,7 @@ const scenes = [
 },
 {
     title: 'Two groups of <span>forces</span>',
+    sc: ['SC2'],
     dur: 19000,
     run() {
         const c = el('div', 'center'), row = el('div', 'row2');
@@ -1010,18 +1037,18 @@ const scenes = [
 },
 {
     title: 'Contact force: <span>friction</span>',
+    sc: ['SC2'],
     dur: 24500,
     run() {
         const c = el('div', 'stack');
         let hatch = ''; for (let x = 0; x < 1152; x += 18) hatch += `<line x1="${x}" y1="152" x2="${x - 10}" y2="164" stroke="#c9ccd6" stroke-width="2"/>`;
         const strip = el('div', 'rev hide', `<svg viewBox="0 0 1152 170" width="1152" height="170"><line class="ground" x1="0" x2="1152" y1="150" y2="150"/>${hatch}
             <g class="sbox" transform="translate(60 0)"><text class="spd" x="50" y="44" text-anchor="middle">Moving &rarr;</text><rect class="obj" x="0" y="60" width="100" height="88" rx="6"/><text class="oname" x="50" y="111" text-anchor="middle">Box</text><g class="farr">${farrow(0, 104, 'l', 90, 'Friction', { hide: false })}</g></g></svg>`);
-        let top = 'M40 0 L320 0 ', flo = 'M40 230 L320 230 ';
+        let top = 'M40 4 L320 4 ', flo = 'M40 226 L320 226 ';
         const tp = [], fp = [];
         for (let i = 0; i <= 18; i++) { tp.push(`${320 - i * 16},${i % 2 ? 128 : 108}`); fp.push(`${320 - i * 16 - 8},${i % 2 ? 132 : 112}`); }
         top += 'L' + tp.join(' L') + ' Z'; flo += 'L' + fp.join(' L') + ' Z';
-        const zoom = el('div', 'pan rev hide', `<div class="dlbl">Zoomed in</div><svg viewBox="0 0 360 230" width="360" height="230"><defs><clipPath id="zc"><circle cx="180" cy="115" r="105"/></clipPath></defs>
-            <g clip-path="url(#zc)"><rect x="0" y="0" width="360" height="230" fill="#fff"/><path d="${flo}" fill="#d7dae2" stroke="${NV}" stroke-width="2.5"/><g class="shake"><path d="${top}" fill="#f0f3f6" stroke="${NV}" stroke-width="2.5"/></g></g>
+        const zoom = el('div', 'pan rev hide', `<div class="dlbl">Zoomed in</div><svg viewBox="0 0 360 230" width="360" height="230"><rect x="0" y="0" width="360" height="230" fill="#fff"/><path d="${flo}" fill="#d7dae2" stroke="${NV}" stroke-width="2.5"/><g class="shake"><path d="${top}" fill="#f0f3f6" stroke="${NV}" stroke-width="2.5"/></g><path d="M0 0 H360 V230 H0 Z M75 115 A105 105 0 1 0 285 115 A105 105 0 1 0 75 115 Z" fill="#fff" fill-rule="evenodd"/>
             <circle cx="180" cy="115" r="105" fill="none" stroke="${NV}" stroke-width="5"/><text class="flbl" x="180" y="60" text-anchor="middle" style="font-size:20px">Box</text><text class="flbl" x="180" y="185" text-anchor="middle" style="font-size:20px">Floor</text></svg>`);
         const facts = el('div', 'col2'); facts.style.alignItems = 'stretch'; facts.style.flex = '1'; facts.style.gap = '16px';
         const f1 = el('div', 'notes rev hide', `<div class="dlbl">Friction is useful</div><p>Brakes, shoe grip and a pencil writing on paper all rely on <b>friction</b>.</p>`);
@@ -1045,6 +1072,7 @@ const scenes = [
 },
 {
     title: 'Air and water <span>resistance</span>',
+    sc: ['SC2'],
     dur: 20000,
     run() {
         const c = el('div', 'center'), row = el('div', 'row2');
@@ -1065,6 +1093,7 @@ const scenes = [
 },
 {
     title: 'More <span>contact forces</span>',
+    sc: ['SC2'],
     dur: 21000,
     run() {
         const c = el('div', 'center'), row = el('div', 'row2'); row.style.gap = '14px';
@@ -1086,6 +1115,8 @@ const scenes = [
 },
 {
     title: 'Notes: <span>contact forces</span>',
+    sc: ['SC2'],
+    time: 180,
     cfu: 'sj',
     dur: 11000,
     run() {
@@ -1108,6 +1139,7 @@ const scenes = [
 },
 {
     title: 'Non-contact force: <span>gravity</span>',
+    sc: ['SC2'],
     dur: 20000,
     run() {
         const c = el('div', 'center'), row = el('div', 'row2'); row.style.alignItems = 'center'; row.style.gap = '60px';
@@ -1136,6 +1168,7 @@ const scenes = [
 },
 {
     title: 'Non-contact force: <span>magnetism</span>',
+    sc: ['SC2'],
     dur: 21000,
     run() {
         const c = el('div', 'center'), row = el('div', 'row2');
@@ -1165,6 +1198,7 @@ const scenes = [
 },
 {
     title: 'Non-contact force: <span>electrostatic</span>',
+    sc: ['SC2'],
     dur: 20500,
     run() {
         const c = el('div', 'center'), row = el('div', 'row2');
@@ -1203,6 +1237,8 @@ const scenes = [
 },
 {
     title: 'Notes: <span>non-contact forces</span>',
+    sc: ['SC2'],
+    time: 180,
     cfu: 'sj',
     dur: 11000,
     run() {
@@ -1224,7 +1260,9 @@ const scenes = [
 },
 {
     title: 'Contact or <span>non-contact</span>?',
-    cfu: 'tt',
+    sc: ['SC2'],
+    time: 120,
+    cfu: 'cc',
     dur: 21000,
     run() {
         const c = el('div', 'stack'), g = el('div', 'sgrid');
@@ -1254,6 +1292,8 @@ const scenes = [
 },
 {
     title: 'Which pair is <span>non-contact</span>?',
+    sc: ['SC2'],
+    time: 60,
     cfu: 'sj',
     dur: 18000,
     run() {
@@ -1277,7 +1317,9 @@ const scenes = [
 },
 {
     title: 'The falling <span>skydiver</span>',
-    cfu: 'tt',
+    sc: ['SC2'],
+    time: 90,
+    cfu: 'cc',
     dur: 27000,
     run() {
         const g = el('div', 'split'); g.style.gridTemplateColumns = '500px 1fr';
@@ -1309,6 +1351,7 @@ const scenes = [
 },
 {
     title: '<span>Summary</span>',
+    sc: ['SC1', 'SC2'],
     dur: 16500,
     run() {
         const c = el('div', 'center'), g = el('div', 'sumgrid');
@@ -1332,6 +1375,8 @@ const scenes = [
 },
 {
     title: 'Exit <span>ticket</span>',
+    sc: ['SC1', 'SC2'],
+    time: 300,
     cfu: 'sj',
     dur: 15000,
     run() {
@@ -1371,7 +1416,7 @@ function build(i) {
     content.innerHTML = ''; caption.innerHTML = '';
     titleEl.innerHTML = sc.title;
     counter.innerHTML = `<b>${idx + 1}</b> / ${scenes.length}`;
-    setBadge(sc.cfu);
+    uiSetCfu(sc.cfu, sc.time); uiSetSC(sc.sc);
     [...dots.children].forEach((d, j) => d.classList.toggle('cur', j === idx));
     sc.run();
     beats = [...new Set(beats)].sort((a, b) => a - b);
@@ -1649,7 +1694,6 @@ ftDraw();
 /* ---------- zoom, lock and spotlight ---------- */
 const zoomer = $('#zoomer'), spotEl = $('#spot'), zoomBtn = $('#zoombtn'), lockBtn = $('#lockbtn'), spotBtn = $('#spotbtn');
 const ZW = 1280, ZH = 714;
-const reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const mouse = { x: ZW / 2, y: ZH / 2 };
 const Z = { on: false, locked: false, level: 2, z: 1, x: ZW / 2, y: ZH / 2, lx: 0, ly: 0 };
@@ -1666,7 +1710,7 @@ function applySpot() {
 }
 function zoomFrame(n) {
     const dt = zlast ? Math.min(64, n - zlast) : 16; zlast = n;
-    const a = reduceMotion ? 1 : 1 - Math.exp(-dt / 90), b = reduceMotion ? 1 : 1 - Math.exp(-dt / 45);
+    const a = 1 - Math.exp(-dt / 90), b = 1 - Math.exp(-dt / 45);
     const tz = Z.on ? Z.level : 1, tx = Z.locked ? Z.lx : mouse.x, ty = Z.locked ? Z.ly : mouse.y;
     Z.z += (tz - Z.z) * a; Z.x += (tx - Z.x) * a; Z.y += (ty - Z.y) * a;
     const zDone = Math.abs(tz - Z.z) < 0.0008 && Math.abs(tx - Z.x) < 0.08 && Math.abs(ty - Z.y) < 0.08;
@@ -1754,6 +1798,23 @@ const ENGAGE = {
     vs: { cls: 'ui-pk', html: `${UI_ICON.vol}<span>Volunteer to share</span>` }
 };
 const ENG_KEYS = ['tt', 'cc', 'sj', 'fv', 'vs'];
+/* header CFU badge: set cfu (tt, cc, sj, fv or vs), time (seconds) and sc (['SC1']) on a scene */
+const uiCfu = $('#ui-cfu'), UI_CLOCK = '<svg viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 10v3.5l2.5 2M9.5 2.5h5"/></svg>';
+let uiCfuTime = 0;
+function uiSetCfu(k, t) {
+    uiCfu.className = 'ui-cfu'; uiCfu.innerHTML = ''; uiCfuTime = 0;
+    uiCfu.removeAttribute('title'); uiCfu.removeAttribute('aria-label'); uiCfu.removeAttribute('tabindex');
+    if (!k || !ENGAGE[k]) return;
+    void uiCfu.offsetWidth;
+    uiCfuTime = t || 0;
+    uiCfu.className = 'ui-cfu ' + ENGAGE[k].cls + ' ui-cfuin' + (uiCfuTime ? ' ui-click' : '');
+    uiCfu.innerHTML = ENGAGE[k].html + (uiCfuTime ? `<span class="ui-ct">${UI_CLOCK}${ftFmt(uiCfuTime)}</span>` : '');
+    if (uiCfuTime) { uiCfu.tabIndex = 0; uiCfu.title = 'Start a ' + ftFmt(uiCfuTime) + ' timer'; uiCfu.setAttribute('aria-label', 'Open timer at ' + ftFmt(uiCfuTime)); }
+}
+function uiSetSC(list) { $('#ui-sctags').innerHTML = (list || []).map(x => `<span>${x}</span>`).join(''); }
+function uiCfuOpen() { if (!uiCfuTime) return; ftSet(uiCfuTime); ftShow(true); uiCfu.blur(); }
+uiCfu.addEventListener('click', uiCfuOpen);
+uiCfu.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); uiCfuOpen(); } });
 const blayer = $('#blayer'), badgeStore = {};
 const sceneBadges = () => { const k = curKey(); return (badgeStore[k] = badgeStore[k] || []); };
 
@@ -2027,11 +2088,17 @@ $('#kgrid').innerHTML = SHORTCUTS.map(([h, rows]) => `<div class="ui-kgrp"><h3>$
 
 /* ---------- export PDF ---------- */
 const printBox = $('#print');
+let snapN = 0;
 function snapStage(boardOnly) {
     stage.querySelectorAll('input').forEach(n => n.setAttribute('value', n.value));
     const page = stage.cloneNode(true), imgs = [];
     page.removeAttribute('id'); page.removeAttribute('style'); page.classList.remove('instant');
-    page.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'));
+    const sfx = '-s' + (++snapN), ren = {};
+    page.querySelectorAll('[id]').forEach(n => { if (n.closest('defs')) { ren[n.id] = n.id + sfx; n.id += sfx; } else n.removeAttribute('id'); });
+    if (Object.keys(ren).length) page.querySelectorAll('*').forEach(e => [...e.attributes].forEach(a => {
+        const v = a.value.replace(/url\(\s*['"]?#([^)'"\s]+)['"]?\s*\)/g, (m, k) => ren[k] ? `url(#${ren[k]})` : m).replace(/^#(.+)$/, (m, k) => ren[k] && /href$/.test(a.name) ? '#' + ren[k] : m);
+        if (v !== a.value) e.setAttribute(a.name, v);
+    }));
     page.querySelectorAll('.ui-spot, canvas.hllive').forEach(n => n.remove());
     [['canvas.ink', ink, inkMarked, 'ink'], ['canvas.hlmain', hlc, hlMarked, 'ui-hlc']].forEach(([sel, src, marked, cls]) => {
         const cv = page.querySelector(sel); if (!cv) return;

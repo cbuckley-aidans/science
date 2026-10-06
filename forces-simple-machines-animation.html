@@ -431,6 +431,27 @@
     .ui-tbb svg { width: 14px; height: 14px; fill: none; stroke: var(--navy); stroke-width: 3; stroke-linecap: round; }
     .ui-tbb.ui-sty span { width: 14px; height: 14px; border-radius: 50%; background: linear-gradient(135deg, var(--navy) 50%, var(--pink) 50%); }
 
+    /* header CFU badge and success criteria tags */
+    .ui-topr { display: flex; align-items: baseline; gap: 20px; }
+    .ui-cfu, .ui-sctags { margin: -14px 0; }
+    .ui-sctags { display: flex; gap: 8px; }
+    .ui-sctags span { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; line-height: 1;
+        padding: 9px 12px 8px; border-radius: 6px; box-shadow: inset 0 0 0 3px var(--navy); color: var(--navy); }
+    .ui-cfu { display: none; align-items: center; gap: 9px; height: 46px; padding: 0 18px; border-radius: 23px; color: var(--white); white-space: nowrap; user-select: none;
+        font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+    .ui-cfu.ui-pk { display: flex; background: var(--pink); }
+    .ui-cfu.ui-nv { display: flex; background: var(--navy); }
+    .ui-cfu.ui-click { cursor: pointer; }
+    .ui-cfu.ui-click:hover { filter: brightness(1.12); }
+    .ui-cfu:focus-visible { outline: 3px solid var(--pink); outline-offset: 3px; }
+    .ui-cfu.ui-pk:focus-visible { outline-color: var(--navy); }
+    .ui-cfu svg { width: 24px; height: 24px; fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .ui-cfu .ui-ar { opacity: .75; width: 20px; }
+    .ui-cfu .ui-ct { display: inline-flex; align-items: center; gap: 5px; margin-left: 4px; padding: 3px 10px 3px 7px; border-radius: 14px; background: rgba(255,255,255,.22); font-variant-numeric: tabular-nums; }
+    .ui-cfu .ui-ct svg { width: 18px; height: 18px; }
+    .ui-cfu.ui-cfuin { animation: uiCfuIn .6s var(--ease); }
+    @keyframes uiCfuIn { 0% { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.08); opacity: 1; } 100% { transform: none; } }
+
     /* floating engagement badges */
     .ui-blayer { position: absolute; left: 0; top: 0; width: 1280px; height: 714px; z-index: 8; pointer-events: none; }
     .ui-fb { position: absolute; display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 22px; border-radius: 28px; color: var(--white);
@@ -524,10 +545,6 @@
         #print .ui-hlc { mix-blend-mode: multiply; }
     }
 
-    @media (prefers-reduced-motion: reduce) {
-        .rev { transition: none !important; }
-        .caption.in { animation: none !important; }
-    }
 </style>
 </head>
 <body>
@@ -536,8 +553,8 @@
     <div class="stage" id="stage">
         <div class="ui-zoomer" id="zoomer">
         <div class="top">
-            <div class="tl"><h1 class="sheet-title" id="title"></h1><span class="sctag" id="sctag"></span></div>
-            <div class="topr"><div id="badge"></div><div class="counter" id="counter"></div></div>
+            <div><h1 class="sheet-title" id="title"></h1></div>
+            <div class="ui-topr"><div class="ui-sctags" id="ui-sctags"></div><div class="ui-cfu" id="ui-cfu" role="button"></div><div class="counter" id="counter"></div></div>
         </div>
         <div class="content" id="content"></div>
         <div class="caption" id="caption"></div>
@@ -676,7 +693,6 @@ function say(html) { caption.innerHTML = '<span>' + html + '</span>'; caption.cl
 function stopInteractive() { ptimers.forEach(clearTimeout); ptimers = []; cleanups.forEach(f => f()); cleanups = []; }
 
 /* ---------- deck helpers ---------- */
-const badgeEl = $('#badge'), sctagEl = $('#sctag');
 const deg = a => a * Math.PI / 180;
 const f1 = n => String(Math.round(n * 10) / 10);
 const svgBox = (w, h, inner, cls = '') => el('div', cls, `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" aria-hidden="true">${inner}</svg>`);
@@ -818,7 +834,7 @@ const scenes = [
 },
 {
     title: 'Spaced <span>review</span>',
-    sc: 'SC2, SC3, SC5', cfu: 'sj', time: 180,
+    sc: ['SC2', 'SC3', 'SC5'], cfu: 'sj', time: 180,
     dur: 16000,
     run() {
         const c = el('div', 'center');
@@ -845,7 +861,7 @@ const scenes = [
 },
 {
     title: 'What is <span>friction</span>?',
-    sc: 'SC7',
+    sc: ['SC7'],
     dur: 21000,
     run() {
         const hatch = Array.from({ length: 30 }, (_, i) => `<line class="hatch" x1="${50 + i * 24}" y1="303" x2="${36 + i * 24}" y2="318"/>`).join('');
@@ -882,7 +898,7 @@ const scenes = [
 },
 {
     title: 'Helpful or <span>unwanted</span>?',
-    sc: 'SC7',
+    sc: ['SC7'],
     dur: 16500,
     run() {
         const c = el('div', 'center'), w = el('div', 'cols2');
@@ -915,7 +931,7 @@ const scenes = [
 },
 {
     title: 'Changing <span>friction</span>',
-    sc: 'SC7', cfu: 'tt', time: 120,
+    sc: ['SC7'], cfu: 'cc', time: 120,
     dur: 16000,
     run() {
         const c = el('div', 'center');
@@ -943,7 +959,7 @@ const scenes = [
 },
 {
     title: 'What is a <span>simple machine</span>?',
-    sc: 'SC8',
+    sc: ['SC8'],
     dur: 16000,
     run() {
         const c = el('div', 'center');
@@ -961,7 +977,7 @@ const scenes = [
 },
 {
     title: 'Define it: <span>simple machine</span>',
-    sc: 'SC8', cfu: 'sj', time: 120,
+    sc: ['SC8'], cfu: 'sj', time: 120,
     dur: 13000,
     run() {
         const c = el('div', 'center'), w = el('div', 'jotwrap');
@@ -976,7 +992,7 @@ const scenes = [
 },
 {
     title: 'Why use a <span>simple machine</span>?',
-    sc: 'SC9',
+    sc: ['SC9'],
     dur: 26000,
     run() {
         const c = el('div', 'center'), w = el('div', 'apanels');
@@ -1016,7 +1032,7 @@ const scenes = [
 },
 {
     title: 'Angle and <span>effort force</span>',
-    sc: 'SC10',
+    sc: ['SC10'],
     dur: 27000,
     run() {
         const H = 100, TX = 600, GY = 262;
@@ -1076,7 +1092,7 @@ const scenes = [
 },
 {
     title: 'Ramps in <span>real life</span>',
-    sc: 'SC10', cfu: 'tt', time: 120,
+    sc: ['SC10'], cfu: 'cc', time: 120,
     dur: 19500,
     run() {
         const c = el('div', 'center');
@@ -1107,7 +1123,7 @@ const scenes = [
 },
 {
     title: 'Comparing <span>efficiency</span>',
-    sc: 'SC11',
+    sc: ['SC11'],
     dur: 21500,
     run() {
         const c = el('div', 'center');
@@ -1133,7 +1149,7 @@ const scenes = [
 },
 {
     title: 'Calculate: <span>efficiency</span>',
-    sc: 'SC11', cfu: 'sj', time: 240,
+    sc: ['SC11'], cfu: 'sj', time: 240,
     dur: 20000,
     run() {
         const c = el('div', 'center'), w = el('div', 'effwrap');
@@ -1165,7 +1181,7 @@ const scenes = [
 },
 {
     title: 'Parts of a <span>lever</span>',
-    sc: 'SC12', cfu: 'sj', time: 180,
+    sc: ['SC12'], cfu: 'sj', time: 180,
     dur: 27000,
     run() {
         const tick = (x, y, c) => `<line class="${c}" x1="${x}" y1="${y - 10}" x2="${x}" y2="${y + 10}"/>`;
@@ -1191,7 +1207,7 @@ const scenes = [
 },
 {
     title: 'Three <span>classes</span> of lever',
-    sc: 'SC12',
+    sc: ['SC12'],
     dur: 24000,
     run() {
         const c = el('div', 'center'), w = el('div', 'cpanels');
@@ -1214,7 +1230,7 @@ const scenes = [
 },
 {
     title: 'Spot the <span>parts</span>',
-    sc: 'SC12', cfu: 'tt', time: 180,
+    sc: ['SC12'], cfu: 'cc', time: 180,
     dur: 23500,
     run() {
         const c = el('div', 'center'), w = el('div', 'cpanels');
@@ -1246,7 +1262,7 @@ const scenes = [
 },
 {
     title: 'Force and <span>speed</span> multipliers',
-    sc: 'SC13',
+    sc: ['SC13'],
     dur: 23500,
     run() {
         const c = el('div', 'center'), w = el('div', 'mpanels');
@@ -1268,7 +1284,7 @@ const scenes = [
 },
 {
     title: 'Sort: <span>force or speed?</span>',
-    sc: 'SC13', cfu: 'sj', time: 120,
+    sc: ['SC13'], cfu: 'sj', time: 120,
     dur: 17000,
     run() {
         const c = el('div', 'center');
@@ -1291,7 +1307,7 @@ const scenes = [
 },
 {
     title: 'Calculating <span>net force</span>',
-    sc: 'SC14', cfu: 'sj', time: 180,
+    sc: ['SC14'], cfu: 'sj', time: 180,
     dur: 26500,
     run() {
         const c = el('div', 'center'), w = el('div', 'nrows');
@@ -1318,7 +1334,7 @@ const scenes = [
 },
 {
     title: 'Worked <span>example</span>',
-    sc: 'SC14, SC5',
+    sc: ['SC14', 'SC5'],
     dur: 20500,
     run() {
         const c = el('div', 'center'), w = el('div', 'wk');
@@ -1350,7 +1366,7 @@ const scenes = [
 },
 {
     title: 'Calculate: <span>net force</span>',
-    sc: 'SC14', cfu: 'sj', time: 240,
+    sc: ['SC14'], cfu: 'sj', time: 240,
     dur: 18500,
     run() {
         const c = el('div', 'center'), g = el('div', 'ngrid');
@@ -1378,7 +1394,7 @@ const scenes = [
 },
 {
     title: 'Review: <span>forces and motion</span>',
-    sc: 'SC3, SC5, SC14', cfu: 'sj', time: 180,
+    sc: ['SC3', 'SC5', 'SC14'], cfu: 'sj', time: 180,
     dur: 27000,
     run() {
         const c = el('div', 'center');
@@ -1463,7 +1479,7 @@ function build(i) {
     content.innerHTML = ''; caption.innerHTML = '';
     titleEl.innerHTML = sc.title;
     counter.innerHTML = `<b>${idx + 1}</b> / ${scenes.length}`;
-    badgeEl.innerHTML = badgeHTML(sc.cfu, sc.time); badgeEl.classList.toggle('clickable', !!sc.time); badgeEl.onclick = sc.time ? () => { ftSet(sc.time); ftShow(true); } : null; sctagEl.textContent = sc.sc || '';
+    uiSetCfu(sc.cfu, sc.time); uiSetSC(sc.sc);
     [...dots.children].forEach((d, j) => d.classList.toggle('cur', j === idx));
     sc.run();
     beats = [...new Set(beats)].sort((a, b) => a - b);
@@ -1739,7 +1755,6 @@ ftDraw();
 /* ---------- zoom, lock and spotlight ---------- */
 const zoomer = $('#zoomer'), spotEl = $('#spot'), zoomBtn = $('#zoombtn'), lockBtn = $('#lockbtn'), spotBtn = $('#spotbtn');
 const ZW = 1280, ZH = 714;
-const reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const mouse = { x: ZW / 2, y: ZH / 2 };
 const Z = { on: false, locked: false, level: 2, z: 1, x: ZW / 2, y: ZH / 2, lx: 0, ly: 0 };
@@ -1756,7 +1771,7 @@ function applySpot() {
 }
 function zoomFrame(n) {
     const dt = zlast ? Math.min(64, n - zlast) : 16; zlast = n;
-    const a = reduceMotion ? 1 : 1 - Math.exp(-dt / 90), b = reduceMotion ? 1 : 1 - Math.exp(-dt / 45);
+    const a = 1 - Math.exp(-dt / 90), b = 1 - Math.exp(-dt / 45);
     const tz = Z.on ? Z.level : 1, tx = Z.locked ? Z.lx : mouse.x, ty = Z.locked ? Z.ly : mouse.y;
     Z.z += (tz - Z.z) * a; Z.x += (tx - Z.x) * a; Z.y += (ty - Z.y) * a;
     const zDone = Math.abs(tz - Z.z) < 0.0008 && Math.abs(tx - Z.x) < 0.08 && Math.abs(ty - Z.y) < 0.08;
@@ -1844,6 +1859,23 @@ const ENGAGE = {
     vs: { cls: 'ui-pk', html: `${UI_ICON.vol}<span>Volunteer to share</span>` }
 };
 const ENG_KEYS = ['tt', 'cc', 'sj', 'fv', 'vs'];
+/* header CFU badge: set cfu (tt, cc, sj, fv or vs), time (seconds) and sc (['SC1']) on a scene */
+const uiCfu = $('#ui-cfu'), UI_CLOCK = '<svg viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 10v3.5l2.5 2M9.5 2.5h5"/></svg>';
+let uiCfuTime = 0;
+function uiSetCfu(k, t) {
+    uiCfu.className = 'ui-cfu'; uiCfu.innerHTML = ''; uiCfuTime = 0;
+    uiCfu.removeAttribute('title'); uiCfu.removeAttribute('aria-label'); uiCfu.removeAttribute('tabindex');
+    if (!k || !ENGAGE[k]) return;
+    void uiCfu.offsetWidth;
+    uiCfuTime = t || 0;
+    uiCfu.className = 'ui-cfu ' + ENGAGE[k].cls + ' ui-cfuin' + (uiCfuTime ? ' ui-click' : '');
+    uiCfu.innerHTML = ENGAGE[k].html + (uiCfuTime ? `<span class="ui-ct">${UI_CLOCK}${ftFmt(uiCfuTime)}</span>` : '');
+    if (uiCfuTime) { uiCfu.tabIndex = 0; uiCfu.title = 'Start a ' + ftFmt(uiCfuTime) + ' timer'; uiCfu.setAttribute('aria-label', 'Open timer at ' + ftFmt(uiCfuTime)); }
+}
+function uiSetSC(list) { $('#ui-sctags').innerHTML = (list || []).map(x => `<span>${x}</span>`).join(''); }
+function uiCfuOpen() { if (!uiCfuTime) return; ftSet(uiCfuTime); ftShow(true); uiCfu.blur(); }
+uiCfu.addEventListener('click', uiCfuOpen);
+uiCfu.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); uiCfuOpen(); } });
 const blayer = $('#blayer'), badgeStore = {};
 const sceneBadges = () => { const k = curKey(); return (badgeStore[k] = badgeStore[k] || []); };
 
@@ -2117,11 +2149,17 @@ $('#kgrid').innerHTML = SHORTCUTS.map(([h, rows]) => `<div class="ui-kgrp"><h3>$
 
 /* ---------- export PDF ---------- */
 const printBox = $('#print');
+let snapN = 0;
 function snapStage(boardOnly) {
     stage.querySelectorAll('input').forEach(n => n.setAttribute('value', n.value));
     const page = stage.cloneNode(true), imgs = [];
     page.removeAttribute('id'); page.removeAttribute('style'); page.classList.remove('instant');
-    page.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'));
+    const sfx = '-s' + (++snapN), ren = {};
+    page.querySelectorAll('[id]').forEach(n => { if (n.closest('defs')) { ren[n.id] = n.id + sfx; n.id += sfx; } else n.removeAttribute('id'); });
+    if (Object.keys(ren).length) page.querySelectorAll('*').forEach(e => [...e.attributes].forEach(a => {
+        const v = a.value.replace(/url\(\s*['"]?#([^)'"\s]+)['"]?\s*\)/g, (m, k) => ren[k] ? `url(#${ren[k]})` : m).replace(/^#(.+)$/, (m, k) => ren[k] && /href$/.test(a.name) ? '#' + ren[k] : m);
+        if (v !== a.value) e.setAttribute(a.name, v);
+    }));
     page.querySelectorAll('.ui-spot, canvas.hllive').forEach(n => n.remove());
     [['canvas.ink', ink, inkMarked, 'ink'], ['canvas.hlmain', hlc, hlMarked, 'ui-hlc']].forEach(([sel, src, marked, cls]) => {
         const cv = page.querySelector(sel); if (!cv) return;
