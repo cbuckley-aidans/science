@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forces: Checking for Understanding</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --navy: #1b1f45;
+        --pink: #ea008a;
+        --mid-grey: #9a9a9a;
+        --light-grey: #e8e8e8;
+        --blank: #f0f3f6;
+        --tint: #e9ecf5;
+        --cond: 'Barlow Condensed', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        --ease: cubic-bezier(.2,.8,.2,1);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #eaeaea; color: var(--navy);
+        display: flex; align-items: center; justify-content: center; overflow: hidden; -webkit-user-select: none; user-select: none; }
+    .stage { width: 1280px; height: 720px; background: #fff; border-top: 6px solid var(--navy); position: relative; padding: 36px 64px 0; flex-shrink: 0; overflow: hidden; transform-origin: center; }
+    .top { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 4px solid var(--navy); padding-bottom: 12px; }
+    .sheet-title { font-family: var(--cond); font-size: 44px; font-weight: 900; text-transform: uppercase; letter-spacing: .01em; margin: 0; line-height: 1; }
+    .sheet-title span { color: var(--pink); }
+    .counter { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; color: var(--mid-grey); text-transform: uppercase; }
+    .counter b { color: var(--navy); }
+    .content { position: absolute; left: 64px; right: 64px; top: 124px; bottom: 108px; }
+    .caption { position: absolute; left: 64px; right: 64px; bottom: 28px; min-height: 60px; display: flex; align-items: center; gap: 16px; font-size: 25px; font-weight: 500; line-height: 1.32; }
+    .caption::before { content: ''; width: 10px; height: 10px; background: var(--pink); flex-shrink: 0; }
+    .caption .txt { flex: 1; }
+    .caption b { color: var(--pink); font-weight: 800; }
+    .caption b.no { color: var(--navy); }
+    .caption .in { animation: capIn .45s var(--ease); display: block; }
+    @keyframes capIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .progress { position: absolute; left: 0; bottom: 0; height: 6px; background: var(--pink); width: 0; transition: width .6s var(--ease); }
+
+    .next { font-family: var(--cond); font-size: 26px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; background: var(--pink); color: #fff;
+        border: none; border-radius: 8px; padding: 12px 30px; cursor: pointer; flex-shrink: 0; }
+    .next[hidden] { display: none; }
+    .next:disabled { background: #c3c6d0; cursor: default; }
+    button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--pink); outline-offset: 3px; }
+    .next:focus-visible { outline-color: var(--navy); }
+    .pop-in { animation: capIn .45s var(--ease); }
+    @keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+
+    /* question frame */
+    .q { display: flex; flex-direction: column; height: 100%; }
+    .qhead { display: flex; align-items: center; gap: 18px; }
+    .qtitle { font-size: 40px; font-weight: 800; line-height: 1.15; }
+    .tchip { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--pink); border: 3px solid var(--pink); border-radius: 6px; padding: 3px 12px 2px; }
+    .sctag { margin-left: auto; font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--navy); box-shadow: inset 0 0 0 3px var(--navy); border-radius: 6px; padding: 6px 12px 5px; line-height: 1; }
+    .prompt { font-size: 28px; font-weight: 600; margin-top: 6px; line-height: 1.3; }
+    .body { flex: 1; min-height: 0; margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 30px; }
+    .center { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+    .dlbl { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mid-grey); }
+
+    /* svg classes */
+    svg { overflow: visible; display: block; }
+    .obj { fill: var(--blank); stroke: var(--navy); stroke-width: 4; }
+    .oname { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; fill: var(--navy); }
+    .flbl { font-family: var(--cond); font-size: 24px; font-weight: 800; fill: var(--navy); }
+    .spd { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; fill: var(--mid-grey); }
+    .leg { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 600; fill: var(--mid-grey); }
+    .gnd { stroke: #c9ccd6; stroke-width: 4; }
+    .fig line, .fig polyline { stroke: var(--navy); stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+    .fig circle { fill: var(--navy); }
+    .sball { fill: #fff; stroke: var(--navy); stroke-width: 4; }
+    .spent { fill: var(--navy); }
+    .pole { font-family: var(--cond); font-size: 26px; font-weight: 900; text-anchor: middle; }
+    .clip { fill: none; stroke: var(--navy); stroke-width: 3; stroke-linecap: round; }
+
+    /* multiple choice */
+    .opts { display: grid; gap: 10px; }
+    .col .opt { font-size: 23px; padding: 9px 18px; }
+    .opts.g2 { grid-template-columns: 1fr 1fr; gap: 18px; width: 100%; }
+    .opt { display: flex; align-items: center; gap: 16px; border: 3px solid var(--navy); border-radius: 8px; background: #fff; padding: 12px 20px;
+        font-family: inherit; font-size: 25px; font-weight: 600; color: var(--navy); text-align: left; line-height: 1.25; cursor: pointer;
+        transition: background-color .2s, border-color .2s, color .2s, opacity .2s; }
+    .opts.g2 .opt { min-height: 104px; font-size: 30px; font-weight: 700; padding: 16px 24px; }
+    .opt .l { flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background: var(--navy); color: #fff; font-family: var(--cond); font-size: 24px; font-weight: 900;
+        display: flex; align-items: center; justify-content: center; transition: background-color .2s, color .2s; }
+    .opt:hover:not(:disabled) { background: #f6f7fb; }
+    .opt.sel { background: var(--tint); }
+    .opt.sel .l { background: var(--pink); }
+    .opt.right, .opt.right:hover { background: var(--pink); border-color: var(--pink); color: #fff; opacity: 1; }
+    .opt.right .l { background: #fff; color: var(--pink); }
+    .opt.wrong { border-style: dashed; opacity: .5; animation: shake .4s; cursor: default; }
+    .opt:disabled { cursor: default; }
+    .gly { flex-shrink: 0; }
+    .gd { fill: #b5b9c6; } .go { fill: var(--navy); } .gs { fill: none; stroke: var(--navy); stroke-width: 3; }
+    .opt.right .gd { fill: rgba(255,255,255,.6); } .opt.right .go { fill: #fff; } .opt.right .gs { stroke: #fff; }
+    .opt.right .gsf { fill: #fff; }
+    .pred .opts { width: 380px; }
+    .pred .opt { min-height: 76px; font-size: 26px; font-weight: 700; padding: 10px 18px; }
+
+    /* picture choices */
+    .pgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; width: 100%; }
+    .pgrid.g22 { grid-template-columns: 1fr 1fr; gap: 14px; width: 500px; }
+    .pcard { position: relative; border: 3px solid var(--navy); border-radius: 8px; background: #fff; padding: 16px 4px 12px; cursor: pointer;
+        display: flex; flex-direction: column; align-items: center; gap: 8px; font-family: inherit; color: var(--navy); transition: background-color .2s, border-color .2s, opacity .2s; }
+    .pgrid.g22 .pcard { padding: 12px 8px 8px; }
+    .pcard .l { position: absolute; left: 10px; top: 10px; width: 38px; height: 38px; border-radius: 50%; background: var(--navy); color: #fff; font-family: var(--cond); font-size: 23px; font-weight: 900;
+        display: flex; align-items: center; justify-content: center; transition: background-color .2s; }
+    .pcard .cap { font-size: 22px; font-weight: 700; line-height: 1.2; text-align: center; }
+    .pcard:hover:not(:disabled) { background: #f6f7fb; }
+    .pcard.sel { background: var(--tint); }
+    .pcard.sel .l { background: var(--pink); }
+    .pcard.right, .pcard.right:hover { border-color: var(--pink); background: #fff; box-shadow: 0 0 0 5px rgba(234,0,138,.18); opacity: 1; }
+    .pcard.right .l { background: var(--pink); }
+    .pcard.wrong { border-style: dashed; opacity: .45; animation: shake .4s; cursor: default; }
+    .pcard:disabled { cursor: default; }
+
+    /* quote */
+    .quote { border-left: 8px solid var(--pink); padding: 4px 0 4px 20px; font-size: 25px; font-weight: 600; font-style: italic; line-height: 1.3; margin-bottom: 14px; }
+    .quote b { font-style: normal; font-weight: 800; color: var(--pink); }
+    .col { display: flex; flex-direction: column; }
+
+    /* scenes */
+    .scene { position: relative; border: 3px solid var(--navy); border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #fff; }
+    .scene > svg { overflow: hidden; }
+    .replay { position: absolute; right: 12px; top: 12px; display: flex; align-items: center; gap: 6px; font-family: var(--cond); font-size: 19px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+        background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 6px; padding: 5px 12px 4px 9px; cursor: pointer; }
+    .replay svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+    .replay:hover { background: var(--blank); }
+
+    /* drag tiles */
+    .tile { font-family: inherit; font-size: 24px; font-weight: 700; color: var(--navy); background: #fff; border: 3px solid var(--navy); border-radius: 8px; padding: 6px 16px; line-height: 1.25;
+        cursor: grab; touch-action: none; position: relative; z-index: 2; transition: transform .3s var(--ease), box-shadow .2s, border-color .2s; box-shadow: 0 4px 0 #c3c6d0; white-space: nowrap; text-align: center; }
+    .tile.sm { font-size: 22px; padding: 6px 12px; white-space: normal; }
+    .tile.sel { border-color: var(--pink); box-shadow: 0 0 0 4px rgba(234,0,138,.22); }
+    .tile.drag { transition: none; cursor: grabbing; z-index: 30; box-shadow: 0 14px 30px rgba(27,31,69,.25); border-color: var(--pink); }
+    .tile.right { background: var(--pink); color: #fff; border-color: var(--pink); box-shadow: none; cursor: default; }
+    .tile.wrong { border-style: dashed; background: var(--tint); box-shadow: none; animation: shake .4s; }
+
+    /* sort */
+    .sort { display: grid; grid-template-columns: 1fr 360px 1fr; gap: 18px; width: 100%; height: 100%; }
+    .bin { border: 3px solid var(--navy); border-radius: 8px; display: flex; flex-direction: column; overflow: visible; transition: box-shadow .2s; }
+    .bin.pk { border-color: var(--pink); }
+    .bin h3 { margin: 0; padding: 8px 16px 7px; font-family: var(--cond); font-size: 28px; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; color: #fff; background: var(--navy); }
+    .bin.pk h3 { background: var(--pink); }
+    .bin .sub { font-size: 18px; font-weight: 600; color: var(--mid-grey); padding: 8px 16px 0; }
+    .bin .area { flex: 1; padding: 12px 14px; display: flex; flex-wrap: wrap; gap: 10px; align-content: flex-start; justify-content: center; border-radius: 0 0 6px 6px; transition: background-color .2s; }
+    .bin.hover .area, .bin.armed:hover .area { background: rgba(234,0,138,.06); }
+    .bin.armed { box-shadow: 0 0 0 4px rgba(234,0,138,.15); cursor: pointer; }
+    .pool { background: var(--blank); border-radius: 8px; padding: 14px; display: flex; flex-wrap: wrap; gap: 10px; align-content: center; justify-content: center; transition: background-color .2s; }
+    .pool.hover { background: #e3e7ee; }
+    .pool.col1 { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 8px; }
+
+    /* force diagram builder */
+    .bwrap { position: relative; width: 806px; height: 336px; border: 3px solid var(--navy); border-radius: 8px; flex-shrink: 0; }
+    .bwrap > svg { position: absolute; left: 0; top: 0; }
+    .slot { position: absolute; width: 200px; height: 50px; border: 3px dashed #c3c6d0; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: border-color .2s, background-color .2s; }
+    .slot.hover, .slot.armed:hover { border-color: var(--pink); background: rgba(234,0,138,.06); }
+    .slot.armed { border-color: #e7a3c9; cursor: pointer; }
+    .slot.filled { border-color: transparent; background: none; }
+    .slot.wrong { animation: shake .4s; }
+    .slot .tile { box-shadow: none; padding: 5px 14px; font-size: 23px; }
+    .bside { width: 320px; display: flex; flex-direction: column; gap: 10px; height: 336px; }
+    .bside .pool { flex: 1; flex-direction: column; flex-wrap: nowrap; align-items: center; justify-content: center; }
+
+    /* end */
+    .scorecard { border: 3px solid var(--pink); border-radius: 8px; padding: 30px 60px; text-align: center; }
+    .scorecard .big { font-family: var(--cond); font-size: 120px; font-weight: 900; color: var(--pink); line-height: 1; }
+    .scorecard .dlbl { margin-top: 8px; }
+    .dots { display: flex; gap: 8px; justify-content: center; margin-top: 22px; }
+    .dots span { width: 34px; height: 34px; border-radius: 6px; border: 3px solid var(--navy); font-family: var(--cond); font-size: 17px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+    .dots span.y { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .again { margin-top: 26px; font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+        background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 8px; padding: 8px 22px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+    <div class="top">
+        <h1 class="sheet-title">Checking <span>forces</span></h1>
+        <div class="counter" id="counter"></div>
+    </div>
+    <div class="content" id="content"></div>
+    <div class="caption"><div class="txt" id="cap"></div><button class="next" id="next" hidden>Check</button></div>
+    <div class="progress" id="progress"></div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const content = $('#content'), cap = $('#cap'), btn = $('#next'), counter = $('#counter'), progress = $('#progress');
+const PK = '#ea008a', NV = '#1b1f45', GR = '#c9ccd6', DT = '#b5b9c6', LT = '#f0f3f6';
+let scaleK = 1;
+function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
+function say(html) { cap.innerHTML = `<span class="in">${html}</span>`; }
+
+/* ---------- animation helpers ---------- */
+let runId = 0;
+const easeOut = t => 1 - (1 - t) * (1 - t), easeInOut = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+function play(dur, step, guard) {
+    const id = runId, ok = guard || (() => id === runId);
+    return new Promise(res => {
+        const st = performance.now();
+        const f = n => { if (!ok()) return; const t = Math.min(1, (n - st) / dur); step(t); if (t < 1) requestAnimationFrame(f); else res(); };
+        requestAnimationFrame(f);
+    });
+}
+function wait(ms) { const id = runId; return new Promise(r => setTimeout(() => { if (id === runId) r(); }, ms)); }
+
+/* ---------- drawing helpers ---------- */
+const DIR = { r: 0, l: Math.PI, u: -Math.PI / 2, d: Math.PI / 2 };
+function arrowSVG(x, y, ang, len, o = {}) {
+    const c = o.c || PK, sw = o.sw || 8, hw = o.hw || 13, hl = Math.min(o.hl || 22, len);
+    if (len < 1) return '';
+    const ux = Math.cos(ang), uy = Math.sin(ang), ex = x + ux * len, ey = y + uy * len, bx = ex - ux * hl, by = ey - uy * hl, px = -uy * hw, py = ux * hw;
+    const f = v => v.toFixed(1);
+    let s = len > hl ? `<line x1="${f(x)}" y1="${f(y)}" x2="${f(bx)}" y2="${f(by)}" stroke="${c}" stroke-width="${sw}"/>` : '';
+    s += `<polygon points="${f(ex)},${f(ey)} ${f(bx + px)},${f(by + py)} ${f(bx - px)},${f(by - py)}" fill="${c}" stroke="${c}" stroke-width="1.5" stroke-linejoin="round"/>`;
+    if (o.label) {
+        const fs = o.fs || 24, est = o.label.length * fs * .48, full = o.full || len, op = o.lop === undefined ? 1 : o.lop;
+        let tx, ty, an;
+        if (Math.abs(ux) > .9) {
+            ty = y + (o.below ? (o.dy || 34) : -16);
+            if (est <= full - 6) { tx = x + ux * full / 2; an = 'middle'; } else { tx = x + ux * 4; an = ux > 0 ? 'start' : 'end'; }
+        } else if (Math.abs(uy) > .9) { tx = x + (o.left ? -18 : 18); ty = y + uy * full / 2 + 8; an = o.left ? 'end' : 'start'; }
+        else { tx = x + ux * full / 2 + 20; ty = y + uy * full / 2 + 8; an = 'start'; }
+        s += `<text class="flbl" x="${f(tx)}" y="${f(ty)}" text-anchor="${an}" opacity="${op}" style="font-size:${fs}px">${o.label}</text>`;
+    }
+    return s;
+}
+function ghostArrow(x, y, ang, len) {
+    const ux = Math.cos(ang), uy = Math.sin(ang), hl = 20, hw = 12, ex = x + ux * len, ey = y + uy * len, bx = ex - ux * hl, by = ey - uy * hl, px = -uy * hw, py = ux * hw;
+    return `<line x1="${x}" y1="${y}" x2="${bx}" y2="${by}" stroke="${GR}" stroke-width="4" stroke-dasharray="7 7"/><polygon points="${ex},${ey} ${bx + px},${by + py} ${bx - px},${by - py}" fill="#fff" stroke="${GR}" stroke-width="3" stroke-linejoin="round"/>`;
+}
+function growArrow(g, x, y, ang, len, o = {}, dur = 450) {
+    const tok = g._tok = (g._tok || 0) + 1;
+    return play(dur, k => { g.innerHTML = arrowSVG(x, y, ang, len * easeOut(k), { ...o, full: len, lop: k }); }, () => g._tok === tok && document.body.contains(g));
+}
+function clearArrow(g) { g._tok = (g._tok || 0) + 1; g.innerHTML = ''; }
+
+const POSE = {
+    push: { f1: [-30, 0], f2: [10, 0], hip: [-8, -58], sh: [14, -100], hd: [22, -118], h: [52, -82] },
+    pull: { f1: [20, 0], f2: [-18, 0], hip: [-6, -58], sh: [-20, -100], hd: [-27, -117], h: [22, -72] },
+    keep: { f1: [-24, 0], f2: [18, 0], hip: [-6, -50], sh: [12, -90], hd: [22, -106], h: [44, -28] }
+};
+function fig(x, gy, pose, flip, gloves) {
+    const p = POSE[pose], q = a => a.join(','), h2 = [p.h[0] - 5, p.h[1] + 7];
+    const gl = gloves ? `<circle cx="${p.h[0]}" cy="${p.h[1]}" r="10"/><circle cx="${h2[0]}" cy="${h2[1]}" r="10"/>` : '';
+    return `<g class="fig" transform="translate(${x} ${gy}) scale(${flip ? -1 : 1} 1)"><polyline points="${q(p.f1)} ${q(p.hip)} ${q(p.f2)}"/><line x1="${p.hip[0]}" y1="${p.hip[1]}" x2="${p.sh[0]}" y2="${p.sh[1]}"/><polyline points="${q(p.sh)} ${q(h2)}"/><polyline points="${q(p.sh)} ${q(p.h)}"/><circle cx="${p.hd[0]}" cy="${p.hd[1]}" r="14"/>${gl}</g>`;
+}
+function soccer(r) {
+    const k = r / 26, pts = [0, 1, 2, 3, 4].map(i => { const a = -Math.PI / 2 + i * 2 * Math.PI / 5; return (Math.cos(a) * 10 * k).toFixed(1) + ',' + (Math.sin(a) * 10 * k).toFixed(1); }).join(' ');
+    let seams = ''; [0, 1, 2, 3, 4].forEach(i => { const a = -Math.PI / 2 + i * 2 * Math.PI / 5; seams += `<line x1="${(Math.cos(a) * 10 * k).toFixed(1)}" y1="${(Math.sin(a) * 10 * k).toFixed(1)}" x2="${(Math.cos(a) * (r - 2)).toFixed(1)}" y2="${(Math.sin(a) * (r - 2)).toFixed(1)}" stroke="${NV}" stroke-width="2"/>`; });
+    return `<circle class="sball" r="${r}"/>${seams}<polygon class="spent" points="${pts}"/>`;
+}
+const clipPath = `<path class="clip" d="M4 2 H30 A5 5 0 0 1 30 12 H6 A3.5 3.5 0 0 1 6 5 H26"/>`;
+function uMagnet(x, y, s = 1) {
+    return `<g transform="translate(${x} ${y}) scale(${s})"><path d="M40 -32 H0 A32 32 0 0 0 0 32 H40" fill="none" stroke="#b8bcc8" stroke-width="22"/>
+        <rect x="34" y="-43" width="28" height="22" fill="${NV}"/><text class="pole" x="48" y="-24" fill="#fff" style="font-size:18px">N</text>
+        <rect x="34" y="21" width="28" height="22" fill="${LT}" stroke="${NV}" stroke-width="2"/><text class="pole" x="48" y="39" fill="${NV}" style="font-size:18px">S</text></g>`;
+}
+const legend = (x, y) => `<circle cx="${x}" cy="${y - 6}" r="6" fill="${DT}"/><text class="leg" x="${x + 14}" y="${y}">Dots show where it was every quarter of a second</text>`;
+const ground = (gy, w = 740) => `<line class="gnd" x1="0" x2="${w}" y1="${gy + 2}" y2="${gy + 2}"/>`;
+const replayIcon = `<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v5h5"/></svg>`;
+
+/* option glyphs: grey dots are earlier positions, navy dot is the object */
+function glyph(k) {
+    const D = x => `<circle class="gd" cx="${x}" cy="20" r="3.6"/>`, O = (x, y = 20) => `<circle class="go" cx="${x}" cy="${y}" r="7"/>`;
+    let s = '';
+    if (k === 'faster') { [4, 13, 27, 48].forEach(x => s += D(x)); s += O(78); }
+    else if (k === 'slower') { [4, 34, 56, 70].forEach(x => s += D(x)); s += O(80); }
+    else if (k === 'stops') { [4, 28, 45, 56].forEach(x => s += D(x)); s += O(64) + `<rect class="go" x="78" y="7" width="5" height="26" rx="2"/>`; }
+    else if (k === 'turn') { for (let i = 0; i < 4; i++) { const t = i / 4, x = 4 + 74 * t, y = 34 - 26 * t * t; s += `<circle class="gd" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.6"/>`; } s += O(78, 8); }
+    else if (k === 'shape') { s = `<circle class="gs" cx="17" cy="20" r="13"/><path class="gs" d="M38 20 H50 M45 15 L50 20 L45 25" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:2.5"/><ellipse class="gs" cx="70" cy="20" rx="16" ry="8"/>`; }
+    else if (k === 'left') { [82, 78, 68, 49].forEach(x => s += D(x)); s += O(14); }
+    else if (k === 'right') { [4, 8, 18, 37].forEach(x => s += D(x)); s += O(72); }
+    else if (k === 'still') { s = O(44); }
+    return `<svg class="gly" viewBox="0 0 88 40" width="74" height="34">${s}</svg>`;
+}
+const EFFECT = { faster: 'Speeds up', slower: 'Slows down', stops: 'Stops', turn: 'Changes direction', shape: 'Changes shape', left: 'Moves left', right: 'Moves right', still: 'Nothing happens' };
+
+/* ---------- pictures for multiple choice ---------- */
+function pic(k) {
+    const W = 250, H = 170;
+    let s = '';
+    if (k === 'pushbox') s = `<line class="gnd" x1="0" x2="250" y1="162" y2="162"/>${fig(78, 160, 'push')}<rect class="obj" x="130" y="70" width="90" height="90" rx="6"/><text class="oname" x="175" y="122" text-anchor="middle">Box</text>`;
+    if (k === 'pullcart') s = `<line class="gnd" x1="0" x2="250" y1="162" y2="162"/><rect class="obj" x="14" y="98" width="104" height="46" rx="6"/><text class="oname" x="66" y="128" text-anchor="middle">Cart</text>
+        <circle cx="40" cy="150" r="10" fill="${NV}"/><circle cx="92" cy="150" r="10" fill="${NV}"/><line x1="118" y1="112" x2="174" y2="90" stroke="${NV}" stroke-width="4" stroke-linecap="round"/>${fig(196, 160, 'pull', true)}`;
+    if (k === 'magnet') s = `${uMagnet(84, 92, 1.1)}<g transform="translate(178 82) scale(1.6)">${clipPath}</g>
+        <g stroke="${GR}" stroke-width="3" stroke-linecap="round"><line x1="236" y1="82" x2="252" y2="82"/><line x1="232" y1="92" x2="252" y2="92"/><line x1="236" y1="102" x2="252" y2="102"/></g>`;
+    if (k === 'brake') {
+        let sp = ''; for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6; sp += `<line x1="${(100 + 8 * Math.cos(a)).toFixed(1)}" y1="${(85 + 8 * Math.sin(a)).toFixed(1)}" x2="${(100 + 54 * Math.cos(a)).toFixed(1)}" y2="${(85 + 54 * Math.sin(a)).toFixed(1)}"/>`; }
+        s = `<g stroke="${NV}" stroke-width="1.6">${sp}</g><circle cx="100" cy="85" r="58" fill="none" stroke="${NV}" stroke-width="7"/><circle cx="100" cy="85" r="7" fill="${NV}"/>
+        <rect x="162" y="60" width="13" height="50" rx="3" fill="${NV}"/><line x1="174" y1="64" x2="214" y2="30" stroke="${NV}" stroke-width="5" stroke-linecap="round"/>
+`;
+    }
+    return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${s}</svg>`;
+}
+function wallPic(dir) {
+    let s = `<line class="gnd" x1="0" x2="200" y1="112" y2="112"/><rect x="152" y="12" width="14" height="100" fill="${NV}"/><g transform="translate(128 88)">${soccer(22)}</g>`;
+    if (dir === 'r') s += arrowSVG(150, 88, 0, 56, { sw: 6, hl: 17, hw: 11 });
+    if (dir === 'l') s += arrowSVG(106, 88, Math.PI, 62, { sw: 6, hl: 17, hw: 11 });
+    if (dir === 'u') s += arrowSVG(128, 66, -Math.PI / 2, 56, { sw: 6, hl: 17, hw: 11 });
+    if (dir === 'n') s += `<text class="flbl" x="52" y="80" text-anchor="middle" style="font-size:23px">No force</text>`;
+    return `<svg viewBox="0 0 210 120" width="222" height="127">${s}</svg>`;
+}
+
+/* =========================================================
+   QUESTIONS
+   ========================================================= */
+const QS = [
+    { kind: 'mc', title: 'Touching required', sc: 'SC2', prompt: 'Which force only acts when the two objects are touching?',
+      opts: [
+        { t: 'Gravity', hint: 'Gravity pulls from a distance. A dropped apple falls without anything touching it.' },
+        { t: 'Magnetic force', hint: 'A magnet can pull a paperclip across a gap, so magnetic force is non-contact.' },
+        { t: 'Friction', hint: '' },
+        { t: 'Electrostatic force', hint: 'A charged balloon lifts paper without touching it, so this force is non-contact.' }],
+      answer: 2, msg: 'Friction needs two surfaces rubbing together, so it is a contact force.' },
+
+    { kind: 'mcpic', title: 'Spot the gap', sc: 'SC2', prompt: 'Which picture shows a non-contact force?',
+      opts: [
+        { p: 'pushbox', t: 'Pushing a box', hint: 'The hands touch the box. A push from your hands is a contact force.' },
+        { p: 'pullcart', t: 'Pulling a cart', hint: 'The rope touches the cart. Tension in a rope is a contact force.' },
+        { p: 'magnet', t: 'Magnet and paperclip', hint: '' },
+        { p: 'brake', t: 'Brakes on a wheel', hint: 'The brake pad rubs on the wheel. Friction is a contact force.' }],
+      answer: 2, msg: 'The magnet pulls the paperclip across a gap. Magnetic force is non-contact.' },
+
+    { kind: 'sort', title: 'Sort the forces', sc: 'SC2', prompt: 'Drag each force into the correct group.',
+      items: [
+        ['Friction', 'c', 'Friction needs two surfaces rubbing together, so it is a contact force.'],
+        ['Gravity', 'n', 'Earth pulls a falling apple without touching it, so gravity is non-contact.'],
+        ['Tension', 'c', 'Tension acts through a rope or string that touches the object, so it is contact.'],
+        ['Magnetic force', 'n', 'Magnets attract a paperclip across a gap, so magnetic force is non-contact.'],
+        ['Air resistance', 'c', 'Air particles hit the surface of a moving object, so air resistance is contact.'],
+        ['Electrostatic force', 'n', 'A charged balloon lifts hair without touching it, so this force is non-contact.'],
+        ['Support force', 'c', 'A table must touch a book to push up on it, so support force is contact.'],
+        ['Water resistance', 'c', 'Water particles push on the surface of a moving object, so this is contact.']],
+      msg: 'Contact forces need touching. Gravity, magnetic and electrostatic forces act across a gap.' },
+
+    { kind: 'mcside', title: 'Jess\u2019s claim', sc: 'SC2', prompt: 'Jess is watching a ball fall. Is she right?',
+      quote: '\u201cGravity can\u2019t be acting on the ball, because nothing is touching it.\u201d',
+      opts: [
+        { t: 'Yes. Every force needs something touching the object.', hint: 'Only contact forces need touching. Some forces act across a gap.' },
+        { t: 'Yes. The ball is moving, so no force is acting on it.', hint: 'The ball is speeding up as it falls. Something must be pulling it.' },
+        { t: 'No. The air touching the ball pulls it down.', hint: 'Air resistance pushes against the motion. The pull downwards comes from Earth.' },
+        { t: 'No. Gravity is non-contact, so it pulls without touching.', hint: '' }],
+      answer: 3, msg: 'Earth\u2019s gravity pulls across a distance. Nothing needs to touch the ball.' },
+
+    { kind: 'build', title: 'Book on a table', sc: 'SC2', prompt: 'A book sits still on a table. Drag each force acting on it to an arrow.',
+      box: { x: 315, y: 137, w: 170, h: 56 },
+      scene: `<rect x="225" y="193" width="350" height="14" fill="#d7dae2"/><line x1="255" y1="207" x2="255" y2="330" stroke="#d7dae2" stroke-width="12"/><line x1="545" y1="207" x2="545" y2="330" stroke="#d7dae2" stroke-width="12"/>
+        <rect class="obj" x="315" y="137" width="170" height="56" rx="4"/><line x1="327" y1="181" x2="473" y2="181" stroke="${NV}" stroke-width="2"/><text class="oname" x="400" y="168" text-anchor="middle">Book</text>`,
+      answer: { u: 'Support force', d: 'Gravity' },
+      tiles: ['Support force', 'Gravity', 'Friction', 'Tension'],
+      hints: { Friction: 'Friction acts when surfaces slide or try to slide. The book is sitting still.', Tension: 'Tension needs a stretched rope or string. There isn\u2019t one here.' },
+      wrongDir: { Gravity: 'Gravity pulls towards the centre of Earth, so its arrow points down.', 'Support force': 'The table pushes up on the book, so the support force points up.' },
+      missing: { u: 'Something stops the book falling through the table. Which force does the table give?', d: 'Every object on Earth is pulled downwards. Which force is missing?' },
+      msg: 'Gravity pulls the book down and the table pushes it up.' },
+
+    { kind: 'build', title: 'Falling skydiver', sc: 'SC2', prompt: 'A skydiver is falling. Drag each force acting on her to an arrow.',
+      box: { x: 347, y: 124, w: 106, h: 83 },
+      scene: `<g stroke="${GR}" stroke-width="3" stroke-linecap="round"><line x1="334" y1="78" x2="334" y2="116"/><line x1="354" y1="66" x2="354" y2="110"/><line x1="446" y1="70" x2="446" y2="112"/><line x1="466" y1="82" x2="466" y2="118"/></g>
+        <g transform="translate(400 168) scale(1.15)"><g stroke="${NV}" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"><line x1="0" y1="-14" x2="0" y2="14"/>
+        <polyline points="-42,-34 -30,-12 0,-11 30,-12 42,-34"/><polyline points="-40,26 -20,32 0,14 20,32 40,26"/></g><circle cx="0" cy="-27" r="11" fill="${NV}"/></g>
+        <text class="spd" x="760" y="306" text-anchor="end">Falling &darr;</text>`,
+      answer: { u: 'Air resistance', d: 'Gravity' },
+      tiles: ['Gravity', 'Air resistance', 'Support force', 'Magnetic force'],
+      hints: { 'Support force': 'A support force needs a surface underneath. Nothing is touching her from below.', 'Magnetic force': 'There are no magnets here, so there is no magnetic force.' },
+      wrongDir: { 'Air resistance': 'Air resistance pushes against the motion. She is falling down, so it pushes up.', Gravity: 'Gravity pulls towards the centre of Earth, so its arrow points down.' },
+      missing: { u: 'Air particles hit her as she falls. Which force do they cause?', d: 'Something is pulling her towards the ground. Which force is missing?' },
+      msg: 'Gravity (non-contact) pulls her down. Air resistance (contact) pushes up against her fall.' },
+
+    { kind: 'build', title: 'Braking car', sc: 'SC2', prompt: 'A car is moving right and the driver brakes. Drag each force to an arrow.',
+      box: { x: 304, y: 128, w: 192, h: 70 },
+      scene: `<rect x="0" y="198" width="800" height="18" fill="#e8e8e8"/><line class="gnd" x1="0" x2="800" y1="198" y2="198"/>
+        <g stroke="${GR}" stroke-width="3" stroke-linecap="round"><line x1="250" y1="132" x2="294" y2="132"/><line x1="262" y1="142" x2="294" y2="142"/></g>
+        <g transform="translate(300 140)"><path d="M4 40 L4 24 Q4 16 14 14 L42 10 L64 -8 Q68 -12 76 -12 L128 -12 Q136 -12 142 -4 L158 12 L184 16 Q196 18 196 30 L196 40 Z" fill="${LT}" stroke="${NV}" stroke-width="4" stroke-linejoin="round"/>
+        <polygon points="72,8 84,-3 105,-3 105,8" fill="#fff" stroke="${NV}" stroke-width="2.5" stroke-linejoin="round"/><polygon points="112,8 112,-3 128,-3 141,8" fill="#fff" stroke="${NV}" stroke-width="2.5" stroke-linejoin="round"/>
+        <circle cx="44" cy="42" r="16" fill="${NV}"/><circle cx="156" cy="42" r="16" fill="${NV}"/><circle cx="44" cy="42" r="5" fill="#fff"/><circle cx="156" cy="42" r="5" fill="#fff"/></g>
+        <text class="spd" x="208" y="248" text-anchor="middle">Moving &rarr;</text>`,
+      answer: { l: 'Friction', u: 'Support force', d: 'Gravity' },
+      tiles: ['Friction', 'Gravity', 'Support force', 'Tension'],
+      hints: { Tension: 'Tension needs a stretched rope or cable pulling the car. There isn\u2019t one here.' },
+      wrongDir: { Friction: 'Friction acts against the motion. The car moves right, so friction points left.', Gravity: 'Gravity pulls towards the centre of Earth, so its arrow points down.', 'Support force': 'The road pushes up on the car, so the support force points up.' },
+      missing: { l: 'The brakes cause a force that slows the car. Which force acts against its motion?', u: 'The road holds the car up. Which force does the road give?', d: 'Every object on Earth is pulled downwards. Which force is missing?' },
+      msg: 'Friction acts against the motion and slows the car. The road supports it while gravity pulls down.' },
+
+    { kind: 'predict', scene: 'trolley', title: 'Push from behind', sc: 'SC1', prompt: 'A student pushes the rolling trolley from behind. What happens next?',
+      opts: [
+        { g: 'faster', hint: '' },
+        { g: 'slower', hint: 'The push acts in the same direction as the motion, so it helps the trolley along.' },
+        { g: 'turn', hint: 'The push is along the line the trolley is already moving, so its path stays straight.' },
+        { g: 'shape', hint: 'A push like this won\u2019t squash a solid trolley. Think about its speed.' }],
+      answer: 0, msg: 'A force in the same direction as the motion makes an object speed up. The dots spread out.' },
+
+    { kind: 'predict', scene: 'grass', title: 'Into the grass', sc: 'SC1', prompt: 'The ball rolls into long grass, where friction acts on it. What happens next?',
+      opts: [
+        { g: 'faster', hint: 'Friction acts against the motion, so it can\u2019t help the ball go faster.' },
+        { g: 'slower', hint: '' },
+        { g: 'turn', hint: 'Friction acts straight back against the motion, so the ball keeps rolling in a straight line.' },
+        { g: 'shape', hint: 'Grass is too soft to squash the ball. Think about what happens to its speed.' }],
+      answer: 1, msg: 'A force acting against the motion slows an object down. The dots get closer together.' },
+
+    { kind: 'predict', scene: 'catch', title: 'The save', sc: 'SC1', prompt: 'The goalkeeper\u2019s gloves push back against the rolling ball. What happens next?',
+      opts: [
+        { g: 'faster', hint: 'The gloves push against the motion, so the ball can\u2019t speed up.' },
+        { g: 'stops', hint: '' },
+        { g: 'turn', hint: 'The gloves push straight back and hold on, so the ball doesn\u2019t bounce away.' },
+        { g: 'shape', hint: 'The ball might squash a tiny bit, but the big change is to its motion. What happens to its speed?' }],
+      answer: 1, msg: 'A strong enough force against the motion can stop an object completely.' },
+
+    { kind: 'predict', scene: 'magnet', title: 'Rolling past a magnet', sc: 'SC1', prompt: 'Seen from above, a steel ball rolls past a magnet. What happens next?',
+      opts: [
+        { g: 'faster', hint: 'At first the magnet pulls sideways across the ball\u2019s path, not along it.' },
+        { g: 'slower', hint: 'The magnet pulls sideways across the ball\u2019s path, not back against it.' },
+        { g: 'turn', hint: '' },
+        { g: 'shape', hint: 'A steel ball is far too hard for a magnet to squash. Think about its path.' }],
+      answer: 2, msg: 'A sideways force changes the direction of a moving object. Magnetic force does this without touching.' },
+
+    { kind: 'predict', scene: 'squeeze', title: 'Squeeze', sc: 'SC1', prompt: 'Fingers push equally hard on both sides of a stress ball. What happens next?',
+      opts: [
+        { g: 'left', hint: 'Both pushes are the same size, so neither side wins. The ball doesn\u2019t start moving.' },
+        { g: 'right', hint: 'Both pushes are the same size, so neither side wins. The ball doesn\u2019t start moving.' },
+        { g: 'shape', hint: '' },
+        { g: 'still', hint: 'The ball stays in place, but the forces still do something. Look at its shape.' }],
+      answer: 2, msg: 'Forces can change an object\u2019s shape. Squeezing squashes the stress ball.' },
+
+    { kind: 'watch', title: 'Bounce', sc: 'SC1', prompt: 'Watch the ball hit the wall. Which diagram shows the force from the wall?',
+      opts: [
+        { d: 'r', hint: 'The ball was moving towards the wall, but the wall pushes back the other way.' },
+        { d: 'l', hint: '' },
+        { d: 'u', hint: 'The ball bounces straight back along the ground, not upwards.' },
+        { d: 'n', hint: 'The ball changed direction, so a force must have acted on it.' }],
+      answer: 1, msg: 'The wall pushes the ball to the left. This contact force changes its direction.' },
+
+    { kind: 'sort', small: true, title: 'Cause and effect', sc: 'SC2', prompt: 'Sort each event by the type of force that caused it.',
+      items: [
+        ['A falling apple speeds up', 'n', 'Gravity speeds up the apple, and it pulls from a distance.'],
+        ['A magnet turns a rolling ball', 'n', 'Magnetic force acts across a gap, without touching the ball.'],
+        ['A charged balloon lifts paper', 'n', 'Electrostatic force lifts the paper before the balloon touches it.'],
+        ['Grass slows a rolling ball', 'c', 'Friction from the grass needs the ball to touch it.'],
+        ['Gloves stop a moving ball', 'c', 'The gloves must touch the ball to push against it.'],
+        ['Fingers squash a stress ball', 'c', 'The fingers push on the ball\u2019s surface, so this is a contact force.']],
+      msg: 'Both groups of forces can change speed, direction or shape.' }
+];
+const TOTAL = QS.length;
+const CHIP = { mc: 'Multiple choice', mcpic: 'Multiple choice', mcside: 'Multiple choice', sort: 'Drag and drop', build: 'Force diagram', predict: 'Predict', watch: 'Watch and choose' };
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+/* ---------- flow ---------- */
+let qi = 0, firstTry = [], tries = 0, mode = 'check', cur = null;
+function render() {
+    runId++;
+    content.innerHTML = ''; tries = 0; mode = 'check';
+    const q = QS[qi];
+    counter.innerHTML = `Question <b>${qi + 1}</b> / ${TOTAL}`;
+    progress.style.width = (qi / TOTAL * 100) + '%';
+    const wrap = el('div', 'q');
+    wrap.appendChild(el('div', 'qhead', `<div class="qtitle">${q.title}</div><div class="tchip">${CHIP[q.kind]}</div><div class="sctag">${q.sc}</div>`));
+    wrap.appendChild(el('div', 'prompt', q.prompt));
+    const body = el('div', 'body'); wrap.appendChild(body); content.appendChild(wrap);
+    cur = KINDS[q.kind](q, body);
+    say(cur.instr);
+    btn.hidden = false; btn.textContent = 'Check';
+    refresh();
+}
+function refresh() { if (mode === 'check') btn.disabled = !cur.ready(); }
+function check() {
+    tries++;
+    const r = cur.check();
+    if (r.ok) {
+        if (tries === 1) firstTry[qi] = true;
+        say(`<b>Correct.</b> ${QS[qi].msg}`);
+        mode = 'next'; btn.disabled = false; btn.textContent = qi === TOTAL - 1 ? 'Finish' : 'Next';
+        btn.classList.remove('pop-in'); void btn.offsetWidth; btn.classList.add('pop-in');
+        if (cur.done) cur.done();
+    } else {
+        say(`<b class="no">Not quite.</b> ${r.hint}`);
+        refresh();
+    }
+}
+btn.onclick = () => {
+    if (btn.disabled) return;
+    if (mode === 'check') check();
+    else if (qi === TOTAL - 1) finish();
+    else { qi++; render(); }
+};
+function finish() {
+    runId++;
+    content.innerHTML = '';
+    btn.hidden = true;
+    counter.innerHTML = '<b>Complete</b>';
+    progress.style.width = '100%';
+    const n = firstTry.filter(Boolean).length;
+    say('Take a screenshot of this screen and paste it into Stile as evidence of your work.');
+    const c = el('div', 'center');
+    const dots = QS.map((_, i) => `<span class="${firstTry[i] ? 'y' : ''}">${i + 1}</span>`).join('');
+    const card = el('div', 'scorecard pop-in', `<div class="big">${n} / ${TOTAL}</div><div class="dlbl">Correct on the first try</div><div class="dots">${dots}</div>`);
+    const again = el('button', 'again', 'Start again');
+    again.onclick = () => { qi = 0; firstTry = []; render(); };
+    c.append(card, again); content.appendChild(c);
+}
+
+/* ---------- multiple choice core ---------- */
+function mcCore(els, q, extra = {}) {
+    let sel = null;
+    els.forEach((b, i) => b.onclick = () => {
+        if (mode !== 'check' || b.classList.contains('wrong')) return;
+        els.forEach(x => x.classList.remove('sel')); b.classList.add('sel'); sel = i; refresh();
+    });
+    return {
+        instr: extra.instr || 'Choose an answer, then press <b>Check</b>.',
+        ready: () => sel !== null,
+        check() {
+            const b = els[sel];
+            b.classList.remove('sel');
+            if (sel === q.answer) { b.classList.add('right'); els.forEach(x => x.disabled = true); return { ok: true }; }
+            b.classList.add('wrong'); b.disabled = true;
+            const h = q.opts[sel].hint; sel = null; return { ok: false, hint: h };
+        },
+        done: extra.done
+    };
+}
+const L = 'ABCD';
+const KINDS = {
+    mc(q, body) {
+        const g = el('div', 'opts g2');
+        const els = q.opts.map((o, i) => { const b = el('button', 'opt', `<span class="l">${L[i]}</span><span>${o.t}</span>`); g.appendChild(b); return b; });
+        body.appendChild(g);
+        return mcCore(els, q);
+    },
+    mcpic(q, body) {
+        const g = el('div', 'pgrid');
+        const els = q.opts.map((o, i) => { const b = el('button', 'pcard', `<span class="l">${L[i]}</span>${pic(o.p)}<span class="cap">${o.t}</span>`); g.appendChild(b); return b; });
+        body.appendChild(g);
+        return mcCore(els, q);
+    },
+    mcside(q, body) {
+        const side = el('div', 'scene');
+        side.innerHTML = `<svg viewBox="0 0 250 330" width="250" height="330">
+            <circle cx="125" cy="30" r="26" fill="none" stroke="${GR}" stroke-width="3" stroke-dasharray="5 6"/>
+            <circle cx="125" cy="86" r="26" fill="none" stroke="${GR}" stroke-width="3" stroke-dasharray="5 6"/>
+            <g transform="translate(125 160)">${soccer(26)}</g><g class="ga"></g>
+            <text class="spd" x="125" y="306" text-anchor="middle">Falling &darr;</text>${ground(318, 250)}</svg>`;
+        const col = el('div', 'col'); col.style.flex = '1';
+        col.appendChild(el('div', 'quote', q.quote));
+        const g = el('div', 'opts');
+        const els = q.opts.map((o, i) => { const b = el('button', 'opt', `<span class="l">${L[i]}</span><span>${o.t}</span>`); g.appendChild(b); return b; });
+        col.appendChild(g); body.append(side, col);
+        body.style.justifyContent = 'flex-start';
+        return mcCore(els, q, { done: () => growArrow(side.querySelector('.ga'), 125, 186, DIR.d, 62, { label: 'Gravity' }) });
+    },
+    predict(q, body) {
+        body.classList.add('pred');
+        const sc = el('div', 'scene');
+        sc.innerHTML = `<svg viewBox="0 0 740 330" width="734" height="327"></svg>`;
+        const rp = el('button', 'replay', `${replayIcon}<span>Replay</span>`); sc.appendChild(rp);
+        const g = el('div', 'opts');
+        const els = q.opts.map(o => { const b = el('button', 'opt', `${glyph(o.g)}<span>${EFFECT[o.g]}</span>`); g.appendChild(b); return b; });
+        body.append(sc, g);
+        const S = SCENES[q.scene](sc.querySelector('svg'));
+        let solved = false;
+        const go = () => { runId++; S.run(solved); };
+        S.introDone = false;
+        rp.onclick = go;
+        go();
+        return mcCore(els, q, { instr: 'Watch, then choose what happens next and press <b>Check</b>.', done: () => { solved = true; runId++; S.run(true, S.introDone); } });
+    },
+    watch(q, body) {
+        const sc = el('div', 'scene');
+        sc.innerHTML = `<svg viewBox="0 0 620 330" width="614" height="327"></svg>`;
+        const g = el('div', 'pgrid g22');
+        const els = q.opts.map((o, i) => { const b = el('button', 'pcard', `<span class="l">${L[i]}</span>${wallPic(o.d)}`); g.appendChild(b); return b; });
+        body.append(sc, g);
+        const S = bounceScene(sc.querySelector('svg'));
+        S.loop();
+        return mcCore(els, q, { instr: 'Watch the ball, choose a diagram, then press <b>Check</b>.', done: () => { runId++; S.final(); } });
+    },
+    sort(q, body) {
+        const wrap = el('div', 'sort');
+        const mk = (cls, h, sub) => { const b = el('div', 'bin ' + cls, `<h3>${h}</h3><div class="sub">${sub}</div><div class="area"></div>`); b.tabIndex = 0; return b; };
+        const bc = mk('', 'Contact', 'The objects must touch'), bn = mk('pk', 'Non-contact', 'Acts across a gap');
+        const pool = el('div', 'pool' + (q.small ? ' col1' : ''));
+        wrap.append(bc, pool, bn); body.appendChild(wrap);
+        const zPool = { el: pool, box: pool, cap: Infinity, pool: true };
+        const zones = [{ el: bc, box: bc.querySelector('.area'), cap: Infinity, key: 'c' }, { el: bn, box: bn.querySelector('.area'), cap: Infinity, key: 'n' }];
+        const D = dnd(zPool, zones, () => refresh());
+        shuffle(q.items).forEach(([t, k, h]) => { const tl = D.tile(t); if (q.small) tl.classList.add('sm'); tl.k = k; tl.h = h; pool.appendChild(tl); });
+        return {
+            instr: 'Drag each tile into a group (or tap a tile, then a group), then press <b>Check</b>.',
+            ready: () => !pool.querySelector('.tile'),
+            check() {
+                let wrong = [];
+                zones.forEach(z => z.box.querySelectorAll('.tile').forEach(t => {
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (t.k === z.key) t.classList.add('right'); else { t.classList.add('wrong'); wrong.push(t.h); }
+                }));
+                return wrong.length ? { ok: false, hint: (wrong.length > 1 ? `${wrong.length} tiles need moving. ` : '') + wrong[0] } : { ok: true };
+            }
+        };
+    },
+    build(q, body) {
+        const W = 800, H = 330, len = 66, gap = 6, b = q.box, cx = b.x + b.w / 2, cy = b.y + b.h / 2;
+        const A = { u: [cx, b.y], d: [cx, b.y + b.h], l: [b.x, cy], r: [b.x + b.w, cy] };
+        const SL = { u: [cx - 100, b.y - len - gap - 50], d: [cx - 100, b.y + b.h + len + gap], l: [b.x - len - gap - 200, cy - 25], r: [b.x + b.w + len + gap, cy - 25] };
+        const wrap = el('div', 'bwrap');
+        wrap.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${q.scene}<g class="ghosts"></g><g class="arrs"></g></svg>`;
+        const gh = wrap.querySelector('.ghosts'), ar = wrap.querySelector('.arrs');
+        const side = el('div', 'bside', '<div class="dlbl">Forces</div>');
+        const pool = el('div', 'pool'); side.appendChild(pool);
+        body.append(wrap, side);
+        const zones = Object.keys(A).map(d => {
+            gh.insertAdjacentHTML('beforeend', `<g data-d="${d}">${ghostArrow(A[d][0], A[d][1], DIR[d], len)}</g>`);
+            const g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); ar.appendChild(g);
+            const s = el('div', 'slot'); s.style.left = SL[d][0] + 'px'; s.style.top = SL[d][1] + 'px'; s.tabIndex = 0; s.setAttribute('aria-label', { u: 'Up arrow', d: 'Down arrow', l: 'Left arrow', r: 'Right arrow' }[d]);
+            wrap.appendChild(s);
+            const ghost = gh.querySelector(`[data-d="${d}"]`);
+            return { el: s, box: s, cap: 1, dir: d,
+                onPut: () => { s.classList.add('filled'); ghost.style.display = 'none'; growArrow(g, A[d][0], A[d][1], DIR[d], len); },
+                onTake: () => { s.classList.remove('filled'); ghost.style.display = ''; clearArrow(g); } };
+        });
+        const zPool = { el: pool, box: pool, cap: Infinity, pool: true };
+        const D = dnd(zPool, zones, () => { zones.forEach(z => z.el.classList.remove('wrong')); refresh(); });
+        shuffle(q.tiles).forEach(t => pool.appendChild(D.tile(t)));
+        return {
+            instr: 'Drag forces onto the arrows. Leave any arrow empty if no force acts that way.',
+            ready: () => zones.some(z => z.box.querySelector('.tile')),
+            check() {
+                let hint = null, bad = 0;
+                zones.forEach(z => {
+                    const t = z.box.querySelector('.tile'); z.el.classList.remove('wrong');
+                    if (!t) return;
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (q.answer[z.dir] === t.textContent) { t.classList.add('right'); z.locked = true; }
+                    else { bad++; t.classList.add('wrong'); z.el.classList.add('wrong'); if (!hint) hint = q.hints[t.textContent] || q.wrongDir[t.textContent]; }
+                });
+                if (bad) return { ok: false, hint: (bad > 1 ? `${bad} labels need changing. ` : '') + hint };
+                const miss = Object.keys(q.answer).find(d => !zones.find(z => z.dir === d).box.querySelector('.tile'));
+                if (miss) return { ok: false, hint: 'Good so far, but a force is missing. ' + q.missing[miss] };
+                return { ok: true };
+            }
+        };
+    }
+};
+
+/* ---------- drag and drop (drag, or tap a tile then tap a target) ---------- */
+function dnd(pool, zones, onChange) {
+    let sel = null;
+    const all = () => [pool, ...zones];
+    const zoneOf = t => all().find(z => z.box.contains(t));
+    const armAll = on => zones.forEach(z => z.el.classList.toggle('armed', on && !z.locked));
+    const deselect = () => { if (sel) sel.classList.remove('sel'); sel = null; armAll(false); };
+    function moveTo(t, z) {
+        const from = zoneOf(t);
+        t.style.transform = ''; t.classList.remove('wrong');
+        z.box.appendChild(t);
+        if (from && from !== z && from.onTake) from.onTake(t);
+        if (z.onPut) z.onPut(t);
+        deselect(); onChange();
+    }
+    function put(t, z) {
+        const from = zoneOf(t);
+        if (z.locked || from === z) { t.style.transform = ''; return; }
+        if (z.cap === 1) {
+            const ex = z.box.querySelector('.tile');
+            if (ex) { if (ex.classList.contains('right')) { t.style.transform = ''; return; } moveTo(ex, pool); }
+        }
+        moveTo(t, z);
+    }
+    const hit = (x, y) => all().find(z => { const r = z.el.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; });
+    all().forEach(z => {
+        const act = () => { if (sel && !z.locked) put(sel, z); };
+        z.el.addEventListener('click', act);
+        z.el.addEventListener('keydown', e => { if (e.target === z.el && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); act(); } });
+    });
+    function tile(text) {
+        const t = el('span', 'tile', text);
+        t.tabIndex = 0; t.setAttribute('role', 'button');
+        const tap = () => {
+            if (t.classList.contains('right')) return;
+            t.style.transform = '';
+            const z = zoneOf(t);
+            if (z !== pool) { put(t, pool); return; }
+            if (sel === t) { deselect(); return; }
+            deselect(); sel = t; t.classList.add('sel'); armAll(true);
+        };
+        t.addEventListener('click', e => e.stopPropagation());
+        t.addEventListener('pointerdown', e => {
+            if (t.classList.contains('right') || e.button > 0) return;
+            e.preventDefault(); e.stopPropagation(); t.setPointerCapture(e.pointerId);
+            const sx = e.clientX, sy = e.clientY; let moved = false;
+            const move = ev => {
+                const dx = ev.clientX - sx, dy = ev.clientY - sy;
+                if (!moved && Math.hypot(dx, dy) > 6) { moved = true; t.classList.add('drag'); }
+                if (!moved) return;
+                t.style.transform = `translate(${dx / scaleK}px, ${dy / scaleK}px)`;
+                const h = hit(ev.clientX, ev.clientY);
+                all().forEach(z => z.el.classList.toggle('hover', z === h));
+            };
+            const up = ev => {
+                t.removeEventListener('pointermove', move); t.removeEventListener('pointerup', up); t.removeEventListener('pointercancel', up);
+                t.classList.remove('drag'); all().forEach(z => z.el.classList.remove('hover'));
+                if (!moved) { tap(); return; }
+                const h = hit(ev.clientX, ev.clientY);
+                if (h) put(t, h); else t.style.transform = '';
+            };
+            t.addEventListener('pointermove', move); t.addEventListener('pointerup', up); t.addEventListener('pointercancel', up);
+        });
+        t.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); tap(); } });
+        return t;
+    }
+    return { tile };
+}
+
+/* =========================================================
+   ANIMATED SCENES (predict)
+   Each scene: run(full, outcomeOnly)
+   ========================================================= */
+function mkTrail(layer, pos, y, every = 250) {
+    let next = 0;
+    return {
+        reset() { layer.innerHTML = ''; next = 0; },
+        upto(T) { while (next <= T + .5) { const p = pos(next); layer.insertAdjacentHTML('beforeend', `<circle cx="${p.x.toFixed(1)}" cy="${(y === undefined ? p.y : y).toFixed(1)}" r="5.5" fill="${DT}"/>`); next += every; } },
+        dot(p) { layer.insertAdjacentHTML('beforeend', `<circle cx="${p.x.toFixed(1)}" cy="${(y === undefined ? p.y : y).toFixed(1)}" r="5.5" fill="${DT}"/>`); }
+    };
+}
+const phase = (T0, T1, dur, apply) => play(dur, k => apply(T0 + (T1 - T0) * k));
+
+const SCENES = {
+    trolley(svg) {
+        const GY = 262, K = 1.25, I = 2000, O = 1600, x0 = 70, v = .09, a = .00013;
+        svg.innerHTML = `${ground(GY)}<g class="tr"></g><g class="ag" opacity="0"><g class="agi"></g></g>
+            <g class="ob"><rect class="obj" x="-65" y="-92" width="130" height="66" rx="6"/><text class="oname" x="0" y="-52" text-anchor="middle">Trolley</text>
+            <circle cx="-38" cy="-13" r="13" fill="${NV}"/><circle cx="38" cy="-13" r="13" fill="${NV}"/><circle cx="-38" cy="-13" r="4" fill="#fff"/><circle cx="38" cy="-13" r="4" fill="#fff"/><g class="arr"></g></g>
+            <text class="spd mv" x="0" y="0" text-anchor="middle">Moving &rarr;</text>${legend(16, 318)}`;
+        const ob = svg.querySelector('.ob'), ag = svg.querySelector('.ag'), agi = svg.querySelector('.agi'), arr = svg.querySelector('.arr'), mv = svg.querySelector('.mv');
+        agi.innerHTML = fig(0, 0, 'push');
+        const pos = T => ({ x: T <= I ? x0 + v * T : x0 + v * I + v * (T - I) + .5 * a * (T - I) ** 2 });
+        const tr = mkTrail(svg.querySelector('.tr'), pos, GY + 26);
+        const agAt = x => agi.setAttribute('transform', `translate(${(x - 146).toFixed(1)} ${GY}) scale(${K})`);
+        const set = (T, withAgent) => {
+            const x = pos(T).x; ob.setAttribute('transform', `translate(${x.toFixed(1)} ${GY}) scale(${K})`);
+            mv.setAttribute('x', x); mv.setAttribute('y', GY - 132);
+            if (withAgent) agAt(x);
+            tr.upto(T);
+        };
+        return {
+            async run(full, skipIntro) {
+                if (!skipIntro) {
+                    this.introDone = false;
+                    tr.reset(); clearArrow(arr); ag.setAttribute('opacity', 0); mv.setAttribute('opacity', 1);
+                    await phase(0, I, I, T => set(T));
+                    mv.setAttribute('opacity', 0);
+                    await play(380, k => { ag.setAttribute('opacity', k); agAt(pos(I).x - 40 * (1 - easeOut(k))); });
+                    await growArrow(arr, 65, -59, DIR.r, 70, { label: 'Push' });
+                    this.introDone = true;
+                }
+                if (!full) return;
+                await wait(skipIntro ? 100 : 500);
+                await phase(I, I + O, O, T => set(T, true));
+            }
+        };
+    },
+    grass(svg) {
+        const GY = 262, I = 2000, O = 2000, x0 = 90, v = .14, a = -.000066, r = 34, G0 = 405;
+        let tufts = '';
+        for (let x = G0 + 10, i = 0; x < 740; x += 26, i++) {
+            const h = 26 + (i * 37 % 13);
+            tufts += `<path d="M${x} ${GY} q-4 -${(h * .55).toFixed(0)} -12 -${h} M${x} ${GY} q1 -${(h * .6).toFixed(0)} 2 -${h + 6} M${x} ${GY} q4 -${(h * .5).toFixed(0)} 12 -${(h * .85).toFixed(0)}"/>`;
+        }
+        svg.innerHTML = `<rect x="${G0}" y="${GY + 2}" width="${740 - G0}" height="40" fill="#eef0f5"/>${ground(GY)}
+            <g fill="none" stroke="#8a8fa6" stroke-width="3" stroke-linecap="round">${tufts}</g>
+            <text class="spd" x="${G0 + 170}" y="${GY - 118}" text-anchor="middle">Long grass</text>
+            <g class="tr"></g><g class="ob"><g class="rot">${soccer(r)}</g><g class="arr"></g></g>
+            <text class="spd mv" text-anchor="middle">Rolling &rarr;</text>${legend(16, 318)}`;
+        const ob = svg.querySelector('.ob'), rot = svg.querySelector('.rot'), arr = svg.querySelector('.arr'), mv = svg.querySelector('.mv');
+        const pos = T => ({ x: T <= I ? x0 + v * T : x0 + v * I + v * (T - I) + .5 * a * (T - I) ** 2 });
+        const tr = mkTrail(svg.querySelector('.tr'), pos, GY + 26);
+        const set = T => { const x = pos(T).x; ob.setAttribute('transform', `translate(${x.toFixed(1)} ${GY - r})`); rot.setAttribute('transform', `rotate(${(x / r * 57.3).toFixed(1)})`); mv.setAttribute('x', x); mv.setAttribute('y', GY - 2 * r - 22); tr.upto(T); };
+        return {
+            async run(full, skipIntro) {
+                if (!skipIntro) {
+                    this.introDone = false;
+                    tr.reset(); clearArrow(arr); mv.setAttribute('opacity', 1);
+                    await phase(0, I, I, set);
+                    mv.setAttribute('opacity', 0);
+                    await growArrow(arr, -r, 0, DIR.l, 84, { label: 'Friction' });
+                    this.introDone = true;
+                }
+                if (!full) return;
+                await wait(skipIntro ? 100 : 500);
+                await phase(I, I + O, O, set);
+            }
+        };
+    },
+    catch(svg) {
+        const GY = 262, K = 1.25, I = 2000, x0 = 80, v = .16, r = 34, S = 450, dist = v * S / 2;
+        svg.innerHTML = `${ground(GY)}<g class="tr"></g><g class="gk"></g>
+            <g class="ob"><g class="rot">${soccer(r)}</g><g class="arr"></g></g><text class="spd mv" text-anchor="middle">Rolling &rarr;</text>
+            <text class="spd st" text-anchor="end" opacity="0">Stopped</text>${legend(16, 318)}`;
+        const ob = svg.querySelector('.ob'), rot = svg.querySelector('.rot'), arr = svg.querySelector('.arr'), gk = svg.querySelector('.gk'), mv = svg.querySelector('.mv'), st = svg.querySelector('.st');
+        gk.innerHTML = `<g class="fig"><polyline points="20,0 28,-26 8,-50 -16,-28 -12,0"/><line x1="8" y1="-50" x2="-10" y2="-86"/>
+            <polyline points="-10,-86 -38,-62 -46,-30"/><polyline points="-10,-86 -30,-58 -42,-22"/><circle cx="-20" cy="-103" r="14"/><circle cx="-46" cy="-30" r="10"/><circle cx="-42" cy="-21" r="10"/></g>`;
+        const xc = x0 + v * I;
+        const pos = T => ({ x: T <= I ? x0 + v * T : (T - I >= S ? xc + dist : xc + v * (T - I) - .5 * (v / S) * (T - I) ** 2) });
+        const tr = mkTrail(svg.querySelector('.tr'), pos, GY + 26);
+        const set = T => { const x = pos(T).x; ob.setAttribute('transform', `translate(${x.toFixed(1)} ${GY - r})`); rot.setAttribute('transform', `rotate(${(x / r * 57.3).toFixed(1)})`); mv.setAttribute('x', x); mv.setAttribute('y', GY - 2 * r - 22); tr.upto(T); };
+        const gkAt = x => gk.setAttribute('transform', `translate(${(x + r + 70).toFixed(1)} ${GY}) scale(${K} ${K})`);
+        return {
+            async run(full, skipIntro) {
+                if (!skipIntro) {
+                    this.introDone = false;
+                    tr.reset(); clearArrow(arr); arr.setAttribute('opacity', 1); gkAt(xc); st.setAttribute('opacity', 0); mv.setAttribute('opacity', 1);
+                    await phase(0, I, I, set);
+                    mv.setAttribute('opacity', 0);
+                    await growArrow(arr, -r, 0, DIR.l, 84, { label: 'Push from gloves' });
+                    this.introDone = true;
+                }
+                if (!full) return;
+                await wait(skipIntro ? 100 : 500);
+                await phase(I, I + S, S * 1.6, T => { set(T); gkAt(pos(T).x); });
+                tr.dot(pos(I + S));
+                await play(300, k => arr.setAttribute('opacity', 1 - k));
+                clearArrow(arr); arr.setAttribute('opacity', 1);
+                st.setAttribute('x', xc + dist - r - 14); st.setAttribute('y', GY - r + 8);
+                await play(300, k => st.setAttribute('opacity', k));
+            }
+        };
+    },
+    magnet(svg) {
+        const I = 2400, y0 = 260, v = .15, r = 26, M = { x: 450, y: 74 }, A = .00027, MB = 96, x0 = M.x - v * I;
+        svg.innerHTML = `<rect x="0" y="0" width="740" height="330" fill="#f5f6fa"/>
+            <rect x="300" y="52" width="150" height="44" fill="${NV}"/><rect x="450" y="52" width="150" height="44" fill="${LT}"/><rect x="300" y="52" width="300" height="44" fill="none" stroke="${NV}" stroke-width="3"/>
+            <text class="pole" x="375" y="83" fill="#fff">N</text><text class="pole" x="525" y="83" fill="${NV}">S</text>
+            <text class="spd" x="288" y="82" text-anchor="end">Magnet</text>
+            <g class="tr"></g><g class="ob"><circle r="${r}" fill="#dde0e8" stroke="${NV}" stroke-width="3.5"/><circle cx="-8" cy="-8" r="7" fill="#fff" opacity=".9"/></g><g class="arr"></g>
+            <text class="spd mv" text-anchor="middle">Rolling &rarr;</text>
+            <text class="spd" x="724" y="318" text-anchor="end">Seen from above</text>${legend(16, 318)}`;
+        const ob = svg.querySelector('.ob'), arr = svg.querySelector('.arr'), mv = svg.querySelector('.mv');
+        const path = []; { let x = M.x, y = y0, vx = v, vy = 0; const dt = 2; for (let t = 0; t <= 2400; t += dt) { if (y - r <= MB && x > 300 && x < 600) { y = MB + r; path.push({ x, y }); break; } path.push({ x, y }); const dx = M.x - x, dy = M.y - y, d = Math.hypot(dx, dy); vx += A * dx / d * dt; vy += A * dy / d * dt; x += vx * dt; y += vy * dt; } }
+        const last = path[path.length - 1], O = (path.length - 1) * 2;
+        const pos = T => T <= I ? { x: x0 + v * T, y: y0 } : path[Math.min(path.length - 1, Math.round((T - I) / 2))];
+        const tr = mkTrail(svg.querySelector('.tr'), pos);
+        const drawArrow = (p, k = 1) => { const ang = Math.atan2(M.y - p.y, M.x - p.x); arr.innerHTML = arrowSVG(p.x + Math.cos(ang) * r, p.y + Math.sin(ang) * r, ang, 70 * k, { label: 'Magnetic force', full: 70, lop: k }); };
+        const set = T => { const p = pos(T); ob.setAttribute('transform', `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})`); tr.upto(T); return p; };
+        return {
+            async run(full, skipIntro) {
+                if (!skipIntro) {
+                    this.introDone = false;
+                    tr.reset(); arr.innerHTML = ''; mv.setAttribute('opacity', 1); mv.setAttribute('y', y0 - r - 18);
+                    await phase(0, I, I, T => { const p = set(T); mv.setAttribute('x', p.x); });
+                    mv.setAttribute('opacity', 0);
+                    await play(450, k => drawArrow(pos(I), easeOut(k)));
+                    this.introDone = true;
+                }
+                if (!full) return;
+                await wait(skipIntro ? 100 : 500);
+                await phase(I, I + O, O * 1.25, T => { const p = set(T); if (p.y > 190) drawArrow(p); else arr.innerHTML = ''; });
+                tr.dot(last);
+            }
+        };
+    },
+    squeeze(svg) {
+        const C = { x: 370, y: 148 }, R = 88, PW = 120, PH = 52;
+        svg.innerHTML = `<ellipse class="ball" cx="${C.x}" cy="${C.y}" rx="${R}" ry="${R}" fill="${LT}" stroke="${NV}" stroke-width="4"/>
+            <text class="oname" x="${C.x}" y="${C.y + R + 58}" text-anchor="middle">Stress ball</text>
+            <rect class="fl" y="${C.y - PH / 2}" width="${PW}" height="${PH}" rx="${PH / 2}" fill="#fff" stroke="${NV}" stroke-width="4"/>
+            <rect class="fr" y="${C.y - PH / 2}" width="${PW}" height="${PH}" rx="${PH / 2}" fill="#fff" stroke="${NV}" stroke-width="4"/>
+            <text class="spd tl" y="${C.y - 44}" text-anchor="middle">Finger</text><text class="spd tr2" y="${C.y - 44}" text-anchor="middle">Thumb</text>
+            <g class="al"></g><g class="ar"></g>`;
+        const ball = svg.querySelector('.ball'), fl = svg.querySelector('.fl'), fr = svg.querySelector('.fr'), al = svg.querySelector('.al'), ar = svg.querySelector('.ar'), tl = svg.querySelector('.tl'), tr2 = svg.querySelector('.tr2');
+        const draw = (rx, off, k) => {
+            const lx = C.x - rx - off, rx2 = C.x + rx + off;
+            fl.setAttribute('x', lx - PW); fr.setAttribute('x', rx2);
+            tl.setAttribute('x', lx - PW / 2); tr2.setAttribute('x', rx2 + PW / 2);
+            if (k === undefined) { al.innerHTML = ''; ar.innerHTML = ''; return; }
+            const L = PW - 12, o = { label: 'Push', full: L, lop: k, below: true, dy: 60 };
+            al.innerHTML = arrowSVG(lx - PW + 12, C.y, 0, L * k, o); ar.innerHTML = arrowSVG(rx2 + PW - 12, C.y, Math.PI, L * k, o);
+        };
+        return {
+            async run(full, skipIntro) {
+                if (!skipIntro) {
+                    this.introDone = false;
+                    ball.setAttribute('rx', R); ball.setAttribute('ry', R);
+                    draw(R, 80);
+                    await wait(400);
+                    await play(700, k => draw(R, 80 * (1 - easeOut(k))));
+                    await play(450, k => draw(R, 0, easeOut(k)));
+                    this.introDone = true;
+                }
+                if (!full) return;
+                await wait(skipIntro ? 100 : 500);
+                await play(900, k => {
+                    const e = easeInOut(k), rx = R - 26 * e, ry = R + 22 * e;
+                    ball.setAttribute('rx', rx); ball.setAttribute('ry', ry);
+                    draw(rx, 0, 1);
+                });
+            }
+        };
+    }
+};
+
+function bounceScene(svg) {
+    const GY = 262, r = 38, WX = 540, xs = 70, xw = WX - r, sp = .34;
+    svg.innerHTML = `${ground(GY, 620)}<rect x="${WX}" y="44" width="24" height="${GY - 42}" fill="${NV}"/>
+        <g stroke="#fff" stroke-width="2" opacity=".35"><line x1="${WX}" x2="${WX + 24}" y1="96" y2="96"/><line x1="${WX}" x2="${WX + 24}" y1="148" y2="148"/><line x1="${WX}" x2="${WX + 24}" y1="200" y2="200"/></g>
+        <text class="spd" x="${WX + 12}" y="32" text-anchor="middle">Wall</text>
+        <g class="ob"><g class="sq"><g class="rot">${soccer(r)}</g></g><g class="arr"></g></g><text class="spd mv" text-anchor="middle"></text>`;
+    const ob = svg.querySelector('.ob'), sq = svg.querySelector('.sq'), rot = svg.querySelector('.rot'), arr = svg.querySelector('.arr'), mv = svg.querySelector('.mv');
+    const set = (x, dirTxt) => { ob.setAttribute('transform', `translate(${x.toFixed(1)} ${GY - r})`); rot.setAttribute('transform', `rotate(${(x / r * 57.3).toFixed(1)})`); mv.setAttribute('x', x); mv.setAttribute('y', GY - 2 * r - 22); if (dirTxt) mv.innerHTML = dirTxt; };
+    const squash = k => { const s = 1 - .18 * Math.sin(k * Math.PI); sq.setAttribute('transform', `translate(${(r * (1 - s)).toFixed(2)} ${(r * (1 - (1 + (1 - s) * .6))).toFixed(2)}) scale(${s.toFixed(3)} ${(1 + (1 - s) * .6).toFixed(3)})`); };
+    return {
+        async loop() {
+            const id = runId;
+            while (id === runId) {
+                mv.setAttribute('opacity', 1);
+                await play((xw - xs) / sp, k => set(xs + (xw - xs) * k, 'Moving &rarr;'));
+                mv.setAttribute('opacity', 0);
+                await play(220, squash);
+                mv.setAttribute('opacity', 1);
+                await play((xw - xs) / sp, k => set(xw - (xw - xs) * k, '&larr; Moving'));
+                await wait(700);
+            }
+        },
+        final() {
+            set(xw); mv.setAttribute('opacity', 0);
+            squash(.25);
+            growArrow(arr, -r * .82, 0, DIR.l, 90, { label: 'Push from wall' });
+        }
+    };
+}
+
+/* ---------- scale to window ---------- */
+function fit() {
+    const st = $('#stage');
+    scaleK = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    st.style.transform = `scale(${scaleK})`;
+    st.style.margin = `${(720 * scaleK - 720) / 2}px ${(1280 * scaleK - 1280) / 2}px`;
+}
+window.addEventListener('resize', fit);
+fit();
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { fit(); render(); });
+</script>
+</body>
+</html>
