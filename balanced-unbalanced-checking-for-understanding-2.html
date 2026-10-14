@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Balanced and Unbalanced Forces: Checking for Understanding</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --navy: #1b1f45;
+        --pink: #ea008a;
+        --mid-grey: #9a9a9a;
+        --light-grey: #e8e8e8;
+        --blank: #f0f3f6;
+        --tint: #e9ecf5;
+        --cond: 'Barlow Condensed', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        --ease: cubic-bezier(.2,.8,.2,1);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #eaeaea; color: var(--navy);
+        display: flex; align-items: center; justify-content: center; overflow: hidden; -webkit-user-select: none; user-select: none; }
+    .stage { width: 1280px; height: 720px; background: #fff; border-top: 6px solid var(--navy); position: relative; padding: 36px 64px 0; flex-shrink: 0; overflow: hidden; transform-origin: center; }
+    .top { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 4px solid var(--navy); padding-bottom: 12px; }
+    .sheet-title { font-family: var(--cond); font-size: 44px; font-weight: 900; text-transform: uppercase; letter-spacing: .01em; margin: 0; line-height: 1; }
+    .sheet-title span { color: var(--pink); }
+    .counter { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; color: var(--mid-grey); text-transform: uppercase; }
+    .counter b { color: var(--navy); }
+    .content { position: absolute; left: 64px; right: 64px; top: 124px; bottom: 108px; }
+    .caption { position: absolute; left: 64px; right: 64px; bottom: 28px; min-height: 60px; display: flex; align-items: center; gap: 16px; font-size: 25px; font-weight: 500; line-height: 1.32; }
+    .caption::before { content: ''; width: 10px; height: 10px; background: var(--pink); flex-shrink: 0; }
+    .caption .txt { flex: 1; }
+    .caption b { color: var(--pink); font-weight: 800; }
+    .caption b.no { color: var(--navy); }
+    .caption .in { animation: capIn .45s var(--ease); display: block; }
+    @keyframes capIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .progress { position: absolute; left: 0; bottom: 0; height: 6px; background: var(--pink); width: 0; transition: width .6s var(--ease); }
+
+    .next { font-family: var(--cond); font-size: 26px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; background: var(--pink); color: #fff;
+        border: none; border-radius: 8px; padding: 12px 30px; cursor: pointer; flex-shrink: 0; }
+    .next[hidden] { display: none; }
+    .next:disabled { background: #c3c6d0; cursor: default; }
+    button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--pink); outline-offset: 3px; }
+    .next:focus-visible { outline-color: var(--navy); }
+    .pop-in { animation: capIn .45s var(--ease); }
+    @keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+
+    /* question frame */
+    .q { display: flex; flex-direction: column; height: 100%; }
+    .qhead { display: flex; align-items: center; gap: 18px; }
+    .qtitle { font-size: 40px; font-weight: 800; line-height: 1.15; }
+    .tchip { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--pink); border: 3px solid var(--pink); border-radius: 6px; padding: 3px 12px 2px; }
+    .sctag { margin-left: auto; font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--navy); box-shadow: inset 0 0 0 3px var(--navy); border-radius: 6px; padding: 6px 12px 5px; line-height: 1; }
+    .prompt { font-size: 28px; font-weight: 600; margin-top: 6px; line-height: 1.3; }
+    .body { flex: 1; min-height: 0; margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 30px; }
+    .dlbl { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mid-grey); }
+    .lt { flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: var(--navy); color: #fff;
+        font-family: var(--cond); font-size: 21px; font-weight: 900; vertical-align: middle; }
+
+    /* svg classes */
+    svg { overflow: visible; display: block; }
+    .obj { fill: var(--blank); stroke: var(--navy); stroke-width: 4; }
+    .oname { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; fill: var(--navy); }
+    .flbl { font-family: var(--cond); font-size: 24px; font-weight: 800; fill: var(--navy); }
+    .spd { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; fill: var(--mid-grey); }
+    .gnd { stroke: #c9ccd6; stroke-width: 4; }
+    .fig line, .fig polyline { stroke: var(--navy); stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+    .fig circle { fill: var(--navy); }
+    .sball { fill: #fff; stroke: var(--navy); stroke-width: 4; }
+    .spent { fill: var(--navy); }
+    .pole { font-family: var(--cond); font-size: 26px; font-weight: 900; text-anchor: middle; }
+
+    /* scenes */
+    .scene { position: relative; border: 3px solid var(--navy); border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #fff; }
+    .scene > svg { overflow: hidden; }
+    .replay { position: absolute; right: 12px; top: 12px; display: flex; align-items: center; gap: 6px; font-family: var(--cond); font-size: 19px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+        background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 6px; padding: 5px 12px 4px 9px; cursor: pointer; }
+    .replay svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+    .replay:hover { background: var(--blank); }
+
+    /* fields */
+    .inp { font-family: inherit; font-size: 23px; font-weight: 700; color: var(--navy); background-color: #fff; border: 3px solid var(--navy); border-radius: 8px; height: 50px; padding: 0 12px;
+        transition: background-color .2s, border-color .2s, color .2s; vertical-align: middle; }
+    .inp:focus { outline: none; border-color: var(--pink); box-shadow: 0 0 0 4px rgba(234,0,138,.22); }
+    input.inp { width: 96px; text-align: center; -webkit-user-select: text; user-select: text; }
+    select.inp { -webkit-appearance: none; appearance: none; padding-right: 42px; cursor: pointer;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='10'><path d='M2 2l6 6 6-6' fill='none' stroke='%231b1f45' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+        background-repeat: no-repeat; background-position: right 14px center; }
+    select.inp:invalid { color: var(--mid-grey); }
+    select.inp option { color: var(--navy); }
+    .inp.right, .inp.right:disabled { padding-right: 12px; background-color: var(--pink); background-image: none; border-color: var(--pink); color: #fff; -webkit-text-fill-color: #fff; opacity: 1; box-shadow: none; }
+    .inp.wrong { border-style: dashed; background-color: var(--tint); animation: shake .4s; }
+    .inp:disabled { cursor: default; }
+    .fw { display: flex; flex-direction: column; gap: 4px; }
+    .fh { font-family: var(--cond); font-size: 18px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--mid-grey); }
+    .fr { display: flex; align-items: center; gap: 10px; }
+    .unit { font-size: 23px; font-weight: 700; }
+
+    .chips { display: flex; gap: 10px; flex-wrap: wrap; }
+    .chip { font-family: inherit; font-size: 22px; font-weight: 700; color: var(--navy); background: #fff; border: 3px solid var(--navy); border-radius: 8px; padding: 6px 16px; line-height: 1.2; cursor: pointer;
+        transition: background-color .2s, border-color .2s, color .2s, opacity .2s; }
+    .chip:hover:not(:disabled) { background: #f6f7fb; }
+    .chip.on, .chip.on:hover { background: var(--navy); color: #fff; }
+    .chip.right, .chip.right:hover { background: var(--pink); border-color: var(--pink); color: #fff; opacity: 1; }
+    .chip.wrong { border-style: dashed; opacity: .5; animation: shake .4s; }
+    .chip:disabled { cursor: default; }
+    .chip:disabled:not(.right) { opacity: .35; }
+
+    .tick { width: 48px; height: 48px; padding: 0; border: 3px solid var(--navy); border-radius: 8px; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        transition: background-color .2s, border-color .2s, opacity .2s; }
+    .tick svg { width: 28px; height: 28px; fill: none; stroke: #fff; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; opacity: 0; }
+    .tick:hover:not(:disabled) { background: #f6f7fb; }
+    .tick.on, .tick.on:hover { background: var(--navy); }
+    .tick.on svg, .tick.right svg { opacity: 1; }
+    .tick.right, .tick.right:hover { background: var(--pink); border-color: var(--pink); }
+    .tick.wrong { border-style: dashed; animation: shake .4s; }
+    .tick.wrong svg { opacity: .45; stroke: var(--navy); }
+    .tick:disabled { cursor: default; }
+    .tick:disabled:not(.right) { opacity: .3; }
+
+    /* drag tiles */
+    .tile { font-family: inherit; font-size: 24px; font-weight: 700; color: var(--navy); background: #fff; border: 3px solid var(--navy); border-radius: 8px; padding: 6px 16px; line-height: 1.25;
+        cursor: grab; touch-action: none; position: relative; z-index: 2; transition: transform .3s var(--ease), box-shadow .2s, border-color .2s; box-shadow: 0 4px 0 #c3c6d0; white-space: nowrap; text-align: center; }
+    .tile.sm { font-size: 22px; padding: 5px 13px; }
+    .tile.sel { border-color: var(--pink); box-shadow: 0 0 0 4px rgba(234,0,138,.22); }
+    .tile.drag { transition: none; cursor: grabbing; z-index: 30; box-shadow: 0 14px 30px rgba(27,31,69,.25); border-color: var(--pink); }
+    .tile.right { background: var(--pink); color: #fff; border-color: var(--pink); box-shadow: none; cursor: default; }
+    .tile.wrong { border-style: dashed; background: var(--tint); box-shadow: none; animation: shake .4s; }
+    .pool { background: var(--blank); border-radius: 8px; padding: 14px; display: flex; flex-wrap: wrap; gap: 10px; align-content: center; justify-content: center; transition: background-color .2s; }
+    .pool.hover { background: #e3e7ee; }
+    .dslot, .islot { border: 3px dashed #c3c6d0; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: border-color .2s, background-color .2s; }
+    .dslot.hover, .dslot.armed:hover, .islot.hover, .islot.armed:hover { border-color: var(--pink); background: rgba(234,0,138,.06); }
+    .dslot.armed, .islot.armed { border-color: #e7a3c9; cursor: pointer; }
+    .dslot.filled, .islot.filled { border-color: transparent; background: none; }
+    .dslot.wrong, .islot.wrong { animation: shake .4s; }
+    .dslot .tile, .islot .tile { box-shadow: none; }
+
+    /* match */
+    .match { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 24px; width: 100%; }
+    .mcard { position: relative; border: 3px solid var(--navy); border-radius: 8px; overflow: hidden; display: flex; justify-content: center; }
+    .mcard > svg { overflow: hidden; }
+    .mcard .lt { position: absolute; left: 10px; top: 10px; }
+    .match .dslot { height: 58px; margin: 0 44px; }
+    .match .pool { grid-column: 1 / -1; min-height: 74px; margin-top: 4px; }
+
+    /* net force panels */
+    .npanels { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; width: 100%; }
+    .npanel { border: 3px solid var(--navy); border-radius: 8px; padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 6px; }
+    .nhead { display: flex; align-items: center; gap: 10px; font-size: 24px; font-weight: 800; }
+    .nrow { display: flex; gap: 14px; align-items: center; }
+    .nrow > svg { flex-shrink: 0; }
+    .nfields { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+    .nfields select.inp { width: 100%; }
+
+    /* effects table */
+    .etab { display: grid; grid-template-columns: 1fr repeat(5, 92px) 262px; column-gap: 8px; width: 100%; }
+    .eh { font-family: var(--cond); font-size: 17px; font-weight: 800; letter-spacing: .03em; padding-left: 2px; padding-right: 2px; text-transform: uppercase; line-height: 1.05; text-align: center;
+        display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px; border-bottom: 4px solid var(--navy); }
+    .eh.first { justify-content: flex-start; text-align: left; }
+    .ecell { height: 104px; border-bottom: 2px solid var(--light-grey); display: flex; align-items: center; justify-content: center; }
+    .esit { justify-content: flex-start; gap: 14px; font-size: 21px; font-weight: 600; line-height: 1.25; }
+    .esit svg { flex-shrink: 0; }
+    .esit .lk { color: var(--pink); font-weight: 800; margin-right: 2px; }
+    .etype .chips { flex-wrap: nowrap; gap: 8px; }
+    .etype .chip { font-size: 19px; padding: 6px 11px; }
+
+    /* tug of war */
+    .tcol { flex: 1; display: flex; flex-direction: column; gap: 14px; }
+    .tline { font-size: 25px; font-weight: 600; line-height: 2.15; }
+    .tline .inp { margin: 0 4px; }
+    .tline .lt { margin-right: 10px; }
+    .tline + .chips { margin-left: 44px; margin-top: -8px; }
+    .sent { font-size: 26px; font-weight: 600; line-height: 2.3; }
+    .islot { display: inline-flex; vertical-align: middle; min-width: 150px; height: 52px; margin: 0 4px; }
+    .islot.filled { min-width: 0; }
+    .islot .tile { font-size: 22px; padding: 4px 12px; }
+
+    /* true or false */
+    .tf { width: 100%; display: flex; flex-direction: column; }
+    .tfrow { display: flex; align-items: center; gap: 18px; min-height: 66px; padding: 6px 0; border-bottom: 2px solid var(--light-grey); }
+    .tfrow:first-child { border-top: 4px solid var(--navy); }
+    .tfrow .st { flex: 1; font-size: 24px; font-weight: 600; line-height: 1.25; }
+    .tfrow .chip { min-width: 110px; }
+
+    /* end */
+    .endwrap { display: flex; gap: 40px; align-items: center; justify-content: center; height: 100%; }
+    .endl { display: flex; flex-direction: column; align-items: center; }
+    .scorecard { border: 3px solid var(--pink); border-radius: 8px; padding: 26px 44px; text-align: center; }
+    .scorecard .big { font-family: var(--cond); font-size: 116px; font-weight: 900; color: var(--pink); line-height: 1; }
+    .scorecard .dlbl { margin-top: 8px; }
+    .dots { display: flex; gap: 8px; justify-content: center; margin-top: 22px; }
+    .dots span { width: 34px; height: 34px; border-radius: 6px; border: 3px solid var(--navy); font-family: var(--cond); font-size: 17px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+    .dots span.y { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .again { margin-top: 22px; font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+        background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 8px; padding: 8px 22px; cursor: pointer; }
+    .conf { width: 580px; border: 3px solid var(--navy); border-radius: 8px; padding: 18px 24px 8px; }
+    .conf h3 { margin: 0; font-family: var(--cond); font-size: 30px; font-weight: 900; text-transform: uppercase; letter-spacing: .02em; }
+    .conf .lg { font-size: 19px; font-weight: 600; line-height: 1.3; margin: 4px 0 12px; }
+    .conf .lg b, .crow p b { color: var(--pink); font-weight: 800; }
+    .crow { border-top: 2px solid var(--light-grey); padding: 12px 0 14px; }
+    .crow p { margin: 0 0 10px; font-size: 20px; font-weight: 600; line-height: 1.3; }
+    .crow .chip { font-size: 19px; padding: 5px 12px; }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+    <div class="top">
+        <h1 class="sheet-title">Balanced and <span>unbalanced</span> forces</h1>
+        <div class="counter" id="counter"></div>
+    </div>
+    <div class="content" id="content"></div>
+    <div class="caption"><div class="txt" id="cap"></div><button class="next" id="next" hidden>Check</button></div>
+    <div class="progress" id="progress"></div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const content = $('#content'), cap = $('#cap'), btn = $('#next'), counter = $('#counter'), progress = $('#progress');
+const PK = '#ea008a', NV = '#1b1f45', GR = '#c9ccd6', DT = '#b5b9c6', LT = '#f0f3f6';
+let scaleK = 1;
+function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
+function say(html) { cap.innerHTML = `<span class="in">${html}</span>`; }
+
+/* ---------- animation helpers ---------- */
+let runId = 0;
+const easeOut = t => 1 - (1 - t) * (1 - t), easeInOut = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+function play(dur, step, guard) {
+    const id = runId, ok = guard || (() => id === runId);
+    return new Promise(res => {
+        const st = performance.now();
+        const f = n => { if (!ok()) return; const t = Math.min(1, (n - st) / dur); step(t); if (t < 1) requestAnimationFrame(f); else res(); };
+        requestAnimationFrame(f);
+    });
+}
+function wait(ms) { const id = runId; return new Promise(r => setTimeout(() => { if (id === runId) r(); }, ms)); }
+
+/* ---------- drawing helpers ---------- */
+const DIR = { r: 0, l: Math.PI, u: -Math.PI / 2, d: Math.PI / 2 };
+function arrowSVG(x, y, ang, len, o = {}) {
+    const c = o.c || PK, sw = o.sw || 8, hw = o.hw || 13, hl = Math.min(o.hl || 22, len);
+    if (len < 1) return '';
+    const ux = Math.cos(ang), uy = Math.sin(ang), ex = x + ux * len, ey = y + uy * len, bx = ex - ux * hl, by = ey - uy * hl, px = -uy * hw, py = ux * hw;
+    const f = v => v.toFixed(1);
+    let s = len > hl ? `<line x1="${f(x)}" y1="${f(y)}" x2="${f(bx)}" y2="${f(by)}" stroke="${c}" stroke-width="${sw}"/>` : '';
+    s += `<polygon points="${f(ex)},${f(ey)} ${f(bx + px)},${f(by + py)} ${f(bx - px)},${f(by - py)}" fill="${c}" stroke="${c}" stroke-width="1.5" stroke-linejoin="round"/>`;
+    if (o.label) {
+        const fs = o.fs || 24, est = o.label.length * fs * .48, full = o.full || len, op = o.lop === undefined ? 1 : o.lop;
+        let tx, ty, an;
+        if (Math.abs(ux) > .9) {
+            ty = y + (o.below ? (o.dy || 34) : -16);
+            if (est <= full - 6) { tx = x + ux * full / 2; an = 'middle'; } else { tx = x + ux * 4; an = ux > 0 ? 'start' : 'end'; }
+        } else if (Math.abs(uy) > .9) { tx = x + (o.left ? -18 : 18); ty = y + uy * full / 2 + 8; an = o.left ? 'end' : 'start'; }
+        else { tx = x + ux * full / 2 + 20; ty = y + uy * full / 2 + 8; an = 'start'; }
+        s += `<text class="flbl" x="${f(tx)}" y="${f(ty)}" text-anchor="${an}" opacity="${op}" style="font-size:${fs}px">${o.label}</text>`;
+    }
+    return s;
+}
+function growArrow(g, x, y, ang, len, o = {}, dur = 450) {
+    const tok = g._tok = (g._tok || 0) + 1;
+    return play(dur, k => { g.innerHTML = arrowSVG(x, y, ang, len * easeOut(k), { ...o, full: len, lop: k }); }, () => g._tok === tok && document.body.contains(g));
+}
+function clearArrow(g) { g._tok = (g._tok || 0) + 1; g.innerHTML = ''; }
+
+const POSE = { pull: { f1: [20, 0], f2: [-18, 0], hip: [-6, -58], sh: [-20, -100], hd: [-27, -117], h: [22, -72] } };
+function fig(x, gy, pose, flip) {
+    const p = POSE[pose], q = a => a.join(','), h2 = [p.h[0] - 5, p.h[1] + 7];
+    return `<g class="fig" transform="translate(${x} ${gy}) scale(${flip ? -1 : 1} 1)"><polyline points="${q(p.f1)} ${q(p.hip)} ${q(p.f2)}"/><line x1="${p.hip[0]}" y1="${p.hip[1]}" x2="${p.sh[0]}" y2="${p.sh[1]}"/><polyline points="${q(p.sh)} ${q(h2)}"/><polyline points="${q(p.sh)} ${q(p.h)}"/><circle cx="${p.hd[0]}" cy="${p.hd[1]}" r="14"/></g>`;
+}
+function soccer(r) {
+    const k = r / 26, pts = [0, 1, 2, 3, 4].map(i => { const a = -Math.PI / 2 + i * 2 * Math.PI / 5; return (Math.cos(a) * 10 * k).toFixed(1) + ',' + (Math.sin(a) * 10 * k).toFixed(1); }).join(' ');
+    let seams = ''; [0, 1, 2, 3, 4].forEach(i => { const a = -Math.PI / 2 + i * 2 * Math.PI / 5; seams += `<line x1="${(Math.cos(a) * 10 * k).toFixed(1)}" y1="${(Math.sin(a) * 10 * k).toFixed(1)}" x2="${(Math.cos(a) * (r - 2)).toFixed(1)}" y2="${(Math.sin(a) * (r - 2)).toFixed(1)}" stroke="${NV}" stroke-width="2"/>`; });
+    return `<circle class="sball" r="${r}" style="stroke-width:${Math.max(2.5, 4 * k)}"/>${seams}<polygon class="spent" points="${pts}"/>`;
+}
+function carG(s) {
+    const sw = (3.5 / s).toFixed(1), sw2 = (2 / s).toFixed(1);
+    return `<g transform="scale(${s}) translate(-100 -58)"><path d="M4 40 L4 24 Q4 16 14 14 L42 10 L64 -8 Q68 -12 76 -12 L128 -12 Q136 -12 142 -4 L158 12 L184 16 Q196 18 196 30 L196 40 Z" fill="${LT}" stroke="${NV}" stroke-width="${sw}" stroke-linejoin="round"/>
+        <polygon points="72,8 84,-3 105,-3 105,8" fill="#fff" stroke="${NV}" stroke-width="${sw2}" stroke-linejoin="round"/><polygon points="112,8 112,-3 128,-3 141,8" fill="#fff" stroke="${NV}" stroke-width="${sw2}" stroke-linejoin="round"/>
+        <circle cx="44" cy="42" r="16" fill="${NV}"/><circle cx="156" cy="42" r="16" fill="${NV}"/><circle cx="44" cy="42" r="5" fill="#fff"/><circle cx="156" cy="42" r="5" fill="#fff"/></g>`;
+}
+const ground = (gy, w = 740) => `<line class="gnd" x1="0" x2="${w}" y1="${gy + 2}" y2="${gy + 2}"/>`;
+const replayIcon = `<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v5h5"/></svg>`;
+const TICK = `<svg viewBox="0 0 28 28"><path d="M5 14.5 L11.5 21 L23 7"/></svg>`;
+function mkTrail(layer, pos, y, every = 250) {
+    let next = 0;
+    const put = p => layer.insertAdjacentHTML('beforeend', `<circle cx="${p.x.toFixed(1)}" cy="${(y === undefined ? p.y : y).toFixed(1)}" r="5.5" fill="${DT}"/>`);
+    return {
+        reset() { layer.innerHTML = ''; next = 0; },
+        upto(T) { while (next <= T + .5) { put(pos(next)); next += every; } },
+        dot: put
+    };
+}
+
+/* =========================================================
+   QUESTIONS
+   ========================================================= */
+const DIRS = ['Left', 'Right', 'Up', 'Down', 'None'];
+const MOTIONS = ['Starts moving', 'Speeds up', 'Slows down', 'Keeps a steady speed', 'Stays still'];
+const EFF = ['Starts moving', 'Speeds up', 'Slows down', 'Changes direction', 'Changes shape'];
+const ZERO_DIR = 'When the net force is 0 N, there is no direction. Choose None.';
+
+const QS = [
+    { kind: 'match', title: 'Match the motion', sc: 'SC5', prompt: 'Each car is moving to the right. Match each force diagram to its motion.',
+      labels: ['Steady speed', 'Speeds up', 'Slows down'],
+      items: [
+        { back: 10, fwd: 30, x0: 88, kin: { v0: .0275, a: .00003 }, ans: 'Speeds up', net: 'Net force 20 N \u2192', hint: 'In car a, the forward force is bigger, so the net force acts in the direction of motion.' },
+        { back: 30, fwd: 10, x0: 150, kin: { v0: .0875, a: -.00003 }, ans: 'Slows down', net: 'Net force 20 N \u2190', hint: 'In car b, the backward force is bigger, so the net force acts against the motion.' },
+        { back: 20, fwd: 20, x0: 118, kin: { v0: .0575, a: 0 }, ans: 'Steady speed', net: 'Net force 0 N', hint: 'In car c, both forces are 20 N, so they are balanced and the motion doesn\u2019t change.' }],
+      msg: 'A bigger forward force speeds a car up. A bigger backward force slows it down. Balanced forces keep a steady speed.' },
+
+    { kind: 'net', title: 'Net force, part 1', sc: 'SC5', prompt: 'Work out the net force, then choose what happens to the motion.',
+      items: [
+        { k: 'a', name: 'Crate, starts still', type: 'crate', x0: 88, forces: [['l', 15], ['r', 40]], kin: { v0: 0, a: .0000679 }, net: 25, dir: 1, mot: 0, netTxt: 'Net force 25 N \u2192',
+          hN: 'Opposite forces subtract. Take the smaller force away from the bigger force.', hD: 'The net force points the same way as the bigger force.', hM: 'The crate was still, and now an unbalanced force acts on it.' },
+        { k: 'b', name: 'Ball, rolling right', type: 'ball', x0: 90, moving: true, forces: [['l', 12]], kin: { v0: .09, a: -.0000321 }, net: 12, dir: 0, mot: 2, netTxt: 'Net force 12 N \u2190',
+          hN: 'Only one force acts on the ball, so the net force is that force.', hD: 'The only force on the ball pushes to the left.', hM: 'The ball rolls right, but the net force pushes left, against its motion.' }],
+      msg: 'The crate starts moving because of the 25 N net force. The ball slows down because the net force acts against its motion.' },
+
+    { kind: 'net', title: 'Net force, part 2', sc: 'SC5', prompt: 'Work out the net force, then choose what happens to the motion.',
+      items: [
+        { k: 'c', name: 'Car, driving right', type: 'car', x0: 114, moving: true, forces: [['l', 30], ['r', 30]], kin: { v0: .0556, a: 0 }, net: 0, dir: 4, mot: 3, netTxt: 'Net force 0 N',
+          hN: 'The two forces are equal and opposite, so they cancel out.', hD: ZERO_DIR, hM: 'Balanced forces don\u2019t change motion, and the car was already moving.' },
+        { k: 'd', name: 'Box, sitting still', type: 'box', x0: 130, forces: [['u', 20], ['d', 20]], net: 0, dir: 4, mot: 4, netTxt: 'Net force 0 N',
+          hN: '20 N up and 20 N down cancel each other out.', hD: ZERO_DIR, hM: 'Balanced forces don\u2019t change motion, and the box was still to begin with.' }],
+      msg: 'Both net forces are 0 N. Balanced forces don\u2019t change motion, so the car keeps a steady speed and the box stays still.' },
+
+    { kind: 'effects', title: 'Main effect, part 1', sc: 'SC6', prompt: 'Tick the main effect of each force, then choose the type of force.',
+      rows: [
+        { k: 'a', icon: 'kick', t: 'A foot kicks a soccer ball that is sitting still.', eff: 0, type: 0,
+          hE: 'The ball was sitting still before the kick. What does the kick make it do?', hT: 'The foot has to touch the ball to kick it.' },
+        { k: 'b', icon: 'apple', t: 'Gravity pulls on a falling apple.', eff: 1, type: 1,
+          hE: 'The apple is already falling, and gravity keeps pulling it the way it is moving.', hT: 'Gravity pulls the apple without touching it.' },
+        { k: 'c', icon: 'brake', t: 'Brakes rub on the wheel of a moving bike.', eff: 2, type: 0,
+          hE: 'The brakes rub against the spinning wheel and act against its motion.', hT: 'The brake pads rub on the wheel, so they must touch it.' }],
+      msg: 'Forces can start motion, speed it up or slow it down. Gravity is the only one here that acts without touching.' },
+
+    { kind: 'effects', title: 'Main effect, part 2', sc: 'SC6', prompt: 'Tick the main effect of each force, then choose the type of force.',
+      rows: [
+        { k: 'd', icon: 'bat', t: 'A cricket bat hits a ball flying towards it.', eff: 3, type: 0,
+          hE: 'The ball was flying towards the bat. Which way does it go after the hit?', hT: 'The bat has to touch the ball to hit it.' },
+        { k: 'e', icon: 'dough', t: 'Hands squeeze a ball of playdough.', eff: 4, type: 0,
+          hE: 'The playdough doesn\u2019t go anywhere. Look at what happens to it.', hT: 'The hands press on the surface of the playdough.' },
+        { k: 'f', icon: 'magnet', t: 'A magnet pulls on a steel ball rolling past it.', eff: 3, type: 1,
+          hE: 'The magnet pulls sideways across the ball\u2019s path.', hT: 'The magnet pulls the ball across a gap, without touching it.' }],
+      msg: 'Forces can change direction or shape. The magnet bends the ball\u2019s path without touching it.' },
+
+    { kind: 'tug', title: 'Tug of war', sc: 'SC5', prompt: 'Team A pulls with 300 N and Team B pulls with 200 N.',
+      msg: 'The forces are unbalanced. The net force is 100 N to the left, towards Team A, so the rope moves that way.' },
+
+    { kind: 'sentence', title: 'Explain the rope', sc: 'SC5', prompt: 'Describe what happens to the rope and explain why.',
+      parts: ['The forces on the rope are ', 0, '. The net force is ', 1, ' towards Team A, so the rope ', 2, '.'],
+      answer: ['unbalanced', '100 N', 'moves towards Team A'],
+      tiles: ['unbalanced', 'balanced', '100 N', '500 N', '0 N', 'moves towards Team A', 'moves towards Team B', 'stays still'],
+      hints: {
+        balanced: 'The teams pull with different forces, so the forces can\u2019t be balanced.',
+        '500 N': 'Forces in opposite directions subtract, they don\u2019t add.',
+        '0 N': 'The net force is only 0 N when the forces are balanced.',
+        'moves towards Team B': 'The net force points towards Team A, so the rope moves that way.',
+        'stays still': 'Unbalanced forces change motion, so the rope can\u2019t stay still.',
+        unbalanced: 'Check the first gap: are the forces balanced or unbalanced?',
+        '100 N': 'Check the net force: take the smaller pull away from the bigger pull.',
+        'moves towards Team A': 'Check where each tile belongs in the sentence.' },
+      msg: 'Unbalanced forces change motion. The rope moves in the direction of the 100 N net force, towards Team A.' },
+
+    { kind: 'tugnew', title: 'A new player', sc: 'SC5', prompt: 'A new student joins Team B and pulls with 150 N. Predict what happens to the rope.',
+      msg: 'Team B now pulls with 350 N. 350 N \u2212 300 N = 50 N towards Team B, so the rope now moves towards Team B.' },
+
+    { kind: 'tf', title: 'True or false', sc: 'SC5 + SC6', prompt: 'Decide whether each statement is true or false.',
+      rows: [
+        { t: 'Balanced forces always mean an object is not moving.', ans: 1, h: 'Think of a car at a steady speed. Its forces are balanced, but it is still moving.' },
+        { t: 'If the net force is 0 N, the forces are balanced.', ans: 0, h: 'Balanced forces cancel each other out, leaving a net force of 0 N.' },
+        { t: 'An unbalanced force can make a moving object change direction.', ans: 0, h: 'Think of the magnet pulling the steel ball sideways. Its path bent.' },
+        { t: 'A force can change the shape of an object.', ans: 0, h: 'Think of hands squeezing playdough.' },
+        { t: 'A car moving at a steady speed must have an unbalanced force acting on it.', ans: 1, h: 'A steady speed means the motion isn\u2019t changing, so the forces are balanced.' }],
+      msg: 'Balanced forces mean motion doesn\u2019t change. Unbalanced forces change speed or direction, and forces can also change shape.' }
+];
+const TOTAL = QS.length;
+const CHIP = { match: 'Drag and drop', net: 'Calculate', effects: 'Tick the table', tug: 'Fill the gaps', sentence: 'Build a sentence', tugnew: 'Predict', tf: 'True or false' };
+const SCS = [['SC5', 'I can recognise that changes to an object\u2019s motion is caused by unbalanced forces acting on the object.'],
+             ['SC6', 'I can identify the effect of applying different forces to an object.']];
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+/* ---------- flow ---------- */
+let qi = 0, firstTry = [], tries = 0, mode = 'check', cur = null;
+function render() {
+    runId++;
+    content.innerHTML = ''; tries = 0; mode = 'check';
+    const q = QS[qi];
+    counter.innerHTML = `Question <b>${qi + 1}</b> / ${TOTAL}`;
+    progress.style.width = (qi / TOTAL * 100) + '%';
+    const wrap = el('div', 'q');
+    wrap.appendChild(el('div', 'qhead', `<div class="qtitle">${q.title}</div><div class="tchip">${CHIP[q.kind]}</div><div class="sctag">${q.sc}</div>`));
+    wrap.appendChild(el('div', 'prompt', q.prompt));
+    const body = el('div', 'body'); wrap.appendChild(body); content.appendChild(wrap);
+    cur = KINDS[q.kind](q, body);
+    say(cur.instr);
+    btn.hidden = false; btn.textContent = 'Check';
+    refresh();
+}
+function refresh() { if (mode === 'check' && cur) btn.disabled = !cur.ready(); }
+function check() {
+    tries++;
+    const r = cur.check();
+    if (r.ok) {
+        if (tries === 1) firstTry[qi] = true;
+        say(`<b>Correct.</b> ${QS[qi].msg}`);
+        mode = 'next'; btn.disabled = false; btn.textContent = qi === TOTAL - 1 ? 'Finish' : 'Next';
+        btn.classList.remove('pop-in'); void btn.offsetWidth; btn.classList.add('pop-in');
+        if (cur.done) cur.done();
+    } else {
+        say(`<b class="no">Not quite.</b> ${r.hint}`);
+        refresh();
+    }
+}
+btn.onclick = () => {
+    if (btn.disabled) return;
+    if (mode === 'check') check();
+    else if (qi === TOTAL - 1) finish();
+    else { qi++; render(); }
+};
+function finish() {
+    runId++;
+    content.innerHTML = '';
+    btn.hidden = true;
+    counter.innerHTML = '<b>Complete</b>';
+    progress.style.width = '100%';
+    const n = firstTry.filter(Boolean).length;
+    say('Rate your confidence, then take a screenshot of this screen and paste it into Stile as evidence of your work.');
+    const wrap = el('div', 'endwrap');
+    const left = el('div', 'endl');
+    const dots = QS.map((_, i) => `<span class="${firstTry[i] ? 'y' : ''}">${i + 1}</span>`).join('');
+    left.appendChild(el('div', 'scorecard pop-in', `<div class="big">${n} / ${TOTAL}</div><div class="dlbl">Correct on the first try</div><div class="dots">${dots}</div>`));
+    const again = el('button', 'again', 'Start again');
+    again.onclick = () => { qi = 0; firstTry = []; render(); };
+    left.appendChild(again);
+    const conf = el('div', 'conf pop-in', `<h3>How confident am I?</h3><div class="lg"><b>LG2</b> To investigate balanced and unbalanced forces acting on objects</div>`);
+    SCS.forEach(([k, t]) => {
+        const row = el('div', 'crow', `<p><b>${k}</b> ${t}</p>`);
+        const ch = el('div', 'chips');
+        ['Not yet', 'I can do this', 'I can teach this'].forEach(l => {
+            const b = el('button', 'chip', l);
+            b.onclick = () => { ch.querySelectorAll('.chip').forEach(x => x.classList.remove('on')); b.classList.add('on'); };
+            ch.appendChild(b);
+        });
+        row.appendChild(ch); conf.appendChild(row);
+    });
+    wrap.append(left, conf); content.appendChild(wrap);
+}
+
+/* ---------- field helpers ---------- */
+function numF(ans, hint) {
+    const i = el('input', 'inp'); i.type = 'text'; i.inputMode = 'numeric'; i.autocomplete = 'off'; i.maxLength = 5; i.setAttribute('aria-label', 'Number in newtons');
+    i.addEventListener('input', () => { i.classList.remove('wrong'); refresh(); });
+    i.addEventListener('keydown', e => { if (e.key === 'Enter' && !btn.disabled) btn.click(); });
+    return { el: i, ready: () => i.value.trim() !== '',
+        test: () => parseFloat(i.value.replace(',', '.').replace(/[^\d.\-]/g, '')) === ans, hint: () => hint,
+        mark(ok) { i.classList.remove('wrong'); void i.offsetWidth; i.classList.add(ok ? 'right' : 'wrong'); if (ok) i.disabled = true; } };
+}
+function selF(opts, ans, hint, w, ph = 'Choose') {
+    const s = el('select', 'inp'); s.required = true;
+    s.innerHTML = `<option value="" disabled selected>${ph}</option>` + opts.map((o, i) => `<option value="${i}">${o}</option>`).join('');
+    if (w) s.style.width = w + 'px';
+    s.addEventListener('change', () => { s.classList.remove('wrong'); refresh(); });
+    return { el: s, ready: () => s.value !== '', test: () => +s.value === ans, hint: () => hint,
+        mark(ok) { s.classList.remove('wrong'); void s.offsetWidth; s.classList.add(ok ? 'right' : 'wrong'); if (ok) s.disabled = true; } };
+}
+function chipF(labels, ans, hint, cls = 'chip') {
+    const w = el('div', 'chips'); let val = null;
+    const f = { el: w, ready: () => val !== null, test: () => val === ans, hint: () => hint };
+    f.bs = labels.map((t, i) => {
+        const b = el('button', cls, t);
+        b.onclick = () => { if (f.done || mode !== 'check') return; f.bs.forEach(x => x.classList.remove('on', 'wrong')); b.classList.add('on'); val = i; refresh(); };
+        w.appendChild(b); return b;
+    });
+    f.mark = ok => {
+        const b = f.bs[val]; b.classList.remove('on', 'wrong'); void b.offsetWidth;
+        if (ok) { b.classList.add('right'); f.bs.forEach(x => x.disabled = true); } else { b.classList.add('wrong'); val = null; }
+    };
+    return f;
+}
+function fieldWrap(label, ctrl, unit) {
+    const w = el('div', 'fw', `<div class="fh">${label}</div>`), r = el('div', 'fr');
+    r.appendChild(ctrl); if (unit) r.appendChild(el('span', 'unit', unit));
+    w.appendChild(r); return w;
+}
+function checkFields(fields) {
+    const hints = [];
+    fields.forEach(f => {
+        if (f.done) return;
+        const ok = f.test();
+        if (!ok) hints.push(f.hint());
+        f.mark(ok);
+        if (ok) f.done = true;
+    });
+    if (!hints.length) return { ok: true };
+    return { ok: false, hint: (hints.length > 1 ? `${hints.length} answers need changing. ` : '') + hints[0] };
+}
+const allReady = fields => () => fields.every(f => f.done || f.ready());
+
+/* ---------- scenes ---------- */
+function carCard(svg, it) {
+    const GY = 118, K = 3, o = { fs: 22, sw: 7, hl: 20, hw: 12 };
+    svg.innerHTML = `${ground(GY, 350)}<g class="tr"></g><text class="spd nt" x="175" y="34" text-anchor="middle" opacity="0">${it.net}</text>
+        <g class="mv">${carG(.5)}<g class="fa">${arrowSVG(-48, -20, Math.PI, it.back * K, { ...o, label: it.back + ' N' })}${arrowSVG(48, -20, 0, it.fwd * K, { ...o, label: it.fwd + ' N' })}</g>
+        <text class="spd" x="0" y="48" text-anchor="middle" style="font-size:19px">Moving &rarr;</text></g>`;
+    const mv = svg.querySelector('.mv'), nt = svg.querySelector('.nt'), fa = svg.querySelector('.fa');
+    const pos = T => ({ x: it.x0 + it.kin.v0 * T + .5 * it.kin.a * T * T });
+    const tr = mkTrail(svg.querySelector('.tr'), pos, GY + 18, 400);
+    const set = T => { mv.setAttribute('transform', `translate(${pos(T).x.toFixed(1)} ${GY})`); };
+    set(0);
+    return {
+        async go() {
+            tr.reset();
+            await play(300, k => fa.setAttribute('opacity', 1 - k));
+            await play(2000, k => { set(2000 * k); tr.upto(2000 * k); });
+            await play(350, k => nt.setAttribute('opacity', k));
+        }
+    };
+}
+
+function objScene(svg, it) {
+    const GY = 150, len = n => 26 + 1.3 * n, o = { fs: 21, sw: 6, hl: 18, hw: 11 };
+    const T = {
+        crate: { s: `<rect class="obj" x="-28" y="-56" width="56" height="56" rx="3"/><line x1="-28" y1="0" x2="28" y2="-56" stroke="${NV}" stroke-width="3"/>`, at: { l: [-28, -28], r: [28, -28] } },
+        ball: { s: `<g class="rot" transform="translate(0 -26)">${soccer(26)}</g>`, at: { l: [-26, -26] } },
+        car: { s: carG(.42), at: { l: [-40, -18], r: [40, -18] } },
+        box: { s: `<rect class="obj" x="-28" y="-28" width="56" height="56" rx="4"/><text class="oname" x="0" y="7" text-anchor="middle" style="font-size:17px">Box</text>`, at: { u: [0, -28], d: [0, 28] } }
+    };
+    const t = T[it.type], gy = it.type === 'box' ? 105 : GY;
+    const arrs = it.forces.map(([d, n]) => arrowSVG(t.at[d][0], t.at[d][1], DIR[d], len(n), { ...o, label: n + ' N' })).join('');
+    svg.innerHTML = `${it.type !== 'box' ? ground(GY, 260) : ''}<g class="tr"></g>
+        <text class="spd nt" x="130" y="22" text-anchor="middle" opacity="0" style="font-size:20px">${it.netTxt}</text>
+        <g class="mv" transform="translate(${it.x0} ${gy})">${t.s}<g class="fa">${arrs}</g>${it.moving ? `<text class="spd" x="0" y="46" text-anchor="middle" style="font-size:18px">Moving &rarr;</text>` : ''}</g>`;
+    const mv = svg.querySelector('.mv'), nt = svg.querySelector('.nt'), rot = svg.querySelector('.rot'), fa = svg.querySelector('.fa');
+    const D = 1800;
+    const pos = T => ({ x: it.x0 + (it.kin ? it.kin.v0 * T + .5 * it.kin.a * T * T : 0) });
+    const tr = mkTrail(svg.querySelector('.tr'), pos, GY + 16, 360);
+    const set = T => {
+        const x = pos(T).x;
+        mv.setAttribute('transform', `translate(${x.toFixed(1)} ${gy})`);
+        if (rot) rot.setAttribute('transform', `translate(0 -26) rotate(${((x - it.x0) / 26 * 57.3).toFixed(1)})`);
+        tr.upto(T);
+    };
+    return {
+        async go() {
+            tr.reset();
+            if (it.kin) { await play(300, k => fa.setAttribute('opacity', 1 - k)); await play(D, k => set(D * k)); }
+            await play(350, k => nt.setAttribute('opacity', k));
+        }
+    };
+}
+
+function spokes() {
+    let s = '';
+    for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; s += `<line x1="${(40 + 6 * Math.cos(a)).toFixed(1)}" y1="${(40 + 6 * Math.sin(a)).toFixed(1)}" x2="${(40 + 27 * Math.cos(a)).toFixed(1)}" y2="${(40 + 27 * Math.sin(a)).toFixed(1)}"/>`; }
+    return s;
+}
+const lerp = (a, b, k) => a + (b - a) * k;
+const ICON = {
+    kick: {
+        svg: `${ground(72, 110)}<line x1="19" y1="0" x2="25" y2="52" stroke="${NV}" stroke-width="8" stroke-linecap="round"/>
+            <path d="M15 50 L32 50 L43 62 L43 72 L14 72 Z" fill="${NV}" stroke="${NV}" stroke-width="2" stroke-linejoin="round"/>
+            <g class="b" transform="translate(59 57)">${soccer(15)}</g>`,
+        run(s) { const b = s.querySelector('.b'); return play(1000, k => { const x = 59 + 36 * k * k; b.setAttribute('transform', `translate(${x.toFixed(1)} 57) rotate(${((x - 59) / 15 * 57.3).toFixed(1)})`); }); }
+    },
+    apple: {
+        svg: `${ground(72, 110)}<g class="tr"></g><g class="a" transform="translate(55 14)"><circle r="12" fill="${LT}" stroke="${NV}" stroke-width="3"/>
+            <line x1="0" y1="-11" x2="2" y2="-17" stroke="${NV}" stroke-width="3" stroke-linecap="round"/><path d="M3 -15 q7 -6 11 0 q-6 4 -11 0z" fill="${NV}"/></g>`,
+        run(s) {
+            const a = s.querySelector('.a'), tr = s.querySelector('.tr'), D = 900, y = t => 14 + 47 * (t / D) ** 2;
+            tr.innerHTML = ''; let nd = 0;
+            return play(D, k => {
+                const t = k * D;
+                while (nd <= t + .5) { tr.insertAdjacentHTML('beforeend', `<circle cx="55" cy="${y(nd).toFixed(1)}" r="3.5" fill="${DT}"/>`); nd += 150; }
+                a.setAttribute('transform', `translate(55 ${y(t).toFixed(1)})`);
+            });
+        }
+    },
+    brake: {
+        svg: `<g class="sp" stroke="${NV}" stroke-width="2.5">${spokes()}</g><circle cx="40" cy="40" r="30" fill="none" stroke="${NV}" stroke-width="6"/><circle cx="40" cy="40" r="5" fill="${NV}"/>
+            <rect x="71" y="24" width="9" height="32" rx="2" fill="${NV}"/><line x1="79" y1="28" x2="104" y2="6" stroke="${NV}" stroke-width="5" stroke-linecap="round"/>`,
+        run(s) { const sp = s.querySelector('.sp'); return play(1500, k => sp.setAttribute('transform', `rotate(${(420 * (1 - (1 - k) ** 2)).toFixed(1)} 40 40)`)); }
+    },
+    bat: {
+        svg: `<g transform="rotate(-14 90 40)"><rect x="87" y="-2" width="6" height="20" rx="2" fill="${NV}"/><rect x="82" y="16" width="16" height="58" rx="5" fill="${LT}" stroke="${NV}" stroke-width="3"/></g>
+            <line x1="4" y1="53" x2="34" y2="48" stroke="${GR}" stroke-width="3" stroke-dasharray="5 5"/>
+            <g class="b" transform="translate(44 47)"><circle r="8" fill="${NV}"/><path d="M-4 -6.5 q4 6.5 0 13" fill="none" stroke="#fff" stroke-width="1.5"/></g>`,
+        run(s) {
+            const b = s.querySelector('.b');
+            return play(1300, k => {
+                let x, y;
+                if (k < .45) { const u = k / .45; x = lerp(44, 73, u); y = lerp(47, 41, u); }
+                else { const u = (k - .45) / .55; x = lerp(73, 16, u); y = lerp(41, 8, u); }
+                b.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
+            });
+        }
+    },
+    dough: {
+        svg: `<ellipse class="e" cx="55" cy="42" rx="22" ry="22" fill="${LT}" stroke="${NV}" stroke-width="3"/>
+            <rect class="hl" x="5" y="34" width="24" height="16" rx="8" fill="#fff" stroke="${NV}" stroke-width="3"/><rect class="hr" x="81" y="34" width="24" height="16" rx="8" fill="#fff" stroke="${NV}" stroke-width="3"/>`,
+        run(s) {
+            const e = s.querySelector('.e'), hl = s.querySelector('.hl'), hr = s.querySelector('.hr');
+            return play(1100, k => {
+                const g = 4 * (1 - Math.min(1, k * 3)), q = easeInOut(Math.max(0, (k - .25) / .75)), rx = 22 - 9 * q, ry = 22 + 8 * q;
+                e.setAttribute('rx', rx.toFixed(1)); e.setAttribute('ry', ry.toFixed(1));
+                hl.setAttribute('x', (55 - rx - 24 - g).toFixed(1)); hr.setAttribute('x', (55 + rx + g).toFixed(1));
+            });
+        }
+    },
+    magnet: {
+        svg: `<rect x="22" y="4" width="34" height="18" fill="${NV}"/><rect x="56" y="4" width="34" height="18" fill="${LT}"/><rect x="22" y="4" width="68" height="18" fill="none" stroke="${NV}" stroke-width="2.5"/>
+            <text class="pole" x="39" y="19" fill="#fff" style="font-size:15px">N</text><text class="pole" x="73" y="19" fill="${NV}" style="font-size:15px">S</text>
+            <g class="tr"></g><circle class="b" cx="8" cy="66" r="8" fill="#dde0e8" stroke="${NV}" stroke-width="2.5"/>`,
+        run(s) {
+            const b = s.querySelector('.b'), tr = s.querySelector('.tr'), D = 1300, p = t => { const k = t / D; return [8 + 60 * k, 66 - 36 * Math.pow(k, 2.2)]; };
+            tr.innerHTML = ''; let nd = 0;
+            return play(D, k => {
+                const t = k * D;
+                while (nd <= t + .5) { const [x, y] = p(nd); tr.insertAdjacentHTML('beforeend', `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3" fill="${DT}"/>`); nd += 130; }
+                const [x, y] = p(t); b.setAttribute('cx', x.toFixed(1)); b.setAttribute('cy', y.toFixed(1));
+            });
+        }
+    }
+};
+
+function tugScene(svg) {
+    const GY = 248, RY = GY - 72, C = 340, SC = .55, AY = 100;
+    svg.innerHTML = `${ground(GY, 680)}
+        <line x1="${C}" y1="${GY - 46}" x2="${C}" y2="${GY + 16}" stroke="${PK}" stroke-width="3" stroke-dasharray="6 5"/>
+        <text class="spd" x="${C}" y="${GY + 40}" text-anchor="middle" style="font-size:18px">Centre line</text>
+        <text class="oname" x="135" y="${GY + 40}" text-anchor="middle">Team A</text><text class="oname" x="560" y="${GY + 40}" text-anchor="middle">Team B</text>
+        <g class="mv">
+            <line x1="68" y1="${RY}" x2="640" y2="${RY}" stroke="#8a8fa6" stroke-width="6" stroke-linecap="round"/>
+            <polygon points="${C - 10},${RY} ${C + 10},${RY} ${C},${RY + 22}" fill="${PK}"/>
+            ${fig(105, GY, 'pull')}${fig(165, GY, 'pull')}${fig(505, GY, 'pull', true)}${fig(560, GY, 'pull', true)}
+            <g class="nb" opacity="0">${fig(615, GY, 'pull', true)}</g>
+            <g class="fa"></g><g class="fb"></g><g class="fn"></g><g class="na"></g>
+        </g>`;
+    const g = c => svg.querySelector(c);
+    const mv = g('.mv'), fa = g('.fa'), fb = g('.fb'), fn = g('.fn'), na = g('.na'), nb = g('.nb');
+    const S = {
+        reset() {
+            mv.removeAttribute('transform'); nb.setAttribute('opacity', 0); nb.removeAttribute('transform');
+            fa.innerHTML = arrowSVG(C - 10, AY, Math.PI, 300 * SC, { label: '300 N' });
+            fb.innerHTML = arrowSVG(C + 10, AY, 0, 200 * SC, { label: '200 N' });
+            clearArrow(fn); clearArrow(na);
+        },
+        move(dx) { mv.setAttribute('transform', `translate(${dx.toFixed(1)} 0)`); },
+        pull(dist, dur = 1800) { return play(dur, k => S.move(dist * k * k)); },
+        net(n, ang) { return growArrow(na, C, 46, ang, n * SC, { label: `Net force ${n} N` }); },
+        netNow(n, ang) { na.innerHTML = arrowSVG(C, 46, ang, n * SC, { label: `Net force ${n} N` }); },
+        async joinNew() {
+            await play(700, k => { nb.setAttribute('opacity', k); nb.setAttribute('transform', `translate(${(60 * (1 - easeOut(k))).toFixed(1)} 0)`); });
+            await growArrow(fn, C + 10, AY - 40, 0, 150 * SC, { label: '150 N (new)' });
+        },
+        showNewNow() { nb.setAttribute('opacity', 1); nb.removeAttribute('transform'); fn.innerHTML = arrowSVG(C + 10, AY - 40, 0, 150 * SC, { label: '150 N (new)' }); },
+        combineB() { clearArrow(fn); fb.innerHTML = arrowSVG(C + 10, AY, 0, 350 * SC, { label: '350 N' }); }
+    };
+    S.reset();
+    return S;
+}
+
+/* ---------- question types ---------- */
+const KINDS = {
+    match(q, body) {
+        const grid = el('div', 'match'), pool = el('div', 'pool'), zones = [], cards = [];
+        q.items.forEach((it, i) => {
+            const card = el('div', 'mcard', `<span class="lt">${'abc'[i]}</span><svg viewBox="0 0 350 170" width="350" height="170"></svg>`);
+            grid.appendChild(card); cards.push(carCard(card.querySelector('svg'), it));
+        });
+        q.items.forEach((it, i) => {
+            const s = el('div', 'dslot'); s.tabIndex = 0; s.setAttribute('aria-label', `Motion for car ${'abc'[i]}`);
+            grid.appendChild(s);
+            zones.push({ el: s, box: s, cap: 1, it, onPut: () => s.classList.add('filled'), onTake: () => s.classList.remove('filled') });
+        });
+        grid.appendChild(pool); body.appendChild(grid);
+        const D = dnd({ el: pool, box: pool, cap: Infinity, pool: true }, zones, () => { zones.forEach(z => z.el.classList.remove('wrong')); refresh(); });
+        shuffle(q.labels).forEach(t => pool.appendChild(D.tile(t)));
+        return {
+            instr: 'Drag each label under its car (or tap a label, then a space), then press <b>Check</b>.',
+            ready: () => !pool.querySelector('.tile'),
+            check() {
+                let hint = null, bad = 0;
+                zones.forEach(z => {
+                    const t = z.box.querySelector('.tile'); if (!t || z.locked) return;
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (t.textContent === z.it.ans) { t.classList.add('right'); z.locked = true; }
+                    else { bad++; t.classList.add('wrong'); z.el.classList.add('wrong'); if (!hint) hint = z.it.hint; }
+                });
+                return bad ? { ok: false, hint: `${bad} labels need changing. ${hint}` } : { ok: true };
+            },
+            done: () => cards.forEach(c => c.go())
+        };
+    },
+    net(q, body) {
+        const wrap = el('div', 'npanels'), fields = [], scenes = [];
+        q.items.forEach(it => {
+            const p = el('div', 'npanel');
+            p.appendChild(el('div', 'nhead', `<span class="lt">${it.k}</span>${it.name}`));
+            const row = el('div', 'nrow', `<svg viewBox="0 0 260 210" width="260" height="210"></svg>`);
+            const fc = el('div', 'nfields');
+            const fN = numF(it.net, it.hN), fD = selF(DIRS, it.dir, it.hD), fM = selF(MOTIONS, it.mot, it.hM);
+            fc.append(fieldWrap('Net force', fN.el, 'N'), fieldWrap('Direction', fD.el), fieldWrap('Motion', fM.el));
+            row.appendChild(fc); p.appendChild(row); wrap.appendChild(p);
+            fields.push(fN, fD, fM);
+            scenes.push(objScene(row.querySelector('svg'), it));
+        });
+        body.appendChild(wrap);
+        return {
+            instr: 'Fill in every box, then press <b>Check</b>. If the net force is 0 N, choose <b>None</b> for the direction.',
+            ready: allReady(fields), check: () => checkFields(fields),
+            done: () => scenes.forEach(s => s.go())
+        };
+    },
+    effects(q, body) {
+        const t = el('div', 'etab'), fields = [], icons = [];
+        ['Situation', ...EFF, 'Type of force'].forEach((h, i) => t.appendChild(el('div', 'eh' + (i === 0 ? ' first' : ''), h)));
+        q.rows.forEach(r => {
+            const sit = el('div', 'ecell esit', `<svg viewBox="0 0 110 80" width="132" height="96">${ICON[r.icon].svg}</svg><span><span class="lk">${r.k}</span> ${r.t}</span>`);
+            t.appendChild(sit); icons.push([ICON[r.icon], sit.querySelector('svg')]);
+            const fE = chipF(EFF.map(() => TICK), r.eff, r.hE, 'tick');
+            fE.bs.forEach((b, i) => { b.setAttribute('aria-label', `${r.k}: ${EFF[i]}`); const c = el('div', 'ecell'); c.appendChild(b); t.appendChild(c); });
+            const fT = chipF(['Contact', 'Non-contact'], r.type, r.hT);
+            const tc = el('div', 'ecell etype'); tc.appendChild(fT.el); t.appendChild(tc);
+            fields.push(fE, fT);
+        });
+        body.appendChild(t);
+        return {
+            instr: 'Tick one effect for each situation, choose the type of force, then press <b>Check</b>.',
+            ready: allReady(fields), check: () => checkFields(fields),
+            done: () => icons.forEach(([ic, s]) => ic.run(s))
+        };
+    },
+    tug(q, body) {
+        const sc = el('div', 'scene', `<svg viewBox="0 0 680 300" width="680" height="300"></svg>`);
+        const S = tugScene(sc.querySelector('svg'));
+        const col = el('div', 'tcol');
+        const fN = numF(100, 'Forces in opposite directions subtract. Take the smaller pull away from the bigger pull.');
+        const fD = selF(['left', 'right'], 0, 'The net force points the same way as the bigger pull.', 140, 'choose');
+        const fB = chipF(['Yes', 'No'], 1, 'The teams pull with different forces, so the net force isn\u2019t 0 N.');
+        const la = el('div', 'tline', '<span class="lt">a</span>The net force is'); la.append(fN.el, 'N to the', fD.el, '.');
+        const lb = el('div', 'tline', '<span class="lt">b</span>Are the forces balanced?');
+        col.append(la, lb, fB.el);
+        body.append(sc, col);
+        const fields = [fN, fD, fB];
+        return {
+            instr: 'Fill in the gaps and answer the question, then press <b>Check</b>.',
+            ready: allReady(fields), check: () => checkFields(fields),
+            done: async () => { await S.net(100, Math.PI); await wait(250); await S.pull(-60); }
+        };
+    },
+    sentence(q, body) {
+        const sc = el('div', 'scene', `<svg viewBox="0 0 680 300" width="540" height="238"></svg>`);
+        const S = tugScene(sc.querySelector('svg')); S.netNow(100, Math.PI);
+        const col = el('div', 'tcol'), sent = el('div', 'sent'), pool = el('div', 'pool'), zones = [];
+        q.parts.forEach(p => {
+            if (typeof p === 'string') { sent.append(p); return; }
+            const s = el('span', 'islot'); s.tabIndex = 0; s.setAttribute('aria-label', `Gap ${p + 1}`);
+            sent.appendChild(s);
+            zones.push({ el: s, box: s, cap: 1, ans: q.answer[p], onPut: () => s.classList.add('filled'), onTake: () => s.classList.remove('filled') });
+        });
+        col.append(sent, pool); body.append(sc, col);
+        const D = dnd({ el: pool, box: pool, cap: Infinity, pool: true }, zones, () => { zones.forEach(z => z.el.classList.remove('wrong')); refresh(); });
+        shuffle(q.tiles).forEach(t => { const tl = D.tile(t); tl.classList.add('sm'); pool.appendChild(tl); });
+        return {
+            instr: 'Drag a tile into each gap (or tap a tile, then a gap), then press <b>Check</b>.',
+            ready: () => zones.every(z => z.box.querySelector('.tile')),
+            check() {
+                let hint = null, bad = 0;
+                zones.forEach(z => {
+                    const t = z.box.querySelector('.tile'); if (!t || z.locked) return;
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (t.textContent === z.ans) { t.classList.add('right'); z.locked = true; }
+                    else { bad++; t.classList.add('wrong'); z.el.classList.add('wrong'); if (!hint) hint = q.hints[t.textContent]; }
+                });
+                return bad ? { ok: false, hint: (bad > 1 ? `${bad} gaps need changing. ` : '') + hint } : { ok: true };
+            },
+            done: () => S.pull(-60)
+        };
+    },
+    tugnew(q, body) {
+        const sc = el('div', 'scene', `<svg viewBox="0 0 680 300" width="680" height="300"></svg>`);
+        const rp = el('button', 'replay', `${replayIcon}<span>Replay</span>`); rp.style.left = '12px'; rp.style.right = 'auto'; sc.appendChild(rp);
+        const S = tugScene(sc.querySelector('svg'));
+        let solved = false;
+        const outcome = async () => { await wait(300); S.combineB(); await wait(500); await S.net(50, 0); await wait(250); await S.pull(30); };
+        const go = async () => { runId++; S.reset(); await wait(500); await S.joinNew(); if (solved) await outcome(); };
+        rp.onclick = go; go();
+        const col = el('div', 'tcol');
+        const fT = numF(350, 'Add the new student\u2019s pull to Team B\u2019s 200 N.');
+        const fN = numF(50, 'Take the smaller total pull away from the bigger total pull.');
+        const fR = selF(['moves towards Team A', 'stays still', 'moves towards Team B'], 2, 'The rope moves towards the team with the bigger total pull.', 330, 'choose');
+        const l1 = el('div', 'tline', 'Team B total:<br>200 N + 150 N ='); l1.append(fT.el, 'N');
+        const l2 = el('div', 'tline', 'Net force ='); l2.append(fN.el, 'N');
+        const l3 = el('div', 'tline', 'The rope'); l3.append(fR.el);
+        col.append(l1, l2, l3); body.append(sc, col);
+        const fields = [fT, fN, fR];
+        return {
+            instr: 'Watch, show your working, then press <b>Check</b>.',
+            ready: allReady(fields), check: () => checkFields(fields),
+            done: () => { solved = true; runId++; S.reset(); S.showNewNow(); outcome(); }
+        };
+    },
+    tf(q, body) {
+        const wrap = el('div', 'tf'), fields = [];
+        q.rows.forEach((r, i) => {
+            const row = el('div', 'tfrow', `<span class="lt">${'abcde'[i]}</span><span class="st">${r.t}</span>`);
+            const f = chipF(['True', 'False'], r.ans, r.h);
+            row.appendChild(f.el); wrap.appendChild(row); fields.push(f);
+        });
+        body.appendChild(wrap);
+        return {
+            instr: 'Choose True or False for every statement, then press <b>Check</b>.',
+            ready: allReady(fields), check: () => checkFields(fields)
+        };
+    }
+};
+
+/* ---------- drag and drop (drag, or tap a tile then tap a target) ---------- */
+function dnd(pool, zones, onChange) {
+    let sel = null;
+    const all = () => [pool, ...zones];
+    const zoneOf = t => all().find(z => z.box.contains(t));
+    const armAll = on => zones.forEach(z => z.el.classList.toggle('armed', on && !z.locked));
+    const deselect = () => { if (sel) sel.classList.remove('sel'); sel = null; armAll(false); };
+    function moveTo(t, z) {
+        const from = zoneOf(t);
+        t.style.transform = ''; t.classList.remove('wrong');
+        z.box.appendChild(t);
+        if (from && from !== z && from.onTake) from.onTake(t);
+        if (z.onPut) z.onPut(t);
+        deselect(); onChange();
+    }
+    function put(t, z) {
+        const from = zoneOf(t);
+        if (z.locked || from === z) { t.style.transform = ''; return; }
+        if (z.cap === 1) {
+            const ex = z.box.querySelector('.tile');
+            if (ex) { if (ex.classList.contains('right')) { t.style.transform = ''; return; } moveTo(ex, pool); }
+        }
+        moveTo(t, z);
+    }
+    const hit = (x, y) => all().find(z => { const r = z.el.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; });
+    all().forEach(z => {
+        const act = () => { if (sel && !z.locked) put(sel, z); };
+        z.el.addEventListener('click', act);
+        z.el.addEventListener('keydown', e => { if (e.target === z.el && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); act(); } });
+    });
+    function tile(text) {
+        const t = el('span', 'tile', text);
+        t.tabIndex = 0; t.setAttribute('role', 'button');
+        const tap = () => {
+            if (t.classList.contains('right') || mode !== 'check') return;
+            t.style.transform = '';
+            const z = zoneOf(t);
+            if (z !== pool) { put(t, pool); return; }
+            if (sel === t) { deselect(); return; }
+            deselect(); sel = t; t.classList.add('sel'); armAll(true);
+        };
+        t.addEventListener('click', e => e.stopPropagation());
+        t.addEventListener('pointerdown', e => {
+            if (t.classList.contains('right') || mode !== 'check' || e.button > 0) return;
+            e.preventDefault(); e.stopPropagation(); t.setPointerCapture(e.pointerId);
+            const sx = e.clientX, sy = e.clientY; let moved = false;
+            const move = ev => {
+                const dx = ev.clientX - sx, dy = ev.clientY - sy;
+                if (!moved && Math.hypot(dx, dy) > 6) { moved = true; t.classList.add('drag'); }
+                if (!moved) return;
+                t.style.transform = `translate(${dx / scaleK}px, ${dy / scaleK}px)`;
+                const h = hit(ev.clientX, ev.clientY);
+                all().forEach(z => z.el.classList.toggle('hover', z === h));
+            };
+            const up = ev => {
+                t.removeEventListener('pointermove', move); t.removeEventListener('pointerup', up); t.removeEventListener('pointercancel', up);
+                t.classList.remove('drag'); all().forEach(z => z.el.classList.remove('hover'));
+                if (!moved) { tap(); return; }
+                const h = hit(ev.clientX, ev.clientY);
+                if (h) put(t, h); else t.style.transform = '';
+            };
+            t.addEventListener('pointermove', move); t.addEventListener('pointerup', up); t.addEventListener('pointercancel', up);
+        });
+        t.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); tap(); } });
+        return t;
+    }
+    return { tile };
+}
+
+/* ---------- scale to window ---------- */
+function fit() {
+    const st = $('#stage');
+    scaleK = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    st.style.transform = `scale(${scaleK})`;
+    st.style.margin = `${(720 * scaleK - 720) / 2}px ${(1280 * scaleK - 1280) / 2}px`;
+}
+window.addEventListener('resize', fit);
+fit();
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { fit(); render(); });
+</script>
+</body>
+</html>
