@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Friction: Checking for Understanding</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --navy: #1b1f45;
+        --pink: #ea008a;
+        --mid-grey: #9a9a9a;
+        --light-grey: #e8e8e8;
+        --blank: #f0f3f6;
+        --tint: #e9ecf5;
+        --cond: 'Barlow Condensed', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        --ease: cubic-bezier(.2,.8,.2,1);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #eaeaea; color: var(--navy);
+        display: flex; align-items: center; justify-content: center; overflow: hidden; -webkit-user-select: none; user-select: none; }
+    .stage { width: 1280px; height: 720px; background: #fff; border-top: 6px solid var(--navy); position: relative; padding: 36px 64px 0; flex-shrink: 0; overflow: hidden; transform-origin: center; }
+    .top { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 4px solid var(--navy); padding-bottom: 12px; }
+    .sheet-title { font-family: var(--cond); font-size: 44px; font-weight: 900; text-transform: uppercase; letter-spacing: .01em; margin: 0; line-height: 1; }
+    .sheet-title span { color: var(--pink); }
+    .counter { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; color: var(--mid-grey); text-transform: uppercase; }
+    .counter b { color: var(--navy); }
+    .content { position: absolute; left: 64px; right: 64px; top: 124px; bottom: 108px; }
+    .caption { position: absolute; left: 64px; right: 64px; bottom: 28px; min-height: 60px; display: flex; align-items: center; gap: 16px; font-size: 25px; font-weight: 500; line-height: 1.32; }
+    .caption::before { content: ''; width: 10px; height: 10px; background: var(--pink); flex-shrink: 0; }
+    .caption .txt { flex: 1; }
+    .caption b { color: var(--pink); font-weight: 800; }
+    .caption b.no { color: var(--navy); }
+    .caption .in { animation: capIn .45s var(--ease); display: block; }
+    @keyframes capIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .progress { position: absolute; left: 0; bottom: 0; height: 6px; background: var(--pink); width: 0; transition: width .6s var(--ease); }
+
+    .next { font-family: var(--cond); font-size: 26px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; background: var(--pink); color: #fff;
+        border: none; border-radius: 8px; padding: 12px 30px; cursor: pointer; flex-shrink: 0; }
+    .next[hidden] { display: none; }
+    .next:disabled { background: #c3c6d0; cursor: default; }
+    button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--pink); outline-offset: 3px; }
+    .next:focus-visible { outline-color: var(--navy); }
+    .pop-in { animation: capIn .45s var(--ease); }
+    @keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+
+    /* question frame */
+    .q { display: flex; flex-direction: column; height: 100%; }
+    .qhead { display: flex; align-items: center; gap: 18px; }
+    .qtitle { font-size: 40px; font-weight: 800; line-height: 1.15; }
+    .tchip { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--pink); border: 3px solid var(--pink); border-radius: 6px; padding: 3px 12px 2px; }
+    .sctag { margin-left: auto; font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--navy); box-shadow: inset 0 0 0 3px var(--navy); border-radius: 6px; padding: 6px 12px 5px; line-height: 1; }
+    .prompt { font-size: 28px; font-weight: 600; margin-top: 6px; line-height: 1.3; }
+    .body { flex: 1; min-height: 0; margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 30px; }
+    .body.colb { flex-direction: column; gap: 16px; }
+    .center { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+    .dlbl { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mid-grey); }
+
+    /* svg classes */
+    svg { overflow: visible; display: block; }
+    .obj { fill: var(--blank); stroke: var(--navy); stroke-width: 4; }
+    .oname { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; fill: var(--navy); }
+    .flbl { font-family: var(--cond); font-size: 24px; font-weight: 800; fill: var(--navy); }
+    .spd { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; fill: var(--mid-grey); }
+    .leg { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 600; fill: var(--mid-grey); }
+    .lbl { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .03em; fill: var(--navy); }
+    .lbl.mid { text-anchor: middle; } .lbl.end { text-anchor: end; }
+    .lbl.pk { fill: var(--pink); } .lbl.gr { fill: var(--mid-grey); } .lbl.wh { fill: #fff; }
+    .lbl.sm { font-size: 18px; } .lbl.lg { font-size: 34px; font-weight: 900; }
+    .gnd { stroke: #c9ccd6; stroke-width: 4; }
+    .ln { stroke: var(--navy); stroke-width: 5; stroke-linecap: round; fill: none; }
+    .load { fill: var(--blank); stroke: var(--navy); stroke-width: 3; }
+    .solid, .fulc, .plank { fill: var(--navy); }
+    .rampp { fill: var(--blank); stroke: var(--navy); stroke-width: 4; stroke-linejoin: round; }
+    .fa line { stroke: var(--pink); stroke-width: 7; } .fa polygon { fill: var(--pink); }
+    .fn line { stroke: var(--navy); stroke-width: 7; } .fn polygon { fill: var(--navy); }
+    .fg line { stroke: #c3c6d0; stroke-width: 5; } .fg polygon { fill: #c3c6d0; }
+    .ti line { stroke-width: 4; }
+    .heat { fill: none; stroke: var(--pink); stroke-width: 4; stroke-linecap: round; }
+    .axis { stroke: var(--navy); stroke-width: 3; }
+    .grid { stroke: #e3e5ec; stroke-width: 1.5; }
+    .grid.mn { stroke: #f0f1f5; }
+    .angarc { fill: none; stroke: var(--pink); stroke-width: 3; }
+    .sball { fill: #fff; stroke: var(--navy); stroke-width: 4; }
+    .spent { fill: var(--navy); }
+
+    /* multiple choice */
+    .opts { display: grid; gap: 10px; }
+    .col .opt { font-size: 23px; padding: 9px 18px; }
+    .opts.g2 { grid-template-columns: 1fr 1fr; gap: 18px; width: 100%; }
+    .opt { display: flex; align-items: center; gap: 16px; border: 3px solid var(--navy); border-radius: 8px; background: #fff; padding: 12px 20px;
+        font-family: inherit; font-size: 25px; font-weight: 600; color: var(--navy); text-align: left; line-height: 1.25; cursor: pointer;
+        transition: background-color .2s, border-color .2s, color .2s, opacity .2s; }
+    .opts.g2 .opt { min-height: 104px; font-size: 27px; font-weight: 700; padding: 16px 24px; }
+    .opt .l { flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background: var(--navy); color: #fff; font-family: var(--cond); font-size: 24px; font-weight: 900;
+        display: flex; align-items: center; justify-content: center; transition: background-color .2s, color .2s; }
+    .opt:hover:not(:disabled) { background: #f6f7fb; }
+    .opt.sel { background: var(--tint); }
+    .opt.sel .l { background: var(--pink); }
+    .opt.right, .opt.right:hover { background: var(--pink); border-color: var(--pink); color: #fff; opacity: 1; }
+    .opt.right .l { background: #fff; color: var(--pink); }
+    .opt.wrong { border-style: dashed; opacity: .5; animation: shake .4s; cursor: default; }
+    .opt:disabled { cursor: default; }
+    .mcs .opts { flex: 1; }
+    .mcs .opt { font-size: 24px; font-weight: 700; padding: 10px 16px; min-height: 72px; }
+
+    /* picture choices */
+    .pgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; width: 100%; }
+    .pcard { position: relative; border: 3px solid var(--navy); border-radius: 8px; background: #fff; padding: 16px 4px 12px; cursor: pointer;
+        display: flex; flex-direction: column; align-items: center; gap: 8px; font-family: inherit; color: var(--navy); transition: background-color .2s, border-color .2s, opacity .2s; }
+    .pcard .l { position: absolute; left: 10px; top: 10px; width: 38px; height: 38px; border-radius: 50%; background: var(--navy); color: #fff; font-family: var(--cond); font-size: 23px; font-weight: 900;
+        display: flex; align-items: center; justify-content: center; transition: background-color .2s; z-index: 1; }
+    .pcard .cap { font-size: 22px; font-weight: 700; line-height: 1.2; text-align: center; padding: 0 8px; }
+    .pcard:hover:not(:disabled) { background: #f6f7fb; }
+    .pcard.sel { background: var(--tint); }
+    .pcard.sel .l { background: var(--pink); }
+    .pcard.right, .pcard.right:hover { border-color: var(--pink); background: #fff; box-shadow: 0 0 0 5px rgba(234,0,138,.18); opacity: 1; }
+    .pcard.right .l { background: var(--pink); }
+    .pcard.wrong { border-style: dashed; opacity: .45; animation: shake .4s; cursor: default; }
+    .pcard:disabled { cursor: default; }
+
+    /* quote */
+    .quote { border-left: 8px solid var(--pink); padding: 4px 0 4px 20px; font-size: 25px; font-weight: 600; font-style: italic; line-height: 1.3; margin-bottom: 14px; }
+    .col { display: flex; flex-direction: column; }
+
+    /* scenes */
+    .scene { position: relative; border: 3px solid var(--navy); border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #fff; }
+    .scene > svg { overflow: hidden; }
+    .replay { position: absolute; right: 12px; top: 12px; display: flex; align-items: center; gap: 6px; font-family: var(--cond); font-size: 19px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+        background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 6px; padding: 5px 12px 4px 9px; cursor: pointer; }
+    .replay svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+    .replay:hover { background: var(--blank); }
+
+    /* drag tiles */
+    .tile { font-family: inherit; font-size: 24px; font-weight: 700; color: var(--navy); background: #fff; border: 3px solid var(--navy); border-radius: 8px; padding: 6px 16px; line-height: 1.25;
+        cursor: grab; touch-action: none; position: relative; z-index: 2; transition: transform .3s var(--ease), box-shadow .2s, border-color .2s; box-shadow: 0 4px 0 #c3c6d0; white-space: nowrap; text-align: center; }
+    .tile.sm { font-size: 22px; padding: 6px 12px; white-space: normal; }
+    .tile.sel { border-color: var(--pink); box-shadow: 0 0 0 4px rgba(234,0,138,.22); }
+    .tile.drag { transition: none; cursor: grabbing; z-index: 30; box-shadow: 0 14px 30px rgba(27,31,69,.25); border-color: var(--pink); }
+    .tile.right { background: var(--pink); color: #fff; border-color: var(--pink); box-shadow: none; cursor: default; }
+    .tile.wrong { border-style: dashed; background: var(--tint); box-shadow: none; animation: shake .4s; }
+    .tile svg { pointer-events: none; }
+
+    /* generic drop zones */
+    .dz { border: 3px dashed #c3c6d0; border-radius: 8px; transition: border-color .2s, background-color .2s; }
+    .dz.hover, .dz.armed:hover { border-color: var(--pink); background: rgba(234,0,138,.06); }
+    .dz.armed { border-color: #e7a3c9; cursor: pointer; }
+    .dz.filled { border-color: transparent; background: none; }
+    .dz.wrong { animation: shake .4s; }
+    .dz .tile { box-shadow: none; }
+
+    /* sort */
+    .sort { display: grid; grid-template-columns: 1fr 360px 1fr; gap: 18px; width: 100%; height: 100%; }
+    .bin { border: 3px solid var(--navy); border-radius: 8px; display: flex; flex-direction: column; overflow: visible; transition: box-shadow .2s; }
+    .bin.pk { border-color: var(--pink); }
+    .bin h3 { margin: 0; padding: 8px 16px 7px; font-family: var(--cond); font-size: 28px; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; color: #fff; background: var(--navy); }
+    .bin.pk h3 { background: var(--pink); }
+    .bin .sub { font-size: 18px; font-weight: 600; color: var(--mid-grey); padding: 8px 16px 0; }
+    .bin .area { flex: 1; padding: 12px 14px; display: flex; flex-wrap: wrap; gap: 10px; align-content: flex-start; justify-content: center; border-radius: 0 0 6px 6px; transition: background-color .2s; }
+    .bin.hover .area, .bin.armed:hover .area { background: rgba(234,0,138,.06); }
+    .bin.armed { box-shadow: 0 0 0 4px rgba(234,0,138,.15); cursor: pointer; }
+    .pool { background: var(--blank); border-radius: 8px; padding: 14px; display: flex; flex-wrap: wrap; gap: 10px; align-content: center; justify-content: center; transition: background-color .2s; }
+    .pool.hover { background: #e3e7ee; }
+    .pool.col1 { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 8px; }
+    .pool.bank { width: 100%; min-height: 76px; flex: none; }
+
+    /* force diagram builder */
+    .bwrap { position: relative; width: 806px; height: 336px; border: 3px solid var(--navy); border-radius: 8px; flex-shrink: 0; }
+    .bwrap > svg { position: absolute; left: 0; top: 0; }
+    .slot { position: absolute; width: 200px; height: 50px; border: 3px dashed #c3c6d0; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: border-color .2s, background-color .2s; }
+    .slot.hover, .slot.armed:hover { border-color: var(--pink); background: rgba(234,0,138,.06); }
+    .slot.armed { border-color: #e7a3c9; cursor: pointer; }
+    .slot.filled { border-color: transparent; background: none; }
+    .slot.wrong { animation: shake .4s; }
+    .slot .tile { box-shadow: none; padding: 5px 14px; font-size: 23px; }
+    .bside { width: 320px; display: flex; flex-direction: column; gap: 10px; height: 336px; }
+    .bside .pool { flex: 1; flex-direction: column; flex-wrap: nowrap; align-items: center; justify-content: center; }
+
+    /* cloze */
+    .cloze { width: 100%; font-size: 30px; font-weight: 600; line-height: 2.2; }
+    .blank { display: inline-flex; vertical-align: middle; align-items: center; justify-content: center; min-width: 172px; height: 56px; margin: 0 6px; padding: 0 2px; }
+    .blank .tile { padding: 4px 14px; }
+    .blank.filled { min-width: 0; }
+
+    /* label cards */
+    .lgrid { display: grid; gap: 14px; width: 100%; }
+    .lcard { border: 3px solid var(--navy); border-radius: 8px; padding: 12px 10px 10px; display: flex; flex-direction: column; align-items: center; gap: 10px; background: #fff; }
+    .lcard .nm { font-family: var(--cond); font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: .03em; text-align: center; line-height: 1.05; }
+    .slot2 { width: 100%; min-height: 60px; display: flex; align-items: center; justify-content: center; padding: 3px; }
+    .slot2 .tile { font-size: 21px; padding: 5px 10px; white-space: normal; }
+
+    /* rank */
+    .rwrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .rrow { display: flex; gap: 16px; justify-content: center; }
+    .rslot { position: relative; display: flex; align-items: center; justify-content: center; }
+    .rslot::before { content: attr(data-n); position: absolute; font-family: var(--cond); font-size: 64px; font-weight: 900; color: #e3e5ec; }
+    .rscale { display: flex; align-items: center; gap: 14px; width: 100%; font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--navy); }
+    .rscale i { flex: 1; height: 4px; background: var(--navy); position: relative; }
+    .rscale i::after { content: ''; position: absolute; right: -2px; top: -8px; border-left: 16px solid var(--navy); border-top: 10px solid transparent; border-bottom: 10px solid transparent; }
+    .tile.rt { padding: 6px; white-space: normal; }
+    .rc { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 19px; font-weight: 600; line-height: 1.2; padding: 4px 10px; }
+    .rc b { font-family: var(--cond); font-size: 25px; font-weight: 900; text-transform: uppercase; letter-spacing: .03em; }
+    .rv { display: none; font-family: var(--cond); font-size: 28px; font-weight: 900; font-style: normal; margin-top: 2px; }
+    .tile.right .rv { display: block; }
+    .tile.right .rampp { fill: #fff; stroke: #fff; }
+    .tile.right .lbl { fill: #fff; }
+    .tile.right .gnd { stroke: rgba(255,255,255,.5); }
+    .tile.right .solid { fill: #fff; }
+
+    /* calculate */
+    .cpanel { flex: 1; display: flex; flex-direction: column; gap: 18px; justify-content: center; }
+    .fchip { background: var(--blank); border-radius: 8px; padding: 10px 16px; font-size: 22px; font-weight: 600; line-height: 1.3; }
+    .fchip b { color: var(--pink); font-weight: 800; }
+    .eq { font-family: var(--cond); font-size: 36px; font-weight: 800; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .eq small { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 20px; font-weight: 600; color: var(--mid-grey); width: 100%; margin-bottom: -8px; }
+    .num { width: 116px; height: 60px; font-family: var(--cond); font-size: 34px; font-weight: 800; color: var(--navy); text-align: center; border: 3px solid var(--navy); border-radius: 8px; background: #fff;
+        -webkit-user-select: text; user-select: text; transition: background-color .2s, border-color .2s, color .2s; }
+    .num:focus { outline: none; border-color: var(--pink); box-shadow: 0 0 0 4px rgba(234,0,138,.18); }
+    .num.right, .num:disabled { background: var(--pink); border-color: var(--pink); color: #fff; opacity: 1; -webkit-text-fill-color: #fff; }
+    .num.wrong { border-style: dashed; background: var(--tint); animation: shake .4s; }
+
+    /* true or false */
+    .tf { width: 100%; }
+    .tfh, .tfrow { display: grid; grid-template-columns: 1fr 136px 136px; gap: 14px; align-items: center; }
+    .tfh { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--mid-grey); padding-bottom: 6px; border-bottom: 4px solid var(--navy); }
+    .tfh span:not(:first-child) { text-align: center; }
+    .tfrow { font-size: 25px; font-weight: 600; padding: 10px 0; border-bottom: 2px solid var(--light-grey); line-height: 1.25; }
+    .tfb { font-family: var(--cond); font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; height: 54px; border: 3px solid var(--navy); border-radius: 8px; background: #fff; color: var(--navy); cursor: pointer;
+        transition: background-color .2s, border-color .2s, color .2s, opacity .2s; }
+    .tfb:hover:not(:disabled) { background: #f6f7fb; }
+    .tfb.sel { background: var(--tint); border-color: var(--pink); }
+    .tfb.right, .tfb.right:hover { background: var(--pink); border-color: var(--pink); color: #fff; opacity: 1; }
+    .tfb.wrong { border-style: dashed; opacity: .45; animation: shake .4s; }
+    .tfb:disabled { cursor: default; }
+
+    /* end */
+    .scorecard { border: 3px solid var(--pink); border-radius: 8px; padding: 30px 60px; text-align: center; }
+    .scorecard .big { font-family: var(--cond); font-size: 120px; font-weight: 900; color: var(--pink); line-height: 1; }
+    .scorecard .dlbl { margin-top: 8px; }
+    .dots { display: flex; gap: 8px; justify-content: center; margin-top: 22px; }
+    .dots span { width: 34px; height: 34px; border-radius: 6px; border: 3px solid var(--navy); font-family: var(--cond); font-size: 17px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+    .dots span.y { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .again { margin-top: 26px; font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+        background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 8px; padding: 8px 22px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+    <div class="top">
+        <h1 class="sheet-title">Checking <span>friction</span></h1>
+        <div class="counter" id="counter"></div>
+    </div>
+    <div class="content" id="content"></div>
+    <div class="caption"><div class="txt" id="cap"></div><button class="next" id="next" hidden>Check</button></div>
+    <div class="progress" id="progress"></div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const content = $('#content'), cap = $('#cap'), btn = $('#next'), counter = $('#counter'), progress = $('#progress');
+const PK = '#ea008a', NV = '#1b1f45', GR = '#c9ccd6', DT = '#b5b9c6', LT = '#f0f3f6';
+let scaleK = 1;
+function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
+function say(html) { cap.innerHTML = `<span class="in">${html}</span>`; }
+
+/* ---------- animation helpers ---------- */
+let runId = 0;
+const easeOut = t => 1 - (1 - t) * (1 - t), easeInOut = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+function play(dur, step, guard) {
+    const id = runId, ok = guard || (() => id === runId);
+    return new Promise(res => {
+        const st = performance.now();
+        const f = n => { if (!ok()) return; const t = Math.min(1, (n - st) / dur); step(t); if (t < 1) requestAnimationFrame(f); else res(); };
+        requestAnimationFrame(f);
+    });
+}
+function wait(ms) { const id = runId; return new Promise(r => setTimeout(() => { if (id === runId) r(); }, ms)); }
+function loop(fn) { const id = runId, st = performance.now(); const f = n => { if (id !== runId) return; fn(n - st); requestAnimationFrame(f); }; requestAnimationFrame(f); }
+/* eased 0 to 1, hold, then snap back to 0 */
+function cycle(t, period = 3800, move = 2200) { const k = t % period; return k < move ? easeInOut(k / move) : (k < period - 500 ? 1 : 0); }
+
+/* ---------- drawing helpers ---------- */
+const f1 = v => (+v).toFixed(1), deg = a => a * Math.PI / 180;
+const T = (x, y, s, c = '') => `<text class="lbl ${c}" x="${f1(x)}" y="${f1(y)}">${s}</text>`;
+function arr(x1, y1, x2, y2, cls = 'fa', hw = 12) {
+    const a = Math.atan2(y2 - y1, x2 - x1), L = Math.hypot(x2 - x1, y2 - y1), hl = Math.min(hw * 1.6, L * .6);
+    const bx = x2 - Math.cos(a) * hl, by = y2 - Math.sin(a) * hl, px = Math.sin(a) * hw, py = -Math.cos(a) * hw;
+    return `<g class="${cls}"><line x1="${f1(x1)}" y1="${f1(y1)}" x2="${f1(bx + Math.cos(a))}" y2="${f1(by + Math.sin(a))}"/><polygon points="${f1(x2)},${f1(y2)} ${f1(bx + px)},${f1(by + py)} ${f1(bx - px)},${f1(by - py)}"/></g>`;
+}
+function arcPath(cx, cy, r, a0, a1) {
+    if (Math.abs(a1 - a0) < .5) return '';
+    const p = a => [cx + r * Math.cos(deg(a)), cy + r * Math.sin(deg(a))], [x0, y0] = p(a0), [x1, y1] = p(a1);
+    return `M${f1(x0)} ${f1(y0)} A${r} ${r} 0 ${Math.abs(a1 - a0) > 180 ? 1 : 0} ${a1 > a0 ? 1 : 0} ${f1(x1)} ${f1(y1)}`;
+}
+const DIR = { r: 0, l: Math.PI, u: -Math.PI / 2, d: Math.PI / 2 };
+function arrowSVG(x, y, ang, len, o = {}) {
+    const c = o.c || PK, sw = o.sw || 8, hw = o.hw || 13, hl = Math.min(o.hl || 22, len);
+    if (len < 1) return '';
+    const ux = Math.cos(ang), uy = Math.sin(ang), ex = x + ux * len, ey = y + uy * len, bx = ex - ux * hl, by = ey - uy * hl, px = -uy * hw, py = ux * hw;
+    let s = len > hl ? `<line x1="${f1(x)}" y1="${f1(y)}" x2="${f1(bx)}" y2="${f1(by)}" stroke="${c}" stroke-width="${sw}"/>` : '';
+    s += `<polygon points="${f1(ex)},${f1(ey)} ${f1(bx + px)},${f1(by + py)} ${f1(bx - px)},${f1(by - py)}" fill="${c}" stroke="${c}" stroke-width="1.5" stroke-linejoin="round"/>`;
+    if (o.label) {
+        const fs = o.fs || 24, est = o.label.length * fs * .48, full = o.full || len, op = o.lop === undefined ? 1 : o.lop;
+        let tx, ty, an;
+        if (Math.abs(ux) > .9) {
+            ty = y + (o.below ? (o.dy || 34) : -16);
+            if (est <= full - 6) { tx = x + ux * full / 2; an = 'middle'; } else { tx = x + ux * 4; an = ux > 0 ? 'start' : 'end'; }
+        } else if (Math.abs(uy) > .9) { tx = x + (o.left ? -18 : 18); ty = y + uy * full / 2 + 8; an = o.left ? 'end' : 'start'; }
+        else { tx = x + ux * full / 2 + 20; ty = y + uy * full / 2 + 8; an = 'start'; }
+        s += `<text class="flbl" x="${f1(tx)}" y="${f1(ty)}" text-anchor="${an}" opacity="${op}" style="font-size:${fs}px">${o.label}</text>`;
+    }
+    return s;
+}
+function ghostArrow(x, y, ang, len) {
+    const ux = Math.cos(ang), uy = Math.sin(ang), hl = 20, hw = 12, ex = x + ux * len, ey = y + uy * len, bx = ex - ux * hl, by = ey - uy * hl, px = -uy * hw, py = ux * hw;
+    return `<line x1="${x}" y1="${y}" x2="${bx}" y2="${by}" stroke="${GR}" stroke-width="4" stroke-dasharray="7 7"/><polygon points="${ex},${ey} ${bx + px},${by + py} ${bx - px},${by - py}" fill="#fff" stroke="${GR}" stroke-width="3" stroke-linejoin="round"/>`;
+}
+function growArrow(g, x, y, ang, len, o = {}, dur = 450) {
+    const tok = g._tok = (g._tok || 0) + 1;
+    return play(dur, k => { g.innerHTML = arrowSVG(x, y, ang, len * easeOut(k), { ...o, full: len, lop: k }); }, () => g._tok === tok && document.body.contains(g));
+}
+function clearArrow(g) { g._tok = (g._tok || 0) + 1; g.innerHTML = ''; }
+const heat = (x, y) => `<path class="heat" d="M${x} ${y} q6 -7 0 -14 q-6 -7 0 -14 q6 -7 0 -14"/>`;
+const ground = (gy, w = 740) => `<line class="gnd" x1="0" x2="${w}" y1="${gy + 2}" y2="${gy + 2}"/>`;
+const legend = (x, y, c = DT, op = 1) => `<circle cx="${x}" cy="${y - 6}" r="6" fill="${c}" opacity="${op}"/><text class="leg" x="${x + 14}" y="${y}">Dots show where it was every quarter of a second</text>`;
+const replayIcon = `<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v5h5"/></svg>`;
+function mkTrail(layer, pos, y, every = 250, c = DT, op = 1) {
+    let next = 0;
+    const put = p => layer.insertAdjacentHTML('beforeend', `<circle cx="${f1(p.x)}" cy="${f1(y === undefined ? p.y : y)}" r="5.5" fill="${c}" opacity="${op}"/>`);
+    return {
+        reset() { layer.innerHTML = ''; next = 0; },
+        upto(t) { while (next <= t + .5) { put(pos(next)); next += every; } },
+        dot: put
+    };
+}
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+/* point on a slope: s along the slope from (x0, gy) at angle a (deg), lifted h above the surface */
+function onSlope(x0, gy, a, s, h = 0) { const r = deg(a); return { x: x0 + s * Math.cos(r) - h * Math.sin(r), y: gy - s * Math.sin(r) - h * Math.cos(r) }; }
+
+/* six simple machine icons (120 x 100) */
+const MI = {
+    lever: `<line class="ln" x1="8" y1="58" x2="112" y2="74"/><polygon points="62,69 48,92 76,92" style="fill:var(--pink)"/><rect class="load" x="14" y="36" width="26" height="22"/>${arr(102, 20, 102, 66, 'fa ti', 7)}`,
+    wheel: `<circle cx="60" cy="50" r="40" fill="#fff" stroke="#1b1f45" stroke-width="5"/>${[0, 60, 120].map(a => `<line class="ln" style="stroke-width:3" x1="${f1(60 + 38 * Math.cos(deg(a)))}" y1="${f1(50 + 38 * Math.sin(deg(a)))}" x2="${f1(60 - 38 * Math.cos(deg(a)))}" y2="${f1(50 - 38 * Math.sin(deg(a)))}"/>`).join('')}<circle cx="60" cy="50" r="12" style="fill:var(--pink)"/>`,
+    pulley: `<line class="ln" x1="28" y1="6" x2="92" y2="6"/><line class="ln" x1="60" y1="6" x2="60" y2="24"/><line class="ln" style="stroke-width:3" x1="43" y1="40" x2="43" y2="68"/><line class="ln" style="stroke-width:3" x1="77" y1="40" x2="77" y2="74"/><circle cx="60" cy="40" r="17" fill="#fff" stroke="#1b1f45" stroke-width="5"/><circle cx="60" cy="40" r="4" class="solid"/><rect class="load" x="31" y="68" width="24" height="22"/>${arr(77, 72, 77, 98, 'fa ti', 7)}`,
+    incline: `<polygon class="rampp" points="8,92 112,92 112,32"/><g transform="rotate(-30 60 62)"><rect class="solid" x="47" y="40" width="26" height="22" rx="2"/></g>`,
+    wedge: `<path class="load" d="M8 92 V56 H50 L60 78 L70 56 H112 V92 Z"/><polygon points="46,8 74,8 60,72" style="fill:var(--pink)"/>`,
+    screw: `<rect class="load" x="36" y="8" width="48" height="12" rx="2"/><rect class="load" x="50" y="20" width="20" height="60"/><polygon class="solid" points="50,80 70,80 60,96"/>${[32, 44, 56, 68].map(y => `<line class="ln" style="stroke-width:4" x1="44" y1="${y + 6}" x2="76" y2="${y - 4}"/>`).join('')}`
+};
+const miSVG = (k, w = 120) => `<svg viewBox="0 0 120 100" width="${w}" height="${f1(w * 100 / 120)}" aria-hidden="true">${MI[k]}</svg>`;
+
+/* =========================================================
+   SESSION 1: FRICTION (SC7)
+   ========================================================= */
+
+/* magnified views for "Up close" */
+function PIC(k) {
+    const id = 'zc' + k, cx = 125, cy = 85, R = 74;
+    let crate = '', floor = '', extra = '';
+    const box = (d, fill) => `<path d="${d}" fill="${fill}" stroke="${NV}" stroke-width="3" stroke-linejoin="round"/>`;
+    if (k === 'rough') {
+        const j = [3, -4, 5, -2, 4, -5, 2, -3, 5, -4, 3, -2, 4, -5, 3, -3, 5, -2, 4];
+        const pts = j.map((v, i) => [-4 + i * 14.4, (i % 2 ? 96 : 72) + v]);
+        crate = box(`M-10 -10 H260 V${pts[pts.length - 1][1]} ` + pts.slice().reverse().map(p => `L${f1(p[0])} ${f1(p[1])}`).join(' ') + ' Z', LT);
+        floor = box(`M-10 ${pts[0][1] + 6} ` + pts.map(p => `L${f1(p[0])} ${f1(p[1] + 6)}`).join(' ') + ' L260 180 L-10 180 Z', GR);
+    } else if (k === 'smooth') {
+        crate = box('M-10 -10 H260 V83 H-10 Z', LT); floor = box('M-10 87 H260 V180 H-10 Z', GR);
+    } else if (k === 'magnet') {
+        crate = box('M-10 -10 H260 V74 H-10 Z', LT); floor = box('M-10 98 H260 V180 H-10 Z', GR);
+        [80, 125, 170].forEach(x => extra += `<path d="M${x - 9} 100 C${x - 22} 90 ${x - 22} 82 ${x - 9} 72 M${x + 9} 100 C${x + 22} 90 ${x + 22} 82 ${x + 9} 72" fill="none" stroke="${NV}" stroke-width="2.5" stroke-dasharray="4 4"/>`);
+    } else if (k === 'air') {
+        crate = box('M-10 -10 H260 V72 H-10 Z', LT); floor = box('M-10 100 H260 V180 H-10 Z', GR);
+        [[64, 84], [88, 90], [108, 81], [132, 89], [152, 83], [176, 90], [196, 84]].forEach(([x, y]) => extra += `<circle cx="${x}" cy="${y}" r="5" fill="#fff" stroke="${NV}" stroke-width="2"/>`);
+    }
+    return `<svg viewBox="0 0 250 170" width="250" height="170"><defs><clipPath id="${id}"><circle cx="${cx}" cy="${cy}" r="${R}"/></clipPath></defs>
+        <g clip-path="url(#${id})">${crate}${floor}${extra}${T(cx, 46, 'Crate', 'mid sm')}${T(cx, 140, 'Floor', 'mid sm')}</g>
+        <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${NV}" stroke-width="4"/></svg>`;
+}
+
+/* side pictures for mcside */
+const zig = Array.from({ length: 20 }, (_, i) => `${30 + i * 10},${i % 2 ? 246 : 236}`).join(' ');
+const SIDES = {
+    shoe: {
+        svg: `<text class="spd" x="125" y="70" text-anchor="middle">Running shoe</text>
+            <path d="M28 214 L28 160 Q28 140 48 138 L92 132 Q104 131 112 140 L150 178 L196 186 Q224 192 224 214 Z" fill="${LT}" stroke="${NV}" stroke-width="4" stroke-linejoin="round"/>
+            <g stroke="${NV}" stroke-width="3" stroke-linecap="round"><line x1="104" y1="152" x2="122" y2="143"/><line x1="114" y1="163" x2="132" y2="154"/><line x1="125" y1="174" x2="143" y2="165"/></g>
+            <rect x="22" y="210" width="208" height="26" rx="9" fill="${NV}"/>
+            <polyline class="tread" points="${zig}" fill="none" stroke="${NV}" stroke-width="5" stroke-linejoin="round"/>
+            <line class="gnd" x1="0" x2="250" y1="249" y2="249"/>
+            <g class="grip" opacity="0">${T(125, 290, 'Grip', 'mid pk')}</g>`,
+        done(svg) {
+            const tr = svg.querySelector('.tread'), g = svg.querySelector('.grip');
+            play(500, k => { g.setAttribute('opacity', k); tr.setAttribute('stroke', k > .3 ? PK : NV); });
+        }
+    }
+};
+
+const SCENES = {
+    /* two blocks rubbing; heat shows once answered */
+    rub(svg) {
+        const BY = 214;
+        let sq = ''; for (let i = 0; i < 5; i++) sq += heat(-64 + i * 32, -84);
+        let ticks = ''; for (let y = 130; y <= 240; y += 22) ticks += `<line x1="664" x2="674" y1="${y}" y2="${y}" stroke="${NV}" stroke-width="2"/>`;
+        svg.innerHTML = `<text class="spd" x="370" y="40" text-anchor="middle">Rubbing back and forth</text>
+            ${arr(370, 66, 236, 66, 'fg', 9)}${arr(370, 66, 504, 66, 'fg', 9)}
+            <rect x="150" y="${BY}" width="440" height="84" rx="4" fill="${GR}" stroke="${NV}" stroke-width="4"/>${T(370, BY + 52, 'Block B', 'mid')}
+            <g class="top"><g class="hot" opacity="0"><g>${sq}</g></g>
+                <rect x="-110" y="-76" width="220" height="76" rx="4" fill="${LT}" stroke="${NV}" stroke-width="4"/>${T(0, -30, 'Block A', 'mid')}
+                <line class="glow" x1="-106" y1="0" x2="106" y2="0" stroke="${PK}" stroke-width="6" opacity="0"/></g>
+            <g class="th" opacity="0"><rect x="638" y="112" width="24" height="150" rx="12" fill="#fff" stroke="${NV}" stroke-width="3"/>${ticks}
+                <rect class="mer" x="644" y="242" width="12" height="20" fill="${PK}"/><circle cx="650" cy="274" r="20" fill="${PK}" stroke="${NV}" stroke-width="3"/>
+                <text class="spd" x="650" y="320" text-anchor="middle">Temperature</text></g>`;
+        const top = svg.querySelector('.top'), hot = svg.querySelector('.hot'), glow = svg.querySelector('.glow'), th = svg.querySelector('.th'), mer = svg.querySelector('.mer');
+        let now = 0, hotT = null;
+        return {
+            start() {
+                loop(t => {
+                    now = t;
+                    const x = 370 + 100 * Math.sin(t / 1150 * 2 * Math.PI);
+                    top.setAttribute('transform', `translate(${f1(x)} ${BY})`);
+                    if (hotT === null) return;
+                    const e = t - hotT, a = Math.min(1, e / 500);
+                    hot.setAttribute('opacity', f1(a * (.65 + .35 * Math.sin(t / 150))));
+                    glow.setAttribute('opacity', f1(a));
+                    th.setAttribute('opacity', f1(a));
+                    const h = 20 + 120 * easeOut(Math.min(1, e / 2600));
+                    mer.setAttribute('y', f1(262 - h)); mer.setAttribute('height', f1(h));
+                });
+            },
+            done() { hotT = now; }
+        };
+    },
+    /* same push on ice and carpet */
+    slide(svg) {
+        const x0 = 134, v = .3;
+        const lanes = [{ y: 140, name: 'Ice', d: 500, fl: 34 }, { y: 274, name: 'Carpet', d: 160, fl: 90 }];
+        let s = legend(16, 324, NV, .45);
+        let shine = ''; for (let x = 20; x < 740; x += 70) shine += `<line x1="${x}" y1="153" x2="${x + 30}" y2="153" stroke="${GR}" stroke-width="2" stroke-linecap="round"/>`;
+        let tuft = ''; for (let x = 3; x < 740; x += 7) tuft += `<line x1="${x}" y1="274" x2="${x + 3}" y2="${267 + (x * 7 % 3)}" stroke="#8a8fa6" stroke-width="2"/>`;
+        s += `<rect x="0" y="140" width="740" height="26" fill="${LT}"/>${shine}<line x1="0" x2="740" y1="140" y2="140" stroke="${NV}" stroke-width="3"/>
+            ${tuft}<rect x="0" y="274" width="740" height="26" fill="${GR}"/><line x1="0" x2="740" y1="274" y2="274" stroke="${NV}" stroke-width="3"/>`;
+        lanes.forEach((L, i) => s += `<text class="spd" x="724" y="${L.y - 56}" text-anchor="end">${L.name}</text><g class="tr${i}"></g><g class="ps${i}"></g>
+            <g class="pk${i}"><rect x="-40" y="-38" width="80" height="38" rx="9" fill="${NV}"/><rect x="-30" y="-31" width="60" height="6" rx="3" fill="#fff" opacity=".25"/><g class="fr"></g></g>`);
+        svg.innerHTML = s;
+        lanes.forEach((L, i) => {
+            L.g = svg.querySelector('.pk' + i); L.fr = L.g.querySelector('.fr'); L.push = svg.querySelector('.ps' + i);
+            L.a = v * v / (2 * L.d); L.ts = v / L.a;
+            L.pos = t => ({ x: x0 + (t < L.ts ? v * t - .5 * L.a * t * t : L.d) });
+            L.tr = mkTrail(svg.querySelector('.tr' + i), L.pos, L.y + 13, 250, NV, .45);
+        });
+        const place = t => lanes.forEach(L => { L.g.setAttribute('transform', `translate(${f1(L.pos(t).x)} ${L.y})`); });
+        async function run(withF) {
+            const id = runId;
+            while (id === runId) {
+                lanes.forEach(L => { L.tr.reset(); clearArrow(L.fr); clearArrow(L.push); }); place(0);
+                await wait(300);
+                await Promise.all(lanes.map(L => growArrow(L.push, x0 - 124, L.y - 19, 0, 80, { label: 'Push' })));
+                await wait(350);
+                lanes.forEach(L => clearArrow(L.push));
+                if (withF) lanes.forEach(L => growArrow(L.fr, -40, -19, Math.PI, L.fl, { label: 'Friction' }, 300));
+                await play(3700, k => {
+                    const t = 3700 * k; place(t);
+                    lanes.forEach(L => { L.tr.upto(Math.min(t, L.ts)); if (withF && t >= L.ts && L.fr.innerHTML) clearArrow(L.fr); });
+                });
+                if (withF) return;
+                await wait(1600);
+            }
+        }
+        return { start: () => run(false), replay: () => run(false), done() { runId++; run(true); } };
+    }
+};
+
+const QS = [
+    { kind: 'mc', title: 'What is friction?', sc: 'SC7', prompt: 'Which statement best describes friction?',
+      opts: [
+        { t: 'A non-contact force that pulls objects towards Earth', hint: 'That describes gravity. Friction only acts when surfaces touch.' },
+        { t: 'A contact force between surfaces that slide, or try to slide, past each other', hint: '' },
+        { t: 'A force that always makes moving objects speed up', hint: 'Friction acts against motion, so it tends to slow objects down.' },
+        { t: 'A force that only acts on rough surfaces like sandpaper', hint: 'Even surfaces that look smooth are rough up close, so friction still acts.' }],
+      answer: 1, msg: 'Friction is a contact force. It acts when surfaces slide, or try to slide, past each other.' },
+
+    { kind: 'build', title: 'Pushing a crate', sc: 'SC7', prompt: 'A student pushes a crate to the right across the floor. Drag each force to an arrow.',
+      box: { x: 340, y: 124, w: 120, h: 84 },
+      scene: `<line x1="0" x2="800" y1="208" y2="208" stroke="${NV}" stroke-width="4"/>${Array.from({ length: 34 }, (_, i) => `<line x1="${14 + i * 24}" y1="212" x2="${i * 24}" y2="228" stroke="#c3c6d0" stroke-width="2"/>`).join('')}
+        <rect class="obj" x="340" y="124" width="120" height="84" rx="4"/><rect x="351" y="135" width="98" height="62" fill="none" stroke="${NV}" stroke-width="2"/>
+        <text class="oname" x="400" y="173" text-anchor="middle">Crate</text>
+        <text class="spd" x="760" y="306" text-anchor="end">Moving &rarr;</text>`,
+      answer: { r: 'Push', l: 'Friction', u: 'Support force', d: 'Gravity' },
+      tiles: ['Push', 'Friction', 'Support force', 'Gravity', 'Magnetic force'],
+      hints: { 'Magnetic force': 'There are no magnets here, so there is no magnetic force.' },
+      wrongDir: { Friction: 'Friction acts against the motion. The crate moves right, so friction points left.', Push: 'The student pushes the crate to the right, so the push points right.',
+        Gravity: 'Gravity pulls towards the centre of Earth, so its arrow points down.', 'Support force': 'The floor pushes up on the crate, so the support force points up.' },
+      missing: { l: 'The floor resists the crate sliding. Which force acts against its motion?', r: 'Something makes the crate move to the right. Which force is missing?',
+        u: 'The floor holds the crate up. Which force does the floor give?', d: 'Every object on Earth is pulled downwards. Which force is missing?' },
+      msg: 'Friction points left, against the motion. The push points right.' },
+
+    { kind: 'mcpic', title: 'Up close', sc: 'SC7', prompt: 'The floor looks smooth. Which magnified view explains why there is still friction?',
+      opts: [
+        { p: 'smooth', t: 'Both surfaces are perfectly flat', hint: 'Even polished surfaces have tiny bumps when you zoom in.' },
+        { p: 'rough', t: 'Tiny bumps catch on each other', hint: '' },
+        { p: 'magnet', t: 'The floor pulls like a magnet', hint: 'Friction is a contact force. It doesn\u2019t pull across a gap like a magnet.' },
+        { p: 'air', t: 'Trapped air pushes back', hint: 'Friction happens where the two surfaces touch, not in the air between them.' }],
+      answer: 1, msg: 'Up close, both surfaces are rough. The tiny bumps catch on each other and resist sliding.' },
+
+    { kind: 'mcscene', scene: 'rub', title: 'Rub it', sc: 'SC7', prompt: 'Two blocks rub back and forth. Friction changes some movement energy into which form of energy?',
+      opts: [
+        { t: 'Heat (thermal) energy', hint: '' },
+        { t: 'Electrical energy', hint: 'Rubbing doesn\u2019t make a current flow. What do you feel when you rub your hands together quickly?' },
+        { t: 'Chemical energy', hint: 'No new substances are made when surfaces rub. What do you feel when you rub your hands together quickly?' },
+        { t: 'Light energy', hint: 'The blocks don\u2019t glow. What do you feel when you rub your hands together quickly?' }],
+      answer: 0, msg: 'Friction changes some movement energy into heat, so the rubbing surfaces warm up.' },
+
+    { kind: 'sort', small: true, title: 'Helpful or unwanted?', sc: 'SC7', prompt: 'Is the friction in each situation beneficial or unwanted?',
+      bins: [{ h: 'Beneficial', sub: 'The friction helps', k: 'b', pk: true }, { h: 'Unwanted', sub: 'The friction causes a problem', k: 'u' }],
+      items: [
+        ['Tyres gripping a wet road', 'b', 'Grip from the tyres lets a car turn and stop safely, so this friction is beneficial.'],
+        ['Brakes slowing a bike', 'b', 'Brake pads rub on the wheel to slow it down, so this friction is beneficial.'],
+        ['Striking a match', 'b', 'Rubbing makes enough heat to light the match, so this friction is beneficial.'],
+        ['Gears rubbing and wearing out', 'u', 'Worn out parts need replacing, so this friction is unwanted.'],
+        ['Air resistance on a race car', 'u', 'Air resistance slows the car and wastes fuel, so this friction is unwanted.'],
+        ['Dragging a heavy desk', 'u', 'Friction makes the desk harder to move, so it is unwanted here.']],
+      msg: 'Friction is beneficial when we need grip or heat. It is unwanted when it wears things out or wastes energy.' },
+
+    { kind: 'mcscene', scene: 'slide', title: 'Ice or carpet?', sc: 'SC7', prompt: 'Both pucks get the same push. Which surface gives more friction?',
+      opts: [
+        { t: 'Ice. Its puck travels further.', hint: 'Travelling further means less is slowing the puck down.' },
+        { t: 'Carpet. Its puck stops sooner.', hint: '' },
+        { t: 'Both the same. The pushes were equal.', hint: 'The pushes were equal, but the pucks stop in different places. The surfaces must be different.' },
+        { t: 'Neither. Pucks are too smooth.', hint: 'Both pucks slow down and stop, so a force is acting against their motion.' }],
+      answer: 1, msg: 'The rough carpet gives more friction, so it slows the puck faster. Its dots bunch up sooner.' },
+
+    { kind: 'sort', small: true, title: 'More or less?', sc: 'SC7', prompt: 'Does each change increase or reduce friction?',
+      bins: [{ h: 'Increases', sub: 'More grip', k: 'i', pk: true }, { h: 'Reduces', sub: 'Less grip', k: 'r' }],
+      items: [
+        ['Deep tread on hiking boots', 'i', 'Tread gives a rougher surface that grips the ground, so it increases friction.'],
+        ['Grip tape on a skateboard', 'i', 'Grip tape is rough, so it increases friction and stops feet sliding.'],
+        ['Chalk on a gymnast\u2019s hands', 'i', 'Chalk dries sweat so hands grip the bar, which increases friction.'],
+        ['Grease on a door hinge', 'r', 'Grease is a lubricant. It lets surfaces slide easily, so it reduces friction.'],
+        ['Ball bearings in a wheel', 'r', 'Ball bearings roll instead of sliding, so they reduce friction.'],
+        ['Wax on the bottom of skis', 'r', 'Wax makes skis smoother so they glide, which reduces friction.']],
+      msg: 'Rough or grippy surfaces increase friction. Lubricants, wheels and smooth surfaces reduce it.' },
+
+    { kind: 'mcside', side: 'shoe', title: 'Leila\u2019s claim', sc: 'SC7', prompt: 'Is Leila right?',
+      quote: '\u201cFriction is always a bad thing. Life would be easier without it.\u201d',
+      opts: [
+        { t: 'Yes. Friction only wears things out and wastes energy.', hint: 'Friction can wear things out, but think about walking, writing or braking.' },
+        { t: 'Yes. Without friction, everything would move more easily.', hint: 'Things would slide easily, but could you stop or turn? Think about walking on ice.' },
+        { t: 'No. Without friction, our shoes couldn\u2019t grip the ground to walk or stop.', hint: '' },
+        { t: 'No. Friction only happens inside machines.', hint: 'Friction acts whenever surfaces slide, or try to slide, past each other.' }],
+      answer: 2, msg: 'Friction can be beneficial or unwanted. Without it, our shoes couldn\u2019t grip the ground.' },
+
+    { kind: 'mc', title: 'Oil in an engine', sc: 'SC7', prompt: 'Why do car engines need oil between their moving parts?',
+      opts: [
+        { t: 'Oil reduces friction, so parts wear out less and waste less heat', hint: '' },
+        { t: 'Oil increases friction, so the parts grip each other', hint: 'Engine parts need to slide easily. Oil is slippery, not grippy.' },
+        { t: 'Oil makes the engine heavier, so it runs more smoothly', hint: 'Oil is used for what it does between rubbing surfaces, not for its weight.' },
+        { t: 'Oil adds air resistance to cool the engine down', hint: 'Oil sits between the moving parts, not in the air. Think about rubbing surfaces.' }],
+      answer: 0, msg: 'Oil is a lubricant. It reduces unwanted friction, so parts last longer and waste less energy.' },
+
+    { kind: 'cloze', title: 'Friction summary', sc: 'SC7', prompt: 'Drag the words to complete the summary. Four words are not used.',
+      text: 'Friction acts in the {0} direction to the motion.<br>Surfaces that are {1} create more friction.<br>Friction changes some movement energy into {2} energy.<br>Oil is a {3} that reduces unwanted friction.',
+      bank: ['opposite', 'same', 'rough', 'smooth', 'heat', 'light', 'lubricant', 'magnet'],
+      answer: ['opposite', 'rough', 'heat', 'lubricant'],
+      hints: ['Friction resists motion. Which way must it act?', 'Smooth surfaces slide easily. Which surfaces grip more?', 'Rub your hands together quickly. What do you feel?', 'Oil helps parts slide past each other. What is this kind of substance called?'],
+      msg: 'Friction opposes motion, is greater on rough surfaces and changes movement energy into heat.' }
+];
+
+/* =========================================================
+   ENGINE
+   ========================================================= */
+const TOTAL = QS.length;
+const CHIP = { mc: 'Multiple choice', mcpic: 'Multiple choice', mcside: 'Multiple choice', mcscene: 'Watch and choose', sort: 'Drag and drop', build: 'Force diagram',
+    cloze: 'Fill the gaps', label: 'Match', rank: 'Put in order', calc: 'Calculate', tf: 'True or false' };
+
+let qi = 0, firstTry = [], tries = 0, mode = 'check', cur = null;
+function render() {
+    runId++;
+    content.innerHTML = ''; tries = 0; mode = 'check';
+    const q = QS[qi];
+    counter.innerHTML = `Question <b>${qi + 1}</b> / ${TOTAL}`;
+    progress.style.width = (qi / TOTAL * 100) + '%';
+    const wrap = el('div', 'q');
+    wrap.appendChild(el('div', 'qhead', `<div class="qtitle">${q.title}</div><div class="tchip">${q.chip || CHIP[q.kind]}</div><div class="sctag">${q.sc}</div>`));
+    wrap.appendChild(el('div', 'prompt', q.prompt));
+    const body = el('div', 'body'); wrap.appendChild(body); content.appendChild(wrap);
+    cur = KINDS[q.kind](q, body);
+    say(cur.instr);
+    btn.hidden = false; btn.textContent = 'Check';
+    refresh();
+}
+function refresh() { if (mode === 'check') btn.disabled = !cur.ready(); }
+function check() {
+    tries++;
+    const r = cur.check();
+    if (r.ok) {
+        if (tries === 1) firstTry[qi] = true;
+        say(`<b>Correct.</b> ${QS[qi].msg}`);
+        mode = 'next'; btn.disabled = false; btn.textContent = qi === TOTAL - 1 ? 'Finish' : 'Next';
+        btn.classList.remove('pop-in'); void btn.offsetWidth; btn.classList.add('pop-in');
+        if (cur.done) cur.done();
+    } else {
+        say(`<b class="no">Not quite.</b> ${r.hint}`);
+        refresh();
+    }
+}
+btn.onclick = () => {
+    if (btn.disabled) return;
+    if (mode === 'check') check();
+    else if (qi === TOTAL - 1) finish();
+    else { qi++; render(); }
+};
+function finish() {
+    runId++;
+    content.innerHTML = '';
+    btn.hidden = true;
+    counter.innerHTML = '<b>Complete</b>';
+    progress.style.width = '100%';
+    const n = firstTry.filter(Boolean).length;
+    say('Take a screenshot of this screen and paste it into Stile as evidence of your work.');
+    const c = el('div', 'center');
+    const dots = QS.map((_, i) => `<span class="${firstTry[i] ? 'y' : ''}">${i + 1}</span>`).join('');
+    const card = el('div', 'scorecard pop-in', `<div class="big">${n} / ${TOTAL}</div><div class="dlbl">Correct on the first try</div><div class="dots">${dots}</div>`);
+    const again = el('button', 'again', 'Start again');
+    again.onclick = () => { qi = 0; firstTry = []; render(); };
+    c.append(card, again); content.appendChild(c);
+}
+
+/* ---------- multiple choice core ---------- */
+function mcCore(els, q, extra = {}) {
+    let sel = null;
+    els.forEach((b, i) => b.onclick = () => {
+        if (mode !== 'check' || b.classList.contains('wrong')) return;
+        els.forEach(x => x.classList.remove('sel')); b.classList.add('sel'); sel = i; refresh();
+    });
+    return {
+        instr: extra.instr || 'Choose an answer, then press <b>Check</b>.',
+        ready: () => sel !== null,
+        check() {
+            const b = els[sel];
+            b.classList.remove('sel');
+            if (sel === q.answer) { b.classList.add('right'); els.forEach(x => x.disabled = true); return { ok: true }; }
+            b.classList.add('wrong'); b.disabled = true;
+            const h = q.opts[sel].hint; sel = null; return { ok: false, hint: h };
+        },
+        done: extra.done
+    };
+}
+const L = 'ABCD';
+function sceneBox(w, dw) {
+    const sc = el('div', 'scene'), h = 330;
+    sc.innerHTML = `<svg viewBox="0 0 ${w} ${h}" width="${dw}" height="${f1(dw * h / w)}"></svg>`;
+    return sc;
+}
+const KINDS = {
+    mc(q, body) {
+        const g = el('div', 'opts g2');
+        const els = q.opts.map((o, i) => { const b = el('button', 'opt', `<span class="l">${L[i]}</span><span>${o.t}</span>`); g.appendChild(b); return b; });
+        body.appendChild(g);
+        return mcCore(els, q);
+    },
+    mcpic(q, body) {
+        const g = el('div', 'pgrid');
+        const els = q.opts.map((o, i) => { const b = el('button', 'pcard', `<span class="l">${L[i]}</span>${PIC(o.p)}<span class="cap">${o.t}</span>`); g.appendChild(b); return b; });
+        body.appendChild(g);
+        return mcCore(els, q);
+    },
+    mcside(q, body) {
+        const side = el('div', 'scene');
+        side.innerHTML = `<svg viewBox="0 0 250 330" width="250" height="330">${SIDES[q.side].svg}</svg>`;
+        const col = el('div', 'col'); col.style.flex = '1';
+        col.appendChild(el('div', 'quote', q.quote));
+        const g = el('div', 'opts');
+        const els = q.opts.map((o, i) => { const b = el('button', 'opt', `<span class="l">${L[i]}</span><span>${o.t}</span>`); g.appendChild(b); return b; });
+        col.appendChild(g); body.append(side, col);
+        body.style.justifyContent = 'flex-start';
+        return mcCore(els, q, { done: () => SIDES[q.side].done(side.querySelector('svg')) });
+    },
+    mcscene(q, body) {
+        body.classList.add('mcs');
+        const sc = sceneBox(740, q.dw || 680);
+        const g = el('div', 'opts');
+        const els = q.opts.map((o, i) => { const b = el('button', 'opt', `<span class="l">${L[i]}</span><span>${o.t}</span>`); g.appendChild(b); return b; });
+        body.append(sc, g);
+        const S = SCENES[q.scene](sc.querySelector('svg'), q);
+        if (S.replay) {
+            const rp = el('button', 'replay', `${replayIcon}<span>Replay</span>`); sc.appendChild(rp);
+            rp.onclick = () => { runId++; S.replay(); };
+        }
+        S.start();
+        return mcCore(els, q, { instr: q.instr || 'Watch, then choose an answer and press <b>Check</b>.', done: () => S.done && S.done() });
+    },
+    sort(q, body) {
+        const wrap = el('div', 'sort');
+        const bins = q.bins || [{ h: 'Contact', sub: 'The objects must touch', k: 'c' }, { h: 'Non-contact', sub: 'Acts across a gap', k: 'n', pk: true }];
+        const mk = b => { const e = el('div', 'bin' + (b.pk ? ' pk' : ''), `<h3>${b.h}</h3><div class="sub">${b.sub}</div><div class="area"></div>`); e.tabIndex = 0; return e; };
+        const b0 = mk(bins[0]), b1 = mk(bins[1]);
+        const pool = el('div', 'pool' + (q.small ? ' col1' : ''));
+        wrap.append(b0, pool, b1); body.appendChild(wrap);
+        const zPool = { el: pool, box: pool, cap: Infinity, pool: true };
+        const zones = [{ el: b0, box: b0.querySelector('.area'), cap: Infinity, key: bins[0].k }, { el: b1, box: b1.querySelector('.area'), cap: Infinity, key: bins[1].k }];
+        const D = dnd(zPool, zones, () => refresh());
+        shuffle(q.items).forEach(([t, k, h]) => { const tl = D.tile(t); if (q.small) tl.classList.add('sm'); tl.k = k; tl.h = h; pool.appendChild(tl); });
+        return {
+            instr: 'Drag each tile into a group (or tap a tile, then a group), then press <b>Check</b>.',
+            ready: () => !pool.querySelector('.tile'),
+            check() {
+                let wrong = [];
+                zones.forEach(z => z.box.querySelectorAll('.tile').forEach(t => {
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (t.k === z.key) t.classList.add('right'); else { t.classList.add('wrong'); wrong.push(t.h); }
+                }));
+                return wrong.length ? { ok: false, hint: (wrong.length > 1 ? `${wrong.length} tiles need moving. ` : '') + wrong[0] } : { ok: true };
+            }
+        };
+    },
+    build(q, body) {
+        const W = 800, H = 330, len = 66, gap = 6, b = q.box, cx = b.x + b.w / 2, cy = b.y + b.h / 2;
+        const A = { u: [cx, b.y], d: [cx, b.y + b.h], l: [b.x, cy], r: [b.x + b.w, cy] };
+        const SL = { u: [cx - 100, b.y - len - gap - 50], d: [cx - 100, b.y + b.h + len + gap], l: [b.x - len - gap - 200, cy - 25], r: [b.x + b.w + len + gap, cy - 25] };
+        const wrap = el('div', 'bwrap');
+        wrap.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${q.scene}<g class="ghosts"></g><g class="arrs"></g></svg>`;
+        const gh = wrap.querySelector('.ghosts'), ar = wrap.querySelector('.arrs');
+        const side = el('div', 'bside', '<div class="dlbl">Forces</div>');
+        const pool = el('div', 'pool'); side.appendChild(pool);
+        body.append(wrap, side);
+        const zones = Object.keys(A).map(d => {
+            gh.insertAdjacentHTML('beforeend', `<g data-d="${d}">${ghostArrow(A[d][0], A[d][1], DIR[d], len)}</g>`);
+            const g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); ar.appendChild(g);
+            const s = el('div', 'slot'); s.style.left = SL[d][0] + 'px'; s.style.top = SL[d][1] + 'px'; s.tabIndex = 0; s.setAttribute('aria-label', { u: 'Up arrow', d: 'Down arrow', l: 'Left arrow', r: 'Right arrow' }[d]);
+            wrap.appendChild(s);
+            const ghost = gh.querySelector(`[data-d="${d}"]`);
+            return { el: s, box: s, cap: 1, dir: d,
+                onPut: () => { s.classList.add('filled'); ghost.style.display = 'none'; growArrow(g, A[d][0], A[d][1], DIR[d], len); },
+                onTake: () => { s.classList.remove('filled'); ghost.style.display = ''; clearArrow(g); } };
+        });
+        const zPool = { el: pool, box: pool, cap: Infinity, pool: true };
+        const D = dnd(zPool, zones, () => { zones.forEach(z => z.el.classList.remove('wrong')); refresh(); });
+        shuffle(q.tiles).forEach(t => pool.appendChild(D.tile(t)));
+        return {
+            instr: 'Drag forces onto the arrows. Leave any arrow empty if no force acts that way.',
+            ready: () => zones.some(z => z.box.querySelector('.tile')),
+            check() {
+                let hint = null, bad = 0;
+                zones.forEach(z => {
+                    const t = z.box.querySelector('.tile'); z.el.classList.remove('wrong');
+                    if (!t) return;
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (q.answer[z.dir] === t.k) { t.classList.add('right'); z.locked = true; }
+                    else { bad++; t.classList.add('wrong'); z.el.classList.add('wrong'); if (!hint) hint = q.hints[t.k] || q.wrongDir[t.k]; }
+                });
+                if (bad) return { ok: false, hint: (bad > 1 ? `${bad} labels need changing. ` : '') + hint };
+                const miss = Object.keys(q.answer).find(d => !zones.find(z => z.dir === d).box.querySelector('.tile'));
+                if (miss) return { ok: false, hint: 'Good so far, but a force is missing. ' + q.missing[miss] };
+                return { ok: true };
+            }
+        };
+    },
+    cloze(q, body) {
+        body.classList.add('colb');
+        const txt = el('div', 'cloze');
+        txt.innerHTML = q.text.replace(/\{(\d+)\}/g, (m, n) => `<span class="blank dz" data-i="${n}" tabindex="0" role="button" aria-label="Gap ${+n + 1}"></span>`);
+        const pool = el('div', 'pool bank');
+        body.append(txt, pool);
+        const zones = [...txt.querySelectorAll('.blank')].map(s => ({ el: s, box: s, cap: 1, i: +s.dataset.i,
+            onPut: () => s.classList.add('filled'), onTake: () => s.classList.remove('filled') }));
+        const zPool = { el: pool, box: pool, cap: Infinity, pool: true };
+        const D = dnd(zPool, zones, () => { zones.forEach(z => z.el.classList.remove('wrong')); refresh(); });
+        shuffle(q.bank).forEach(w => pool.appendChild(D.tile(w)));
+        const acc = i => [].concat(q.answer[i]);
+        return {
+            instr: 'Drag a word into each gap (or tap a word, then a gap), then press <b>Check</b>.',
+            ready: () => zones.every(z => z.box.querySelector('.tile')),
+            check() {
+                let hint = null, bad = 0;
+                zones.forEach(z => {
+                    const t = z.box.querySelector('.tile'); if (z.locked) return;
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (acc(z.i).includes(t.k)) { t.classList.add('right'); z.locked = true; }
+                    else { bad++; t.classList.add('wrong'); z.el.classList.add('wrong'); if (!hint) hint = q.hints[z.i]; }
+                });
+                return bad ? { ok: false, hint: (bad > 1 ? `${bad} gaps need changing. ` : '') + hint } : { ok: true };
+            }
+        };
+    },
+    label(q, body) {
+        body.classList.add('colb');
+        const grid = el('div', 'lgrid'); grid.style.gridTemplateColumns = `repeat(${q.cards.length}, 1fr)`;
+        const zones = q.cards.map((c, i) => {
+            const card = el('div', 'lcard', c.pic);
+            const s = el('div', 'slot2 dz'); s.tabIndex = 0; s.setAttribute('role', 'button'); s.setAttribute('aria-label', `Card ${i + 1}`);
+            card.appendChild(s); grid.appendChild(card);
+            return { el: s, box: s, cap: 1, ans: c.a, onPut: () => s.classList.add('filled'), onTake: () => s.classList.remove('filled') };
+        });
+        const pool = el('div', 'pool bank');
+        body.append(grid, pool);
+        const zPool = { el: pool, box: pool, cap: Infinity, pool: true };
+        const D = dnd(zPool, zones, () => { zones.forEach(z => z.el.classList.remove('wrong')); refresh(); });
+        shuffle(q.tiles).forEach(w => { const t = D.tile(w); t.classList.add('sm'); pool.appendChild(t); });
+        if (q.anim) q.anim(grid);
+        return {
+            instr: 'Drag each label onto a card (or tap a label, then a card), then press <b>Check</b>.',
+            ready: () => zones.every(z => z.box.querySelector('.tile')),
+            check() {
+                let hint = null, bad = 0;
+                zones.forEach(z => {
+                    const t = z.box.querySelector('.tile'); if (z.locked) return;
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (t.k === z.ans) { t.classList.add('right'); z.locked = true; }
+                    else { bad++; t.classList.add('wrong'); z.el.classList.add('wrong'); if (!hint) hint = q.hints[t.k]; }
+                });
+                return bad ? { ok: false, hint: (bad > 1 ? `${bad} labels need moving. ` : '') + hint } : { ok: true };
+            }
+        };
+    },
+    rank(q, body) {
+        body.classList.add('colb');
+        const [sw, sh] = q.slot;
+        const wrap = el('div', 'rwrap');
+        const row = el('div', 'rrow');
+        const zones = q.order.map((_, i) => {
+            const s = el('div', 'rslot dz'); s.dataset.n = i + 1; s.style.width = sw + 'px'; s.style.height = sh + 'px';
+            s.tabIndex = 0; s.setAttribute('role', 'button'); s.setAttribute('aria-label', `Position ${i + 1}`);
+            row.appendChild(s);
+            return { el: s, box: s, cap: 1, i, onPut: () => s.classList.add('filled'), onTake: () => s.classList.remove('filled') };
+        });
+        const scale = el('div', 'rscale', `<span>${q.ends[0]}</span><i></i><span>${q.ends[1]}</span>`);
+        scale.style.width = (q.order.length * (sw + 16) - 16) + 'px';
+        wrap.append(row, scale);
+        const pool = el('div', 'pool bank');
+        body.append(wrap, pool);
+        const zPool = { el: pool, box: pool, cap: Infinity, pool: true };
+        const D = dnd(zPool, zones, () => refresh());
+        shuffle(q.items).forEach(it => { const t = D.tile(it.html, it.k); t.classList.add('rt'); pool.appendChild(t); });
+        return {
+            instr: 'Drag the cards into order (or tap a card, then a space), then press <b>Check</b>.',
+            ready: () => zones.every(z => z.box.querySelector('.tile')),
+            check() {
+                let bad = 0;
+                zones.forEach(z => {
+                    const t = z.box.querySelector('.tile'); if (z.locked) return;
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (t.k === q.order[z.i]) { t.classList.add('right'); z.locked = true; }
+                    else { bad++; t.classList.add('wrong'); }
+                });
+                return bad ? { ok: false, hint: `${bad} cards are in the wrong place. ${q.hint}` } : { ok: true };
+            },
+            done: () => q.done && q.done(zones.map(z => z.box.querySelector('.tile')))
+        };
+    },
+    calc(q, body) {
+        const sc = sceneBox(q.sw || 560, q.sw || 560);
+        const pnl = el('div', 'cpanel');
+        (q.chips || []).forEach(c => pnl.appendChild(el('div', 'fchip', c)));
+        q.lines.forEach((line, li) => { pnl.appendChild(el('div', 'eq', line.replace(/\[\]/g, () => `<input class="num" inputmode="decimal" autocomplete="off" spellcheck="false">`))); });
+        body.append(sc, pnl);
+        const ins = [...pnl.querySelectorAll('input')];
+        ins.forEach((inp, i) => {
+            inp.setAttribute('aria-label', `Answer ${i + 1}`);
+            inp.addEventListener('input', () => { inp.classList.remove('wrong'); refresh(); });
+            inp.addEventListener('keydown', e => { if (e.key === 'Enter' && !btn.disabled) { e.preventDefault(); btn.click(); } });
+        });
+        const S = SCENES[q.scene](sc.querySelector('svg'), q);
+        S.start();
+        const val = inp => parseFloat(inp.value.replace(/,/g, '.').replace(/[^0-9.\-]/g, ''));
+        return {
+            instr: 'Type your answers in the boxes, then press <b>Check</b>.',
+            ready: () => ins.every(i => i.value.trim() !== ''),
+            check() {
+                let hint = null, bad = 0;
+                const vals = ins.map(val);
+                ins.forEach((inp, i) => {
+                    if (inp.disabled) return;
+                    const a = q.ans[i], v = vals[i], lo = a.min !== undefined ? a.min : a.v, hi = a.max !== undefined ? a.max : a.v;
+                    inp.classList.remove('wrong'); void inp.offsetWidth;
+                    if (!isNaN(v) && v >= lo - 1e-9 && v <= hi + 1e-9) { inp.classList.add('right'); inp.disabled = true; }
+                    else { bad++; inp.classList.add('wrong'); if (!hint) hint = typeof a.hint === 'function' ? a.hint(v, vals) : a.hint; }
+                });
+                if (bad) { const f = ins.find(i => !i.disabled); if (f) f.focus(); return { ok: false, hint: (bad > 1 ? `${bad} answers need changing. ` : '') + hint }; }
+                return { ok: true };
+            },
+            done: () => S.done && S.done()
+        };
+    },
+    tf(q, body) {
+        body.classList.add('colb');
+        const wrap = el('div', 'tf', '<div class="tfh"><span>Statement</span><span>True</span><span>False</span></div>');
+        const rows = q.rows.map(r => {
+            const row = el('div', 'tfrow', `<span>${r[0]}</span>`);
+            const bt = el('button', 'tfb', 'True'), bf = el('button', 'tfb', 'False');
+            row.append(bt, bf); wrap.appendChild(row);
+            const R = { row, bt, bf, ans: r[1], hint: r[2], sel: null, locked: false };
+            const pick = (v, b) => { if (mode !== 'check' || R.locked || b.disabled) return; R.sel = v; bt.classList.toggle('sel', v === true); bf.classList.toggle('sel', v === false); refresh(); };
+            bt.onclick = () => pick(true, bt); bf.onclick = () => pick(false, bf);
+            return R;
+        });
+        body.appendChild(wrap);
+        return {
+            instr: 'Choose true or false for each statement, then press <b>Check</b>.',
+            ready: () => rows.every(R => R.locked || R.sel !== null),
+            check() {
+                let hint = null, bad = 0;
+                rows.forEach(R => {
+                    if (R.locked) return;
+                    const b = R.sel ? R.bt : R.bf; b.classList.remove('sel');
+                    if (R.sel === R.ans) { b.classList.add('right'); R.locked = true; R.bt.disabled = R.bf.disabled = true; }
+                    else { bad++; b.classList.add('wrong'); b.disabled = true; R.sel = null; if (!hint) hint = R.hint; }
+                });
+                return bad ? { ok: false, hint: (bad > 1 ? `${bad} statements need changing. ` : '') + hint } : { ok: true };
+            }
+        };
+    }
+};
+
+/* ---------- drag and drop (drag, or tap a tile then tap a target) ---------- */
+function dnd(pool, zones, onChange) {
+    let sel = null;
+    const all = () => [pool, ...zones];
+    const zoneOf = t => all().find(z => z.box.contains(t));
+    const armAll = on => zones.forEach(z => z.el.classList.toggle('armed', on && !z.locked));
+    const deselect = () => { if (sel) sel.classList.remove('sel'); sel = null; armAll(false); };
+    function moveTo(t, z) {
+        const from = zoneOf(t);
+        t.style.transform = ''; t.classList.remove('wrong');
+        z.box.appendChild(t);
+        if (from && from !== z && from.onTake) from.onTake(t);
+        if (z.onPut) z.onPut(t);
+        deselect(); onChange();
+    }
+    function put(t, z) {
+        const from = zoneOf(t);
+        if (z.locked || from === z) { t.style.transform = ''; return; }
+        if (z.cap === 1) {
+            const ex = z.box.querySelector('.tile');
+            if (ex) { if (ex.classList.contains('right')) { t.style.transform = ''; return; } moveTo(ex, pool); }
+        }
+        moveTo(t, z);
+    }
+    const hit = (x, y) => all().find(z => { const r = z.el.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; });
+    all().forEach(z => {
+        const act = () => { if (sel && !z.locked) put(sel, z); };
+        z.el.addEventListener('click', act);
+        z.el.addEventListener('keydown', e => { if (e.target === z.el && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); act(); } });
+    });
+    function tile(html, key) {
+        const t = el('span', 'tile', html);
+        t.k = key === undefined ? html : key;
+        t.tabIndex = 0; t.setAttribute('role', 'button');
+        const tap = () => {
+            if (t.classList.contains('right')) return;
+            t.style.transform = '';
+            const z = zoneOf(t);
+            if (z !== pool) { put(t, pool); return; }
+            if (sel === t) { deselect(); return; }
+            deselect(); sel = t; t.classList.add('sel'); armAll(true);
+        };
+        t.addEventListener('click', e => e.stopPropagation());
+        t.addEventListener('pointerdown', e => {
+            if (t.classList.contains('right') || e.button > 0) return;
+            e.preventDefault(); e.stopPropagation(); t.setPointerCapture(e.pointerId);
+            const sx = e.clientX, sy = e.clientY; let moved = false;
+            const move = ev => {
+                const dx = ev.clientX - sx, dy = ev.clientY - sy;
+                if (!moved && Math.hypot(dx, dy) > 6) { moved = true; t.classList.add('drag'); }
+                if (!moved) return;
+                t.style.transform = `translate(${dx / scaleK}px, ${dy / scaleK}px)`;
+                const h = hit(ev.clientX, ev.clientY);
+                all().forEach(z => z.el.classList.toggle('hover', z === h));
+            };
+            const up = ev => {
+                t.removeEventListener('pointermove', move); t.removeEventListener('pointerup', up); t.removeEventListener('pointercancel', up);
+                t.classList.remove('drag'); all().forEach(z => z.el.classList.remove('hover'));
+                if (!moved) { tap(); return; }
+                const h = hit(ev.clientX, ev.clientY);
+                if (h) put(t, h); else t.style.transform = '';
+            };
+            t.addEventListener('pointermove', move); t.addEventListener('pointerup', up); t.addEventListener('pointercancel', up);
+        });
+        t.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); tap(); } });
+        return t;
+    }
+    return { tile };
+}
+
+/* ---------- scale to window ---------- */
+function fit() {
+    const st = $('#stage');
+    scaleK = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    st.style.transform = `scale(${scaleK})`;
+    st.style.margin = `${(720 * scaleK - 720) / 2}px ${(1280 * scaleK - 1280) / 2}px`;
+}
+window.addEventListener('resize', fit);
+fit();
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { fit(); render(); });
+</script>
+</body>
+</html>

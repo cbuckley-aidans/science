@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ramps and Efficiency: Checking for Understanding</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --navy: #1b1f45;
+        --pink: #ea008a;
+        --mid-grey: #9a9a9a;
+        --light-grey: #e8e8e8;
+        --blank: #f0f3f6;
+        --tint: #e9ecf5;
+        --cond: 'Barlow Condensed', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        --ease: cubic-bezier(.2,.8,.2,1);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #eaeaea; color: var(--navy);
+        display: flex; align-items: center; justify-content: center; overflow: hidden; -webkit-user-select: none; user-select: none; }
+    .stage { width: 1280px; height: 720px; background: #fff; border-top: 6px solid var(--navy); position: relative; padding: 36px 64px 0; flex-shrink: 0; overflow: hidden; transform-origin: center; }
+    .top { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 4px solid var(--navy); padding-bottom: 12px; }
+    .sheet-title { font-family: var(--cond); font-size: 44px; font-weight: 900; text-transform: uppercase; letter-spacing: .01em; margin: 0; line-height: 1; }
+    .sheet-title span { color: var(--pink); }
+    .counter { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; color: var(--mid-grey); text-transform: uppercase; }
+    .counter b { color: var(--navy); }
+    .content { position: absolute; left: 64px; right: 64px; top: 124px; bottom: 108px; }
+    .caption { position: absolute; left: 64px; right: 64px; bottom: 28px; min-height: 60px; display: flex; align-items: center; gap: 16px; font-size: 25px; font-weight: 500; line-height: 1.32; }
+    .caption::before { content: ''; width: 10px; height: 10px; background: var(--pink); flex-shrink: 0; }
+    .caption .txt { flex: 1; }
+    .caption b { color: var(--pink); font-weight: 800; }
+    .caption b.no { color: var(--navy); }
+    .caption .in { animation: capIn .45s var(--ease); display: block; }
+    @keyframes capIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .progress { position: absolute; left: 0; bottom: 0; height: 6px; background: var(--pink); width: 0; transition: width .6s var(--ease); }
+
+    .next { font-family: var(--cond); font-size: 26px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; background: var(--pink); color: #fff;
+        border: none; border-radius: 8px; padding: 12px 30px; cursor: pointer; flex-shrink: 0; }
+    .next[hidden] { display: none; }
+    .next:disabled { background: #c3c6d0; cursor: default; }
+    button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--pink); outline-offset: 3px; }
+    .next:focus-visible { outline-color: var(--navy); }
+    .pop-in { animation: capIn .45s var(--ease); }
+    @keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+
+    /* question frame */
+    .q { display: flex; flex-direction: column; height: 100%; }
+    .qhead { display: flex; align-items: center; gap: 18px; }
+    .qtitle { font-size: 40px; font-weight: 800; line-height: 1.15; }
+    .tchip { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--pink); border: 3px solid var(--pink); border-radius: 6px; padding: 3px 12px 2px; }
+    .sctag { margin-left: auto; font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--navy); box-shadow: inset 0 0 0 3px var(--navy); border-radius: 6px; padding: 6px 12px 5px; line-height: 1; }
+    .prompt { font-size: 28px; font-weight: 600; margin-top: 6px; line-height: 1.3; }
+    .body { flex: 1; min-height: 0; margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 30px; }
+    .body.colb { flex-direction: column; gap: 16px; }
+    .center { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+    .dlbl { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mid-grey); }
+
+    /* svg classes */
+    svg { overflow: visible; display: block; }
+    .obj { fill: var(--blank); stroke: var(--navy); stroke-width: 4; }
+    .oname { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; fill: var(--navy); }
+    .flbl { font-family: var(--cond); font-size: 24px; font-weight: 800; fill: var(--navy); }
+    .spd { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; fill: var(--mid-grey); }
+    .leg { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 600; fill: var(--mid-grey); }
+    .lbl { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .03em; fill: var(--navy); }
+    .lbl.mid { text-anchor: middle; } .lbl.end { text-anchor: end; }
+    .lbl.pk { fill: var(--pink); } .lbl.gr { fill: var(--mid-grey); } .lbl.wh { fill: #fff; }
+    .lbl.sm { font-size: 18px; } .lbl.lg { font-size: 34px; font-weight: 900; }
+    .gnd { stroke: #c9ccd6; stroke-width: 4; }
+    .ln { stroke: var(--navy); stroke-width: 5; stroke-linecap: round; fill: none; }
+    .load { fill: var(--blank); stroke: var(--navy); stroke-width: 3; }
+    .solid, .fulc, .plank { fill: var(--navy); }
+    .rampp { fill: var(--blank); stroke: var(--navy); stroke-width: 4; stroke-linejoin: round; }
+    .fa line { stroke: var(--pink); stroke-width: 7; } .fa polygon { fill: var(--pink); }
+    .fn line { stroke: var(--navy); stroke-width: 7; } .fn polygon { fill: var(--navy); }
+    .fg line { stroke: #c3c6d0; stroke-width: 5; } .fg polygon { fill: #c3c6d0; }
+    .ti line { stroke-width: 4; }
+    .heat { fill: none; stroke: var(--pink); stroke-width: 4; stroke-linecap: round; }
+    .axis { stroke: var(--navy); stroke-width: 3; }
+    .grid { stroke: #e3e5ec; stroke-width: 1.5; }
+    .grid.mn { stroke: #f0f1f5; }
+    .angarc { fill: none; stroke: var(--pink); stroke-width: 3; }
+    .sball { fill: #fff; stroke: var(--navy); stroke-width: 4; }
+    .spent { fill: var(--navy); }
+
+    /* multiple choice */
+    .opts { display: grid; gap: 10px; }
+    .col .opt { font-size: 23px; padding: 9px 18px; }
+    .opts.g2 { grid-template-columns: 1fr 1fr; gap: 18px; width: 100%; }
+    .opt { display: flex; align-items: center; gap: 16px; border: 3px solid var(--navy); border-radius: 8px; background: #fff; padding: 12px 20px;
+        font-family: inherit; font-size: 25px; font-weight: 600; color: var(--navy); text-align: left; line-height: 1.25; cursor: pointer;
+        transition: background-color .2s, border-color .2s, color .2s, opacity .2s; }
+    .opts.g2 .opt { min-height: 104px; font-size: 27px; font-weight: 700; padding: 16px 24px; }
+    .opt .l { flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background: var(--navy); color: #fff; font-family: var(--cond); font-size: 24px; font-weight: 900;
+        display: flex; align-items: center; justify-content: center; transition: background-color .2s, color .2s; }
+    .opt:hover:not(:disabled) { background: #f6f7fb; }
+    .opt.sel { background: var(--tint); }
+    .opt.sel .l { background: var(--pink); }
+    .opt.right, .opt.right:hover { background: var(--pink); border-color: var(--pink); color: #fff; opacity: 1; }
+    .opt.right .l { background: #fff; color: var(--pink); }
+    .opt.wrong { border-style: dashed; opacity: .5; animation: shake .4s; cursor: default; }
+    .opt:disabled { cursor: default; }
+    .mcs .opts { flex: 1; }
+    .mcs .opt { font-size: 24px; font-weight: 700; padding: 10px 16px; min-height: 72px; }
+
+    /* picture choices */
+    .pgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; width: 100%; }
+    .pcard { position: relative; border: 3px solid var(--navy); border-radius: 8px; background: #fff; padding: 16px 4px 12px; cursor: pointer;
+        display: flex; flex-direction: column; align-items: center; gap: 8px; font-family: inherit; color: var(--navy); transition: background-color .2s, border-color .2s, opacity .2s; }
+    .pcard .l { position: absolute; left: 10px; top: 10px; width: 38px; height: 38px; border-radius: 50%; background: var(--navy); color: #fff; font-family: var(--cond); font-size: 23px; font-weight: 900;
+        display: flex; align-items: center; justify-content: center; transition: background-color .2s; z-index: 1; }
+    .pcard .cap { font-size: 22px; font-weight: 700; line-height: 1.2; text-align: center; padding: 0 8px; }
+    .pcard:hover:not(:disabled) { background: #f6f7fb; }
+    .pcard.sel { background: var(--tint); }
+    .pcard.sel .l { background: var(--pink); }
+    .pcard.right, .pcard.right:hover { border-color: var(--pink); background: #fff; box-shadow: 0 0 0 5px rgba(234,0,138,.18); opacity: 1; }
+    .pcard.right .l { background: var(--pink); }
+    .pcard.wrong { border-style: dashed; opacity: .45; animation: shake .4s; cursor: default; }
+    .pcard:disabled { cursor: default; }
+
+    /* quote */
+    .quote { border-left: 8px solid var(--pink); padding: 4px 0 4px 20px; font-size: 25px; font-weight: 600; font-style: italic; line-height: 1.3; margin-bottom: 14px; }
+    .col { display: flex; flex-direction: column; }
+
+    /* scenes */
+    .scene { position: relative; border: 3px solid var(--navy); border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #fff; }
+    .scene > svg { overflow: hidden; }
+    .replay { position: absolute; right: 12px; top: 12px; display: flex; align-items: center; gap: 6px; font-family: var(--cond); font-size: 19px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+        background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 6px; padding: 5px 12px 4px 9px; cursor: pointer; }
+    .replay svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+    .replay:hover { background: var(--blank); }
+
+    /* drag tiles */
+    .tile { font-family: inherit; font-size: 24px; font-weight: 700; color: var(--navy); background: #fff; border: 3px solid var(--navy); border-radius: 8px; padding: 6px 16px; line-height: 1.25;
+        cursor: grab; touch-action: none; position: relative; z-index: 2; transition: transform .3s var(--ease), box-shadow .2s, border-color .2s; box-shadow: 0 4px 0 #c3c6d0; white-space: nowrap; text-align: center; }
+    .tile.sm { font-size: 22px; padding: 6px 12px; white-space: normal; }
+    .tile.sel { border-color: var(--pink); box-shadow: 0 0 0 4px rgba(234,0,138,.22); }
+    .tile.drag { transition: none; cursor: grabbing; z-index: 30; box-shadow: 0 14px 30px rgba(27,31,69,.25); border-color: var(--pink); }
+    .tile.right { background: var(--pink); color: #fff; border-color: var(--pink); box-shadow: none; cursor: default; }
+    .tile.wrong { border-style: dashed; background: var(--tint); box-shadow: none; animation: shake .4s; }
+    .tile svg { pointer-events: none; }
+
+    /* generic drop zones */
+    .dz { border: 3px dashed #c3c6d0; border-radius: 8px; transition: border-color .2s, background-color .2s; }
+    .dz.hover, .dz.armed:hover { border-color: var(--pink); background: rgba(234,0,138,.06); }
+    .dz.armed { border-color: #e7a3c9; cursor: pointer; }
+    .dz.filled { border-color: transparent; background: none; }
+    .dz.wrong { animation: shake .4s; }
+    .dz .tile { box-shadow: none; }
+
+    /* sort */
+    .sort { display: grid; grid-template-columns: 1fr 360px 1fr; gap: 18px; width: 100%; height: 100%; }
+    .bin { border: 3px solid var(--navy); border-radius: 8px; display: flex; flex-direction: column; overflow: visible; transition: box-shadow .2s; }
+    .bin.pk { border-color: var(--pink); }
+    .bin h3 { margin: 0; padding: 8px 16px 7px; font-family: var(--cond); font-size: 28px; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; color: #fff; background: var(--navy); }
+    .bin.pk h3 { background: var(--pink); }
+    .bin .sub { font-size: 18px; font-weight: 600; color: var(--mid-grey); padding: 8px 16px 0; }
+    .bin .area { flex: 1; padding: 12px 14px; display: flex; flex-wrap: wrap; gap: 10px; align-content: flex-start; justify-content: center; border-radius: 0 0 6px 6px; transition: background-color .2s; }
+    .bin.hover .area, .bin.armed:hover .area { background: rgba(234,0,138,.06); }
+    .bin.armed { box-shadow: 0 0 0 4px rgba(234,0,138,.15); cursor: pointer; }
+    .pool { background: var(--blank); border-radius: 8px; padding: 14px; display: flex; flex-wrap: wrap; gap: 10px; align-content: center; justify-content: center; transition: background-color .2s; }
+    .pool.hover { background: #e3e7ee; }
+    .pool.col1 { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 8px; }
+    .pool.bank { width: 100%; min-height: 76px; flex: none; }
+
+    /* force diagram builder */
+    .bwrap { position: relative; width: 806px; height: 336px; border: 3px solid var(--navy); border-radius: 8px; flex-shrink: 0; }
+    .bwrap > svg { position: absolute; left: 0; top: 0; }
+    .slot { position: absolute; width: 200px; height: 50px; border: 3px dashed #c3c6d0; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: border-color .2s, background-color .2s; }
+    .slot.hover, .slot.armed:hover { border-color: var(--pink); background: rgba(234,0,138,.06); }
+    .slot.armed { border-color: #e7a3c9; cursor: pointer; }
+    .slot.filled { border-color: transparent; background: none; }
+    .slot.wrong { animation: shake .4s; }
+    .slot .tile { box-shadow: none; padding: 5px 14px; font-size: 23px; }
+    .bside { width: 320px; display: flex; flex-direction: column; gap: 10px; height: 336px; }
+    .bside .pool { flex: 1; flex-direction: column; flex-wrap: nowrap; align-items: center; justify-content: center; }
+
+    /* cloze */
+    .cloze { width: 100%; font-size: 30px; font-weight: 600; line-height: 2.2; }
+    .blank { display: inline-flex; vertical-align: middle; align-items: center; justify-content: center; min-width: 172px; height: 56px; margin: 0 6px; padding: 0 2px; }
+    .blank .tile { padding: 4px 14px; }
+    .blank.filled { min-width: 0; }
+
+    /* label cards */
+    .lgrid { display: grid; gap: 14px; width: 100%; }
+    .lcard { border: 3px solid var(--navy); border-radius: 8px; padding: 12px 10px 10px; display: flex; flex-direction: column; align-items: center; gap: 10px; background: #fff; }
+    .lcard .nm { font-family: var(--cond); font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: .03em; text-align: center; line-height: 1.05; }
+    .slot2 { width: 100%; min-height: 60px; display: flex; align-items: center; justify-content: center; padding: 3px; }
+    .slot2 .tile { font-size: 21px; padding: 5px 10px; white-space: normal; }
+
+    /* rank */
+    .rwrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .rrow { display: flex; gap: 16px; justify-content: center; }
+    .rslot { position: relative; display: flex; align-items: center; justify-content: center; }
+    .rslot::before { content: attr(data-n); position: absolute; font-family: var(--cond); font-size: 64px; font-weight: 900; color: #e3e5ec; }
+    .rscale { display: flex; align-items: center; gap: 14px; width: 100%; font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--navy); }
+    .rscale i { flex: 1; height: 4px; background: var(--navy); position: relative; }
+    .rscale i::after { content: ''; position: absolute; right: -2px; top: -8px; border-left: 16px solid var(--navy); border-top: 10px solid transparent; border-bottom: 10px solid transparent; }
+    .tile.rt { padding: 6px; white-space: normal; }
+    .rc { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 19px; font-weight: 600; line-height: 1.2; padding: 4px 10px; }
+    .rc b { font-family: var(--cond); font-size: 25px; font-weight: 900; text-transform: uppercase; letter-spacing: .03em; }
+    .rv { display: none; font-family: var(--cond); font-size: 28px; font-weight: 900; font-style: normal; margin-top: 2px; }
+    .tile.right .rv { display: block; }
+    .tile.right .rampp { fill: #fff; stroke: #fff; }
+    .tile.right .lbl { fill: #fff; }
+    .tile.right .gnd { stroke: rgba(255,255,255,.5); }
+    .tile.right .solid { fill: #fff; }
+
+    /* calculate */
+    .cpanel { flex: 1; display: flex; flex-direction: column; gap: 18px; justify-content: center; }
+    .fchip { background: var(--blank); border-radius: 8px; padding: 10px 16px; font-size: 22px; font-weight: 600; line-height: 1.3; }
+    .fchip b { color: var(--pink); font-weight: 800; }
+    .eq { font-family: var(--cond); font-size: 36px; font-weight: 800; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .eq small { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 20px; font-weight: 600; color: var(--mid-grey); width: 100%; margin-bottom: -8px; }
+    .num { width: 116px; height: 60px; font-family: var(--cond); font-size: 34px; font-weight: 800; color: var(--navy); text-align: center; border: 3px solid var(--navy); border-radius: 8px; background: #fff;
+        -webkit-user-select: text; user-select: text; transition: background-color .2s, border-color .2s, color .2s; }
+    .num:focus { outline: none; border-color: var(--pink); box-shadow: 0 0 0 4px rgba(234,0,138,.18); }
+    .num.right, .num:disabled { background: var(--pink); border-color: var(--pink); color: #fff; opacity: 1; -webkit-text-fill-color: #fff; }
+    .num.wrong { border-style: dashed; background: var(--tint); animation: shake .4s; }
+
+    /* true or false */
+    .tf { width: 100%; }
+    .tfh, .tfrow { display: grid; grid-template-columns: 1fr 136px 136px; gap: 14px; align-items: center; }
+    .tfh { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--mid-grey); padding-bottom: 6px; border-bottom: 4px solid var(--navy); }
+    .tfh span:not(:first-child) { text-align: center; }
+    .tfrow { font-size: 25px; font-weight: 600; padding: 10px 0; border-bottom: 2px solid var(--light-grey); line-height: 1.25; }
+    .tfb { font-family: var(--cond); font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; height: 54px; border: 3px solid var(--navy); border-radius: 8px; background: #fff; color: var(--navy); cursor: pointer;
+        transition: background-color .2s, border-color .2s, color .2s, opacity .2s; }
+    .tfb:hover:not(:disabled) { background: #f6f7fb; }
+    .tfb.sel { background: var(--tint); border-color: var(--pink); }
+    .tfb.right, .tfb.right:hover { background: var(--pink); border-color: var(--pink); color: #fff; opacity: 1; }
+    .tfb.wrong { border-style: dashed; opacity: .45; animation: shake .4s; }
+    .tfb:disabled { cursor: default; }
+
+    /* end */
+    .scorecard { border: 3px solid var(--pink); border-radius: 8px; padding: 30px 60px; text-align: center; }
+    .scorecard .big { font-family: var(--cond); font-size: 120px; font-weight: 900; color: var(--pink); line-height: 1; }
+    .scorecard .dlbl { margin-top: 8px; }
+    .dots { display: flex; gap: 8px; justify-content: center; margin-top: 22px; }
+    .dots span { width: 34px; height: 34px; border-radius: 6px; border: 3px solid var(--navy); font-family: var(--cond); font-size: 17px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+    .dots span.y { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .again { margin-top: 26px; font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+        background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 8px; padding: 8px 22px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+    <div class="top">
+        <h1 class="sheet-title">Checking <span>ramps and efficiency</span></h1>
+        <div class="counter" id="counter"></div>
+    </div>
+    <div class="content" id="content"></div>
+    <div class="caption"><div class="txt" id="cap"></div><button class="next" id="next" hidden>Check</button></div>
+    <div class="progress" id="progress"></div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const content = $('#content'), cap = $('#cap'), btn = $('#next'), counter = $('#counter'), progress = $('#progress');
+const PK = '#ea008a', NV = '#1b1f45', GR = '#c9ccd6', DT = '#b5b9c6', LT = '#f0f3f6';
+let scaleK = 1;
+function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
+function say(html) { cap.innerHTML = `<span class="in">${html}</span>`; }
+
+/* ---------- animation helpers ---------- */
+let runId = 0;
+const easeOut = t => 1 - (1 - t) * (1 - t), easeInOut = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+function play(dur, step, guard) {
+    const id = runId, ok = guard || (() => id === runId);
+    return new Promise(res => {
+        const st = performance.now();
+        const f = n => { if (!ok()) return; const t = Math.min(1, (n - st) / dur); step(t); if (t < 1) requestAnimationFrame(f); else res(); };
+        requestAnimationFrame(f);
+    });
+}
+function wait(ms) { const id = runId; return new Promise(r => setTimeout(() => { if (id === runId) r(); }, ms)); }
+function loop(fn) { const id = runId, st = performance.now(); const f = n => { if (id !== runId) return; fn(n - st); requestAnimationFrame(f); }; requestAnimationFrame(f); }
+/* eased 0 to 1, hold, then snap back to 0 */
+function cycle(t, period = 3800, move = 2200) { const k = t % period; return k < move ? easeInOut(k / move) : (k < period - 500 ? 1 : 0); }
+
+/* ---------- drawing helpers ---------- */
+const f1 = v => (+v).toFixed(1), deg = a => a * Math.PI / 180;
+const T = (x, y, s, c = '') => `<text class="lbl ${c}" x="${f1(x)}" y="${f1(y)}">${s}</text>`;
+function arr(x1, y1, x2, y2, cls = 'fa', hw = 12) {
+    const a = Math.atan2(y2 - y1, x2 - x1), L = Math.hypot(x2 - x1, y2 - y1), hl = Math.min(hw * 1.6, L * .6);
+    const bx = x2 - Math.cos(a) * hl, by = y2 - Math.sin(a) * hl, px = Math.sin(a) * hw, py = -Math.cos(a) * hw;
+    return `<g class="${cls}"><line x1="${f1(x1)}" y1="${f1(y1)}" x2="${f1(bx + Math.cos(a))}" y2="${f1(by + Math.sin(a))}"/><polygon points="${f1(x2)},${f1(y2)} ${f1(bx + px)},${f1(by + py)} ${f1(bx - px)},${f1(by - py)}"/></g>`;
+}
+function arcPath(cx, cy, r, a0, a1) {
+    if (Math.abs(a1 - a0) < .5) return '';
+    const p = a => [cx + r * Math.cos(deg(a)), cy + r * Math.sin(deg(a))], [x0, y0] = p(a0), [x1, y1] = p(a1);
+    return `M${f1(x0)} ${f1(y0)} A${r} ${r} 0 ${Math.abs(a1 - a0) > 180 ? 1 : 0} ${a1 > a0 ? 1 : 0} ${f1(x1)} ${f1(y1)}`;
+}
+const DIR = { r: 0, l: Math.PI, u: -Math.PI / 2, d: Math.PI / 2 };
+function arrowSVG(x, y, ang, len, o = {}) {
+    const c = o.c || PK, sw = o.sw || 8, hw = o.hw || 13, hl = Math.min(o.hl || 22, len);
+    if (len < 1) return '';
+    const ux = Math.cos(ang), uy = Math.sin(ang), ex = x + ux * len, ey = y + uy * len, bx = ex - ux * hl, by = ey - uy * hl, px = -uy * hw, py = ux * hw;
+    let s = len > hl ? `<line x1="${f1(x)}" y1="${f1(y)}" x2="${f1(bx)}" y2="${f1(by)}" stroke="${c}" stroke-width="${sw}"/>` : '';
+    s += `<polygon points="${f1(ex)},${f1(ey)} ${f1(bx + px)},${f1(by + py)} ${f1(bx - px)},${f1(by - py)}" fill="${c}" stroke="${c}" stroke-width="1.5" stroke-linejoin="round"/>`;
+    if (o.label) {
+        const fs = o.fs || 24, est = o.label.length * fs * .48, full = o.full || len, op = o.lop === undefined ? 1 : o.lop;
+        let tx, ty, an;
+        if (Math.abs(ux) > .9) {
+            ty = y + (o.below ? (o.dy || 34) : -16);
+            if (est <= full - 6) { tx = x + ux * full / 2; an = 'middle'; } else { tx = x + ux * 4; an = ux > 0 ? 'start' : 'end'; }
+        } else if (Math.abs(uy) > .9) { tx = x + (o.left ? -18 : 18); ty = y + uy * full / 2 + 8; an = o.left ? 'end' : 'start'; }
+        else { tx = x + ux * full / 2 + 20; ty = y + uy * full / 2 + 8; an = 'start'; }
+        s += `<text class="flbl" x="${f1(tx)}" y="${f1(ty)}" text-anchor="${an}" opacity="${op}" style="font-size:${fs}px">${o.label}</text>`;
+    }
+    return s;
+}
+function ghostArrow(x, y, ang, len) {
+    const ux = Math.cos(ang), uy = Math.sin(ang), hl = 20, hw = 12, ex = x + ux * len, ey = y + uy * len, bx = ex - ux * hl, by = ey - uy * hl, px = -uy * hw, py = ux * hw;
+    return `<line x1="${x}" y1="${y}" x2="${bx}" y2="${by}" stroke="${GR}" stroke-width="4" stroke-dasharray="7 7"/><polygon points="${ex},${ey} ${bx + px},${by + py} ${bx - px},${by - py}" fill="#fff" stroke="${GR}" stroke-width="3" stroke-linejoin="round"/>`;
+}
+function growArrow(g, x, y, ang, len, o = {}, dur = 450) {
+    const tok = g._tok = (g._tok || 0) + 1;
+    return play(dur, k => { g.innerHTML = arrowSVG(x, y, ang, len * easeOut(k), { ...o, full: len, lop: k }); }, () => g._tok === tok && document.body.contains(g));
+}
+function clearArrow(g) { g._tok = (g._tok || 0) + 1; g.innerHTML = ''; }
+const heat = (x, y) => `<path class="heat" d="M${x} ${y} q6 -7 0 -14 q-6 -7 0 -14 q6 -7 0 -14"/>`;
+const ground = (gy, w = 740) => `<line class="gnd" x1="0" x2="${w}" y1="${gy + 2}" y2="${gy + 2}"/>`;
+const legend = (x, y, c = DT, op = 1) => `<circle cx="${x}" cy="${y - 6}" r="6" fill="${c}" opacity="${op}"/><text class="leg" x="${x + 14}" y="${y}">Dots show where it was every quarter of a second</text>`;
+const replayIcon = `<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v5h5"/></svg>`;
+function mkTrail(layer, pos, y, every = 250, c = DT, op = 1) {
+    let next = 0;
+    const put = p => layer.insertAdjacentHTML('beforeend', `<circle cx="${f1(p.x)}" cy="${f1(y === undefined ? p.y : y)}" r="5.5" fill="${c}" opacity="${op}"/>`);
+    return {
+        reset() { layer.innerHTML = ''; next = 0; },
+        upto(t) { while (next <= t + .5) { put(pos(next)); next += every; } },
+        dot: put
+    };
+}
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+/* point on a slope: s along the slope from (x0, gy) at angle a (deg), lifted h above the surface */
+function onSlope(x0, gy, a, s, h = 0) { const r = deg(a); return { x: x0 + s * Math.cos(r) - h * Math.sin(r), y: gy - s * Math.sin(r) - h * Math.cos(r) }; }
+
+/* six simple machine icons (120 x 100) */
+const MI = {
+    lever: `<line class="ln" x1="8" y1="58" x2="112" y2="74"/><polygon points="62,69 48,92 76,92" style="fill:var(--pink)"/><rect class="load" x="14" y="36" width="26" height="22"/>${arr(102, 20, 102, 66, 'fa ti', 7)}`,
+    wheel: `<circle cx="60" cy="50" r="40" fill="#fff" stroke="#1b1f45" stroke-width="5"/>${[0, 60, 120].map(a => `<line class="ln" style="stroke-width:3" x1="${f1(60 + 38 * Math.cos(deg(a)))}" y1="${f1(50 + 38 * Math.sin(deg(a)))}" x2="${f1(60 - 38 * Math.cos(deg(a)))}" y2="${f1(50 - 38 * Math.sin(deg(a)))}"/>`).join('')}<circle cx="60" cy="50" r="12" style="fill:var(--pink)"/>`,
+    pulley: `<line class="ln" x1="28" y1="6" x2="92" y2="6"/><line class="ln" x1="60" y1="6" x2="60" y2="24"/><line class="ln" style="stroke-width:3" x1="43" y1="40" x2="43" y2="68"/><line class="ln" style="stroke-width:3" x1="77" y1="40" x2="77" y2="74"/><circle cx="60" cy="40" r="17" fill="#fff" stroke="#1b1f45" stroke-width="5"/><circle cx="60" cy="40" r="4" class="solid"/><rect class="load" x="31" y="68" width="24" height="22"/>${arr(77, 72, 77, 98, 'fa ti', 7)}`,
+    incline: `<polygon class="rampp" points="8,92 112,92 112,32"/><g transform="rotate(-30 60 62)"><rect class="solid" x="47" y="40" width="26" height="22" rx="2"/></g>`,
+    wedge: `<path class="load" d="M8 92 V56 H50 L60 78 L70 56 H112 V92 Z"/><polygon points="46,8 74,8 60,72" style="fill:var(--pink)"/>`,
+    screw: `<rect class="load" x="36" y="8" width="48" height="12" rx="2"/><rect class="load" x="50" y="20" width="20" height="60"/><polygon class="solid" points="50,80 70,80 60,96"/>${[32, 44, 56, 68].map(y => `<line class="ln" style="stroke-width:4" x1="44" y1="${y + 6}" x2="76" y2="${y - 4}"/>`).join('')}`
+};
+const miSVG = (k, w = 120) => `<svg viewBox="0 0 120 100" width="${w}" height="${f1(w * 100 / 120)}" aria-hidden="true">${MI[k]}</svg>`;
+
+/* =========================================================
+   SESSION 3: INCLINED PLANES AND EFFICIENCY (SC10, SC11)
+   ========================================================= */
+const SIDES = {};
+
+/* access ramps that rise 1 m: horizontal 14 px per metre, vertical exaggerated */
+function PIC(b) {
+    const s = 14, H = 30, gy = 118, xr = 214, x0 = xr - b * s;
+    return `<svg viewBox="0 0 250 170" width="250" height="170"><line class="gnd" x1="6" x2="244" y1="${gy + 2}" y2="${gy + 2}"/>
+        <polygon class="rampp" points="${x0},${gy} ${xr},${gy} ${xr},${gy - H}"/><rect x="${xr}" y="${gy - H}" width="26" height="${H}" fill="${GR}" stroke="${NV}" stroke-width="3"/>
+        ${T(xr + 13, gy - H - 10, '1 m', 'mid sm')}
+        <line x1="${x0}" x2="${xr}" y1="${gy + 22}" y2="${gy + 22}" stroke="${NV}" stroke-width="2"/><line x1="${x0}" x2="${x0}" y1="${gy + 15}" y2="${gy + 29}" stroke="${NV}" stroke-width="2"/><line x1="${xr}" x2="${xr}" y1="${gy + 15}" y2="${gy + 29}" stroke="${NV}" stroke-width="2"/>
+        ${T((x0 + xr) / 2, gy + 48, b + ' m', 'mid sm')}</svg>`;
+}
+
+/* ramp card for ranking (220 x 116); same height, different angles */
+function rampTile(a) {
+    const H = 50, gy = 90, xr = 204, b = H / Math.tan(deg(a)), x0 = xr - b, L = Math.hypot(b, H);
+    const c = onSlope(x0, gy, a, L * .5);
+    return `<svg viewBox="0 0 220 116" width="220" height="116"><line class="gnd" x1="4" x2="216" y1="${gy + 2}" y2="${gy + 2}"/>
+        <polygon class="rampp" points="${f1(x0)},${gy} ${xr},${gy} ${xr},${gy - H}"/>
+        <g transform="translate(${f1(c.x)} ${f1(c.y)}) rotate(${-a})"><rect class="solid" x="-13" y="-22" width="26" height="22" rx="2"/></g>
+        <path class="angarc" d="M${f1(x0 + 22)} ${gy} A22 22 0 0 0 ${f1(x0 + 22 * Math.cos(deg(a)))} ${f1(gy - 22 * Math.sin(deg(a)))}"/>
+        ${T(x0, gy + 22, a + '&deg;', 'mid sm')}<g class="ea" data-a="${a}" data-x="${f1(x0)}"></g></svg>`;
+}
+const rcE = (name, a, b, pct) => `<div class="rc"><b>${name}</b><span>Energy in ${a} J</span><span>Useful out ${b} J</span><em class="rv">${pct}%</em></div>`;
+
+/* graph helpers */
+function graphFrame(GX, GY, x0, x1, y0, y1, o = {}) {
+    let s = '';
+    if (o.grid) {
+        for (let a = 5; a <= 70; a += 5) s += `<line class="grid${a % 10 ? ' mn' : ''}" x1="${f1(GX(a))}" x2="${f1(GX(a))}" y1="${GY(0)}" y2="${GY(100)}"/>`;
+        for (let e = 10; e <= 100; e += 10) s += `<line class="grid" x1="${GX(0)}" x2="${GX(70)}" y1="${f1(GY(e))}" y2="${f1(GY(e))}"/>`;
+    }
+    s += `<line class="axis" x1="${GX(0)}" y1="${GY(100) - 6}" x2="${GX(0)}" y2="${GY(0)}"/><line class="axis" x1="${GX(0)}" y1="${GY(0)}" x2="${GX(70) + 6}" y2="${GY(0)}"/>`;
+    for (let a = 0; a <= 70; a += 10) s += `<line class="axis" x1="${f1(GX(a))}" y1="${GY(0)}" x2="${f1(GX(a))}" y2="${GY(0) + 7}"/>${T(GX(a), GY(0) + 26, a, 'mid sm')}`;
+    for (let e = 0; e <= 100; e += o.ystep || 20) s += `<line class="axis" x1="${GX(0) - 7}" y1="${f1(GY(e))}" x2="${GX(0)}" y2="${f1(GY(e))}"/>${T(GX(0) - 12, GY(e) + 6, e, 'end sm')}`;
+    return s;
+}
+const DATA = [[10, 17], [20, 34], [30, 50], [40, 64], [50, 77], [60, 87]];
+const curveD = (GX, GY, a0, a1) => { let d = ''; for (let a = a0; a <= a1; a++) d += (a === a0 ? 'M' : 'L') + f1(GX(a)) + ' ' + f1(GY(100 * Math.sin(deg(a)))); return d; };
+
+const SCENES = {
+    /* ramp angle sweeps while the effort is plotted, 740 x 330 */
+    sweep(svg) {
+        const PX = 30, PY = 284, LEN = 236, GX = a => 430 + a * 4.2, GY = e => 284 - e * 2.25;
+        svg.innerHTML = `<line class="gnd" x1="0" x2="380" y1="${PY + 2}" y2="${PY + 2}"/><polygon class="rampp rp" points=""/><path class="angarc arc"/>
+            <g class="bx"><rect class="solid" x="-22" y="-32" width="44" height="32" rx="3"/><g class="ef"></g></g>
+            ${T(200, 40, 'Angle', 'gr sm')}${T(200, 70, '', 'av')}${T(290, 40, 'Effort', 'pk sm')}${T(290, 70, '', 'pk ev')}
+            ${graphFrame(GX, GY)}${T(GX(70) + 6, GY(0) - 12, 'Angle (&deg;)', 'end gr sm')}${T(GX(0) + 12, GY(100) + 4, 'Effort force (N)', 'gr sm')}
+            <path class="cv" d="${curveD(GX, GY, 10, 60)}" fill="none" stroke="${NV}" stroke-width="3" opacity="0"/><g class="dots"></g><circle class="cur" r="8" fill="${PK}"/>`;
+        const rp = svg.querySelector('.rp'), arc = svg.querySelector('.arc'), bx = svg.querySelector('.bx'), ef = svg.querySelector('.ef'),
+            av = svg.querySelector('.av'), ev = svg.querySelector('.ev'), dots = svg.querySelector('.dots'), curD = svg.querySelector('.cur'), cv = svg.querySelector('.cv');
+        const set = a => {
+            const r = deg(a), tx = PX + LEN * Math.cos(r), ty = PY - LEN * Math.sin(r), e = 100 * Math.sin(r);
+            rp.setAttribute('points', `${PX},${PY} ${f1(tx)},${PY} ${f1(tx)},${f1(ty)}`);
+            arc.setAttribute('d', `M${PX + 44} ${PY} A44 44 0 0 0 ${f1(PX + 44 * Math.cos(r))} ${f1(PY - 44 * Math.sin(r))}`);
+            const c = onSlope(PX, PY, a, LEN * .5);
+            bx.setAttribute('transform', `translate(${f1(c.x)} ${f1(c.y)}) rotate(${f1(-a)})`);
+            ef.innerHTML = arrowSVG(26, -16, 0, e * .85, { sw: 7, hl: 18, hw: 11 });
+            av.textContent = Math.round(a) + '°'; ev.textContent = Math.round(e) + ' N';
+            curD.setAttribute('cx', f1(GX(a))); curD.setAttribute('cy', f1(GY(e)));
+        };
+        const dot = a => dots.insertAdjacentHTML('beforeend', `<circle cx="${f1(GX(a))}" cy="${f1(GY(100 * Math.sin(deg(a))))}" r="7" fill="${NV}"/>`);
+        async function run() {
+            const id = runId;
+            while (id === runId) {
+                dots.innerHTML = ''; let next = 10; set(10);
+                await wait(500);
+                await play(4200, k => { const a = 10 + 50 * k; set(a); while (a >= next - 1e-6 && next <= 60) { dot(next); next += 10; } });
+                await wait(1800);
+            }
+        }
+        return {
+            start: run, replay: run,
+            done() {
+                runId++; dots.innerHTML = ''; DATA.forEach(([a]) => dot(a)); set(60);
+                const L = cv.getTotalLength(); cv.style.strokeDasharray = L; cv.setAttribute('opacity', 1);
+                play(1100, k => cv.style.strokeDashoffset = f1(L * (1 - easeOut(k))));
+            }
+        };
+    },
+    /* read the class graph, 560 x 330 */
+    graphRead(svg) {
+        const GX = a => 76 + a * 6.6, GY = e => 284 - e * 2.5;
+        svg.innerHTML = `${graphFrame(GX, GY, 0, 0, 0, 0, { grid: true, ystep: 10 })}
+            <path d="${curveD(GX, GY, 0, 70)}" fill="none" stroke="${NV}" stroke-width="3"/>
+            ${DATA.map(([a, e]) => `<circle cx="${f1(GX(a))}" cy="${f1(GY(e))}" r="6" fill="${NV}"/>`).join('')}
+            ${T(GX(35), 326, 'Angle of inclination (&deg;)', 'mid gr sm')}<text class="lbl gr sm" text-anchor="middle" transform="translate(20 ${GY(50)}) rotate(-90)">Effort force (N)</text>
+            <g class="guide"></g>`;
+        const g = svg.querySelector('.guide'), x = GX(45), y = GY(100 * Math.sin(deg(45)));
+        return {
+            start() {},
+            done() {
+                play(1300, k => {
+                    const v = Math.min(1, k * 2), h = Math.max(0, k * 2 - 1);
+                    g.innerHTML = `<line x1="${f1(x)}" y1="${GY(0)}" x2="${f1(x)}" y2="${f1(GY(0) + (y - GY(0)) * v)}" stroke="${PK}" stroke-width="3.5" stroke-dasharray="8 6"/>` +
+                        (h > 0 ? `<line x1="${f1(x)}" y1="${f1(y)}" x2="${f1(x + (GX(0) - x) * h)}" y2="${f1(y)}" stroke="${PK}" stroke-width="3.5" stroke-dasharray="8 6"/><circle cx="${f1(x)}" cy="${f1(y)}" r="8" fill="${PK}"/>` : '') +
+                        (h >= 1 ? `<rect x="${GX(0) + 8}" y="${f1(y - 40)}" width="76" height="30" rx="4" fill="#fff"/>${T(GX(0) + 14, y - 17, 'About 71 N', 'pk sm')}` : '');
+                });
+            }
+        };
+    },
+    /* steep and gentle ramps, same height, 740 x 330 */
+    tradeoff(svg) {
+        const GY = 270, H = 110, v = .075;
+        const R = [{ a: 60, x0: 150, name: 'Steep ramp' }, { a: 20, x0: 340, name: 'Gentle ramp' }];
+        let s = `${legend(16, 30)}<line class="gnd" x1="0" x2="740" y1="${GY + 2}" y2="${GY + 2}"/>`;
+        R.forEach((r, i) => {
+            r.b = H / Math.tan(deg(r.a)); r.L = Math.hypot(r.b, H); r.xt = r.x0 + r.b; r.s0 = 26; r.s1 = r.L - 32; r.T = (r.s1 - r.s0) / v;
+            s += `<polygon class="rampp" points="${f1(r.x0)},${GY} ${f1(r.xt)},${GY} ${f1(r.xt)},${GY - H}"/><rect x="${f1(r.xt)}" y="${GY - H}" width="70" height="${H}" fill="${GR}" stroke="${NV}" stroke-width="3"/>
+                ${T((r.x0 + r.xt + 70) / 2, GY + 34, r.name, 'mid')}<g class="tr${i}"></g><g class="ds${i}"></g>
+                <g class="bx${i}"><rect class="solid" x="-24" y="-36" width="48" height="36" rx="3"/><g class="ea">${arrowSVG(-40 * Math.sin(deg(r.a)), -52, 0, 80 * Math.sin(deg(r.a)), { sw: 7, hl: 17, hw: 11 })}${T(0, -70, 'Effort', 'mid pk sm')}</g></g>`;
+        });
+        svg.innerHTML = s;
+        R.forEach((r, i) => {
+            r.g = svg.querySelector('.bx' + i); r.ds = svg.querySelector('.ds' + i);
+            r.pos = t => onSlope(r.x0, GY, r.a, r.s0 + v * Math.min(t, r.T), -13);
+            r.tr = mkTrail(svg.querySelector('.tr' + i), r.pos);
+            r.place = t => { const p = onSlope(r.x0, GY, r.a, r.s0 + v * Math.min(t, r.T)); r.g.setAttribute('transform', `translate(${f1(p.x)} ${f1(p.y)}) rotate(${-r.a})`); };
+        });
+        const total = Math.max(...R.map(r => r.T));
+        async function run(final) {
+            const id = runId;
+            while (id === runId) {
+                R.forEach(r => { r.tr.reset(); r.ds.innerHTML = ''; r.place(0); r.g.querySelector('.ea').setAttribute('opacity', 1); });
+                await wait(500);
+                await play(total, k => { const t = total * k; R.forEach(r => { r.place(t); r.tr.upto(Math.min(t, r.T)); }); });
+                if (final) {
+                    R.forEach(r => r.g.querySelector('.ea').setAttribute('opacity', 0));
+                    await play(700, k => R.forEach(r => {
+                        const a = onSlope(r.x0, GY, r.a, 0, 58), b = onSlope(r.x0, GY, r.a, r.L * k, 58);
+                        r.ds.innerHTML = `<line x1="${f1(a.x)}" y1="${f1(a.y)}" x2="${f1(b.x)}" y2="${f1(b.y)}" stroke="${PK}" stroke-width="5" stroke-linecap="round"/>`;
+                    }));
+                    R.forEach((r, i) => { const m = onSlope(r.x0, GY, r.a, r.L / 2, 84); r.ds.insertAdjacentHTML('beforeend', T(m.x + (i ? 0 : -6), m.y, i ? 'Long' : 'Short', `pk ${i ? 'mid' : 'end'}`)); });
+                    return;
+                }
+                await wait(1600);
+            }
+        }
+        return { start: () => run(false), replay: () => run(false), done() { runId++; run(true); } };
+    },
+    /* energy flow for efficiency, 560 x 330 */
+    energy(svg) {
+        svg.innerHTML = `<rect x="20" y="60" width="180" height="100" fill="${NV}"/>${T(110, 92, 'Energy in', 'mid wh sm')}${T(110, 128, '500 J', 'mid wh lg')}
+            <path d="M330 60 H512 L540 100 L512 140 H330 Z" fill="${PK}"/>${T(426, 86, 'Useful out', 'mid wh sm')}${T(426, 118, '400 J', 'mid wh lg')}
+            <path d="M330 140 H352 Q376 140 376 164 V242 H392 L366 274 L340 242 H356 V170 Q356 160 346 160 H330 Z" fill="#c3c6d0"/>
+            <g class="pts"></g>
+            <rect x="196" y="40" width="138" height="140" rx="8" fill="#fff" stroke="${NV}" stroke-width="4"/>${T(265, 104, 'Wheel-', 'mid')}${T(265, 130, 'barrow', 'mid')}
+            ${T(406, 262, 'Wasted', 'gr sm')}<text class="lbl lg wv" x="406" y="296" style="fill:var(--mid-grey)">? J</text>
+            <g class="ht" opacity="0">${heat(300, 300)}${heat(318, 300)}${heat(336, 300)}</g>
+            <g class="pct" opacity="0">${T(470, 178, '80% efficient', 'mid pk')}</g>`;
+        const pts = svg.querySelector('.pts'), wv = svg.querySelector('.wv'), ht = svg.querySelector('.ht'), pct = svg.querySelector('.pct');
+        let now = 0, dT = null;
+        return {
+            start() {
+                loop(t => {
+                    now = t;
+                    const o = (t * .05) % 34;
+                    let s = '';
+                    for (let x = 26 + o; x < 196; x += 34) s += `<circle cx="${f1(x)}" cy="148" r="4" fill="#fff" opacity=".55"/>`;
+                    for (let x = 336 + o; x < 510; x += 34) s += `<circle cx="${f1(x)}" cy="131" r="4" fill="#fff" opacity=".6"/>`;
+                    for (let y = 172 + o; y < 240; y += 34) s += `<circle cx="366" cy="${f1(y)}" r="4" fill="#fff"/>`;
+                    pts.innerHTML = s;
+                    if (dT !== null) { const k = Math.min(1, (t - dT) / 500); ht.setAttribute('opacity', f1(k * (.6 + .4 * Math.sin(t / 150)))); pct.setAttribute('opacity', f1(k)); }
+                });
+            },
+            done() { dT = now; wv.textContent = '100 J'; wv.style.fill = PK; }
+        };
+    }
+};
+
+const QS = [
+    { kind: 'rank', title: 'Rank the ramps', sc: 'SC10', prompt: 'Each ramp raises the same box to the same height. Rank them from least to most effort force.',
+      slot: [238, 136], ends: ['Least effort', 'Most effort'],
+      items: [{ k: '15', html: rampTile(15) }, { k: '35', html: rampTile(35) }, { k: '60', html: rampTile(60) }],
+      order: ['15', '35', '60'],
+      hint: 'Compare the angles of inclination. Which ramp is the gentlest?',
+      done(tiles) {
+          tiles.forEach(t => {
+              const g = t.querySelector('.ea'), a = +g.dataset.a, x0 = +g.dataset.x, p = onSlope(x0, 90, a, 6, 32);
+              growArrow(g, p.x, p.y, -deg(a), 80 * Math.sin(deg(a)) + 10, { c: '#fff', sw: 6, hl: 15, hw: 10 }, 600);
+          });
+      },
+      msg: 'The smaller the angle of inclination, the less effort force is needed.' },
+
+    { kind: 'mcscene', scene: 'sweep', title: 'Angle and effort', sc: 'SC10', prompt: 'Watch the ramp and the graph. As the angle of inclination increases, the effort force...',
+      opts: [
+        { t: 'Increases', hint: '' },
+        { t: 'Decreases', hint: 'Watch the pink dot on the graph as the ramp gets steeper. Does it go up or down?' },
+        { t: 'Stays the same', hint: 'The effort number changes as the ramp moves. Watch the pink dot on the graph.' },
+        { t: 'Increases, then decreases', hint: 'Follow the dots from left to right. Do they ever go back down?' }],
+      answer: 0, msg: 'The greater the angle of inclination, the greater the effort force needed.' },
+
+    { kind: 'calc', scene: 'graphRead', title: 'Read the graph', sc: 'SC10', prompt: 'A class tested a 100 N load on ramps at different angles. Estimate the effort force for a 45&deg; ramp.',
+      chips: ['Find <b>45&deg;</b> on the bottom axis. Go up to the line, then across to the effort force axis.'],
+      lines: ['Effort force &asymp; [] N'],
+      ans: [{ min: 66, max: 75, hint: v => v < 66 ? 'That is a bit low. Make sure you go up from 45&deg;, halfway between 40 and 50, to the line.' : 'That is a bit high. Make sure you go up from 45&deg;, halfway between 40 and 50, to the line.' }],
+      msg: 'At 45&deg;, the effort force is about 71 N. It sits between the 40&deg; and 50&deg; results.' },
+
+    { kind: 'mcscene', scene: 'tradeoff', title: 'The trade-off', sc: 'SC10', prompt: 'The gentle ramp needs less effort force. What is the trade-off?',
+      opts: [
+        { t: 'The box travels a longer distance', hint: '' },
+        { t: 'The box ends up higher', hint: 'Both ramps raise the box to the same height. Count the dots on each ramp.' },
+        { t: 'The box gets heavier', hint: 'The box\u2019s weight doesn\u2019t change. Count the dots on each ramp.' },
+        { t: 'There is no trade-off', hint: 'Count the dots. Does one box travel further than the other?' }],
+      answer: 0, msg: 'A gentle ramp needs less effort, but the load travels a longer distance to reach the same height.' },
+
+    { kind: 'mcpic', title: 'Access ramps', sc: 'SC10', prompt: 'Australian access ramps are usually no steeper than 1 in 14. Each ramp rises 1 m. Which follows this guideline?',
+      opts: [
+        { p: 4, t: '1 m up, 4 m along', hint: '1 m up for every 4 m along is 1 in 4. That is much steeper than 1 in 14.' },
+        { p: 7, t: '1 m up, 7 m along', hint: '1 in 7 is still twice as steep as 1 in 14. The ramp needs to be longer.' },
+        { p: 10, t: '1 m up, 10 m along', hint: '1 in 10 is steeper than 1 in 14. The ramp needs to be longer.' },
+        { p: 14, t: '1 m up, 14 m along', hint: '' }],
+      answer: 3, msg: 'Rising 1 m over 14 m is 1 in 14. The small angle keeps the effort force low for wheelchair users.' },
+
+    { kind: 'calc', scene: 'energy', title: 'Efficiency', sc: 'SC11', prompt: 'Calculate the efficiency of the wheelbarrow and the energy it wastes.',
+      chips: ['<b>Efficiency</b> = useful energy out &divide; energy in &times; 100', '<b>Wasted energy</b> = energy in &minus; useful energy out'],
+      lines: ['<small>Efficiency</small>[] %', '<small>Wasted energy</small>[] J'],
+      ans: [
+        { v: 80, hint: v => v === .8 ? 'Nearly there. Multiply by 100 to turn it into a percentage.' : v === 125 ? 'Check the order. Divide the useful energy out by the energy in.' : 'Divide the useful energy out by the energy in, then multiply by 100.' },
+        { v: 100, hint: v => v === 900 ? 'You added. Subtract the useful energy out from the energy in.' : 'Subtract the useful energy out from the energy in.' }],
+      msg: '400 &divide; 500 &times; 100 = 80%. The other 100 J is wasted as heat and sound.' },
+
+    { kind: 'rank', title: 'Most efficient', sc: 'SC11', prompt: 'Work out the efficiency of each machine, then rank them from most to least efficient.',
+      slot: [226, 140], ends: ['Most efficient', 'Least efficient'],
+      items: [{ k: 'sc', html: rcE('Scissors', 200, 190, 95) }, { k: 'sco', html: rcE('Scooter', 600, 480, 80) }, { k: 'cr', html: rcE('Crane pulley', 1000, 450, 45) }, { k: 'jk', html: rcE('Car jack', 800, 240, 30) }],
+      order: ['sc', 'sco', 'cr', 'jk'],
+      hint: 'Use useful out &divide; energy in &times; 100 for each machine. The biggest percentage goes first.',
+      msg: 'The scissors waste the least energy, so they are the most efficient.' },
+
+    { kind: 'mc', title: 'Never 100%', sc: 'SC11', prompt: 'Why is no machine 100% efficient?',
+      opts: [
+        { t: 'Friction changes some of the energy into heat and sound', hint: '' },
+        { t: 'Machines destroy some of the energy put into them', hint: 'Energy can\u2019t be destroyed. It changes into other forms.' },
+        { t: 'The load gets heavier as it is moved', hint: 'The load doesn\u2019t change. Think about what happens where moving parts rub together.' },
+        { t: 'Machines can only ever use half of the energy put in', hint: 'Many machines are more than 50% efficient. Think about what happens where moving parts rub together.' }],
+      answer: 0, msg: 'Friction changes some energy into heat and sound. This energy is wasted, so no machine is 100% efficient.' },
+
+    { kind: 'sort', small: true, title: 'Better or worse?', sc: 'SC11', prompt: 'Does each change make a machine more or less efficient?',
+      bins: [{ h: 'More efficient', sub: 'Less energy wasted', k: 'm', pk: true }, { h: 'Less efficient', sub: 'More energy wasted', k: 'l' }],
+      items: [
+        ['Oiling the axle', 'm', 'Oil reduces friction, so less energy is wasted as heat.'],
+        ['Adding ball bearings', 'm', 'Ball bearings roll instead of sliding, which reduces friction.'],
+        ['Cleaning grit from a chain', 'm', 'Grit rubs on the moving parts. Removing it reduces friction.'],
+        ['Rust on the moving parts', 'l', 'Rust makes surfaces rough, so friction wastes more energy.'],
+        ['A rope rubbing on a rough edge', 'l', 'Rubbing on a rough edge adds friction, which wastes more energy.'],
+        ['A squeaky, dry hinge', 'l', 'The squeak is wasted sound energy caused by friction.']],
+      msg: 'Reducing friction means less energy is wasted, so the machine is more efficient.' },
+
+    { kind: 'tf', title: 'True or false?', sc: 'SC10, SC11', prompt: 'Decide whether each statement is true or false.',
+      rows: [
+        ['A steeper ramp needs less effort force to push a load up.', false, 'A steeper ramp has a bigger angle of inclination, so it needs more effort force.'],
+        ['A gentle ramp makes the load travel a longer distance.', true, 'A gentle ramp is longer, so the load travels further to reach the same height.'],
+        ['A machine that is 70% efficient wastes 30% of the energy put in.', true, '100% &minus; 70% = 30%, so 30% of the energy is wasted.'],
+        ['Oiling the moving parts of a machine makes it less efficient.', false, 'Oil reduces friction, so less energy is wasted. The machine becomes more efficient.']],
+      msg: 'Gentle ramps need less effort but a longer distance, and less friction means better efficiency.' }
+];
+
+/* =========================================================
+   ENGINE
+   ========================================================= */
+const TOTAL = QS.length;
+const CHIP = { mc: 'Multiple choice', mcpic: 'Multiple choice', mcside: 'Multiple choice', mcscene: 'Watch and choose', sort: 'Drag and drop', build: 'Force diagram',
+    cloze: 'Fill the gaps', label: 'Match', rank: 'Put in order', calc: 'Calculate', tf: 'True or false' };
+
+let qi = 0, firstTry = [], tries = 0, mode = 'check', cur = null;
+function render() {
+    runId++;
+    content.innerHTML = ''; tries = 0; mode = 'check';
+    const q = QS[qi];
+    counter.innerHTML = `Question <b>${qi + 1}</b> / ${TOTAL}`;
+    progress.style.width = (qi / TOTAL * 100) + '%';
+    const wrap = el('div', 'q');
+    wrap.appendChild(el('div', 'qhead', `<div class="qtitle">${q.title}</div><div class="tchip">${q.chip || CHIP[q.kind]}</div><div class="sctag">${q.sc}</div>`));
+    wrap.appendChild(el('div', 'prompt', q.prompt));
+    const body = el('div', 'body'); wrap.appendChild(body); content.appendChild(wrap);
+    cur = KINDS[q.kind](q, body);
+    say(cur.instr);
+    btn.hidden = false; btn.textContent = 'Check';
+    refresh();
+}
+function refresh() { if (mode === 'check') btn.disabled = !cur.ready(); }
+function check() {
+    tries++;
+    const r = cur.check();
+    if (r.ok) {
+        if (tries === 1) firstTry[qi] = true;
+        say(`<b>Correct.</b> ${QS[qi].msg}`);
+        mode = 'next'; btn.disabled = false; btn.textContent = qi === TOTAL - 1 ? 'Finish' : 'Next';
+        btn.classList.remove('pop-in'); void btn.offsetWidth; btn.classList.add('pop-in');
+        if (cur.done) cur.done();
+    } else {
+        say(`<b class="no">Not quite.</b> ${r.hint}`);
+        refresh();
+    }
+}
+btn.onclick = () => {
+    if (btn.disabled) return;
+    if (mode === 'check') check();
+    else if (qi === TOTAL - 1) finish();
+    else { qi++; render(); }
+};
+function finish() {
+    runId++;
+    content.innerHTML = '';
+    btn.hidden = true;
+    counter.innerHTML = '<b>Complete</b>';
+    progress.style.width = '100%';
+    const n = firstTry.filter(Boolean).length;
+    say('Take a screenshot of this screen and paste it into Stile as evidence of your work.');
+    const c = el('div', 'center');
+    const dots = QS.map((_, i) => `<span class="${firstTry[i] ? 'y' : ''}">${i + 1}</span>`).join('');
+    const card = el('div', 'scorecard pop-in', `<div class="big">${n} / ${TOTAL}</div><div class="dlbl">Correct on the first try</div><div class="dots">${dots}</div>`);
+    const again = el('button', 'again', 'Start again');
+    again.onclick = () => { qi = 0; firstTry = []; render(); };
+    c.append(card, again); content.appendChild(c);
+}
+
+/* ---------- multiple choice core ---------- */
+function mcCore(els, q, extra = {}) {
+    let sel = null;
+    els.forEach((b, i) => b.onclick = () => {
+        if (mode !== 'check' || b.classList.contains('wrong')) return;
+        els.forEach(x => x.classList.remove('sel')); b.classList.add('sel'); sel = i; refresh();
+    });
+    return {
+        instr: extra.instr || 'Choose an answer, then press <b>Check</b>.',
+        ready: () => sel !== null,
+        check() {
+            const b = els[sel];
+            b.classList.remove('sel');
+            if (sel === q.answer) { b.classList.add('right'); els.forEach(x => x.disabled = true); return { ok: true }; }
+            b.classList.add('wrong'); b.disabled = true;
+            const h = q.opts[sel].hint; sel = null; return { ok: false, hint: h };
+        },
+        done: extra.done
+    };
+}
+const L = 'ABCD';
+function sceneBox(w, dw) {
+    const sc = el('div', 'scene'), h = 330;
+    sc.innerHTML = `<svg viewBox="0 0 ${w} ${h}" width="${dw}" height="${f1(dw * h / w)}"></svg>`;
+    return sc;
+}
+const KINDS = {
+    mc(q, body) {
+        const g = el('div', 'opts g2');
+        const els = q.opts.map((o, i) => { const b = el('button', 'opt', `<span class="l">${L[i]}</span><span>${o.t}</span>`); g.appendChild(b); return b; });
+        body.appendChild(g);
+        return mcCore(els, q);
+    },
+    mcpic(q, body) {
+        const g = el('div', 'pgrid');
+        const els = q.opts.map((o, i) => { const b = el('button', 'pcard', `<span class="l">${L[i]}</span>${PIC(o.p)}<span class="cap">${o.t}</span>`); g.appendChild(b); return b; });
+        body.appendChild(g);
+        return mcCore(els, q);
+    },
+    mcside(q, body) {
+        const side = el('div', 'scene');
+        side.innerHTML = `<svg viewBox="0 0 250 330" width="250" height="330">${SIDES[q.side].svg}</svg>`;
+        const col = el('div', 'col'); col.style.flex = '1';
+        col.appendChild(el('div', 'quote', q.quote));
+        const g = el('div', 'opts');
+        const els = q.opts.map((o, i) => { const b = el('button', 'opt', `<span class="l">${L[i]}</span><span>${o.t}</span>`); g.appendChild(b); return b; });
+        col.appendChild(g); body.append(side, col);
+        body.style.justifyContent = 'flex-start';
+        return mcCore(els, q, { done: () => SIDES[q.side].done(side.querySelector('svg')) });
+    },
+    mcscene(q, body) {
+        body.classList.add('mcs');
+        const sc = sceneBox(740, q.dw || 680);
+        const g = el('div', 'opts');
+        const els = q.opts.map((o, i) => { const b = el('button', 'opt', `<span class="l">${L[i]}</span><span>${o.t}</span>`); g.appendChild(b); return b; });
+        body.append(sc, g);
+        const S = SCENES[q.scene](sc.querySelector('svg'), q);
+        if (S.replay) {
+            const rp = el('button', 'replay', `${replayIcon}<span>Replay</span>`); sc.appendChild(rp);
+            rp.onclick = () => { runId++; S.replay(); };
+        }
+        S.start();
+        return mcCore(els, q, { instr: q.instr || 'Watch, then choose an answer and press <b>Check</b>.', done: () => S.done && S.done() });
+    },
+    sort(q, body) {
+        const wrap = el('div', 'sort');
+        const bins = q.bins || [{ h: 'Contact', sub: 'The objects must touch', k: 'c' }, { h: 'Non-contact', sub: 'Acts across a gap', k: 'n', pk: true }];
+        const mk = b => { const e = el('div', 'bin' + (b.pk ? ' pk' : ''), `<h3>${b.h}</h3><div class="sub">${b.sub}</div><div class="area"></div>`); e.tabIndex = 0; return e; };
+        const b0 = mk(bins[0]), b1 = mk(bins[1]);
+        const pool = el('div', 'pool' + (q.small ? ' col1' : ''));
+        wrap.append(b0, pool, b1); body.appendChild(wrap);
+        const zPool = { el: pool, box: pool, cap: Infinity, pool: true };
+        const zones = [{ el: b0, box: b0.querySelector('.area'), cap: Infinity, key: bins[0].k }, { el: b1, box: b1.querySelector('.area'), cap: Infinity, key: bins[1].k }];
+        const D = dnd(zPool, zones, () => refresh());
+        shuffle(q.items).forEach(([t, k, h]) => { const tl = D.tile(t); if (q.small) tl.classList.add('sm'); tl.k = k; tl.h = h; pool.appendChild(tl); });
+        return {
+            instr: 'Drag each tile into a group (or tap a tile, then a group), then press <b>Check</b>.',
+            ready: () => !pool.querySelector('.tile'),
+            check() {
+                let wrong = [];
+                zones.forEach(z => z.box.querySelectorAll('.tile').forEach(t => {
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (t.k === z.key) t.classList.add('right'); else { t.classList.add('wrong'); wrong.push(t.h); }
+                }));
+                return wrong.length ? { ok: false, hint: (wrong.length > 1 ? `${wrong.length} tiles need moving. ` : '') + wrong[0] } : { ok: true };
+            }
+        };
+    },
+    build(q, body) {
+        const W = 800, H = 330, len = 66, gap = 6, b = q.box, cx = b.x + b.w / 2, cy = b.y + b.h / 2;
+        const A = { u: [cx, b.y], d: [cx, b.y + b.h], l: [b.x, cy], r: [b.x + b.w, cy] };
+        const SL = { u: [cx - 100, b.y - len - gap - 50], d: [cx - 100, b.y + b.h + len + gap], l: [b.x - len - gap - 200, cy - 25], r: [b.x + b.w + len + gap, cy - 25] };
+        const wrap = el('div', 'bwrap');
+        wrap.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${q.scene}<g class="ghosts"></g><g class="arrs"></g></svg>`;
+        const gh = wrap.querySelector('.ghosts'), ar = wrap.querySelector('.arrs');
+        const side = el('div', 'bside', '<div class="dlbl">Forces</div>');
+        const pool = el('div', 'pool'); side.appendChild(pool);
+        body.append(wrap, side);
+        const zones = Object.keys(A).map(d => {
+            gh.insertAdjacentHTML('beforeend', `<g data-d="${d}">${ghostArrow(A[d][0], A[d][1], DIR[d], len)}</g>`);
+            const g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); ar.appendChild(g);
+            const s = el('div', 'slot'); s.style.left = SL[d][0] + 'px'; s.style.top = SL[d][1] + 'px'; s.tabIndex = 0; s.setAttribute('aria-label', { u: 'Up arrow', d: 'Down arrow', l: 'Left arrow', r: 'Right arrow' }[d]);
+            wrap.appendChild(s);
+            const ghost = gh.querySelector(`[data-d="${d}"]`);
+            return { el: s, box: s, cap: 1, dir: d,
+                onPut: () => { s.classList.add('filled'); ghost.style.display = 'none'; growArrow(g, A[d][0], A[d][1], DIR[d], len); },
+                onTake: () => { s.classList.remove('filled'); ghost.style.display = ''; clearArrow(g); } };
+        });
+        const zPool = { el: pool, box: pool, cap: Infinity, pool: true };
+        const D = dnd(zPool, zones, () => { zones.forEach(z => z.el.classList.remove('wrong')); refresh(); });
+        shuffle(q.tiles).forEach(t => pool.appendChild(D.tile(t)));
+        return {
+            instr: 'Drag forces onto the arrows. Leave any arrow empty if no force acts that way.',
+            ready: () => zones.some(z => z.box.querySelector('.tile')),
+            check() {
+                let hint = null, bad = 0;
+                zones.forEach(z => {
+                    const t = z.box.querySelector('.tile'); z.el.classList.remove('wrong');
+                    if (!t) return;
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (q.answer[z.dir] === t.k) { t.classList.add('right'); z.locked = true; }
+                    else { bad++; t.classList.add('wrong'); z.el.classList.add('wrong'); if (!hint) hint = q.hints[t.k] || q.wrongDir[t.k]; }
+                });
+                if (bad) return { ok: false, hint: (bad > 1 ? `${bad} labels need changing. ` : '') + hint };
+                const miss = Object.keys(q.answer).find(d => !zones.find(z => z.dir === d).box.querySelector('.tile'));
+                if (miss) return { ok: false, hint: 'Good so far, but a force is missing. ' + q.missing[miss] };
+                return { ok: true };
+            }
+        };
+    },
+    cloze(q, body) {
+        body.classList.add('colb');
+        const txt = el('div', 'cloze');
+        txt.innerHTML = q.text.replace(/\{(\d+)\}/g, (m, n) => `<span class="blank dz" data-i="${n}" tabindex="0" role="button" aria-label="Gap ${+n + 1}"></span>`);
+        const pool = el('div', 'pool bank');
+        body.append(txt, pool);
+        const zones = [...txt.querySelectorAll('.blank')].map(s => ({ el: s, box: s, cap: 1, i: +s.dataset.i,
+            onPut: () => s.classList.add('filled'), onTake: () => s.classList.remove('filled') }));
+        const zPool = { el: pool, box: pool, cap: Infinity, pool: true };
+        const D = dnd(zPool, zones, () => { zones.forEach(z => z.el.classList.remove('wrong')); refresh(); });
+        shuffle(q.bank).forEach(w => pool.appendChild(D.tile(w)));
+        const acc = i => [].concat(q.answer[i]);
+        return {
+            instr: 'Drag a word into each gap (or tap a word, then a gap), then press <b>Check</b>.',
+            ready: () => zones.every(z => z.box.querySelector('.tile')),
+            check() {
+                let hint = null, bad = 0;
+                zones.forEach(z => {
+                    const t = z.box.querySelector('.tile'); if (z.locked) return;
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (acc(z.i).includes(t.k)) { t.classList.add('right'); z.locked = true; }
+                    else { bad++; t.classList.add('wrong'); z.el.classList.add('wrong'); if (!hint) hint = q.hints[z.i]; }
+                });
+                return bad ? { ok: false, hint: (bad > 1 ? `${bad} gaps need changing. ` : '') + hint } : { ok: true };
+            }
+        };
+    },
+    label(q, body) {
+        body.classList.add('colb');
+        const grid = el('div', 'lgrid'); grid.style.gridTemplateColumns = `repeat(${q.cards.length}, 1fr)`;
+        const zones = q.cards.map((c, i) => {
+            const card = el('div', 'lcard', c.pic);
+            const s = el('div', 'slot2 dz'); s.tabIndex = 0; s.setAttribute('role', 'button'); s.setAttribute('aria-label', `Card ${i + 1}`);
+            card.appendChild(s); grid.appendChild(card);
+            return { el: s, box: s, cap: 1, ans: c.a, onPut: () => s.classList.add('filled'), onTake: () => s.classList.remove('filled') };
+        });
+        const pool = el('div', 'pool bank');
+        body.append(grid, pool);
+        const zPool = { el: pool, box: pool, cap: Infinity, pool: true };
+        const D = dnd(zPool, zones, () => { zones.forEach(z => z.el.classList.remove('wrong')); refresh(); });
+        shuffle(q.tiles).forEach(w => { const t = D.tile(w); t.classList.add('sm'); pool.appendChild(t); });
+        if (q.anim) q.anim(grid);
+        return {
+            instr: 'Drag each label onto a card (or tap a label, then a card), then press <b>Check</b>.',
+            ready: () => zones.every(z => z.box.querySelector('.tile')),
+            check() {
+                let hint = null, bad = 0;
+                zones.forEach(z => {
+                    const t = z.box.querySelector('.tile'); if (z.locked) return;
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (t.k === z.ans) { t.classList.add('right'); z.locked = true; }
+                    else { bad++; t.classList.add('wrong'); z.el.classList.add('wrong'); if (!hint) hint = q.hints[t.k]; }
+                });
+                return bad ? { ok: false, hint: (bad > 1 ? `${bad} labels need moving. ` : '') + hint } : { ok: true };
+            }
+        };
+    },
+    rank(q, body) {
+        body.classList.add('colb');
+        const [sw, sh] = q.slot;
+        const wrap = el('div', 'rwrap');
+        const row = el('div', 'rrow');
+        const zones = q.order.map((_, i) => {
+            const s = el('div', 'rslot dz'); s.dataset.n = i + 1; s.style.width = sw + 'px'; s.style.height = sh + 'px';
+            s.tabIndex = 0; s.setAttribute('role', 'button'); s.setAttribute('aria-label', `Position ${i + 1}`);
+            row.appendChild(s);
+            return { el: s, box: s, cap: 1, i, onPut: () => s.classList.add('filled'), onTake: () => s.classList.remove('filled') };
+        });
+        const scale = el('div', 'rscale', `<span>${q.ends[0]}</span><i></i><span>${q.ends[1]}</span>`);
+        scale.style.width = (q.order.length * (sw + 16) - 16) + 'px';
+        wrap.append(row, scale);
+        const pool = el('div', 'pool bank');
+        body.append(wrap, pool);
+        const zPool = { el: pool, box: pool, cap: Infinity, pool: true };
+        const D = dnd(zPool, zones, () => refresh());
+        shuffle(q.items).forEach(it => { const t = D.tile(it.html, it.k); t.classList.add('rt'); pool.appendChild(t); });
+        return {
+            instr: 'Drag the cards into order (or tap a card, then a space), then press <b>Check</b>.',
+            ready: () => zones.every(z => z.box.querySelector('.tile')),
+            check() {
+                let bad = 0;
+                zones.forEach(z => {
+                    const t = z.box.querySelector('.tile'); if (z.locked) return;
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (t.k === q.order[z.i]) { t.classList.add('right'); z.locked = true; }
+                    else { bad++; t.classList.add('wrong'); }
+                });
+                return bad ? { ok: false, hint: `${bad} cards are in the wrong place. ${q.hint}` } : { ok: true };
+            },
+            done: () => q.done && q.done(zones.map(z => z.box.querySelector('.tile')))
+        };
+    },
+    calc(q, body) {
+        const sc = sceneBox(q.sw || 560, q.sw || 560);
+        const pnl = el('div', 'cpanel');
+        (q.chips || []).forEach(c => pnl.appendChild(el('div', 'fchip', c)));
+        q.lines.forEach((line, li) => { pnl.appendChild(el('div', 'eq', line.replace(/\[\]/g, () => `<input class="num" inputmode="decimal" autocomplete="off" spellcheck="false">`))); });
+        body.append(sc, pnl);
+        const ins = [...pnl.querySelectorAll('input')];
+        ins.forEach((inp, i) => {
+            inp.setAttribute('aria-label', `Answer ${i + 1}`);
+            inp.addEventListener('input', () => { inp.classList.remove('wrong'); refresh(); });
+            inp.addEventListener('keydown', e => { if (e.key === 'Enter' && !btn.disabled) { e.preventDefault(); btn.click(); } });
+        });
+        const S = SCENES[q.scene](sc.querySelector('svg'), q);
+        S.start();
+        const val = inp => parseFloat(inp.value.replace(/,/g, '.').replace(/[^0-9.\-]/g, ''));
+        return {
+            instr: 'Type your answers in the boxes, then press <b>Check</b>.',
+            ready: () => ins.every(i => i.value.trim() !== ''),
+            check() {
+                let hint = null, bad = 0;
+                const vals = ins.map(val);
+                ins.forEach((inp, i) => {
+                    if (inp.disabled) return;
+                    const a = q.ans[i], v = vals[i], lo = a.min !== undefined ? a.min : a.v, hi = a.max !== undefined ? a.max : a.v;
+                    inp.classList.remove('wrong'); void inp.offsetWidth;
+                    if (!isNaN(v) && v >= lo - 1e-9 && v <= hi + 1e-9) { inp.classList.add('right'); inp.disabled = true; }
+                    else { bad++; inp.classList.add('wrong'); if (!hint) hint = typeof a.hint === 'function' ? a.hint(v, vals) : a.hint; }
+                });
+                if (bad) { const f = ins.find(i => !i.disabled); if (f) f.focus(); return { ok: false, hint: (bad > 1 ? `${bad} answers need changing. ` : '') + hint }; }
+                return { ok: true };
+            },
+            done: () => S.done && S.done()
+        };
+    },
+    tf(q, body) {
+        body.classList.add('colb');
+        const wrap = el('div', 'tf', '<div class="tfh"><span>Statement</span><span>True</span><span>False</span></div>');
+        const rows = q.rows.map(r => {
+            const row = el('div', 'tfrow', `<span>${r[0]}</span>`);
+            const bt = el('button', 'tfb', 'True'), bf = el('button', 'tfb', 'False');
+            row.append(bt, bf); wrap.appendChild(row);
+            const R = { row, bt, bf, ans: r[1], hint: r[2], sel: null, locked: false };
+            const pick = (v, b) => { if (mode !== 'check' || R.locked || b.disabled) return; R.sel = v; bt.classList.toggle('sel', v === true); bf.classList.toggle('sel', v === false); refresh(); };
+            bt.onclick = () => pick(true, bt); bf.onclick = () => pick(false, bf);
+            return R;
+        });
+        body.appendChild(wrap);
+        return {
+            instr: 'Choose true or false for each statement, then press <b>Check</b>.',
+            ready: () => rows.every(R => R.locked || R.sel !== null),
+            check() {
+                let hint = null, bad = 0;
+                rows.forEach(R => {
+                    if (R.locked) return;
+                    const b = R.sel ? R.bt : R.bf; b.classList.remove('sel');
+                    if (R.sel === R.ans) { b.classList.add('right'); R.locked = true; R.bt.disabled = R.bf.disabled = true; }
+                    else { bad++; b.classList.add('wrong'); b.disabled = true; R.sel = null; if (!hint) hint = R.hint; }
+                });
+                return bad ? { ok: false, hint: (bad > 1 ? `${bad} statements need changing. ` : '') + hint } : { ok: true };
+            }
+        };
+    }
+};
+
+/* ---------- drag and drop (drag, or tap a tile then tap a target) ---------- */
+function dnd(pool, zones, onChange) {
+    let sel = null;
+    const all = () => [pool, ...zones];
+    const zoneOf = t => all().find(z => z.box.contains(t));
+    const armAll = on => zones.forEach(z => z.el.classList.toggle('armed', on && !z.locked));
+    const deselect = () => { if (sel) sel.classList.remove('sel'); sel = null; armAll(false); };
+    function moveTo(t, z) {
+        const from = zoneOf(t);
+        t.style.transform = ''; t.classList.remove('wrong');
+        z.box.appendChild(t);
+        if (from && from !== z && from.onTake) from.onTake(t);
+        if (z.onPut) z.onPut(t);
+        deselect(); onChange();
+    }
+    function put(t, z) {
+        const from = zoneOf(t);
+        if (z.locked || from === z) { t.style.transform = ''; return; }
+        if (z.cap === 1) {
+            const ex = z.box.querySelector('.tile');
+            if (ex) { if (ex.classList.contains('right')) { t.style.transform = ''; return; } moveTo(ex, pool); }
+        }
+        moveTo(t, z);
+    }
+    const hit = (x, y) => all().find(z => { const r = z.el.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; });
+    all().forEach(z => {
+        const act = () => { if (sel && !z.locked) put(sel, z); };
+        z.el.addEventListener('click', act);
+        z.el.addEventListener('keydown', e => { if (e.target === z.el && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); act(); } });
+    });
+    function tile(html, key) {
+        const t = el('span', 'tile', html);
+        t.k = key === undefined ? html : key;
+        t.tabIndex = 0; t.setAttribute('role', 'button');
+        const tap = () => {
+            if (t.classList.contains('right')) return;
+            t.style.transform = '';
+            const z = zoneOf(t);
+            if (z !== pool) { put(t, pool); return; }
+            if (sel === t) { deselect(); return; }
+            deselect(); sel = t; t.classList.add('sel'); armAll(true);
+        };
+        t.addEventListener('click', e => e.stopPropagation());
+        t.addEventListener('pointerdown', e => {
+            if (t.classList.contains('right') || e.button > 0) return;
+            e.preventDefault(); e.stopPropagation(); t.setPointerCapture(e.pointerId);
+            const sx = e.clientX, sy = e.clientY; let moved = false;
+            const move = ev => {
+                const dx = ev.clientX - sx, dy = ev.clientY - sy;
+                if (!moved && Math.hypot(dx, dy) > 6) { moved = true; t.classList.add('drag'); }
+                if (!moved) return;
+                t.style.transform = `translate(${dx / scaleK}px, ${dy / scaleK}px)`;
+                const h = hit(ev.clientX, ev.clientY);
+                all().forEach(z => z.el.classList.toggle('hover', z === h));
+            };
+            const up = ev => {
+                t.removeEventListener('pointermove', move); t.removeEventListener('pointerup', up); t.removeEventListener('pointercancel', up);
+                t.classList.remove('drag'); all().forEach(z => z.el.classList.remove('hover'));
+                if (!moved) { tap(); return; }
+                const h = hit(ev.clientX, ev.clientY);
+                if (h) put(t, h); else t.style.transform = '';
+            };
+            t.addEventListener('pointermove', move); t.addEventListener('pointerup', up); t.addEventListener('pointercancel', up);
+        });
+        t.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); tap(); } });
+        return t;
+    }
+    return { tile };
+}
+
+/* ---------- scale to window ---------- */
+function fit() {
+    const st = $('#stage');
+    scaleK = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    st.style.transform = `scale(${scaleK})`;
+    st.style.margin = `${(720 * scaleK - 720) / 2}px ${(1280 * scaleK - 1280) / 2}px`;
+}
+window.addEventListener('resize', fit);
+fit();
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { fit(); render(); });
+</script>
+</body>
+</html>
