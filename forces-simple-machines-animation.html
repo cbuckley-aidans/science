@@ -303,6 +303,94 @@
 
     .fbox .feq { white-space: nowrap; }
 
+    /* six simple machines */
+    .smgrid { display: grid; grid-template-columns: repeat(3, 368px); gap: 16px 24px; }
+    .smcard { border: 3px solid var(--navy); border-radius: 8px; padding: 12px 18px; height: 216px; }
+    .smcard.pink { border-color: var(--pink); }
+    .smtop { display: flex; align-items: center; gap: 14px; }
+    .smtop svg { display: block; flex-shrink: 0; overflow: visible; }
+    .smnm { font-family: 'Barlow Condensed', sans-serif; font-size: 30px; font-weight: 900; text-transform: uppercase; line-height: 1; }
+    .smcard.pink .smnm { color: var(--pink); }
+    .smd { font-size: 20px; font-weight: 600; line-height: 1.3; margin-top: 8px; }
+    .smd b { color: var(--pink); font-weight: 800; }
+    .smex { font-size: 18px; font-weight: 700; line-height: 1.3; color: var(--mid-grey); margin-top: 6px; }
+    .smex b { color: var(--navy); }
+
+    /* which simple machine */
+    .wmgrid { display: grid; grid-template-columns: repeat(4, 270px); gap: 16px 24px; }
+    .wmcard { border: 3px solid var(--navy); border-radius: 8px; padding: 12px 16px; height: 176px; display: flex; flex-direction: column; }
+    .wmcard.done { border-color: var(--pink); }
+    .wmobj { display: flex; align-items: flex-start; gap: 12px; font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 900; text-transform: uppercase; line-height: 1.05; }
+    .wmans { margin-top: auto; display: flex; align-items: center; gap: 10px; border-top: 2px solid var(--light-grey); padding-top: 8px; }
+    .wmans svg { display: block; flex-shrink: 0; overflow: visible; }
+    .wmans span { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 900; text-transform: uppercase; color: var(--pink); line-height: 1.05; }
+
+    /* complex machine: bicycle */
+    .bkwrap { display: flex; align-items: center; gap: 36px; }
+    .bkwrap svg { display: block; overflow: visible; }
+    .bklist { width: 540px; }
+    .bkitem { display: flex; align-items: center; gap: 14px; border-bottom: 2px solid var(--light-grey); padding: 8px 0; }
+    .bkt { font-size: 22px; font-weight: 600; line-height: 1.25; }
+    .bkt b { display: block; font-family: 'Barlow Condensed', sans-serif; font-size: 25px; font-weight: 900; text-transform: uppercase; letter-spacing: .03em; color: var(--pink); }
+    .bklist .card { margin-top: 16px; padding: 12px 22px; }
+    .bklist .atext { font-size: 24px; }
+    .bkm circle { fill: var(--pink); }
+    .bkm text { font-family: 'Barlow Condensed', sans-serif; font-size: 21px; font-weight: 900; fill: #fff; text-anchor: middle; }
+    .bkfr { fill: none; stroke: var(--navy); stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; }
+    .bkwh { fill: #fff; stroke: var(--navy); stroke-width: 6; }
+    .bksp { stroke: #c3c6d0; stroke-width: 2.5; }
+
+    /* advantages in detail */
+    .adwrap { display: flex; align-items: center; gap: 36px; }
+    .adwrap svg { display: block; overflow: visible; }
+    .adpanel { border: 3px solid var(--navy); border-radius: 8px; padding: 10px 16px; cursor: pointer; }
+    .adside { width: 560px; display: flex; flex-direction: column; gap: 10px; }
+    .adside .card { padding: 10px 20px 12px; }
+    .adside .atext { font-size: 24px; margin-top: 4px; }
+    .adside .feq { font-size: 34px; }
+    .adnote { border-left: 8px solid var(--pink); padding: 4px 0 4px 18px; font-size: 21px; font-weight: 600; line-height: 1.3; }
+    .adnote b { color: var(--pink); font-weight: 800; }
+    .adnote.nv { border-left-color: var(--navy); }
+    .adex { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .adex .dlbl { margin-right: 6px; font-size: 19px; }
+    .adex .chip { font-size: 19px; padding: 3px 14px; }
+    .adside .stats { margin-top: 8px; }
+    .adside .stat { padding: 4px 16px 6px; }
+    .adside .stat .dlbl { font-size: 17px; }
+    .adside .stat .num { font-size: 38px; }
+
+    /* flagpole */
+    .fpflag, .fphand { transition: transform 2.4s var(--ease); }
+    .fpropeL, .fpropeR { transform-box: fill-box; transform-origin: top; transition: transform 2.4s var(--ease); }
+    .go .fpflag { transform: translateY(-220px); } .go .fphand { transform: translateY(220px); }
+    .go .fpropeL { transform: scaleY(.12); } .go .fpropeR { transform: scaleY(3.75); }
+
+    /* wheelbarrow */
+    .barrow { transform-box: view-box; transition: transform 2s var(--ease); }
+    .go .barrow { transform: rotate(7deg); }
+    .cmprow { display: grid; grid-template-columns: 1fr 96px; align-items: center; gap: 2px 14px; margin-top: 4px; }
+    .cmplab { grid-column: 1 / -1; font-size: 20px; font-weight: 700; }
+    .cmpbar { height: 26px; background: var(--light-grey); border-radius: 4px; overflow: hidden; }
+    .cmpbar i { display: block; height: 100%; width: 0; background: var(--navy); transition: width 1.4s var(--ease); }
+    .cmprow.pink .cmpbar i { background: var(--pink); }
+    .cmpv { font-family: 'Barlow Condensed', sans-serif; font-size: 32px; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; }
+    .cmprow.pink .cmpv { color: var(--pink); }
+
+    /* bicycle gears */
+    .crank, .rwheel { transform-box: view-box; transition: transform 3.2s cubic-bezier(.45,0,.55,1); }
+    .go .crank { transform: rotate(360deg); } .go .rwheel { transform: rotate(1080deg); }
+    .chain { fill: none; stroke: var(--navy); stroke-width: 6; stroke-dasharray: 10 6; stroke-dashoffset: 0; transition: stroke-dashoffset 3.2s cubic-bezier(.45,0,.55,1); }
+    .go .chain { stroke-dashoffset: -377; }
+
+    /* identify the advantage */
+    .idgrid { display: grid; grid-template-columns: repeat(3, 368px); gap: 14px 24px; }
+    .idcard { border: 3px solid var(--navy); border-radius: 8px; padding: 12px 16px; height: 152px; display: flex; flex-direction: column; }
+    .idq { display: flex; gap: 12px; font-size: 22px; font-weight: 600; line-height: 1.3; }
+    .idtag { margin-top: auto; align-self: flex-start; font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: #fff; background: var(--navy); border-radius: 6px; padding: 3px 14px; }
+    .idtag.f { background: var(--pink); }
+    .idtag.d { background: #fff; color: var(--navy); box-shadow: inset 0 0 0 3px var(--navy); }
+
+
     /* controls */
     .controls { position: relative; z-index: 25; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px 24px; padding: 12px 20px 16px; width: 100%; font-family: 'Barlow Condensed', sans-serif; }
     .grp { display: flex; align-items: center; gap: 8px; }
@@ -431,27 +519,6 @@
     .ui-tbb svg { width: 14px; height: 14px; fill: none; stroke: var(--navy); stroke-width: 3; stroke-linecap: round; }
     .ui-tbb.ui-sty span { width: 14px; height: 14px; border-radius: 50%; background: linear-gradient(135deg, var(--navy) 50%, var(--pink) 50%); }
 
-    /* header CFU badge and success criteria tags */
-    .ui-topr { display: flex; align-items: baseline; gap: 20px; }
-    .ui-cfu, .ui-sctags { margin: -14px 0; }
-    .ui-sctags { display: flex; gap: 8px; }
-    .ui-sctags span { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; line-height: 1;
-        padding: 9px 12px 8px; border-radius: 6px; box-shadow: inset 0 0 0 3px var(--navy); color: var(--navy); }
-    .ui-cfu { display: none; align-items: center; gap: 9px; height: 46px; padding: 0 18px; border-radius: 23px; color: var(--white); white-space: nowrap; user-select: none;
-        font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
-    .ui-cfu.ui-pk { display: flex; background: var(--pink); }
-    .ui-cfu.ui-nv { display: flex; background: var(--navy); }
-    .ui-cfu.ui-click { cursor: pointer; }
-    .ui-cfu.ui-click:hover { filter: brightness(1.12); }
-    .ui-cfu:focus-visible { outline: 3px solid var(--pink); outline-offset: 3px; }
-    .ui-cfu.ui-pk:focus-visible { outline-color: var(--navy); }
-    .ui-cfu svg { width: 24px; height: 24px; fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
-    .ui-cfu .ui-ar { opacity: .75; width: 20px; }
-    .ui-cfu .ui-ct { display: inline-flex; align-items: center; gap: 5px; margin-left: 4px; padding: 3px 10px 3px 7px; border-radius: 14px; background: rgba(255,255,255,.22); font-variant-numeric: tabular-nums; }
-    .ui-cfu .ui-ct svg { width: 18px; height: 18px; }
-    .ui-cfu.ui-cfuin { animation: uiCfuIn .6s var(--ease); }
-    @keyframes uiCfuIn { 0% { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.08); opacity: 1; } 100% { transform: none; } }
-
     /* floating engagement badges */
     .ui-blayer { position: absolute; left: 0; top: 0; width: 1280px; height: 714px; z-index: 8; pointer-events: none; }
     .ui-fb { position: absolute; display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 22px; border-radius: 28px; color: var(--white);
@@ -545,6 +612,10 @@
         #print .ui-hlc { mix-blend-mode: multiply; }
     }
 
+    @media (prefers-reduced-motion: reduce) {
+        .rev { transition: none !important; }
+        .caption.in { animation: none !important; }
+    }
 </style>
 </head>
 <body>
@@ -553,8 +624,8 @@
     <div class="stage" id="stage">
         <div class="ui-zoomer" id="zoomer">
         <div class="top">
-            <div><h1 class="sheet-title" id="title"></h1></div>
-            <div class="ui-topr"><div class="ui-sctags" id="ui-sctags"></div><div class="ui-cfu" id="ui-cfu" role="button"></div><div class="counter" id="counter"></div></div>
+            <div class="tl"><h1 class="sheet-title" id="title"></h1><span class="sctag" id="sctag"></span></div>
+            <div class="topr"><div id="badge"></div><div class="counter" id="counter"></div></div>
         </div>
         <div class="content" id="content"></div>
         <div class="caption" id="caption"></div>
@@ -693,6 +764,7 @@ function say(html) { caption.innerHTML = '<span>' + html + '</span>'; caption.cl
 function stopInteractive() { ptimers.forEach(clearTimeout); ptimers = []; cleanups.forEach(f => f()); cleanups = []; }
 
 /* ---------- deck helpers ---------- */
+const badgeEl = $('#badge'), sctagEl = $('#sctag');
 const deg = a => a * Math.PI / 180;
 const f1 = n => String(Math.round(n * 10) / 10);
 const svgBox = (w, h, inner, cls = '') => el('div', cls, `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" aria-hidden="true">${inner}</svg>`);
@@ -834,7 +906,7 @@ const scenes = [
 },
 {
     title: 'Spaced <span>review</span>',
-    sc: ['SC2', 'SC3', 'SC5'], cfu: 'sj', time: 180,
+    sc: 'SC2, SC3, SC5', cfu: 'sj', time: 180,
     dur: 16000,
     run() {
         const c = el('div', 'center');
@@ -861,7 +933,7 @@ const scenes = [
 },
 {
     title: 'What is <span>friction</span>?',
-    sc: ['SC7'],
+    sc: 'SC7',
     dur: 21000,
     run() {
         const hatch = Array.from({ length: 30 }, (_, i) => `<line class="hatch" x1="${50 + i * 24}" y1="303" x2="${36 + i * 24}" y2="318"/>`).join('');
@@ -898,7 +970,7 @@ const scenes = [
 },
 {
     title: 'Helpful or <span>unwanted</span>?',
-    sc: ['SC7'],
+    sc: 'SC7',
     dur: 16500,
     run() {
         const c = el('div', 'center'), w = el('div', 'cols2');
@@ -931,7 +1003,7 @@ const scenes = [
 },
 {
     title: 'Changing <span>friction</span>',
-    sc: ['SC7'], cfu: 'cc', time: 120,
+    sc: 'SC7', cfu: 'tt', time: 120,
     dur: 16000,
     run() {
         const c = el('div', 'center');
@@ -959,7 +1031,7 @@ const scenes = [
 },
 {
     title: 'What is a <span>simple machine</span>?',
-    sc: ['SC8'],
+    sc: 'SC8',
     dur: 16000,
     run() {
         const c = el('div', 'center');
@@ -976,8 +1048,110 @@ const scenes = [
     }
 },
 {
+    title: 'The six <span>simple machines</span>',
+    sc: 'SC8',
+    dur: 31000,
+    run() {
+        const c = el('div', 'center'), g = el('div', 'smgrid');
+        const data = [
+            ['lever', 'Lever', 'A rigid bar that turns around a fixed point called the <b>fulcrum</b>.', 'See-saw, scissors, crowbar, bottle opener', true],
+            ['wheel', 'Wheel and axle', 'A large wheel joined to a smaller rod, the <b>axle</b>, so they turn together.', 'Door handle, screwdriver, tap, steering wheel', false],
+            ['pulley', 'Pulley', 'A wheel with a <b>rope</b> or cable running around its edge.', 'Flagpole, window blinds, crane, well bucket', true],
+            ['incline', 'Inclined plane', 'A flat, <b>sloping</b> surface used to raise a load.', 'Ramp, slide, sloping road, loading ramp', false],
+            ['wedge', 'Wedge', 'Two inclined planes joined to make a <b>sharp edge</b> that pushes things apart.', 'Axe, knife, doorstop, zip', true],
+            ['screw', 'Screw', 'An inclined plane <b>wrapped around</b> a rod.', 'Wood screw, jar lid, bottle cap, car jack', false]
+        ];
+        const cards = data.map(([k, n, d, ex, p]) => {
+            const card = el('div', 'smcard rev hide' + (p ? ' pink' : ''), `<div class="smtop"><svg viewBox="0 0 120 100" width="72" height="60" aria-hidden="true">${MI[k]}</svg><div class="smnm">${n}</div></div><div class="smd">${d}</div><div class="smex"><b>Examples:</b> ${ex}</div>`);
+            g.appendChild(card); return card;
+        });
+        c.appendChild(g); content.appendChild(c);
+        beatAt(0, "Let's look more closely at each of the <b>six simple machines</b> and where we find them.");
+        beatAt(3500, 'A <b>lever</b> is a rigid bar that turns around a fixed point called the fulcrum. Scissors, see-saws and crowbars are all levers.');
+        at(3900, () => show(cards[0]));
+        beatAt(8000, 'A <b>wheel and axle</b> is a large wheel joined to a smaller axle, so they turn together. A door handle and a screwdriver are examples.');
+        at(8400, () => show(cards[1]));
+        beatAt(12500, 'A <b>pulley</b> is a wheel with a rope around it. Pulleys raise flags, open blinds and help cranes lift heavy loads.');
+        at(12900, () => show(cards[2]));
+        beatAt(17000, 'An <b>inclined plane</b> is a sloping surface, such as a ramp. It lets us raise a load without lifting it straight up.');
+        at(17400, () => show(cards[3]));
+        beatAt(21500, 'A <b>wedge</b> is two inclined planes joined together. An axe or a knife pushes material apart as it moves forward.');
+        at(21900, () => show(cards[4]));
+        beatAt(26000, 'A <b>screw</b> is an inclined plane wrapped around a rod. The thread on a jar lid is a screw.');
+        at(26400, () => show(cards[5]));
+    }
+},
+{
+    title: 'Which <span>simple machine</span>?',
+    sc: 'SC8', cfu: 'tt', time: 120,
+    dur: 24000,
+    run() {
+        const c = el('div', 'center');
+        const p = el('div', 'prompt rev hide', 'Which <b>simple machine</b> is each object? Be ready to explain how you know.');
+        const g = el('div', 'wmgrid');
+        const items = [['Rolling pin', 'wheel', 'Wheel and axle'], ['Front teeth', 'wedge', 'Wedge'], ['Lift in a building', 'pulley', 'Pulley'], ['Light bulb base', 'screw', 'Screw'],
+            ['Claw hammer pulling a nail', 'lever', 'Lever'], ['Skate ramp', 'incline', 'Inclined plane'], ['Chisel', 'wedge', 'Wedge'], ['Kitchen tongs', 'lever', 'Lever']];
+        const cards = items.map(([o, k, n], i) => {
+            const card = el('div', 'wmcard rev hide', `<div class="wmobj"><div class="qn">${i + 1}</div><div>${o}</div></div>`);
+            const a = el('div', 'wmans rev hide', `<svg viewBox="0 0 120 100" width="54" height="45" aria-hidden="true">${MI[k]}</svg><span>${n}</span>`);
+            card.appendChild(a); g.appendChild(card);
+            return { card, a };
+        });
+        c.append(p, g); content.appendChild(c);
+        const reveal = (from, to, t0) => { for (let i = from; i < to; i++) at(t0 + (i - from) * 450, () => { show(cards[i].a); cards[i].card.classList.add('done'); }); };
+        beatAt(0, 'Turn and talk. Which <b>simple machine</b> is each object? Be ready to explain how you know.');
+        at(400, () => show(p));
+        cards.forEach((k, i) => at(700 + i * 150, () => show(k.card)));
+        beatAt(8500, 'A rolling pin is a <b>wheel and axle</b>, front teeth are <b>wedges</b>, a lift uses a <b>pulley</b> and a light bulb base is a <b>screw</b>.');
+        reveal(0, 4, 9000);
+        beatAt(14000, 'A claw hammer is a <b>lever</b>, a skate ramp is an <b>inclined plane</b>, a chisel is a <b>wedge</b> and tongs are a <b>lever</b>.');
+        reveal(4, 8, 14500);
+        beatAt(19500, 'Notice that simple machines are grouped by <b>how they work</b>, not by what they are used for.');
+    }
+},
+{
+    title: 'Machines <span>inside machines</span>',
+    sc: 'SC8',
+    dur: 23000,
+    run() {
+        const c = el('div', 'center'), w = el('div', 'bkwrap');
+        const R = [130, 230], F = [440, 230], B = [270, 230], S = [245, 115], H = [405, 110], Hb = [415, 150];
+        const wheel = ([x, y]) => `<circle class="bkwh" cx="${x}" cy="${y}" r="80"/>${[0, 45, 90, 135].map(a => `<line class="bksp" x1="${f1(x + 76 * Math.cos(deg(a)))}" y1="${f1(y + 76 * Math.sin(deg(a)))}" x2="${f1(x - 76 * Math.cos(deg(a)))}" y2="${f1(y - 76 * Math.sin(deg(a)))}"/>`).join('')}<circle cx="${x}" cy="${y}" r="7" class="solid"/>`;
+        const L = (a, b) => `M${a[0]} ${a[1]} L${b[0]} ${b[1]}`;
+        const bm = (x, y, n) => `<g class="bkm rev hide m${n}"><circle cx="${x}" cy="${y}" r="18"/><text x="${x}" y="${y + 7}">${n}</text></g>`;
+        const s = svgBox(560, 330, `
+            <line class="gnd" x1="20" y1="310" x2="545" y2="310"/>
+            ${wheel(R)}${wheel(F)}
+            <path class="bkfr" d="${L(R, B)} ${L(R, S)} ${L(B, S)} ${L(S, H)} ${L(B, Hb)} ${L(H, Hb)} ${L(Hb, F)} M405 110 L400 86 M376 82 Q396 76 414 82"/>
+            <path class="lnp" d="M414 82 L438 100"/>
+            <path class="bkfr" d="M245 115 L240 96"/><rect class="solid" x="212" y="84" width="58" height="12" rx="6"/>
+            <circle cx="242" cy="106" r="5" style="fill:var(--pink)"/>
+            <line class="ln" style="stroke-width:3" x1="270" y1="206" x2="130" y2="220"/><line class="ln" style="stroke-width:3" x1="270" y1="254" x2="130" y2="240"/>
+            <circle cx="270" cy="230" r="24" fill="#fff" stroke="#1b1f45" stroke-width="5"/><circle cx="130" cy="230" r="10" fill="#fff" stroke="#1b1f45" stroke-width="4"/>
+            <path class="lnp" style="stroke-width:7" d="M270 230 L292 276"/><rect x="278" y="272" width="30" height="8" rx="3" class="solid"/>
+            ${bm(466, 70, 1)}${bm(330, 292, 2)}${bm(518, 150, 3)}${bm(196, 124, 4)}`, 'rev hide');
+        const list = el('div', 'bklist');
+        const parts = [['Lever', 'Brake levers pull the brake cable.'], ['Wheel and axle', 'Pedals turn the crank and its axle.'], ['Wheel and axle', 'Each wheel turns on an axle.'], ['Screw', 'A bolt clamps the seat in place.']];
+        const items = parts.map(([m, d], i) => { const it = el('div', 'bkitem rev hide', `<div class="qn p">${i + 1}</div><div class="bkt"><b>${m}</b>${d}</div>`); list.appendChild(it); return it; });
+        const sc = el('div', 'card pink rev hide', '<div class="dlbl">Another example</div><div class="atext">Scissors are a <b>lever</b> with two <b>wedge</b>-shaped blades.</div>');
+        list.appendChild(sc);
+        w.append(s, list); c.appendChild(w); content.appendChild(c);
+        const pick = (n, t) => { at(t, () => show(q1(s, '.m' + n))); at(t + 300, () => show(items[n - 1])); };
+        beatAt(0, 'A <b>complex machine</b> is made of two or more simple machines working together. A bicycle is a great example.');
+        at(400, () => show(s));
+        beatAt(4500, 'The <b>brake levers</b> are levers. Squeezing them pulls the brake cable.');
+        pick(1, 5000);
+        beatAt(8500, 'The <b>pedals and crank</b> are a wheel and axle, and so is each <b>wheel</b>.');
+        pick(2, 9000); pick(3, 10200);
+        beatAt(13500, 'The <b>seat bolt</b> is a screw. Its thread clamps the seat tightly in place.');
+        pick(4, 14000);
+        beatAt(18000, 'Even scissors are a complex machine: a <b>lever</b> with two <b>wedge</b>-shaped blades.');
+        at(18500, () => show(sc));
+    }
+},
+{
     title: 'Define it: <span>simple machine</span>',
-    sc: ['SC8'], cfu: 'sj', time: 120,
+    sc: 'SC8', cfu: 'sj', time: 120,
     dur: 13000,
     run() {
         const c = el('div', 'center'), w = el('div', 'jotwrap');
@@ -992,7 +1166,7 @@ const scenes = [
 },
 {
     title: 'Why use a <span>simple machine</span>?',
-    sc: ['SC9'],
+    sc: 'SC9',
     dur: 26000,
     run() {
         const c = el('div', 'center'), w = el('div', 'apanels');
@@ -1031,8 +1205,157 @@ const scenes = [
     }
 },
 {
+    title: 'Advantage 1: <span>direction</span>',
+    sc: 'SC9',
+    dur: 23000,
+    run() {
+        const c = el('div', 'center'), w = el('div', 'adwrap');
+        const s = svgBox(300, 380, `
+            <line class="gnd" x1="10" y1="360" x2="290" y2="360"/>
+            <rect class="solid" x="146" y="34" width="8" height="326"/>
+            <rect class="fpropeL solid" x="132" y="40" width="4" height="250"/>
+            <rect class="fpropeR solid" x="164" y="40" width="4" height="80"/>
+            <circle cx="150" cy="40" r="17" fill="#fff" stroke="#1b1f45" stroke-width="5"/><circle cx="150" cy="40" r="4" class="solid"/>
+            <g class="fpflag"><rect x="56" y="290" width="78" height="50" style="fill:var(--pink)"/><line class="ln" style="stroke-width:3" x1="134" y1="290" x2="134" y2="340"/></g>
+            <g class="fphand"><circle cx="166" cy="128" r="10" class="solid"/></g>
+            <g class="rev hide fparr">${arrow(222, 130, 222, 330, 'fa', 11)}${tx(236, 222, 'Pull', 'pk')}${tx(236, 246, 'down', 'pk')}${arrow(30, 330, 30, 80, 'fn', 11)}${tx(30, 62, 'Up', 'mid')}</g>`);
+        const panel = el('div', 'adpanel rev hide'); panel.appendChild(s); replayable(panel);
+        const side = el('div', 'adside');
+        const card = el('div', 'card rev hide', '<div class="dlbl">Example: flagpole</div><div class="atext">Pulling <b>down</b> on the rope raises the flag <b>up</b>. Nobody has to climb the pole.</div>');
+        const n1 = el('div', 'adnote rev hide', 'Why it helps: pulling <b>down</b> is easier than lifting <b>up</b>, because you can use your <b>body weight</b>.');
+        const n2 = el('div', 'adnote nv rev hide', 'A single fixed pulley does <b>not</b> reduce the effort force. It only changes its <b>direction</b>.');
+        const ex = el('div', 'adex rev hide', '<span class="dlbl">More examples</span>' + ['Window blinds', 'Well bucket', 'Raising a sail', 'Gym cable machine'].map(x => `<span class="chip">${x}</span>`).join(''));
+        side.append(card, n1, n2, ex);
+        w.append(panel, side); c.appendChild(w); content.appendChild(c);
+        beatAt(0, 'The first advantage is changing the <b>direction</b> of a force. A flagpole uses a pulley to do this.');
+        at(400, () => show(panel));
+        beatAt(3500, 'Pulling <b>down</b> on one side of the rope lifts the flag <b>up</b> on the other side.');
+        at(4000, () => panel.classList.add('go')); at(6600, () => show(q1(s, '.fparr')));
+        beatAt(9000, 'This helps because pulling down is easier than lifting up. You can use your <b>body weight</b>, and nobody has to climb the pole.');
+        at(9400, () => show(card)); at(10200, () => show(n1));
+        beatAt(14500, 'A single fixed pulley does not make the effort force smaller. It only changes its <b>direction</b>.');
+        at(15000, () => show(n2));
+        beatAt(18500, 'Window blinds, well buckets and sails all use pulleys in the same way.');
+        at(19000, () => show(ex));
+    }
+},
+{
+    title: 'Advantage 2: <span>force</span>',
+    sc: 'SC9',
+    dur: 26000,
+    run() {
+        const c = el('div', 'center'), w = el('div', 'adwrap');
+        const s = svgBox(520, 350, `
+            <line class="gnd" x1="10" y1="310" x2="510" y2="310"/>
+            <g class="barrow" style="transform-origin:450px 270px">
+                <path class="bkfr" style="stroke-width:8" d="M450 270 L60 216 M232 244 L222 306"/>
+                <path d="M205 172 H430 L405 246 H232 Z" fill="#fff" stroke="#1b1f45" stroke-width="5" stroke-linejoin="round"/>
+                <rect class="load" x="263" y="120" width="120" height="52" rx="4"/>${tx(323, 154, 'Load 600 N', 'mid sm')}
+                ${arrow(66, 306, 66, 228, 'fa', 11)}${tx(84, 262, 'Effort', 'pk sm')}${tx(84, 284, '200 N', 'pk sm')}
+            </g>
+            <circle cx="450" cy="270" r="40" class="bkwh"/><circle cx="450" cy="270" r="7" class="solid"/>
+            ${tx(450, 342, 'Fulcrum: wheel', 'mid sm gr')}`);
+        const panel = el('div', 'adpanel rev hide'); panel.appendChild(s); replayable(panel);
+        const side = el('div', 'adside');
+        const bars = el('div', 'card rev hide', '<div class="dlbl">Force needed to lift the soil</div>' +
+            '<div class="cmprow"><div class="cmplab">Lifting it directly</div><div class="cmpbar"><i></i></div><div class="cmpv">600 N</div></div>' +
+            '<div class="cmprow pink"><div class="cmplab">Using a wheelbarrow</div><div class="cmpbar"><i></i></div><div class="cmpv">200 N</div></div>');
+        const [b1, b2] = qa(bars, '.cmpbar i');
+        const ma = el('div', 'card pink rev hide', '<div class="dlbl">Mechanical advantage</div><div class="feq">MA = 600 N &divide; 200 N = <b>3</b></div>');
+        const n1 = el('div', 'adnote rev hide', 'Trade-off: your hands move a <b>longer distance</b> than the load. Less force, more distance.');
+        const ex = el('div', 'adex rev hide', '<span class="dlbl">More examples</span>' + ['Crowbar', 'Car jack', 'Bottle opener', 'Nutcracker'].map(x => `<span class="chip">${x}</span>`).join(''));
+        side.append(bars, ma, n1, ex);
+        w.append(panel, side); c.appendChild(w); content.appendChild(c);
+        beatAt(0, 'The second advantage is <b>multiplying force</b>. A wheelbarrow lets you lift a heavy load with a small effort.');
+        at(400, () => show(panel));
+        beatAt(4000, 'The wheel is the fulcrum. Lifting the handles raises <b>600 N</b> of soil.');
+        at(4500, () => panel.classList.add('go'));
+        beatAt(8500, 'Lifting the soil directly would take <b>600 N</b>. With the wheelbarrow, it takes only about <b>200 N</b>.');
+        at(9000, () => show(bars)); at(9600, () => b1.style.width = '100%'); at(10400, () => b2.style.width = '33.3%');
+        beatAt(14500, 'The <b>mechanical advantage</b> is 600 N divided by 200 N, which is 3. Your effort becomes three times more powerful.');
+        at(15000, () => show(ma));
+        beatAt(19500, 'The trade-off: your hands move <b>further</b> than the load. Crowbars, car jacks and bottle openers work the same way.');
+        at(20000, () => show(n1)); at(20600, () => show(ex));
+    }
+},
+{
+    title: 'Advantage 3: <span>distance and speed</span>',
+    sc: 'SC9',
+    dur: 26000,
+    run() {
+        const c = el('div', 'center'), w = el('div', 'adwrap');
+        const cx = 120, wx = 410, y = 165;
+        const s = svgBox(560, 330, `
+            <g class="rwheel" style="transform-origin:${wx}px ${y}px">
+                <circle class="bkwh" cx="${wx}" cy="${y}" r="125"/>
+                ${[0, 30, 60, 90, 120, 150].map(a => `<line class="bksp" x1="${f1(wx + 121 * Math.cos(deg(a)))}" y1="${f1(y + 121 * Math.sin(deg(a)))}" x2="${f1(wx - 121 * Math.cos(deg(a)))}" y2="${f1(y - 121 * Math.sin(deg(a)))}"/>`).join('')}
+                <circle cx="${wx}" cy="${y - 125}" r="11" style="fill:var(--pink)"/>
+                <circle cx="${wx}" cy="${y}" r="20" fill="#fff" stroke="#1b1f45" stroke-width="4"/><line class="ln" style="stroke-width:3" x1="${wx}" y1="${y - 20}" x2="${wx}" y2="${y + 20}"/>
+            </g>
+            <g class="crank" style="transform-origin:${cx}px ${y}px">
+                <circle cx="${cx}" cy="${y}" r="60" fill="#fff" stroke="#1b1f45" stroke-width="5"/>
+                <path class="lnp" style="stroke-width:9" d="M${cx} ${y} L${cx} ${y + 92}"/><rect x="${cx - 20}" y="${y + 88}" width="40" height="10" rx="4" class="solid"/>
+                <circle cx="${cx}" cy="${y}" r="7" class="solid"/>
+            </g>
+            <path class="chain" d="M${cx} ${y - 60} L${wx} ${y - 20} A20 20 0 0 1 ${wx} ${y + 20} L${cx} ${y + 60} A60 60 0 0 1 ${cx} ${y - 60} Z"/>
+            ${tx(cx, 318, 'Big gear at the pedals', 'mid sm gr')}${tx(wx, 318, 'Small gear on the wheel', 'mid sm gr')}`);
+        const sv = q1(s, 'svg'); sv.setAttribute('width', 510); sv.setAttribute('height', 300);
+        const panel = el('div', 'adpanel rev hide'); panel.appendChild(s); replayable(panel);
+        const side = el('div', 'adside');
+        const card = el('div', 'card rev hide', '<div class="dlbl">Example: bicycle gears</div><div class="atext">One turn of the pedals turns the back wheel <b>three times</b>.</div>');
+        const stats = el('div', 'stats rev hide', '<div class="stat"><div class="dlbl">Pedals</div><div class="num">1 turn</div></div><div class="stat pink"><div class="dlbl">Back wheel</div><div class="num">3 turns</div></div>');
+        card.appendChild(stats);
+        const n1 = el('div', 'adnote nv rev hide', 'The edge of the wheel travels much <b>further</b> and <b>faster</b> than your feet.');
+        const n2 = el('div', 'adnote rev hide', 'Trade-off: you push <b>harder</b> on the pedals. That is why riders change to a low gear for hills.');
+        const ex = el('div', 'adex rev hide', '<span class="dlbl">More examples</span>' + ['Egg beater', 'Rowing oar', 'Hockey stick'].map(x => `<span class="chip">${x}</span>`).join(''));
+        side.append(card, n1, n2, ex);
+        w.append(panel, side); c.appendChild(w); content.appendChild(c);
+        beatAt(0, 'The third advantage is multiplying <b>distance and speed</b>. Bicycle gears are a good example.');
+        at(400, () => show(panel));
+        beatAt(4000, 'Watch the pedals turn <b>once</b>. In the same time, the back wheel turns <b>three</b> times.');
+        at(4500, () => panel.classList.add('go'));
+        beatAt(9500, 'A big gear at the pedals drives a small gear on the back wheel, so the wheel spins much faster than your feet.');
+        at(10000, () => show(card)); at(10600, () => show(stats));
+        beatAt(15000, 'The edge of the wheel travels much <b>further</b> and <b>faster</b> than the pedals.');
+        at(15500, () => show(n1));
+        beatAt(19500, 'The trade-off: you push <b>harder</b> on the pedals. Egg beaters and rowing oars also trade force for speed.');
+        at(20000, () => show(n2)); at(20600, () => show(ex));
+    }
+},
+{
+    title: 'Identify the <span>advantage</span>',
+    sc: 'SC9', cfu: 'tt', time: 180,
+    dur: 23000,
+    run() {
+        const c = el('div', 'center');
+        const p = el('div', 'prompt rev hide', 'For each example, identify the main advantage: <b>direction</b>, <b>force</b>, or <b>distance and speed</b>. Explain how it makes the task easier.');
+        const g = el('div', 'idgrid');
+        const T = { d: 'Direction', f: 'Force', s: 'Distance and speed' };
+        const items = [['Pulling down on a cord to raise window blinds', 'd'], ['Using a car jack to lift a car by hand', 'f'], ['Riding a bike in a high gear on a flat road', 's'],
+            ['Prying the lid off a paint tin with a screwdriver', 'f'], ['Raising a bucket from a well with a rope over a pulley', 'd'], ['Turning the handle of an egg beater', 's']];
+        const cards = items.map(([q, t], i) => {
+            const card = el('div', 'idcard rev hide', `<div class="idq"><div class="qn">${i + 1}</div><div>${q}</div></div>`);
+            const tag = el('div', 'idtag rev hide ' + t, T[t]);
+            card.appendChild(tag); g.appendChild(card);
+            return { card, tag, t };
+        });
+        c.append(p, g); content.appendChild(c);
+        const reveal = (t, t0) => cards.filter(k => k.t === t).forEach((k, i) => at(t0 + i * 500, () => show(k.tag)));
+        beatAt(0, 'Turn and talk. Identify the main advantage of each machine: <b>direction</b>, <b>force</b>, or <b>distance and speed</b>.');
+        at(400, () => show(p));
+        cards.forEach((k, i) => at(700 + i * 150, () => show(k.card)));
+        beatAt(8500, 'The blinds and the well bucket use a pulley to change the <b>direction</b> of the force.');
+        reveal('d', 9000);
+        beatAt(12500, 'The car jack and the screwdriver on the paint tin <b>multiply force</b>, so a small effort moves a heavy load.');
+        reveal('f', 13000);
+        beatAt(16500, 'The high gear and the egg beater multiply <b>distance and speed</b>.');
+        reveal('s', 17000);
+        beatAt(19500, 'Be ready to explain <b>how</b> each machine makes the task easier.');
+    }
+},
+{
     title: 'Angle and <span>effort force</span>',
-    sc: ['SC10'],
+    sc: 'SC10',
     dur: 27000,
     run() {
         const H = 100, TX = 600, GY = 262;
@@ -1092,7 +1415,7 @@ const scenes = [
 },
 {
     title: 'Ramps in <span>real life</span>',
-    sc: ['SC10'], cfu: 'cc', time: 120,
+    sc: 'SC10', cfu: 'tt', time: 120,
     dur: 19500,
     run() {
         const c = el('div', 'center');
@@ -1123,7 +1446,7 @@ const scenes = [
 },
 {
     title: 'Comparing <span>efficiency</span>',
-    sc: ['SC11'],
+    sc: 'SC11',
     dur: 21500,
     run() {
         const c = el('div', 'center');
@@ -1149,7 +1472,7 @@ const scenes = [
 },
 {
     title: 'Calculate: <span>efficiency</span>',
-    sc: ['SC11'], cfu: 'sj', time: 240,
+    sc: 'SC11', cfu: 'sj', time: 240,
     dur: 20000,
     run() {
         const c = el('div', 'center'), w = el('div', 'effwrap');
@@ -1181,7 +1504,7 @@ const scenes = [
 },
 {
     title: 'Parts of a <span>lever</span>',
-    sc: ['SC12'], cfu: 'sj', time: 180,
+    sc: 'SC12', cfu: 'sj', time: 180,
     dur: 27000,
     run() {
         const tick = (x, y, c) => `<line class="${c}" x1="${x}" y1="${y - 10}" x2="${x}" y2="${y + 10}"/>`;
@@ -1207,7 +1530,7 @@ const scenes = [
 },
 {
     title: 'Three <span>classes</span> of lever',
-    sc: ['SC12'],
+    sc: 'SC12',
     dur: 24000,
     run() {
         const c = el('div', 'center'), w = el('div', 'cpanels');
@@ -1230,7 +1553,7 @@ const scenes = [
 },
 {
     title: 'Spot the <span>parts</span>',
-    sc: ['SC12'], cfu: 'cc', time: 180,
+    sc: 'SC12', cfu: 'tt', time: 180,
     dur: 23500,
     run() {
         const c = el('div', 'center'), w = el('div', 'cpanels');
@@ -1262,7 +1585,7 @@ const scenes = [
 },
 {
     title: 'Force and <span>speed</span> multipliers',
-    sc: ['SC13'],
+    sc: 'SC13',
     dur: 23500,
     run() {
         const c = el('div', 'center'), w = el('div', 'mpanels');
@@ -1284,7 +1607,7 @@ const scenes = [
 },
 {
     title: 'Sort: <span>force or speed?</span>',
-    sc: ['SC13'], cfu: 'sj', time: 120,
+    sc: 'SC13', cfu: 'sj', time: 120,
     dur: 17000,
     run() {
         const c = el('div', 'center');
@@ -1307,7 +1630,7 @@ const scenes = [
 },
 {
     title: 'Calculating <span>net force</span>',
-    sc: ['SC14'], cfu: 'sj', time: 180,
+    sc: 'SC14', cfu: 'sj', time: 180,
     dur: 26500,
     run() {
         const c = el('div', 'center'), w = el('div', 'nrows');
@@ -1334,7 +1657,7 @@ const scenes = [
 },
 {
     title: 'Worked <span>example</span>',
-    sc: ['SC14', 'SC5'],
+    sc: 'SC14, SC5',
     dur: 20500,
     run() {
         const c = el('div', 'center'), w = el('div', 'wk');
@@ -1366,7 +1689,7 @@ const scenes = [
 },
 {
     title: 'Calculate: <span>net force</span>',
-    sc: ['SC14'], cfu: 'sj', time: 240,
+    sc: 'SC14', cfu: 'sj', time: 240,
     dur: 18500,
     run() {
         const c = el('div', 'center'), g = el('div', 'ngrid');
@@ -1394,7 +1717,7 @@ const scenes = [
 },
 {
     title: 'Review: <span>forces and motion</span>',
-    sc: ['SC3', 'SC5', 'SC14'], cfu: 'sj', time: 180,
+    sc: 'SC3, SC5, SC14', cfu: 'sj', time: 180,
     dur: 27000,
     run() {
         const c = el('div', 'center');
@@ -1479,7 +1802,7 @@ function build(i) {
     content.innerHTML = ''; caption.innerHTML = '';
     titleEl.innerHTML = sc.title;
     counter.innerHTML = `<b>${idx + 1}</b> / ${scenes.length}`;
-    uiSetCfu(sc.cfu, sc.time); uiSetSC(sc.sc);
+    badgeEl.innerHTML = badgeHTML(sc.cfu, sc.time); badgeEl.classList.toggle('clickable', !!sc.time); badgeEl.onclick = sc.time ? () => { ftSet(sc.time); ftShow(true); } : null; sctagEl.textContent = sc.sc || '';
     [...dots.children].forEach((d, j) => d.classList.toggle('cur', j === idx));
     sc.run();
     beats = [...new Set(beats)].sort((a, b) => a - b);
@@ -1755,6 +2078,7 @@ ftDraw();
 /* ---------- zoom, lock and spotlight ---------- */
 const zoomer = $('#zoomer'), spotEl = $('#spot'), zoomBtn = $('#zoombtn'), lockBtn = $('#lockbtn'), spotBtn = $('#spotbtn');
 const ZW = 1280, ZH = 714;
+const reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const mouse = { x: ZW / 2, y: ZH / 2 };
 const Z = { on: false, locked: false, level: 2, z: 1, x: ZW / 2, y: ZH / 2, lx: 0, ly: 0 };
@@ -1771,7 +2095,7 @@ function applySpot() {
 }
 function zoomFrame(n) {
     const dt = zlast ? Math.min(64, n - zlast) : 16; zlast = n;
-    const a = 1 - Math.exp(-dt / 90), b = 1 - Math.exp(-dt / 45);
+    const a = reduceMotion ? 1 : 1 - Math.exp(-dt / 90), b = reduceMotion ? 1 : 1 - Math.exp(-dt / 45);
     const tz = Z.on ? Z.level : 1, tx = Z.locked ? Z.lx : mouse.x, ty = Z.locked ? Z.ly : mouse.y;
     Z.z += (tz - Z.z) * a; Z.x += (tx - Z.x) * a; Z.y += (ty - Z.y) * a;
     const zDone = Math.abs(tz - Z.z) < 0.0008 && Math.abs(tx - Z.x) < 0.08 && Math.abs(ty - Z.y) < 0.08;
@@ -1859,23 +2183,6 @@ const ENGAGE = {
     vs: { cls: 'ui-pk', html: `${UI_ICON.vol}<span>Volunteer to share</span>` }
 };
 const ENG_KEYS = ['tt', 'cc', 'sj', 'fv', 'vs'];
-/* header CFU badge: set cfu (tt, cc, sj, fv or vs), time (seconds) and sc (['SC1']) on a scene */
-const uiCfu = $('#ui-cfu'), UI_CLOCK = '<svg viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 10v3.5l2.5 2M9.5 2.5h5"/></svg>';
-let uiCfuTime = 0;
-function uiSetCfu(k, t) {
-    uiCfu.className = 'ui-cfu'; uiCfu.innerHTML = ''; uiCfuTime = 0;
-    uiCfu.removeAttribute('title'); uiCfu.removeAttribute('aria-label'); uiCfu.removeAttribute('tabindex');
-    if (!k || !ENGAGE[k]) return;
-    void uiCfu.offsetWidth;
-    uiCfuTime = t || 0;
-    uiCfu.className = 'ui-cfu ' + ENGAGE[k].cls + ' ui-cfuin' + (uiCfuTime ? ' ui-click' : '');
-    uiCfu.innerHTML = ENGAGE[k].html + (uiCfuTime ? `<span class="ui-ct">${UI_CLOCK}${ftFmt(uiCfuTime)}</span>` : '');
-    if (uiCfuTime) { uiCfu.tabIndex = 0; uiCfu.title = 'Start a ' + ftFmt(uiCfuTime) + ' timer'; uiCfu.setAttribute('aria-label', 'Open timer at ' + ftFmt(uiCfuTime)); }
-}
-function uiSetSC(list) { $('#ui-sctags').innerHTML = (list || []).map(x => `<span>${x}</span>`).join(''); }
-function uiCfuOpen() { if (!uiCfuTime) return; ftSet(uiCfuTime); ftShow(true); uiCfu.blur(); }
-uiCfu.addEventListener('click', uiCfuOpen);
-uiCfu.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); uiCfuOpen(); } });
 const blayer = $('#blayer'), badgeStore = {};
 const sceneBadges = () => { const k = curKey(); return (badgeStore[k] = badgeStore[k] || []); };
 
@@ -2149,17 +2456,11 @@ $('#kgrid').innerHTML = SHORTCUTS.map(([h, rows]) => `<div class="ui-kgrp"><h3>$
 
 /* ---------- export PDF ---------- */
 const printBox = $('#print');
-let snapN = 0;
 function snapStage(boardOnly) {
     stage.querySelectorAll('input').forEach(n => n.setAttribute('value', n.value));
     const page = stage.cloneNode(true), imgs = [];
     page.removeAttribute('id'); page.removeAttribute('style'); page.classList.remove('instant');
-    const sfx = '-s' + (++snapN), ren = {};
-    page.querySelectorAll('[id]').forEach(n => { if (n.closest('defs')) { ren[n.id] = n.id + sfx; n.id += sfx; } else n.removeAttribute('id'); });
-    if (Object.keys(ren).length) page.querySelectorAll('*').forEach(e => [...e.attributes].forEach(a => {
-        const v = a.value.replace(/url\(\s*['"]?#([^)'"\s]+)['"]?\s*\)/g, (m, k) => ren[k] ? `url(#${ren[k]})` : m).replace(/^#(.+)$/, (m, k) => ren[k] && /href$/.test(a.name) ? '#' + ren[k] : m);
-        if (v !== a.value) e.setAttribute(a.name, v);
-    }));
+    page.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'));
     page.querySelectorAll('.ui-spot, canvas.hllive').forEach(n => n.remove());
     [['canvas.ink', ink, inkMarked, 'ink'], ['canvas.hlmain', hlc, hlMarked, 'ui-hlc']].forEach(([sel, src, marked, cls]) => {
         const cv = page.querySelector(sel); if (!cv) return;
