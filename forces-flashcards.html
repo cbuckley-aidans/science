@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forces Flashcards</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --navy: #1b1f45;
+        --pink: #ea008a;
+        --mid-grey: #9a9a9a;
+        --light-grey: #e8e8e8;
+        --blank: #f0f3f6;
+        --tint: #e9ecf5;
+        --cond: 'Barlow Condensed', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        --ease: cubic-bezier(.2,.8,.2,1);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #eaeaea; color: var(--navy);
+        display: flex; align-items: center; justify-content: center; overflow: hidden; -webkit-user-select: none; user-select: none; }
+    .stage { width: 1280px; height: 720px; background: #fff; border-top: 6px solid var(--navy); position: relative; padding: 36px 64px 0; flex-shrink: 0; overflow: hidden; transform-origin: center; }
+    .top { gap: 24px; display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 4px solid var(--navy); padding-bottom: 12px; height: 70px; }
+    .sheet-title { white-space: nowrap; flex: 1; min-width: 0; overflow: hidden; font-family: var(--cond); font-size: 42px; font-weight: 900; text-transform: uppercase; letter-spacing: .01em; margin: 0; line-height: 1; }
+    .sheet-title span { color: var(--pink); }
+    .topr { display: flex; align-items: center; gap: 22px; }
+    .counter { white-space: nowrap; font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; color: var(--mid-grey); text-transform: uppercase; display: flex; align-items: center; gap: 22px; }
+    .counter b { color: var(--navy); }
+    .snd { width: 40px; height: 40px; border: 3px solid var(--navy); border-radius: 8px; background: #fff; color: var(--navy); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; }
+    .snd svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+    .snd.on { background: var(--navy); color: #fff; }
+    .content { position: absolute; left: 64px; right: 64px; top: 124px; bottom: 108px; }
+    .caption { position: absolute; left: 64px; right: 64px; bottom: 28px; min-height: 60px; display: flex; align-items: center; gap: 16px; font-size: 25px; font-weight: 500; line-height: 1.32; }
+    .caption::before { content: ''; width: 10px; height: 10px; background: var(--pink); flex-shrink: 0; }
+    .caption .txt { flex: 1; }
+    .caption b { color: var(--pink); font-weight: 800; }
+    .caption b.no { color: var(--navy); }
+    .caption .in { animation: capIn .45s var(--ease); display: block; }
+    @keyframes capIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .progress { position: absolute; left: 0; bottom: 0; height: 6px; background: var(--pink); width: 0; transition: width .6s var(--ease); }
+    .btns { display: flex; gap: 12px; flex-shrink: 0; }
+    .next, .btn2 { font-family: var(--cond); font-size: 26px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; border-radius: 8px; padding: 12px 30px; cursor: pointer; }
+    .next { background: var(--pink); color: #fff; border: 3px solid var(--pink); }
+    .next:disabled { background: #c3c6d0; border-color: #c3c6d0; cursor: default; }
+    .btn2 { background: #fff; color: var(--navy); border: 3px solid var(--navy); }
+    .btn2:hover { background: var(--blank); }
+    button:focus-visible { outline: 3px solid var(--pink); outline-offset: 3px; }
+    .next:focus-visible { outline-color: var(--navy); }
+    .pop-in { animation: capIn .45s var(--ease); }
+    @keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+
+    /* svg text */
+    svg { display: block; }
+    .vis { overflow: hidden; }
+    .halo { paint-order: stroke; stroke: #fff; stroke-width: 5px; stroke-linejoin: round; }
+    .num { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 800; fill: var(--navy); }
+    .lb { font-family: var(--cond); font-size: 18px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; fill: var(--navy); }
+    .lbg { font-family: var(--cond); font-size: 18px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; fill: var(--mid-grey); }
+    .lbs { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 700; fill: var(--navy); }
+    .lg { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 600; fill: var(--navy); }
+    .tiny { font-family: var(--cond); font-size: 15px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; fill: var(--navy); }
+    .bd { font-family: var(--cond); font-size: 19px; font-weight: 900; }
+    .big { font-family: var(--cond); font-size: 44px; font-weight: 900; }
+    .sm { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 700; }
+    .qm { font-family: var(--cond); font-size: 28px; font-weight: 900; }
+    .ax { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 600; fill: var(--mid-grey); }
+    .axp { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 700; fill: var(--pink); }
+    .bigl { font-family: var(--cond); font-size: 36px; font-weight: 900; fill: var(--navy); }
+
+    /* home */
+    .decks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; height: 100%; align-items: center; padding-right: 12px; }
+    .deck { position: relative; height: 430px; background: none; border: none; padding: 0; cursor: pointer; font-family: inherit; color: var(--navy); text-align: left; }
+    .deck::before, .deck::after { content: ''; position: absolute; inset: 0; border: 3px solid var(--navy); border-radius: 14px; transition: transform .35s var(--ease); }
+    .deck::before { transform: translate(12px, 12px); background: var(--navy); }
+    .deck::after { transform: translate(6px, 6px); background: #fff; }
+    .dface { position: absolute; inset: 0; z-index: 1; border: 3px solid var(--navy); border-radius: 14px; background: #fff; padding: 20px 20px 18px; display: flex; flex-direction: column; transition: transform .35s var(--ease), border-color .2s; }
+    .deck:hover .dface, .deck:focus-visible .dface { transform: translate(-4px, -10px) rotate(-1.5deg); border-color: var(--pink); }
+    .deck:hover::after { transform: translate(9px, 4px) rotate(1.5deg); }
+    .deck:focus-visible { outline: none; }
+    .dface svg { width: 100%; height: 112px; }
+    .dcode { font-family: var(--cond); font-size: 66px; font-weight: 900; color: var(--pink); line-height: 1; margin-top: auto; }
+    .dname { font-size: 25px; font-weight: 800; line-height: 1.15; margin-top: 4px; min-height: 58px; }
+    .dmeta span { white-space: nowrap; }
+    .dmeta { gap: 8px; font-size: 17px !important; display: flex; justify-content: space-between; border-top: 3px solid var(--navy); margin-top: 14px; padding-top: 10px; font-family: var(--cond); font-size: 19px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--mid-grey); }
+
+    /* deck screen */
+    .dscreen { display: grid; grid-template-columns: 340px 1fr; gap: 48px; height: 100%; }
+    .dscreen .deck { height: 470px; cursor: default; }
+    .dscreen .deck:hover .dface { transform: none; border-color: var(--navy); }
+    .dscreen .deck:hover::after { transform: translate(6px, 6px); }
+    .dstate { font-size: 19px; font-weight: 600; line-height: 1.3; margin-top: 10px; }
+    .sccol { display: flex; flex-direction: column; min-height: 0; }
+    .sch { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mid-grey); margin-bottom: 10px; display: flex; justify-content: space-between; }
+    .sch button { font: inherit; letter-spacing: inherit; text-transform: inherit; color: var(--navy); background: none; border: none; cursor: pointer; padding: 0; }
+    .sclist { display: flex; flex-direction: column; gap: 6px; overflow-y: auto; padding: 2px 8px 4px 2px; }
+    .scrow { display: grid; grid-template-columns: 30px 60px 1fr auto auto; align-items: center; gap: 14px; border: 3px solid var(--navy); border-radius: 8px; padding: 6px 14px; background: #fff; font-family: inherit;
+        font-size: 17px; font-weight: 600; color: var(--navy); text-align: left; cursor: pointer; line-height: 1.2; min-height: 58px; transition: opacity .2s, background-color .2s; }
+    .scrow:hover { background: #f6f7fb; }
+    .scrow .box { width: 30px; height: 30px; border: 3px solid var(--navy); border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: background-color .2s, border-color .2s; }
+    .scrow .box svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; opacity: 0; }
+    .scrow.on .box { background: var(--pink); border-color: var(--pink); }
+    .scrow.on .box svg { opacity: 1; }
+    .scrow:not(.on) { opacity: .5; border-style: dashed; }
+    .scrow .code { font-family: var(--cond); font-size: 25px; font-weight: 900; }
+    .scrow .n { font-family: var(--cond); font-size: 18px; font-weight: 800; color: var(--mid-grey); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
+
+    /* play */
+    .play { display: grid; grid-template-columns: 612px 1fr; gap: 32px; height: 100%; align-items: center; }
+    .cwrap { position: relative; width: 584px; height: 470px; perspective: 1800px; }
+    .stk { position: absolute; inset: 0; border-radius: 14px; background: var(--navy); border: 3px solid var(--navy); transition: transform .4s var(--ease), opacity .3s; }
+    .stk::after { content: ''; position: absolute; inset: 8px; border: 2px solid rgba(234,0,138,.5); border-radius: 8px; }
+    .card { position: absolute; inset: 0; transform-style: preserve-3d; z-index: 5; }
+    .face { position: absolute; inset: 0; -webkit-backface-visibility: hidden; backface-visibility: hidden; border: 3px solid var(--navy); border-radius: 14px; background: #fff; overflow: hidden; display: flex; flex-direction: column; }
+    .face.back { transform: rotateY(180deg); }
+    .front { padding: 22px 28px 20px; }
+    .fmeta { display: flex; align-items: center; gap: 12px; position: relative; z-index: 1; }
+    .sctag { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #fff; background: var(--navy); border-radius: 6px; padding: 5px 12px 4px; line-height: 1; }
+    .tchip { font-family: var(--cond); font-size: 18px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--pink); border: 3px solid var(--pink); border-radius: 6px; padding: 2px 10px 1px; }
+    .lgc { margin-left: auto; font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; color: var(--mid-grey); }
+    .fq { font-size: 26px; font-weight: 700; line-height: 1.25; margin-top: 14px; position: relative; z-index: 1; }
+    .front.t .fq { font-size: 37px; font-weight: 800; line-height: 1.18; margin: auto 0; padding-bottom: 30px; }
+    .ghost { position: absolute; right: 16px; bottom: -40px; font-family: var(--cond); font-weight: 900; font-size: 210px; color: var(--blank); line-height: 1; pointer-events: none; }
+    .fvis { flex: 1; min-height: 0; margin-top: 10px; display: flex; align-items: center; justify-content: center; }
+    .fvis svg { width: 100%; height: 100%; }
+    .pat { background: var(--navy); border-color: var(--navy); }
+    .pat svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .pcode { position: absolute; left: 30px; top: 22px; font-family: var(--cond); font-size: 70px; font-weight: 900; color: #fff; line-height: 1; }
+    .bhead { display: flex; align-items: center; gap: 12px; padding: 14px 26px; color: #fff; font-family: var(--cond); font-size: 40px; font-weight: 900; text-transform: uppercase; letter-spacing: .02em; line-height: 1; }
+    .bhead.ok { background: var(--pink); }
+    .bhead.no { background: var(--navy); }
+    .bhead svg { width: 36px; height: 36px; fill: none; stroke: #fff; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+    .bsc { margin-left: auto; font-size: 22px; letter-spacing: .08em; opacity: .85; }
+    .bbody { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 16px 28px 18px; }
+    .alab { font-family: var(--cond); font-size: 18px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--mid-grey); }
+    .ans { font-size: 28px; font-weight: 800; line-height: 1.2; margin-top: 4px; }
+    .bhead.ok + .bbody .ans { color: var(--pink); }
+    .apic { height: 118px; margin-top: 6px; }
+    .apic svg { height: 100%; width: auto; }
+    .exp { font-size: 21px; font-weight: 500; line-height: 1.38; margin: 10px 0 0; }
+    .bbody.nov .exp { font-size: 24px; }
+    .bbody.nov .ans { font-size: 32px; }
+    .back .ghost { z-index: 0; }
+    .bbody { position: relative; z-index: 1; }
+    .bvis { flex: 1; min-height: 0; margin-top: 10px; display: flex; justify-content: center; }
+    .bvis svg { width: 100%; height: 100%; }
+
+    /* options */
+    .opts { display: flex; flex-direction: column; gap: 12px; justify-content: center; height: 100%; }
+    .opt { display: flex; align-items: center; gap: 16px; border: 3px solid var(--navy); border-radius: 8px; background: #fff; padding: 12px 18px; min-height: 96px;
+        font-family: inherit; font-size: 23px; font-weight: 600; color: var(--navy); text-align: left; line-height: 1.25; cursor: pointer;
+        transition: background-color .2s, border-color .2s, color .2s, opacity .25s, box-shadow .2s; position: relative; }
+    .opt.short { font-size: 28px; font-weight: 700; }
+    .l { flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background: var(--navy); color: #fff; font-family: var(--cond); font-size: 24px; font-weight: 900;
+        display: flex; align-items: center; justify-content: center; transition: background-color .2s, color .2s; }
+    .l svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+    .l svg path { stroke-dasharray: 30; stroke-dashoffset: 30; animation: draw .35s .12s var(--ease) forwards; }
+    .opt:hover:not(:disabled), .pcard:hover:not(:disabled) { background: #f6f7fb; }
+    .opt:disabled, .pcard:disabled { cursor: default; }
+    .opt.right, .opt.right:hover { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .opt.right .l { background: #fff; color: var(--pink); }
+    .wrong { border-style: dashed !important; opacity: .5; animation: shake .4s; }
+    .reveal { border-color: var(--pink) !important; box-shadow: 0 0 0 5px rgba(234,0,138,.18); }
+    .reveal .l { background: var(--pink); }
+    .dim { opacity: .3; }
+    .pgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .pcard { position: relative; border: 3px solid var(--navy); border-radius: 8px; background: #fff; padding: 12px 8px 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; height: 214px;
+        font-family: inherit; color: var(--navy); transition: background-color .2s, border-color .2s, opacity .25s, box-shadow .2s; }
+    .pcard .l { position: absolute; left: 10px; top: 10px; width: 36px; height: 36px; font-size: 22px; }
+    .pcard svg.vis { width: 100%; height: 170px; }
+    .pcard.right, .pcard.right:hover { border-color: var(--pink); background: #fff; box-shadow: 0 0 0 6px rgba(234,0,138,.22); }
+    .pcard.right .l { background: var(--pink); color: #fff; }
+
+
+    /* interactive cards */
+    .fvis { position: relative; }
+    .replay { position: absolute; right: 0; top: 0; display: flex; align-items: center; gap: 6px; font-family: var(--cond); font-size: 18px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+        background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 6px; padding: 4px 11px 3px 8px; cursor: pointer; }
+    .replay svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+    .replay:hover { background: var(--blank); }
+    .tile { display: inline-flex; align-items: center; gap: 10px; font-family: inherit; font-size: 21px; font-weight: 700; color: var(--navy); background: #fff; border: 3px solid var(--navy); border-radius: 8px; padding: 6px 14px;
+        line-height: 1.2; cursor: grab; touch-action: none; position: relative; z-index: 2; box-shadow: 0 4px 0 #c3c6d0; white-space: nowrap; transition: box-shadow .2s, border-color .2s, background-color .2s; }
+    .tile:hover { background: #f6f7fb; }
+    .tile .mini { width: 32px; height: 32px; flex-shrink: 0; overflow: visible; }
+    .tile.sel { border-color: var(--pink); box-shadow: 0 0 0 4px rgba(234,0,138,.22); }
+    .tile.drag { cursor: grabbing; z-index: 40; box-shadow: 0 14px 30px rgba(27,31,69,.25); border-color: var(--pink); }
+    .tile.right { background: var(--pink); color: #fff; border-color: var(--pink); box-shadow: none; }
+    .tile.wrong { border-style: dashed; background: var(--tint); box-shadow: none; animation: shake .4s; }
+    .tile:focus-visible { outline: 3px solid var(--pink); outline-offset: 2px; }
+    .pool { display: flex; flex-wrap: wrap; gap: 12px; align-content: center; justify-content: center; background: var(--blank); border-radius: 12px; padding: 16px; height: 100%; }
+    .pool2 { display: grid; grid-template-columns: 1fr 1fr; align-content: center; gap: 14px; }
+    .pool2 .tile { justify-content: flex-start; font-size: 22px; padding: 8px 14px; }
+    .pool3 { display: grid; grid-template-columns: repeat(3, 1fr); align-content: center; justify-items: center; gap: 16px; }
+    .mtile { padding: 6px; }
+    .mtile svg { width: 92px; height: 92px; display: block; }
+    .wtile { font-size: 26px; padding: 10px 24px; }
+    .kz { flex-direction: column; align-items: stretch; justify-content: center; gap: 14px; }
+    .ordtop { display: flex; align-items: center; gap: 10px; font-family: var(--cond); font-size: 17px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--mid-grey); white-space: nowrap; }
+    .ordtop i { flex: 1; height: 3px; background: linear-gradient(90deg, var(--pink), var(--light-grey)); }
+    .ordtop .mini { width: 36px; height: 36px; overflow: visible; flex-shrink: 0; }
+    .ogrid { display: grid; gap: 10px; }
+    .slot { position: relative; border: 3px dashed #c3c6d0; border-radius: 10px; min-height: 96px; display: flex; align-items: center; justify-content: center; padding: 20px 4px 6px; transition: border-color .2s, background-color .2s, box-shadow .2s; }
+    .slot > b { position: absolute; left: 8px; top: 3px; font-family: var(--cond); font-size: 16px; font-weight: 900; color: var(--mid-grey); letter-spacing: .04em; }
+    .slot .sb { display: flex; justify-content: center; width: 100%; }
+    .slot:has(.tile) { border-style: solid; border-color: var(--light-grey); }
+    .slot .tile { box-shadow: none; flex-direction: column; gap: 2px; font-size: 15px; padding: 4px 6px; min-width: 100px; }
+    .slot .tile .mini { width: 30px; height: 30px; }
+    .slot .mtile { min-width: 0; padding: 4px; }
+    .slot .mtile svg { width: 74px; height: 74px; }
+    .slot.hover, .slot.armed:hover { border-color: var(--pink); background: rgba(234,0,138,.06); }
+    .bins { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; height: 100%; }
+    .bin { border: 3px solid var(--navy); border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; transition: box-shadow .2s; }
+    .bin h3 { margin: 0; padding: 6px 14px 5px; font-family: var(--cond); font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; color: #fff; background: var(--navy); }
+    .bin.pk { border-color: var(--pink); }
+    .bin.pk h3 { background: var(--pink); }
+    .bin .sub { font-size: 15px; font-weight: 600; color: var(--mid-grey); padding: 5px 14px 0; }
+    .bin .area { flex: 1; display: flex; flex-wrap: wrap; gap: 6px; align-content: flex-start; justify-content: center; padding: 8px; }
+    .bin .mtile svg { width: 54px; height: 54px; }
+    .pool4 { display: grid; grid-template-columns: 1fr 1fr; align-content: center; justify-items: center; gap: 20px; }
+    .ai.am svg { width: 60px; height: 60px; }
+    .ai small { font-size: 14px; }
+    .pair { display: flex; gap: 10px; width: 100%; justify-content: center; }
+    .pair svg { width: 48%; height: 100%; }
+    .bin.hover, .bin.armed { box-shadow: 0 0 0 5px rgba(234,0,138,.18); cursor: pointer; }
+    .ctext { font-size: 24px; font-weight: 600; line-height: 1.95; margin: 0; }
+    .blank { display: inline-flex; vertical-align: middle; min-width: 112px; height: 48px; border: 3px dashed #c3c6d0; border-radius: 8px; margin: 0 3px; align-items: center; justify-content: center; transition: border-color .2s, background-color .2s; }
+    .blank:has(.tile) { border-color: transparent; min-width: 0; }
+    .blank .bb { display: flex; }
+    .blank .tile { box-shadow: none; font-size: 22px; padding: 4px 12px; }
+    .blank.hover, .blank.armed:hover { border-color: var(--pink); background: rgba(234,0,138,.06); }
+    .hsw { height: 100%; border: 3px solid var(--navy); border-radius: 14px; background: #fff; overflow: hidden; display: flex; }
+    .hsw svg { width: 100%; height: 100%; }
+    .hs { cursor: pointer; }
+    .hs .hok, .hs .hno { display: none; }
+    .hs:hover .hdot { fill: var(--tint); }
+    .hs:focus { outline: none; }
+    .hs:focus-visible .hdot { stroke: var(--pink); }
+    .hsv.done .hpl { display: none; }
+    .hsv.done .hs { cursor: default; }
+    .hs.good .hdot { fill: var(--pink); stroke: #fff; }
+    .hs.good .hok { display: block; }
+    .hs.bad .hdot { stroke-dasharray: 5 4; }
+    .hs.bad .hno { display: block; }
+    .hs.off { opacity: .3; }
+    .arow { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+    .ai { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 13px; font-weight: 700; }
+    .ai .mini { width: 34px; height: 34px; overflow: visible; }
+    .asort { display: grid; grid-template-columns: auto repeat(3, 56px); align-items: center; gap: 4px 8px; margin-top: 6px; justify-content: start; }
+    .asort.a4 { grid-template-columns: repeat(4, 64px); }
+    .asort span { font-family: var(--cond); font-size: 20px; font-weight: 900; text-transform: uppercase; padding-right: 8px; }
+    .asort svg { width: 56px; height: 56px; }
+    .asort.a4 svg { width: 64px; height: 64px; }
+    .actext { font-size: 21px; line-height: 1.4; margin: 6px 0 0; font-weight: 600; }
+    .actext b { color: var(--pink); }
+    /* buckles (shared with the other checking for understanding pages) */
+    .bcount { display: flex; align-items: center; gap: 8px; }
+    .counter-icon { width: 34px; height: 34px; display: block; }
+    .bcount .num { font-family: var(--cond); font-size: 34px; font-weight: 900; line-height: 1; }
+    .bcount .lbl { font-family: var(--cond); font-size: 18px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mid-grey); }
+    .award { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(.8); opacity: 0; pointer-events: none; z-index: 30;
+        background: #fff; border: 3px solid var(--pink); border-radius: 12px; padding: 24px 40px; display: flex; flex-direction: column; align-items: center; gap: 10px;
+        box-shadow: 0 20px 50px rgba(27,31,69,.25); transition: opacity .3s, transform .35s var(--ease); }
+    .award.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    .award.hide { opacity: 0; transform: translate(-50%, -60%) scale(.95); }
+    .award-img { width: 140px; height: auto; }
+    .award-text { font-family: var(--cond); font-size: 40px; font-weight: 900; color: var(--pink); text-transform: uppercase; letter-spacing: .04em; }
+    .confetti-canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 29; }
+    .bkmeta { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-family: var(--cond); font-size: 19px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--navy); }
+    .bkmeta img { width: 22px; height: 22px; }
+    .bkmeta span { color: var(--mid-grey); }
+    .scrow .bk { display: flex; align-items: center; gap: 4px; font-family: var(--cond); font-size: 18px; font-weight: 800; color: var(--navy); white-space: nowrap; }
+    .scrow .bk img { width: 20px; height: 20px; }
+    .bkchip { display: inline-flex; align-items: center; gap: 4px; font-family: var(--cond); font-size: 16px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--navy); }
+    .bkchip img { width: 20px; height: 20px; }
+    .rbk { display: flex; align-items: center; justify-content: center; gap: 10px; margin: -4px 0 10px; font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+    .rbk img { width: 34px; height: 34px; }
+    .rbk b { color: var(--pink); font-size: 30px; }
+    .rbk span { color: var(--mid-grey); font-size: 18px; letter-spacing: .1em; }
+    .devcheck { position: absolute; left: 64px; top: 6px; z-index: 50; font-family: var(--cond); font-size: 15px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+        background: var(--navy); color: #fff; border: none; border-radius: 0 0 6px 6px; padding: 3px 10px; cursor: pointer; }
+    .devcheck.bad { background: var(--pink); }
+    /* piles */
+    .piles { display: flex; gap: 16px; }
+    .pile { white-space: nowrap; display: flex; align-items: center; gap: 8px; font-family: var(--cond); font-size: 18px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--mid-grey); }
+    .pile i { width: 19px; height: 25px; border-radius: 3px; border: 3px solid var(--pink); background: var(--pink); display: block; }
+    .pile.rv i { background: #fff; border: 3px dashed var(--navy); }
+    .pile b { font-size: 26px; color: var(--navy); min-width: 16px; display: inline-block; }
+    .divv { width: 3px; height: 26px; background: var(--light-grey); }
+
+    /* fx */
+    .pt { position: absolute; pointer-events: none; z-index: 60; }
+    .plus { white-space: nowrap; position: absolute; z-index: 61; font-family: var(--cond); font-size: 40px; font-weight: 900; color: var(--pink); pointer-events: none; line-height: 1; }
+    .shock { position: absolute; z-index: 59; border: 4px solid var(--pink); border-radius: 50%; pointer-events: none; }
+
+    /* results */
+    .res { display: grid; grid-template-columns: 300px 1fr; gap: 44px; height: 100%; }
+    .rleft { display: flex; flex-direction: column; align-items: stretch; justify-content: center; gap: 10px; }
+    .ringw { position: relative; width: 180px; height: 180px; align-self: center; }
+    .ringw svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .rnum { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--cond); font-weight: 900; white-space: nowrap; }
+    .rnum b { font-size: 64px; color: var(--pink); line-height: 1; }
+    .rnum span { font-size: 26px; color: var(--mid-grey); margin-left: 8px; align-self: flex-end; margin-bottom: 62px; }
+    .rlab { text-align: center; font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mid-grey); margin: 0 0 12px; }
+    .rleft .next, .rleft .btn2 { font-size: 20px; padding: 10px 12px; white-space: nowrap; letter-spacing: .04em; }
+    .rright { --rs: 1; display: flex; flex-direction: column; min-height: 0; }
+    .rhead { font-family: var(--cond); font-size: 18px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--mid-grey); border-bottom: 4px solid var(--navy); padding-bottom: 6px; display: flex; justify-content: space-between; }
+    .rhead i { font-style: normal; display: flex; gap: 14px; align-items: center; }
+    .rhead i .chip { letter-spacing: 0; text-transform: none; font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+    .rlist { --rs: 1; overflow-y: auto; flex: 1; padding-right: 8px; display: grid; grid-template-columns: 1fr; column-gap: 28px; align-content: start; }
+    .rlist.two { grid-template-columns: 1fr 1fr; }
+    .rlist.three { display: block; column-count: 4; column-gap: 18px; }
+    .rlist.three .rblock { break-inside: avoid; }
+    .rlist.three .rsc { padding: 1px 6px 0; }
+    .rlist.three .chip.n { white-space: normal; }
+    .rblock { padding: calc(var(--rs) * 8px) 0; border-bottom: 2px solid var(--light-grey); min-width: 0; }
+    .rbh { display: flex; align-items: center; gap: 10px; }
+    .rsc { font-family: var(--cond); font-size: calc(var(--rs) * 22px); font-weight: 900; letter-spacing: .04em; border: 3px solid var(--navy); border-radius: 6px; padding: 1px 9px 0; line-height: 1.2; }
+    .rbh b { margin-left: auto; font-family: var(--cond); font-size: calc(var(--rs) * 24px); font-weight: 900; }
+    .rtx { font-size: calc(var(--rs) * 16px); font-weight: 600; line-height: 1.28; margin-top: calc(var(--rs) * 6px); }
+    .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: calc(var(--rs) * 7px); }
+    .chip { font-size: calc(var(--rs) * 14px); font-weight: 700; padding: 2px 9px 2px 6px; border-radius: 5px; display: inline-flex; gap: 5px; align-items: center; line-height: 1.2; }
+    .chip svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .chip.y { background: var(--pink); color: #fff; border: 2px solid var(--pink); }
+    .chip.n { border: 2px dashed var(--navy); color: var(--navy); background: #fff; }
+    .chip.dot { padding: 2px 4px; }
+    .tag { display: inline-block; font-family: var(--cond); font-size: calc(var(--rs) * 16px); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: 2px 8px 1px; border-radius: 5px; }
+    .tag.sec { background: var(--pink); color: #fff; }
+    .tag.near { border: 2px solid var(--pink); color: var(--pink); }
+    .tag.rev { background: var(--navy); color: #fff; }
+    .rlist::-webkit-scrollbar, .sclist::-webkit-scrollbar { width: 8px; }
+    .rlist::-webkit-scrollbar-thumb, .sclist::-webkit-scrollbar-thumb { background: var(--navy); border-radius: 4px; }
+    .rlist::-webkit-scrollbar-track, .sclist::-webkit-scrollbar-track { background: var(--blank); border-radius: 4px; }
+
+    /* forces */
+    .obj { fill: var(--blank); stroke: var(--navy); stroke-width: 4; }
+    .oname { font-family: var(--cond); font-size: 19px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; fill: var(--navy); }
+    .flbl { font-family: var(--cond); font-weight: 800; fill: var(--navy); }
+    .fig circle { fill: var(--navy); }
+    .fig line, .fig polyline { stroke: var(--navy); stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+    .carbody { fill: var(--pink); }
+    .carwin { fill: #fff; }
+    .wheel circle { fill: var(--navy); }
+    .wheel line { stroke: #fff; stroke-width: 3; stroke-linecap: round; }
+    .sball { fill: #fff; stroke: var(--navy); stroke-width: 4; }
+    .spent { fill: var(--navy); }
+    .rope { stroke: var(--navy); stroke-width: 5; stroke-linecap: round; }
+    .clip { fill: none; stroke: var(--navy); stroke-width: 3; stroke-linecap: round; }
+    .pole { fill: #fff; font-family: var(--cond); font-size: 17px; font-weight: 900; text-anchor: middle; }
+    .stile { white-space: normal; text-align: center; justify-content: center !important; font-size: 20px; }
+    .bin .stile { font-size: 16px; padding: 3px 9px; }
+    .dtile svg { width: 124px; height: 124px; display: block; }
+    .bin .dtile svg { width: 76px; height: 76px; }
+    .asort.a3 { grid-template-columns: auto repeat(3, 78px); }
+    .asort.a3 svg { width: 78px; height: 78px; }
+    /* coming soon decks */
+    .deck.soon { cursor: not-allowed; }
+    .deck.soon::before { background: var(--light-grey); border-color: var(--light-grey); }
+    .deck.soon::after { border-color: #c3c6d0; border-style: dashed; }
+    .deck.soon .dface { border-color: #c3c6d0; border-style: dashed; }
+    .deck.soon .dface svg { opacity: .3; }
+    .deck.soon .dcode { color: #c3c6d0; }
+    .deck.soon .dname { color: var(--mid-grey); }
+    .deck.soon .dmeta { border-top-color: var(--light-grey); }
+    .deck.soon:hover .dface, .deck.soon:focus-visible .dface { transform: translate(-2px, -4px); border-color: var(--pink); }
+    .deck.soon:hover::after { transform: translate(6px, 6px); }
+    .soonchip { align-self: flex-start; margin-top: 10px; font-family: var(--cond); font-size: 17px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--pink); border: 3px solid var(--pink); border-radius: 6px; padding: 2px 10px 1px; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true"><defs>
+    <pattern id="pGround" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="10" stroke="#c9ccd6" stroke-width="2.5"/></pattern>
+    <pattern id="pGrass" width="14" height="22" patternUnits="userSpaceOnUse"><rect width="14" height="22" fill="#eef0f6"/><path d="M3 0 l2 7 l2 -7 M9 0 l2 6 l2 -6" fill="none" stroke="#9aa3c8" stroke-width="1.6"/></pattern>
+</defs></svg>
+<div class="stage" id="stage">
+    <div class="top">
+        <h1 class="sheet-title">Forces <span>flashcards</span></h1>
+        <div class="topr"><div class="counter" id="counter"></div>
+            <div class="bcount" title="Buckles earned">
+                <img src="buckle.svg" alt="" class="counter-icon" onerror="this.style.visibility='hidden'">
+                <div class="num" id="buckleCount">0</div>
+                <div class="lbl">Buckles</div>
+            </div>
+            <button class="snd" id="snd" aria-label="Turn sound on"></button></div>
+    </div>
+    <div class="content" id="content"></div>
+    <div class="caption"><div class="txt" id="cap"></div><div class="btns" id="btns"></div></div>
+    <div class="progress" id="progress"></div>
+</div>
+
+<div class="award" id="award" role="status" aria-live="polite">
+    <img src="penguin-with-buckle.svg" alt="" class="award-img" onerror="this.style.display='none'">
+    <div class="award-text" id="awardText">+1 Buckle!</div>
+</div>
+
+<script>
+/* =====================================================================================
+   FORCES FLASHCARDS: MAINTENANCE GUIDE
+   This file doubles as the template for future flashcard resources. Read this before
+   adding, editing or removing cards.
+
+   1. BUCKLES (shared reward system)
+      - Buckles are stored in localStorage under 'buckles-shared', the same record used by
+        the other checking for understanding pages. Each entry is 'PAGE_ID:card-id': 1.
+      - One buckle per card, awarded the first time the card is answered correctly and
+        never again. A wrong answer awards nothing, so the card can still be earned later.
+      - Every total on screen (deck tiles, SC rows, results) is counted from CARDS when the
+        page loads, so adding or removing cards needs no other changes.
+      - PAGE_ID must never change. Changing it would orphan every buckle already earned.
+        When copying this file to make a NEW resource, give that resource its own PAGE_ID.
+
+   2. CARD IDS (permanent)
+      - The first argument of C() is the card's buckle ID, for example 'sc4-tap-the-net-force'.
+      - Use lowercase letters, numbers and hyphens. Start with the SC so IDs stay readable.
+      - Once a card is published its ID is permanent. Labels, questions, options,
+        explanations and visuals can all be edited freely without affecting buckles.
+      - Adding a card: write a new C('new-id', ...) and add 'new-id' to RELEASED_IDS.
+      - Deleting a card: remove the C(...) entry and add its ID to RETIRED_IDS. Leave it in
+        RELEASED_IDS. Never reuse a retired ID.
+      - If an ID ever has to change, add 'old-id': 'new-id' to ID_ALIASES. Earned buckles
+        move across once and are never counted twice.
+
+   3. DATA CHECK
+      - validateCards() runs on every load. Problems and reminders are listed in the browser
+        console, and a small strip appears at the top left of the page. Pink means a problem
+        to fix before publishing. Navy means a reminder, such as registering a new ID.
+
+   4. CARD TYPES (opts[0] is correct unless ans is given)
+      Multiple choice:  C(id, sc, label, question, [4 options], explanation, { vis? , calc? , ordered?, ans? })
+      Pick the picture: as above with { pic: true } and 4 SVG strings as options
+      Predict:          as multiple choice with { scene: 'lab', vis: labSVG({...}) } (scene in SCENE)
+      Put in order:     { kind: 'order', seq: [...keys in order], tile: key => html, cols, ordTop, slotLab?, instr, ansHTML }
+      Sort:             { kind: 'sort', bins: [[title, hint], [title, hint]], items: [[html, 0 or 1], ...], tileCls?, poolCls?, instr, ansHTML }
+      Fill the gaps:    { kind: 'cloze', text: 'Use [] for each gap', answers: [...], bank: [...answers plus spares], instr, ansHTML }
+      Tap the diagram:  { kind: 'hotspot', hsSVG, correct: [indexes], instr, ansHTML }
+      New SCs or LGs: add the statement to SCT and the code to the matching LGS entry.
+      Coming soon decks: an LGS entry with soon: true (or no cards) shows as Coming soon on the
+        home screen. To release it, add its cards and remove soon.
+
+   5. HOUSE STYLE
+      - Swiss design, navy #1b1f45 and pink #ea008a, Barlow / Helvetica, 1280 x 720 stage.
+      - Australian English in all student-facing text. No em dashes.
+      - Animations always play at full speed. Do not add prefers-reduced-motion rules or any
+        code that shortens or disables animation (classroom laptops have reduced motion on).
+      - Diagrams are inline SVG drawn from the shared helpers (farrow, fdiag, fig, carBody...).
+      - Force arrows start on the object, point in the direction of the force, and their
+        length shows the size of the force (the same rules students are taught).
+   ===================================================================================== */
+const FILE_VERSION = '2.0';
+const $ = s => document.querySelector(s);
+const stage = $('#stage'), content = $('#content'), cap = $('#cap'), btns = $('#btns'), counter = $('#counter'), progress = $('#progress'), sndBtn = $('#snd');
+const NV = '#1b1f45', PK = '#ea008a', LT = '#f0f3f6', GR = '#c9ccd6', TN = '#e9ecf5';
+let scaleK = 1;
+function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
+function say(html) { cap.innerHTML = `<span class="in">${html}</span>`; }
+function addBtn(t, cls, fn) { const b = el('button', cls, t); b.onclick = fn; btns.appendChild(b); return b; }
+function A(e, kf, o = {}) { const a = e.animate(kf, { duration: 500, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'both', ...o }); return a.finished.catch(() => {}); }
+const easeInOut = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const local = r => { const s = stage.getBoundingClientRect(); return { x: (r.left - s.left) / scaleK, y: (r.top - s.top) / scaleK, w: r.width / scaleK, h: r.height / scaleK }; };
+const TICK = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+const CROSS = '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+
+/* ---------- sound ---------- */
+let sound = false, actx = null;
+const SPK = on => `<svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/>${on ? '<path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/>' : '<path d="M17 9.5l5 5M22 9.5l-5 5"/>'}</svg>`;
+function setSound(on) { sound = on; sndBtn.innerHTML = SPK(on); sndBtn.classList.toggle('on', on); sndBtn.setAttribute('aria-label', on ? 'Turn sound off' : 'Turn sound on'); }
+sndBtn.onclick = () => { setSound(!sound); if (sound) tone([[880, .1]]); };
+function tone(seq) {
+    if (!sound) return;
+    try {
+        actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+        let t = actx.currentTime + .01;
+        seq.forEach(([f, d, type = 'sine', v = .14]) => {
+            const o = actx.createOscillator(), g = actx.createGain();
+            o.type = type; o.frequency.value = f;
+            g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .012); g.gain.exponentialRampToValueAtTime(.0008, t + d);
+            o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + d + .03); t += d * .62;
+        });
+    } catch (e) {}
+}
+setSound(false);
+
+/* =========================================================
+   DRAWING HELPERS
+   ========================================================= */
+const f1 = v => (+v).toFixed(1);
+const tx = (x, y, s, o = {}) => `<text class="${o.c || 'lb'}" x="${f1(x)}" y="${f1(y)}" text-anchor="${o.a || 'middle'}"${o.fill ? ` style="fill:${o.fill}"` : ''}>${s}</text>`;
+const V = (w, h, inner, cls = '') => `<svg class="vis ${cls}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet">${inner}</svg>`;
+function arr(x1, y1, x2, y2, c = NV, sw = 5, hl = 16, hw = 10) {
+    const a = Math.atan2(y2 - y1, x2 - x1), ux = Math.cos(a), uy = Math.sin(a), bx = x2 - ux * hl, by = y2 - uy * hl, px = -uy * hw, py = ux * hw;
+    return `<line x1="${f1(x1)}" y1="${f1(y1)}" x2="${f1(bx)}" y2="${f1(by)}" stroke="${c}" stroke-width="${sw}" stroke-linecap="round"/><polygon points="${f1(x2)},${f1(y2)} ${f1(bx + px)},${f1(by + py)} ${f1(bx - px)},${f1(by - py)}" fill="${c}" stroke="${c}" stroke-width="1" stroke-linejoin="round"/>`;
+}
+const badge = (x, y, s, o = {}) => `<circle cx="${f1(x)}" cy="${f1(y)}" r="${o.r || 15}" fill="${o.bg || NV}" stroke="#fff" stroke-width="3"/>${tx(x, y + 6.5, s, { c: 'bd', fill: o.fg || '#fff' })}`;
+function rng(seed) { return () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
+
+/* ---------- forces drawing helpers ---------- */
+const DEG = Math.PI / 180;
+let UID = 0; const uid = p => p + (++UID);
+const th = (x, y, s, o = {}) => tx(x, y, s, { ...o, c: (o.c || 'lb') + ' halo' });
+/* force arrow: starts on the object at (x, y), d is 'r', 'l', 'u' or 'd', len in px. lb puts the label below or on the left */
+function farrow(x, y, d, len, lbl, o = {}) {
+    const c = o.c || PK, sw = o.sw || 7, hl = o.hl || 20, hw = o.hw || 12, fs = o.fs || 20;
+    const v = { r: [1, 0], l: [-1, 0], u: [0, -1], d: [0, 1] }[d];
+    const ex = x + v[0] * len, ey = y + v[1] * len, bx = ex - v[0] * hl, by = ey - v[1] * hl, px = -v[1] * hw, py = v[0] * hw;
+    const hz = d === 'r' || d === 'l';
+    let lx, ly, an;
+    if (o.lp === 'end' || (hz && lbl && !o.lb && !o.lp && len < fs * 2)) { lx = hz ? ex + v[0] * 10 : x; ly = hz ? y + fs * .35 : ey + (v[1] > 0 ? fs + 4 : -10); an = hz ? (v[0] > 0 ? 'start' : 'end') : 'middle'; }
+    else if (hz) { ly = o.lb ? y + fs + 12 : y - 13; lx = x + v[0] * len / 2; an = 'middle'; }
+    else { lx = o.lb ? x - 14 : x + 14; ly = y + v[1] * len / 2 + fs * .35; an = o.lb ? 'end' : 'start'; }
+    return (len > hl ? `<line x1="${f1(x)}" y1="${f1(y)}" x2="${f1(bx)}" y2="${f1(by)}" stroke="${c}" stroke-width="${sw}"/>` : '') +
+        `<polygon points="${f1(ex)},${f1(ey)} ${f1(bx + px)},${f1(by + py)} ${f1(bx - px)},${f1(by - py)}" fill="${c}"/>` +
+        (lbl ? `<text class="flbl halo" x="${f1(lx)}" y="${f1(ly)}" text-anchor="${an}" style="font-size:${fs}px">${lbl}</text>` : '');
+}
+/* force arrow diagram: a box with arrows starting on its edges. forces: [{ d, n, lbl?, c?, lb? }] */
+function fdiagIn(forces, o) {
+    const s = o.size || 70, k = o.k || 3, cx = o.cx, cy = o.cy;
+    const E = { r: [cx + s / 2, cy], l: [cx - s / 2, cy], u: [cx, cy - s / 2], d: [cx, cy + s / 2] };
+    let r = `<rect class="obj" x="${f1(cx - s / 2)}" y="${f1(cy - s / 2)}" width="${s}" height="${s}" rx="${s > 50 ? 6 : 4}"/>` + (o.name ? `<text class="oname" x="${f1(cx)}" y="${f1(cy + 7)}" text-anchor="middle">${o.name}</text>` : '');
+    forces.forEach(f => r += farrow(E[f.d][0], E[f.d][1], f.d, f.n * k, o.nolab ? '' : (f.lbl ? f.lbl + ' ' : '') + f.n + ' N', { c: f.c, lb: f.lb, fs: o.fs, sw: o.sw, hl: o.hl, hw: o.hw }));
+    return r;
+}
+const fdiag = (forces, o = {}) => { const w = o.w || 400, h = o.h || 300; return V(w, h, fdiagIn(forces, { ...o, cx: o.cx || w / 2, cy: o.cy || h / 2 })); };
+const ground = (y, x1 = 0, x2 = 540) => `<rect x="${x1}" y="${y}" width="${x2 - x1}" height="22" fill="url(#pGround)"/><line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${NV}" stroke-width="4"/>`;
+const movTag = (x, y, dir = 1) => tx(x - 14 * dir, y + 6, 'Moving', { c: 'tiny', a: dir > 0 ? 'end' : 'start' }) + arr(x - 6 * dir, y, x + 30 * dir, y, NV, 3, 10, 6);
+
+/* stick figures */
+const POSE = {
+    push: { f1: [-30, 0], f2: [10, 0], hip: [-8, -58], sh: [14, -100], hd: [22, -118], h: [52, -82] },
+    pull: { f1: [20, 0], f2: [-18, 0], hip: [-6, -58], sh: [-20, -100], hd: [-27, -117], h: [22, -72] },
+    stand: { f1: [-12, 0], f2: [12, 0], hip: [0, -58], sh: [0, -100], hd: [0, -117], h: [16, -60] },
+    kick: { f1: [-12, 0], f2: [40, -34], hip: [0, -58], sh: [-6, -100], hd: [-8, -117], h: [-32, -72] }
+};
+function fig(x, gy, pose, flip, sc = 1) {
+    const p = POSE[pose], q = a => a.join(','), h2 = [p.h[0] - 5, p.h[1] + 7];
+    return `<g class="fig" transform="translate(${x} ${gy}) scale(${flip ? -sc : sc} ${sc})"><polyline points="${q(p.f1)} ${q(p.hip)} ${q(p.f2)}"/><line x1="${p.hip[0]}" y1="${p.hip[1]}" x2="${p.sh[0]}" y2="${p.sh[1]}"/><polyline points="${q(p.sh)} ${q(h2)}"/><polyline points="${q(p.sh)} ${q(p.h)}"/><circle cx="${p.hd[0]}" cy="${p.hd[1]}" r="14"/></g>`;
+}
+/* car: about 192 wide, wheels touch y = 58 */
+function carBody() {
+    const wheel = x => `<g class="wheel" transform="translate(${x} 42)"><circle r="16"/><line x1="-9" x2="9" y1="0" y2="0"/><line x1="0" x2="0" y1="-9" y2="9"/></g>`;
+    return `<path class="carbody" d="M4 40 L4 24 Q4 16 14 14 L42 10 L64 -8 Q68 -12 76 -12 L128 -12 Q136 -12 142 -4 L158 12 L184 16 Q196 18 196 30 L196 40 Z"/><polygon class="carwin" points="72,8 84,-3 105,-3 105,8"/><polygon class="carwin" points="112,8 112,-3 128,-3 141,8"/>${wheel(44)}${wheel(156)}`;
+}
+function soccer(r) {
+    const k = r / 26;
+    const pts = [0, 1, 2, 3, 4].map(i => { const a = -Math.PI / 2 + i * 2 * Math.PI / 5; return f1(Math.cos(a) * 10 * k) + ',' + f1(Math.sin(a) * 10 * k); }).join(' ');
+    return `<circle class="sball" r="${r}"/><polygon class="spent" points="${pts}"/>`;
+}
+function barMag() { return `<rect x="-60" y="-18" width="60" height="36" fill="${PK}"/><rect x="0" y="-18" width="60" height="36" fill="${NV}"/><text class="pole" x="-30" y="6">N</text><text class="pole" x="30" y="6">S</text>`; }
+const clipSVG = () => `<path class="clip" d="M4 2 H30 A5 5 0 0 1 30 12 H6 A3.5 3.5 0 0 1 6 5 H26"/>`;
+function balloonSVG(rx = 34) {
+    const ry = rx * 1.24;
+    return `<path d="M0 ${f1(ry)} q-6 24 5 44 q9 20 -3 44" fill="none" stroke="${NV}" stroke-width="2.5"/><ellipse rx="${rx}" ry="${f1(ry)}" fill="${PK}"/><path d="M-6 ${f1(ry + 7)} L0 ${f1(ry - 2)} L6 ${f1(ry + 7)} Z" fill="${PK}"/><ellipse cx="${f1(-rx * .38)}" cy="${f1(-ry * .42)}" rx="${f1(rx * .16)}" ry="${f1(ry * .22)}" fill="#fff" opacity=".45"/>`;
+}
+const appleSVG = () => `<circle r="16" fill="${PK}"/><line x1="0" y1="-16" x2="2" y2="-25" stroke="${NV}" stroke-width="3" stroke-linecap="round"/><ellipse cx="9" cy="-22" rx="7" ry="3.5" fill="${NV}" transform="rotate(-25 9 -22)"/>`;
+function chuteSVG() {
+    return `<path d="M-70 0 Q-70 -60 0 -62 Q70 -60 70 0 Q52 -10 35 0 Q18 -10 0 0 Q-18 -10 -35 0 Q-52 -10 -70 0 Z" fill="${PK}"/>
+        <g stroke="${NV}" stroke-width="1.8"><line x1="-70" y1="0" x2="-12" y2="76"/><line x1="-35" y1="0" x2="-12" y2="76"/><line x1="35" y1="0" x2="12" y2="76"/><line x1="70" y1="0" x2="12" y2="76"/></g>
+        <g stroke="${NV}" stroke-width="6" stroke-linecap="round" fill="none"><line x1="0" y1="82" x2="0" y2="112"/><polyline points="-12,76 0,88 12,76"/><polyline points="-10,138 0,112 10,138"/></g><circle cx="0" cy="68" r="9" fill="${NV}"/>`;
+}
+const lampSVG = () => `<line x1="0" y1="0" x2="0" y2="62" stroke="${NV}" stroke-width="3"/><path d="M-26 92 L-14 62 L14 62 L26 92 Z" fill="${PK}"/><circle cy="96" r="7" fill="#fff" stroke="${NV}" stroke-width="2.5"/>`;
+const cartSVG = () => `<rect class="obj" x="0" y="0" width="130" height="58" rx="5"/><g class="wheel"><circle cx="26" cy="66" r="12"/><circle cx="104" cy="66" r="12"/></g>`;
+const trail = (pts, y, c = NV, r = 4.5) => pts.map(x => `<circle cx="${f1(x)}" cy="${y}" r="${r}" fill="${c}"/>`).join('');
+
+/* ---------- card visuals ---------- */
+function pullCart() {
+    let s = ground(214) + `<g transform="translate(70 142)">${cartSVG()}</g>`;
+    s += `<line class="rope" x1="200" y1="150" x2="330" y2="146"/>` + fig(352, 214, 'pull', true);
+    s += farrow(200, 178, 'r', 100, 'Pull', { lb: 1 }) + tx(135, 176, 'Cart', { c: 'oname' });
+    return V(540, 250, `<g transform="translate(60 0)">${s}</g>`);
+}
+function magnetClip() {
+    let s = `<g transform="translate(170 120)">${barMag()}</g><g transform="translate(330 106) scale(2.2)">${clipSVG()}</g>`;
+    s += farrow(330, 120, 'l', 76, 'Pull');
+    s += `<g stroke="${GR}" stroke-width="2.5"><line x1="230" y1="176" x2="330" y2="176"/><line x1="230" y1="166" x2="230" y2="186"/><line x1="330" y1="166" x2="330" y2="186"/></g>` + tx(280, 206, 'Gap', { c: 'lbg' });
+    s += tx(170, 236, 'Magnet', { c: 'lbg' }) + tx(368, 236, 'Paperclip', { c: 'lbg' });
+    return V(540, 250, s);
+}
+function slideBox() {
+    let s = ground(200, 40, 500);
+    s += `<rect class="obj" x="250" y="118" width="110" height="82" rx="6"/>` + tx(305, 166, 'Box', { c: 'oname' });
+    s += `<g stroke="${GR}" stroke-width="4" stroke-linecap="round"><line x1="150" y1="134" x2="228" y2="134"/><line x1="180" y1="150" x2="232" y2="150"/></g>`;
+    s += movTag(320, 92) + farrow(250, 192, 'l', 120, 'Friction');
+    return V(540, 250, s);
+}
+function balloonHair() {
+    const cx = 170, cy = 140;
+    let s = `<path d="M${cx - 70} 250 Q${cx - 70} ${cy + 66} ${cx} ${cy + 60} Q${cx + 70} ${cy + 66} ${cx + 70} 250 Z" fill="${TN}" stroke="${NV}" stroke-width="4"/>`;
+    s += `<circle cx="${cx}" cy="${cy}" r="52" fill="#fff" stroke="${NV}" stroke-width="4"/>`;
+    for (let a = -165; a <= -15; a += 15) {
+        const r = a * DEG, x0 = cx + 52 * Math.cos(r), y0 = cy + 52 * Math.sin(r), lean = (a + 90) / 75;
+        const x2 = x0 + 50 + lean * 28, y2 = y0 - 34 + Math.abs(lean) * 10;
+        s += `<path d="M${f1(x0)} ${f1(y0)} Q${f1(x0 + 10)} ${f1(y0 - 34)} ${f1(x2)} ${f1(y2)}" fill="none" stroke="${NV}" stroke-width="3" stroke-linecap="round"/>`;
+    }
+    s += `<g transform="translate(410 96)">${balloonSVG(40)}${['-12,-14', '10,-4', '-8,14', '14,20'].map(p => { const [x, y] = p.split(','); return `<text class="pole" x="${x}" y="${+y + 6}">−</text>`; }).join('')}</g>`;
+    s += tx(cx, 268, 'Hair', { c: 'lbg' }) + tx(410, 268, 'Balloon', { c: 'lbg' });
+    return V(540, 280, s);
+}
+/* small labelled pictures for pick the picture cards */
+const picLab = (s, lab) => V(220, 150, s + (lab ? tx(110, 144, lab, { c: 'lbg' }) : ''));
+const picApple = () => picLab(`<line x1="20" y1="116" x2="200" y2="116" stroke="${NV}" stroke-width="3"/><g stroke="${GR}" stroke-width="3" stroke-linecap="round"><line x1="110" y1="14" x2="110" y2="30"/><line x1="98" y1="22" x2="98" y2="36"/><line x1="122" y1="22" x2="122" y2="36"/></g><g transform="translate(110 64)">${appleSVG()}</g>`, 'Falling apple');
+const picPush = () => picLab(`<line x1="20" y1="116" x2="200" y2="116" stroke="${NV}" stroke-width="3"/>${fig(70, 116, 'push', false, .62)}<rect class="obj" x="102" y="66" width="64" height="50" rx="4"/>`, 'Pushing a box');
+const picLamp = () => picLab(`<line x1="50" y1="12" x2="170" y2="12" stroke="${NV}" stroke-width="4"/><g transform="translate(110 12)">${lampSVG()}</g>`, 'Hanging lamp');
+const picChute = () => picLab(`<g transform="translate(110 54) scale(.56)">${chuteSVG()}</g>`, 'Parachute');
+function skydiver() {
+    const s = `<g transform="translate(270 100) scale(.95)">${chuteSVG()}</g>` + farrow(270, 41, 'u', 36, 'Air resistance') + farrow(270, 232, 'd', 56, 'Gravity');
+    return V(540, 300, s);
+}
+function tugSmall(L, R) {
+    const gy = 222, ry = gy - 61, cx = 270, ay = 66;
+    let s = `<line x1="0" x2="540" y1="${gy + 2}" y2="${gy + 2}" stroke="${GR}" stroke-width="4"/><line class="rope" x1="40" x2="${R > L ? 525 : 500}" y1="${ry}" y2="${ry}"/>`;
+    s += `<path d="M${cx} ${ry} L${cx - 10} ${ry + 30} L${cx + 10} ${ry + 30} Z" fill="${PK}"/>`;
+    [70, 150].forEach(x => s += fig(x, gy, 'pull', false, .85));
+    (R > L ? [510, 445, 380] : [470, 390]).forEach(x => s += fig(x, gy, 'pull', true, .85));
+    s += `<line x1="${cx}" x2="${cx}" y1="${ay}" y2="${ry}" stroke="${GR}" stroke-width="2.5" stroke-dasharray="5 6"/><circle cx="${cx}" cy="${ay}" r="7" fill="${NV}"/>`;
+    s += farrow(cx - 8, ay, 'l', L * .4, L + ' N') + farrow(cx + 8, ay, 'r', R * .4, R + ' N');
+    return V(540, 240, s);
+}
+function bookTable() {
+    let s = `<rect x="130" y="176" width="280" height="14" rx="3" fill="${NV}"/><rect x="150" y="190" width="12" height="70" fill="${NV}"/><rect x="378" y="190" width="12" height="70" fill="${NV}"/>`;
+    s += `<rect x="200" y="140" width="140" height="36" rx="3" fill="#fff" stroke="${NV}" stroke-width="4"/><rect x="200" y="140" width="18" height="36" rx="3" fill="${PK}"/>` + tx(279, 165, 'Book', { c: 'oname' });
+    s += farrow(270, 140, 'u', 100, 'Support 20 N') + farrow(270, 176, 'd', 100, 'Weight 20 N', { lb: 1 });
+    return V(540, 290, s);
+}
+function arrowScale() {
+    let s = '';
+    for (let i = 0; i <= 6; i++) s += `<line x1="${120 + i * 60}" y1="150" x2="${120 + i * 60}" y2="${i % 2 ? 160 : 166}" stroke="${GR}" stroke-width="3"/>`;
+    s += `<line x1="120" y1="150" x2="480" y2="150" stroke="${GR}" stroke-width="3"/>` + tx(480, 190, '1 square = 10 N', { c: 'lbg', a: 'end' });
+    s += `<rect class="obj" x="50" y="64" width="70" height="70" rx="6"/>` + farrow(120, 99, 'r', 120, '20 N');
+    return V(540, 200, s);
+}
+function sameDir() {
+    const s = `<rect class="obj" x="150" y="70" width="100" height="100" rx="6"/>${tx(200, 127, 'Box', { c: 'oname' })}${farrow(250, 95, 'r', 80, '20 N')}${farrow(250, 145, 'r', 120, '30 N', { lb: 1 })}`;
+    return V(540, 230, s);
+}
+function oppDir() {
+    const s = `<rect class="obj" x="200" y="70" width="100" height="100" rx="6"/>${tx(250, 127, 'Box', { c: 'oname' })}${farrow(300, 120, 'r', 150, '50 N')}${farrow(200, 120, 'l', 60, '20 N')}`;
+    return V(540, 230, s);
+}
+function carDiag(f, b) {
+    const o = { fs: 17, sw: 5, hl: 14, hw: 9, lp: 'mid' };
+    let s = `<line x1="6" y1="124" x2="214" y2="124" stroke="${NV}" stroke-width="3"/><g transform="translate(57 92) scale(.55)">${carBody()}</g>` + movTag(110, 40);
+    if (f) s += farrow(165, 100, 'r', f * 1.6, f + ' N', o);
+    if (b) s += farrow(59, 100, 'l', b * 1.6, b + ' N', o);
+    return V(220, 150, s);
+}
+function ballGrass() {
+    let s = `<rect x="20" y="190" width="500" height="22" fill="url(#pGrass)"/><line x1="20" y1="190" x2="520" y2="190" stroke="${NV}" stroke-width="4"/>`;
+    s += trail([70, 140, 196, 240, 272], 160, GR, 5) + `<g transform="translate(310 160)">${soccer(30)}</g>`;
+    s += farrow(288, 180, 'l', 90, 'Friction', { lp: 'end' }) + movTag(330, 100);
+    return V(540, 240, s);
+}
+function kickLanes() {
+    let s = '';
+    [[80, 'Small kick', 32, 180], [190, 'Big kick', 72, 470]].forEach(([y, lab, gap, end]) => {
+        s += tx(30, y - 34, lab, { a: 'start' }) + `<line x1="30" y1="${y + 26}" x2="520" y2="${y + 26}" stroke="${GR}" stroke-width="3"/>`;
+        const pts = []; for (let x = 60; x < end - 10; x += gap) pts.push(x);
+        s += trail(pts, y, GR, 5) + `<g transform="translate(${end} ${y})">${soccer(22)}</g>`;
+    });
+    return V(540, 240, s);
+}
+function ballWall() {
+    let s = `<rect x="440" y="20" width="26" height="220" fill="url(#pGround)" stroke="${NV}" stroke-width="4"/>`;
+    s += `<path d="M70 50 L414 130 L70 210" fill="none" stroke="${GR}" stroke-width="4" stroke-dasharray="3 12" stroke-linecap="round"/>`;
+    s += arr(220, 85, 290, 101, GR, 4, 14, 9) + arr(290, 159, 220, 175, GR, 4, 14, 9);
+    s += `<g transform="translate(414 130)">${soccer(24)}</g>` + farrow(390, 130, 'l', 110, 'Push from the wall', { lb: 1 });
+    return V(540, 260, s);
+}
+const picSquash = () => V(220, 150, `<ellipse cx="110" cy="80" rx="58" ry="30" fill="${PK}"/>${farrow(110, 16, 'd', 30, '', { c: NV, sw: 5, hl: 14, hw: 9 })}${farrow(110, 144, 'u', 30, '', { c: NV, sw: 5, hl: 14, hw: 9 })}`);
+const picWall = () => V(220, 150, `<rect x="180" y="14" width="16" height="122" fill="url(#pGround)" stroke="${NV}" stroke-width="3"/><path d="M30 30 L160 75 L30 120" fill="none" stroke="${GR}" stroke-width="3" stroke-dasharray="3 9" stroke-linecap="round"/><g transform="translate(160 75)">${soccer(16)}</g>`);
+const picTrolley = () => V(220, 150, `<line x1="10" y1="118" x2="210" y2="118" stroke="${NV}" stroke-width="3"/><g transform="translate(40 50) scale(.75)">${cartSVG()}</g>${farrow(138, 72, 'r', 60, '', { sw: 5, hl: 14, hw: 9 })}`);
+const picBrake = () => carDiag(0, 25);
+
+/* force lab: a box on a frictionless track, used by the Predict cards */
+const LAB = { TY: 178, K: 5, intro: 1.5 };
+function labSVG(o) {
+    const TY = LAB.TY, by = TY - 35;
+    let s = `<rect x="0" y="${TY + 6}" width="540" height="18" fill="${LT}"/><line x1="0" y1="${TY}" x2="540" y2="${TY}" stroke="${NV}" stroke-width="4"/><g class="trail"></g>`;
+    s += `<g class="bx"><g class="arw" opacity="0">${o.r ? farrow(35, by, 'r', o.r * 3, o.r + ' N') : ''}${o.l ? farrow(-35, by, 'l', o.l * 3, o.l + ' N') : ''}</g>`;
+    s += `<rect class="obj" x="-35" y="${TY - 70}" width="70" height="70" rx="6"/><text class="oname" x="0" y="${by + 7}" text-anchor="middle">Box</text>`;
+    s += `<g class="mv">${o.v0 ? movTag(0, TY - 92) : tx(0, TY - 86, 'Still', { c: 'tiny' })}</g><g class="q" opacity="0">${badge(-34, TY - 70, '?', { bg: PK, r: 16 })}</g></g>`;
+    s += `<g class="res" opacity="0">${th(270, 34, o.res, { c: 'qm', fill: PK })}</g>`;
+    s += tx(10, 238, 'No friction', { c: 'lbg', a: 'start' }) + tx(530, 238, 'A dot every 0.2 s', { c: 'lbg', a: 'end' });
+    return `<svg class="vis" viewBox="0 0 540 246" preserveAspectRatio="xMidYMid meet" data-v0="${o.v0}" data-x0="${o.x0}" data-l="${o.l || 0}" data-r="${o.r || 0}" data-t="${o.t}">${s}</svg>`;
+}
+const SCENE = {
+    lab(svg) {
+        const d = svg.dataset, v0 = +d.v0, x0 = +d.x0, a = (+d.r - +d.l) * LAB.K, T = +d.t, xs = x0 - v0 * LAB.intro;
+        const bx = svg.querySelector('.bx'), arw = svg.querySelector('.arw'), tr = svg.querySelector('.trail'), q = svg.querySelector('.q'), res = svg.querySelector('.res'), mv = svg.querySelector('.mv');
+        let tok = 0;
+        const place = x => bx.setAttribute('transform', `translate(${f1(x)} 0)`);
+        const dot = (x, c) => tr.insertAdjacentHTML('beforeend', `<circle cx="${f1(x)}" cy="${LAB.TY + 15}" r="4.5" fill="${c}"/>`);
+        const run = (dur, xAt, c) => { const my = ++tok; return new Promise(ok => { const st = performance.now(); let nd = 0; const f = n => { if (my !== tok || !document.body.contains(svg)) return; const t = Math.min(dur, (n - st) / 1000); while (nd <= t + 1e-6) { dot(xAt(nd), c); nd += .2; } place(xAt(t)); if (t < dur) requestAnimationFrame(f); else ok(); }; requestAnimationFrame(f); }); };
+        const wait = ms => { const my = ++tok; return new Promise(ok => setTimeout(() => { if (my === tok) ok(); }, ms)); };
+        place(v0 ? xs : x0);
+        return {
+            async intro() {
+                tr.innerHTML = ''; [arw, q, res].forEach(e => e.setAttribute('opacity', 0)); mv.setAttribute('opacity', 1);
+                if (v0) await run(LAB.intro, t => xs + v0 * t, GR); else { place(x0); await wait(700); }
+                arw.setAttribute('opacity', 1); A(arw, [{ opacity: 0 }, { opacity: 1 }], { duration: 400 });
+                q.setAttribute('opacity', 1); A(q, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 400, delay: 250 });
+            },
+            async outcome() {
+                tr.innerHTML = ''; place(x0); arw.setAttribute('opacity', 1); q.setAttribute('opacity', 0); mv.setAttribute('opacity', 0); res.setAttribute('opacity', 0);
+                await run(T, t => x0 + v0 * t + .5 * a * t * t, PK);
+                res.setAttribute('opacity', 1); A(res, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 400 });
+            }
+        };
+    }
+};
+
+/* ---------- tap the diagram: net force direction ---------- */
+function netHS() {
+    const cx = 260, cy = 230;
+    let s = fdiagIn([{ d: 'u', n: 25 }, { d: 'd', n: 25 }, { d: 'l', n: 35 }, { d: 'r', n: 15 }], { cx, cy, size: 110, k: 3.2, name: 'Crate' });
+    [[0, -196, 'Up'], [196, 0, 'Right'], [0, 196, 'Down'], [-196, 0, 'Left']].forEach(([dx, dy, lab], k) => {
+        const x = cx + dx, y = cy + dy;
+        s += `<g class="hs" data-k="${k}" tabindex="0" role="button" aria-label="${lab}" transform="translate(${x} ${y})"><circle class="hpl" r="15" fill="none" stroke="${PK}" stroke-width="3"><animate attributeName="r" values="14;26" dur="1.6s" begin="${(k * .2).toFixed(1)}s" repeatCount="indefinite"/><animate attributeName="opacity" values=".9;0" dur="1.6s" begin="${(k * .2).toFixed(1)}s" repeatCount="indefinite"/></circle><circle class="hdot" r="15" fill="#fff" stroke="${NV}" stroke-width="3.5"/><path class="hok" d="M-6 0.5l4 4 8-9" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><path class="hno" d="M-5 -5l10 10M5 -5l-10 10" fill="none" stroke="${NV}" stroke-width="3" stroke-linecap="round"/></g>`;
+        s += th(x + (dy ? 26 : 0), y + (dy ? 6 : 40), lab, { c: 'tiny', a: dy ? 'start' : 'middle', fill: NV });
+    });
+    return `<svg class="vis hsv" viewBox="0 0 520 460" preserveAspectRatio="xMidYMid meet">${s}</svg>`;
+}
+const netBack = () => V(540, 230, fdiagIn([{ d: 'l', n: 20, lbl: 'Net force', c: NV }], { cx: 380, cy: 115, size: 90, k: 8, name: 'Crate' }));
+
+const pDiag = (f, o = {}) => V(220, 150, fdiagIn(f, { cx: 110, cy: 80, size: 36, k: 2.5, fs: 18, sw: 5, hl: 14, hw: 9, ...o }));
+/* small diagram tiles for sorting (no labels: students compare arrow lengths) */
+const dTile = f => `<svg viewBox="0 0 160 160">${fdiagIn(f, { cx: 80, cy: 80, size: 30, k: 1.8, nolab: true, sw: 6, hl: 15, hw: 10 })}</svg>`;
+const sTile = t => `<span>${t}</span>`;
+
+/* deck icons */
+const ICON = {
+    LG1: `<svg viewBox="0 0 160 112"><g transform="translate(50 56) scale(.78)">${barMag()}</g><g transform="translate(112 46) scale(1.45)">${clipSVG()}</g>${farrow(110, 56, 'l', 24, '', { sw: 4, hl: 11, hw: 7 })}</svg>`,
+    LG2: `<svg viewBox="0 0 160 112">${fdiagIn([{ d: 'l', n: 20 }, { d: 'r', n: 32 }, { d: 'u', n: 14 }, { d: 'd', n: 14 }], { cx: 72, cy: 56, size: 30, k: 1.5, nolab: true, sw: 5, hl: 12, hw: 8 })}</svg>`,
+    LG3: `<svg viewBox="0 0 160 112"><polygon points="80,74 66,98 94,98" fill="${PK}"/><line x1="12" y1="88" x2="148" y2="98" stroke="${NV}" stroke-width="3"/><g transform="rotate(-14 80 72)"><rect x="14" y="68" width="132" height="8" rx="2" fill="${NV}"/><rect x="18" y="44" width="26" height="24" rx="3" fill="#fff" stroke="${NV}" stroke-width="3"/></g>${farrow(138, 40, 'd', 22, '', { sw: 4, hl: 11, hw: 7 })}</svg>`,
+    LG4: `<svg viewBox="0 0 160 112"><path d="M0 112 Q80 76 160 112 Z" fill="${TN}" stroke="${NV}" stroke-width="3"/><g transform="translate(80 26) scale(.9)">${appleSVG()}</g>${farrow(80, 44, 'd', 34, '', { sw: 4, hl: 11, hw: 7 })}</svg>`
+};
+const PATTERN = (() => { let s = ''; for (let r = 60; r < 900; r += 46) s += `<circle cx="600" cy="490" r="${r}" fill="none" stroke="${PK}" stroke-width="2" opacity="${(.55 - r / 2000).toFixed(2)}"/>`; return `<svg viewBox="0 0 584 470" preserveAspectRatio="xMidYMid slice">${s}<circle cx="600" cy="490" r="34" fill="${PK}"/></svg>`; })();
+const REPLAY = `<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v5h5"/></svg>`;
+const ansRow = items => `<div class="arow">${items}</div>`;
+
+/* =========================================================
+   CURRICULUM
+   soon: true shows the deck as Coming soon on the home screen.
+   To release a deck, add its cards and remove soon.
+   ========================================================= */
+const LGS = [
+    { id: 'LG1', short: 'Contact and non\u2011contact forces', text: 'To investigate common types of contact and non-contact forces', sc: ['SC1', 'SC2'] },
+    { id: 'LG2', short: 'Balanced and unbalanced forces', text: 'To investigate balanced and unbalanced forces acting on objects', sc: ['SC3', 'SC4', 'SC5', 'SC6'] },
+    { id: 'LG3', short: 'Friction and simple machines', text: 'To investigate common forces and simple machines', sc: ['SC7', 'SC8', 'SC9', 'SC10', 'SC11', 'SC12', 'SC13', 'SC14'], soon: true },
+    { id: 'LG4', short: 'Gravity, mass and weight', text: 'To investigate changes to an object due to gravitational force', sc: ['SC15', 'SC16', 'SC17'], soon: true }
+];
+const SCT = {
+    SC1: 'I can define what forces are',
+    SC2: 'I can classify different types of forces as either contact or non-contact',
+    SC3: 'I can identify whether forces acting upon an object are balanced or unbalanced',
+    SC4: 'I can analyse forces using force arrow diagrams',
+    SC5: 'I can recognise that changes to an object’s motion is caused by unbalanced forces acting on the object',
+    SC6: 'I can identify the effect of applying different forces to an object',
+    SC7: 'I can recognise the beneficial and unwanted effects of friction',
+    SC8: 'I can define the term ‘simple machine’',
+    SC9: 'I can identify the advantages of simple machines',
+    SC10: 'I can describe the relationship between angle of inclination and effort force',
+    SC11: 'I can compare the efficiency of different simple machines',
+    SC12: 'I can recognise the location of the fulcrum, resistance arm and the effort arm of different levers',
+    SC13: 'I can contrast force multipliers and speed multipliers',
+    SC14: 'I can calculate the net force acting on an object',
+    SC15: 'I can explain why objects fall due to gravitational force',
+    SC16: 'I can explain the difference between mass and weight',
+    SC17: 'I can compare the effect of gravity on objects on the Earth’s surface and on other planets'
+};
+const LGOF = {}; LGS.forEach(l => l.sc.forEach(s => LGOF[s] = l.id));
+
+/* Card factory. The first argument is the card's permanent buckle ID (see the maintenance guide at the top of this script).
+   The first option is the correct one unless ans is given. ordered keeps the options in the order written. */
+const C = (id, sc, label, q, opts, exp, x = {}) => ({ id, sc, lg: LGOF[sc], label, q, opts, exp, ans: 0, ...x });
+const CARDS = [
+    /* LG1 */
+    C('sc1-what-is-a-force', 'SC1', 'What is a force?', 'What is a force?', ['A push or a pull that acts on an object', 'The speed that an object is moving at', 'The amount of matter in an object', 'The energy stored inside an object'], 'A force is a push or a pull. Every force acts on an object and can change how it moves or its shape.'),
+    C('sc1-unit-of-force', 'SC1', 'Unit of force', 'Which unit are forces measured in?', ['Newtons (N)', 'Kilograms (kg)', 'Metres (m)', 'Seconds (s)'], 'Forces are measured in newtons, written with the symbol N. Kilograms measure mass, not force.'),
+    C('sc1-push-or-pull', 'SC1', 'Push or pull', 'Is the force on the cart a push or a pull?', ['A pull, because it acts towards the person', 'A push, because it acts away from the person', 'Neither, because the person is not touching the cart', 'A push, because the cart is moving'], 'The person pulls the rope, so the force on the cart acts towards them. A force that acts towards you is a pull.', { vis: pullCart() }),
+    C('sc1-what-else-forces-change', 'SC1', 'What else forces change', 'Forces can change how an object moves. What else can a force change?', ['Its shape', 'Its colour', 'What it is made of', 'How old it is'], 'Forces can squash, stretch, bend or twist an object, changing its shape. They can also make it start, stop, speed up, slow down or change direction.'),
+    C('sc1-two-objects-in-a-kick', 'SC1', 'Two objects in a kick', 'Every force involves two objects. When you kick a ball, which two objects are involved?', ['Your foot and the ball', 'The ball and the air', 'Your foot and the ground', 'The ball and the goal'], 'One object does the pushing or pulling and the other is pushed or pulled. Your foot pushes on the ball.'),
+
+    C('sc2-what-contact-forces-share', 'SC2', 'What contact forces share', 'What do all contact forces have in common?', ['The objects must be touching', 'They only act on metal objects', 'They can act across huge distances', 'They always make objects speed up'], 'Contact forces only act when the two objects are touching. Non-contact forces can act across a gap.'),
+    C('sc2-magnet-and-paperclip', 'SC2', 'Magnet and paperclip', 'The magnet pulls the paperclip across the gap. Which force is this?', ['Magnetic force, a non-contact force', 'Magnetic force, a contact force', 'Tension, a contact force', 'Gravity, a non-contact force'], 'The magnet pulls the paperclip without touching it, so magnetic force is a non-contact force.', { vis: magnetClip() }),
+    C('sc2-sliding-box-slows-down', 'SC2', 'Sliding box slows down', 'The box slides across the floor and slows down. Which force slows it?', ['Friction, a contact force', 'Gravity, a non-contact force', 'Magnetic force, a non-contact force', 'Tension, a contact force'], 'Friction acts where the box and the floor rub together, against the direction of motion. The surfaces touch, so friction is a contact force.', { vis: slideBox() }),
+    C('sc2-balloon-and-hair', 'SC2', 'Balloon and hair', 'After rubbing a balloon on your hair, your hair rises towards it without touching. Which force is this?', ['Electrostatic force', 'Friction', 'Air resistance', 'Support force'], 'Rubbing moves negative charges onto the balloon. Charged objects can push or pull across a gap, so electrostatic force is a non-contact force.', { vis: balloonHair() }),
+    C('sc2-spot-the-non-contact-force', 'SC2', 'Spot the non-contact force', 'Which picture shows a non-contact force at work?', [picApple(), picPush(), picLamp(), picChute()], 'Gravity pulls the falling apple towards Earth without touching it. Pushing, tension in the cord and air resistance all need surfaces to touch.', { pic: true }),
+    C('sc2-forces-on-a-parachutist', 'SC2', 'Forces on a parachutist', 'Two forces act on this parachutist. Which statement is correct?', ['Gravity is non-contact and air resistance is contact', 'Both forces are contact forces', 'Both forces are non-contact forces', 'Gravity is contact and air resistance is non-contact'], 'Gravity pulls the parachutist down without touching. Air particles touch the canopy and push up, so air resistance is a contact force.', { vis: skydiver() }),
+    C('sc2-why-air-resistance-is-contact', 'SC2', 'Why air resistance is contact', 'Why is air resistance a contact force?', ['Air particles touch the surface of the moving object', 'It only acts when the object hits the ground', 'It can act across empty space', 'It is caused by magnets in the air'], 'Tiny air particles push against the surface of anything moving through the air. They touch the object, so it is a contact force.'),
+    C('sc2-both-non-contact', 'SC2', 'Both non-contact', 'Which pair are both non-contact forces?', ['Gravity and magnetic force', 'Friction and gravity', 'Tension and electrostatic force', 'Air resistance and magnetic force'], 'Gravity, magnetic force and electrostatic force act without touching. Each other pair includes a contact force.'),
+
+    /* LG2 */
+    C('sc3-what-balanced-means', 'SC3', 'What balanced means', 'What are balanced forces?', ['Forces that are equal in size and opposite in direction', 'Forces that all point the same way', 'Any two forces acting on one object', 'Forces that are both very small'], 'Balanced forces are equal in size and act in opposite directions, so they cancel out. The net force is zero.'),
+    C('sc3-even-tug-of-war', 'SC3', 'Even tug of war', 'Both teams pull with 300 N. What can you say about the forces on the rope?', ['They are balanced, so the rope does not move', 'They are unbalanced, so the rope moves left', 'They are unbalanced, so the rope moves right', 'They are balanced, so the rope speeds up'], 'The forces are equal in size and opposite in direction. They cancel out, so the net force is 0 N and the rope stays still.', { vis: tugSmall(300, 300) }),
+    C('sc3-pick-the-balanced-diagram', 'SC3', 'Pick the balanced diagram', 'Which force arrow diagram shows balanced forces?', [pDiag([{ d: 'l', n: 20 }, { d: 'r', n: 20 }]), pDiag([{ d: 'l', n: 20 }, { d: 'r', n: 30 }], { cx: 98 }), pDiag([{ d: 'u', n: 30 }, { d: 'd', n: 20 }], { cy: 82, k: 1.9 }), pDiag([{ d: 'l', n: 15 }, { d: 'r', n: 15 }, { d: 'u', n: 20 }], { cy: 96 })], 'The 20 N forces are equal and opposite, so they cancel out. Every other diagram has a force that nothing balances.', { pic: true }),
+    C('sc3-book-on-a-table', 'SC3', 'Book on a table', 'A book rests on a table. Are the forces on the book balanced or unbalanced?', ['Balanced, because the table pushes up as hard as gravity pulls down', 'Unbalanced, because gravity is stronger than the table', 'Unbalanced, because the table pushes up harder', 'Neither, because no forces act on a still book'], 'Gravity pulls the book down and the table pushes it up just as hard. The forces cancel, so the book stays still.', { vis: bookTable() }),
+    C('sc3-car-at-a-steady-speed', 'SC3', 'Car at a steady speed', 'A car drives at a steady speed in a straight line. What can you say about the forces on it?', ['They are balanced', 'They are unbalanced forwards', 'There are no forces acting on it', 'They are unbalanced backwards'], 'The driving force equals the friction pushing back. Balanced forces mean an object stays still or keeps moving at a steady speed in a straight line.'),
+
+    C('sc4-a-40-n-arrow', 'SC4', 'A 40 N arrow', 'This arrow shows a 20 N force. How long should the arrow be for a 40 N force?', ['Twice as long', 'Half as long', 'The same length', 'Four times as long'], 'The length of a force arrow shows the size of the force. 40 N is double 20 N, so its arrow is twice as long.', { vis: arrowScale() }),
+    C('sc4-forces-in-the-same-direction', 'SC4', 'Forces in the same direction', 'What is the net force on the box?', ['50 N to the right', '10 N to the right', '30 N to the right', '50 N to the left'], 'Forces in the same direction add together: 20 N + 30 N = 50 N to the right.', { vis: sameDir(), calc: true }),
+    C('sc4-forces-in-opposite-directions', 'SC4', 'Forces in opposite directions', 'What is the net force on the box?', ['30 N to the right', '70 N to the right', '30 N to the left', '20 N to the left'], 'Forces in opposite directions are subtracted: 50 N − 20 N = 30 N, in the direction of the bigger force.', { vis: oppDir(), calc: true }),
+    C('sc4-net-force-on-the-trolley', 'SC4', 'Net force on the trolley', 'What is the net force on the trolley?', ['20 N to the right', '0 N, because the forces are balanced', '40 N to the right', '20 N to the left'], 'Up and down are both 40 N, so they cancel. Left and right: 30 N − 10 N = 20 N to the right.', { vis: fdiag([{ d: 'u', n: 40 }, { d: 'd', n: 40 }, { d: 'r', n: 30 }, { d: 'l', n: 10 }], { w: 540, h: 330, size: 116, k: 2.6, name: 'Trolley' }), calc: true }),
+    C('sc4-an-extra-player', 'SC4', 'An extra player', 'Another player joins the right team, which now pulls with 400 N. What is the net force on the rope?', ['100 N to the right', '700 N to the right', '100 N to the left', '0 N'], 'The forces are in opposite directions, so subtract: 400 N − 300 N = 100 N to the right. The rope moves right.', { vis: tugSmall(300, 400), calc: true }),
+
+    C('sc5-three-ways-motion-changes', 'SC5', 'Three ways motion changes', 'Unbalanced forces change an object’s motion. Which list shows the ways motion can change?', ['Speeding up, slowing down, changing direction', 'Speeding up, staying still, changing shape', 'Slowing down, staying still, changing colour', 'Changing shape, changing mass, changing direction'], 'An unbalanced force can make an object speed up, slow down or change direction. Staying still or moving steadily means the forces are balanced.'),
+    C('sc5-which-car-is-slowing-down', 'SC5', 'Which car is slowing down', 'Each car is moving to the right. Which car is slowing down?', [carDiag(10, 30), carDiag(30, 10), carDiag(20, 20), carDiag(30, 0)], 'The bigger force points backwards, against the motion, so the net force slows the car down. Balanced forces keep a steady speed.', { pic: true }),
+    C('sc5-rolling-ball-slows-down', 'SC5', 'Rolling ball slows down', 'A ball rolls across the grass and slows down. Why?', ['Friction pushes backwards and nothing balances it', 'The forces on the ball are balanced', 'The ball runs out of force', 'Gravity pulls the ball backwards'], 'Friction from the grass pushes against the motion. Nothing pushes forwards, so the forces are unbalanced and the ball slows down.', { vis: ballGrass() }),
+    C('sc5-space-probe', 'SC5', 'Space probe', 'A space probe drifts through deep space with its engines off and no forces acting on it. What happens to its motion?', ['It keeps moving at a steady speed in a straight line', 'It slowly comes to a stop', 'It keeps speeding up', 'It starts to move in a circle'], 'Only an unbalanced force can change motion. With no force acting, the probe keeps the same speed and direction.'),
+
+    C('sc6-a-bigger-kick', 'SC6', 'A bigger kick', 'Two balls are kicked, one with a small force and one with a big force. What does the bigger force cause?', ['A bigger change in motion, so the ball goes faster', 'The same change in motion', 'A smaller change in motion', 'The ball to change colour'], 'The size of a force changes how big its effect is. The bigger kick gives the ball a bigger change in motion, so it travels faster and further.', { vis: kickLanes() }),
+    C('sc6-changing-shape', 'SC6', 'Changing shape', 'Which picture shows a force changing an object’s shape?', [picSquash(), picWall(), picTrolley(), picBrake()], 'Squeezing the ball from both sides squashes it. The other forces change the direction or speed of an object.', { pic: true }),
+    C('sc6-ball-off-the-wall', 'SC6', 'Ball off the wall', 'The wall pushes on the ball. What effect does this force have?', ['It changes the ball’s direction', 'It makes the ball heavier', 'It changes what the ball is made of', 'It has no effect on the ball'], 'The push from the wall sends the ball back the other way. A force can change the direction an object is moving in.', { vis: ballWall() }),
+    C('sc6-empty-and-full-trolleys', 'SC6', 'Empty and full trolleys', 'The same push is given to an empty shopping trolley and a full one. Which one speeds up more?', ['The empty trolley', 'The full trolley', 'They speed up by the same amount', 'Neither trolley moves'], 'The same force has a bigger effect on an object with less mass. The empty trolley speeds up more.'),
+    C('sc6-catching-a-ball', 'SC6', 'Catching a ball', 'A goalkeeper catches a fast ball. What effect does the force from the gloves have?', ['It slows the ball down until it stops', 'It speeds the ball up', 'It makes the ball turn sideways', 'It has no effect because the ball is too fast'], 'The gloves push against the ball’s motion. This force slows the ball down until it stops.'),
+
+    /* interactive cards */
+    C('sc1-define-a-force', 'SC1', 'Define a force', 'Complete the definition.', [], 'A force is a push or a pull. Forces are measured in newtons, named after the scientist Isaac Newton.', { kind: 'cloze',
+        text: 'A force is a push or a [] that acts on an []. Forces are measured in [], with the symbol N.',
+        answers: ['pull', 'object', 'newtons'], bank: ['pull', 'object', 'newtons', 'spin', 'kilograms', 'metres'],
+        instr: 'Drag or tap a word into each gap, then press <b>Check</b>.',
+        ansHTML: '<p class="actext">A force is a push or a <b>pull</b> that acts on an <b>object</b>. Forces are measured in <b>newtons</b>, with the symbol N.</p>' }),
+    C('sc2-sort-the-forces', 'SC2', 'Sort the forces', 'Sort each force into the correct group.', [], 'Contact forces need the objects to touch. Non-contact forces act across a gap.', { kind: 'sort',
+        bins: [['Contact', 'Objects must touch'], ['Non-contact', 'Acts across a gap']], tileCls: 'stile', poolCls: 'pool2',
+        items: [['Friction', 0], ['Air resistance', 0], ['Water resistance', 0], ['Tension', 0], ['Support force', 0], ['Gravity', 1], ['Magnetic force', 1], ['Electrostatic force', 1]].map(([t, k]) => [sTile(t), k]),
+        instr: 'Drag each force into a group, or tap a force then a group. Press <b>Check</b>.',
+        ansHTML: '<p class="actext"><b>Contact:</b> friction, air resistance, water resistance, tension, support force.<br><b>Non-contact:</b> gravity, magnetic force, electrostatic force.</p>' }),
+    C('sc3-sort-the-diagrams', 'SC3', 'Sort the diagrams', 'Arrow length shows the size of each force. Sort the diagrams into balanced and unbalanced.', [], 'Balanced forces have equal and opposite pairs, so the net force is zero. If any force is not cancelled out, the forces are unbalanced.', { kind: 'sort',
+        bins: [['Balanced', 'Net force is zero'], ['Unbalanced', 'Net force is not zero']], tileCls: 'mtile dtile',
+        items: [[[{ d: 'l', n: 20 }, { d: 'r', n: 20 }], 0], [[{ d: 'u', n: 30 }, { d: 'd', n: 30 }], 0], [[{ d: 'l', n: 15 }, { d: 'r', n: 15 }, { d: 'u', n: 25 }, { d: 'd', n: 25 }], 0],
+            [[{ d: 'l', n: 10 }, { d: 'r', n: 25 }], 1], [[{ d: 'u', n: 20 }, { d: 'd', n: 30 }], 1], [[{ d: 'l', n: 20 }, { d: 'r', n: 20 }, { d: 'u', n: 10 }, { d: 'd', n: 25 }], 1]].map(([f, k]) => [dTile(f), k]),
+        instr: 'Drag each diagram into a group, or tap a diagram then a group. Press <b>Check</b>.',
+        ansHTML: `<div class="asort a3"><span>Balanced</span>${[[{ d: 'l', n: 20 }, { d: 'r', n: 20 }], [{ d: 'u', n: 30 }, { d: 'd', n: 30 }], [{ d: 'l', n: 15 }, { d: 'r', n: 15 }, { d: 'u', n: 25 }, { d: 'd', n: 25 }]].map(dTile).join('')}<span>Unbalanced</span>${[[{ d: 'l', n: 10 }, { d: 'r', n: 25 }], [{ d: 'u', n: 20 }, { d: 'd', n: 30 }], [{ d: 'l', n: 20 }, { d: 'r', n: 20 }, { d: 'u', n: 10 }, { d: 'd', n: 25 }]].map(dTile).join('')}</div>` }),
+    C('sc4-tap-the-net-force', 'SC4', 'Tap the net force', 'The crate starts still. Which way will it start to move? Tap a direction on the diagram.', [], 'Up and down are both 25 N, so they cancel. Left and right: 35 N − 15 N = 20 N to the left. The crate moves in the direction of the net force.', { kind: 'hotspot',
+        hsSVG: netHS(), correct: [3], instr: 'Tap one of the four directions on the diagram.', ansHTML: '<div class="ans">Left, with a net force of 20 N</div>', backVis: netBack() }),
+    C('sc4-rules-for-force-arrows', 'SC4', 'Rules for force arrows', 'Complete the three rules for drawing force arrows.', [], 'Force arrows start on the object, point the way the force acts and are drawn to scale, so a bigger force gets a longer arrow.', { kind: 'cloze',
+        text: 'A force arrow starts on the [] the force acts on. It points in the [] of the force. Its [] shows the size of the force.',
+        answers: ['object', 'direction', 'length'], bank: ['object', 'direction', 'length', 'colour', 'ground', 'speed'],
+        instr: 'Drag or tap a word into each gap, then press <b>Check</b>.', backVis: arrowScale(),
+        ansHTML: '<p class="actext">A force arrow starts on the <b>object</b> the force acts on. It points in the <b>direction</b> of the force. Its <b>length</b> shows the size of the force.</p>' }),
+    C('sc5-predict-a-still-box', 'SC5', 'Predict: a still box', 'The box is still. Two forces are applied to it. What will the box do?', ['It starts moving right and speeds up', 'It stays still', 'It moves right at a steady speed', 'It starts moving left'], 'The forces are unbalanced: 20 N − 10 N = 10 N to the right. The box speeds up to the right, so its dots spread further apart.', { scene: 'lab', vis: labSVG({ v0: 0, x0: 170, r: 20, l: 10, t: 2.8, res: 'Speeds up to the right' }) }),
+    C('sc5-predict-a-moving-box', 'SC5', 'Predict: a moving box', 'The box is already moving right. Two equal forces are then applied. What will the box do?', ['It keeps moving right at a steady speed', 'It slows down and stops', 'It speeds up to the right', 'It stops straight away'], 'The 30 N forces are balanced, so the net force is zero. Balanced forces do not change motion, so the dots stay evenly spaced.', { scene: 'lab', vis: labSVG({ v0: 80, x0: 170, r: 30, l: 30, t: 2.8, res: 'Steady speed' }) }),
+    C('sc5-predict-a-bigger-push-back', 'SC5', 'Predict: a bigger push back', 'The box is moving right when these forces are applied. What will the box do?', ['It slows down, stops, then speeds up to the left', 'It keeps moving right at a steady speed', 'It speeds up to the right', 'It stops straight away and stays still'], 'The net force is 20 N to the left, against the motion. The box slows down, stops for an instant, then speeds up to the left.', { scene: 'lab', vis: labSVG({ v0: 120, x0: 240, r: 10, l: 30, t: 3, res: 'Slows down, then moves left' }) }),
+    C('sc5-sort-the-motion', 'SC5', 'Sort the motion', 'Sort each situation by whether the forces are balanced or unbalanced.', [], 'If speed or direction changes, the forces are unbalanced. Staying still or moving at a steady speed in a straight line means the forces are balanced.', { kind: 'sort',
+        bins: [['Unbalanced', 'Motion changes'], ['Balanced', 'Motion stays the same']], tileCls: 'stile', poolCls: 'pool2',
+        items: [['Car speeding up', 0], ['Ball curving after a kick', 0], ['Skateboard rolling to a stop', 0], ['Book resting on a shelf', 1], ['Cyclist at a steady speed', 1], ['Lift rising at a steady speed', 1]].map(([t, k]) => [sTile(t), k]),
+        instr: 'Drag each situation into a group, or tap a situation then a group. Press <b>Check</b>.',
+        ansHTML: '<p class="actext"><b>Unbalanced:</b> car speeding up, ball curving, skateboard stopping.<br><b>Balanced:</b> book resting, cyclist at a steady speed, lift rising steadily.</p>' }),
+    C('sc6-effects-of-forces', 'SC6', 'Effects of forces', 'Complete the sentences about what each force changes.', [], 'Forces can change an object’s speed, direction or shape.', { kind: 'cloze',
+        text: 'Squeezing a stress ball changes its []. Kicking a rolling ball from the side changes its []. Pushing a still trolley changes its [].',
+        answers: ['shape', 'direction', 'speed'], bank: ['shape', 'direction', 'speed', 'mass', 'colour'],
+        instr: 'Drag or tap a word into each gap, then press <b>Check</b>.',
+        ansHTML: '<p class="actext">Squeezing a stress ball changes its <b>shape</b>. Kicking a rolling ball from the side changes its <b>direction</b>. Pushing a still trolley changes its <b>speed</b>.</p>' })
+];
+const scNum = s => +s.slice(2);
+const nb = t => t.replace(/(\d) (N|kg|m|s)\b/g, '$1\u00a0$2').replace(/ = /g, '\u00a0= ').replace(/ − /g, '\u00a0−\u00a0');
+CARDS.forEach(c => { c.q = nb(c.q); c.exp = nb(c.exp); if (!c.pic) c.opts = c.opts.map(nb); });
+
+
+/* ========================== Buckles (localStorage) ======================= */
+/* Same storage and rules as the other checking for understanding pages: one shared
+   'buckles-shared' record, keys namespaced by page, one buckle per question, awarded
+   the first time the question is answered correctly and never again. */
+const PAGE_ID = 'forces-flashcards';   /* NEVER CHANGE: it namespaces every buckle this page has awarded */
+CARDS.forEach(c => { c.buckles = 1; });
+
+/* ---------- card ID registry (see the maintenance guide at the top of this script) ---------- */
+/* Every ID ever published. Add new IDs here when you publish new cards. Never remove an ID from this list. */
+const RELEASED_IDS = [
+    'sc1-what-is-a-force',
+    'sc1-unit-of-force',
+    'sc1-push-or-pull',
+    'sc1-what-else-forces-change',
+    'sc1-two-objects-in-a-kick',
+    'sc2-what-contact-forces-share',
+    'sc2-magnet-and-paperclip',
+    'sc2-sliding-box-slows-down',
+    'sc2-balloon-and-hair',
+    'sc2-spot-the-non-contact-force',
+    'sc2-forces-on-a-parachutist',
+    'sc2-why-air-resistance-is-contact',
+    'sc2-both-non-contact',
+    'sc3-what-balanced-means',
+    'sc3-even-tug-of-war',
+    'sc3-pick-the-balanced-diagram',
+    'sc3-book-on-a-table',
+    'sc3-car-at-a-steady-speed',
+    'sc4-a-40-n-arrow',
+    'sc4-forces-in-the-same-direction',
+    'sc4-forces-in-opposite-directions',
+    'sc4-net-force-on-the-trolley',
+    'sc4-an-extra-player',
+    'sc5-three-ways-motion-changes',
+    'sc5-which-car-is-slowing-down',
+    'sc5-rolling-ball-slows-down',
+    'sc5-space-probe',
+    'sc6-a-bigger-kick',
+    'sc6-changing-shape',
+    'sc6-ball-off-the-wall',
+    'sc6-empty-and-full-trolleys',
+    'sc6-catching-a-ball',
+    'sc1-define-a-force',
+    'sc2-sort-the-forces',
+    'sc3-sort-the-diagrams',
+    'sc4-tap-the-net-force',
+    'sc4-rules-for-force-arrows',
+    'sc5-predict-a-still-box',
+    'sc5-predict-a-moving-box',
+    'sc5-predict-a-bigger-push-back',
+    'sc5-sort-the-motion',
+    'sc6-effects-of-forces',
+];
+/* IDs of cards that have been deleted. Keep them here (and in RELEASED_IDS) so they are never reused. */
+const RETIRED_IDS = [];
+/* Only if an ID ever has to change: 'old-id': 'new-id'. Earned buckles are moved across once, never doubled. */
+const ID_ALIASES = {};
+const Buckles = {
+    key: 'buckles-shared',
+    ns(id) { return PAGE_ID + ':' + id; },
+    load() { try { const d = JSON.parse(localStorage.getItem(this.key)); return d && typeof d === 'object' && !Array.isArray(d) ? d : {}; } catch (e) { return {}; } },
+    save(d) { try { localStorage.setItem(this.key, JSON.stringify(d)); } catch (e) {} },
+    isDone(id) { return !!this.load()[this.ns(id)]; },
+    award(id, n) { const d = this.load(); const k = this.ns(id); if (!d[k]) { d[k] = n; this.save(d); } },
+    total() { return Object.values(this.load()).reduce((a, b) => a + (Number(b) || 0), 0); },
+    /* moves buckles saved under an old ID to its new ID, so a renamed card is never earned twice */
+    migrate() {
+        const d = this.load(); let changed = false;
+        Object.entries(ID_ALIASES).forEach(([from, to]) => {
+            const kf = this.ns(from), kt = this.ns(to);
+            if (d[kf] !== undefined) { if (d[kt] === undefined) d[kt] = d[kf]; delete d[kf]; changed = true; }
+        });
+        if (changed) this.save(d);
+    }
+};
+Buckles.migrate();
+const BK = '<img src="buckle.svg" alt="" onerror="this.style.display=\'none\'">';
+const earnedIn = list => list.filter(c => Buckles.isDone(c.id)).length;
+function refreshCount() { $('#buckleCount').textContent = Buckles.total(); }
+function celebrate(n) {
+    const a = $('#award');
+    $('#awardText').textContent = '+' + n + ' Buckle' + (n > 1 ? 's' : '') + '!';
+    a.classList.remove('hide'); a.classList.add('show');
+    burstConfetti();
+    setTimeout(() => { a.classList.remove('show'); a.classList.add('hide'); setTimeout(() => a.classList.remove('hide'), 360); }, 1100);
+}
+function burstConfetti() {
+    const canvas = document.createElement('canvas');
+    canvas.className = 'confetti-canvas';
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d'), dpr = window.devicePixelRatio || 1;
+    canvas.width = innerWidth * dpr; canvas.height = innerHeight * dpr; ctx.scale(dpr, dpr);
+    const colors = ['#ea008a', '#1b1f45', '#f7a8d4', '#c3c6d0'], cx = innerWidth / 2, cy = innerHeight / 2, parts = [];
+    for (let i = 0; i < 150; i++) {
+        const angle = Math.random() * Math.PI * 2, speed = 4 + Math.random() * 10;
+        parts.push({ x: cx, y: cy, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed - 4, size: 5 + Math.random() * 7,
+            color: colors[Math.floor(Math.random() * colors.length)], rot: Math.random() * Math.PI, vrot: (Math.random() - .5) * .3, life: 0 });
+    }
+    const gravity = 0.22, drag = 0.992; let frame = 0;
+    (function tick() {
+        frame++;
+        ctx.clearRect(0, 0, innerWidth, innerHeight);
+        parts.forEach(p => {
+            p.vx *= drag; p.vy = p.vy * drag + gravity; p.x += p.vx; p.y += p.vy; p.rot += p.vrot; p.life++;
+            ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.globalAlpha = Math.max(0, 1 - p.life / 95);
+            ctx.fillStyle = p.color; ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6); ctx.restore();
+        });
+        if (frame < 95) requestAnimationFrame(tick); else canvas.remove();
+    })();
+}
+
+/* =========================================================
+   SCREENS
+   ========================================================= */
+let screen = 'home', S = null;
+function clearAll() { content.innerHTML = ''; btns.innerHTML = ''; document.querySelectorAll('.pt,.plus,.shock').forEach(e => e.remove()); }
+
+function home() {
+    screen = 'home'; S = null; clearAll();
+    counter.innerHTML = '<span>Year 7 <b>Forces</b></span>';
+    progress.style.width = '0';
+    const g = el('div', 'decks');
+    LGS.forEach((lg, i) => {
+        const cs = CARDS.filter(c => c.lg === lg.id), n = cs.length, soon = lg.soon || !n, range = `${lg.sc[0]} to ${lg.sc[lg.sc.length - 1]}`;
+        const b = el('button', 'deck' + (soon ? ' soon' : ''), soon
+            ? `<div class="dface">${ICON[lg.id]}<div class="dcode">${lg.id}</div><div class="dname">${lg.short}</div><div class="dmeta"><span>${range}</span></div><div class="soonchip">Coming soon</div></div>`
+            : `<div class="dface">${ICON[lg.id]}<div class="dcode">${lg.id}</div><div class="dname">${lg.short}</div><div class="dmeta"><span>${range}</span><span>${n} cards</span></div><div class="bkmeta">${BK}${earnedIn(cs)} <span>/ ${n} buckles</span></div></div>`);
+        if (soon) b.setAttribute('aria-label', `${lg.id} ${lg.short}: coming soon`);
+        b.onclick = soon ? () => { say(`<b>${lg.id}</b> ${lg.short} is coming soon. Choose another deck for now.`); A(b.querySelector('.dface'), [{ transform: 'none' }, { transform: 'translateX(-8px)' }, { transform: 'translateX(8px)' }, { transform: 'translateX(-5px)' }, { transform: 'none' }], { duration: 400, fill: 'none' }); } : () => deckScreen(lg);
+        g.appendChild(b);
+        A(b, [{ opacity: 0, transform: 'translateY(60px) rotate(4deg)' }, { opacity: 1, transform: 'none' }], { duration: 650, delay: 80 + i * 90 });
+    });
+    content.appendChild(g);
+    say('Choose a deck to see its success criteria.');
+    addBtn('Mix all decks', 'btn2', () => start(CARDS, 'All decks'));
+}
+
+function deckScreen(lg) {
+    screen = 'deck'; clearAll();
+    counter.innerHTML = `<b>${lg.id}</b>&nbsp;${lg.short}`;
+    const sel = new Set(lg.sc);
+    const wrap = el('div', 'dscreen');
+    const left = el('div', 'deck', `<div class="dface">${ICON[lg.id]}<div class="dcode">${lg.id}</div><div class="dstate">${lg.text}</div></div>`);
+    const right = el('div', 'sccol');
+    const head = el('div', 'sch', '<span>Success criteria</span>');
+    const allBtn = el('button', '', 'Select all'); head.appendChild(allBtn);
+    const list = el('div', 'sclist');
+    const rows = lg.sc.map(sc => {
+        const n = CARDS.filter(c => c.sc === sc).length;
+        const r = el('button', 'scrow on', `<span class="box">${TICK}</span><span class="code">${sc}</span><span>${SCT[sc]}</span><span class="n">${n} cards</span><span class="bk">${BK}${earnedIn(CARDS.filter(c => c.sc === sc))}/${n}</span>`);
+        r.onclick = () => { sel.has(sc) ? sel.delete(sc) : sel.add(sc); r.classList.toggle('on', sel.has(sc)); upd(); };
+        list.appendChild(r); return r;
+    });
+    allBtn.onclick = () => { lg.sc.forEach(s => sel.add(s)); rows.forEach(r => r.classList.add('on')); upd(); };
+    right.append(head, list); wrap.append(left, right); content.appendChild(wrap);
+    A(left, [{ opacity: 0, transform: 'translateX(-40px) rotate(-3deg)' }, { opacity: 1, transform: 'none' }], { duration: 550 });
+    rows.forEach((r, i) => A(r, [{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], { duration: 400, delay: 120 + i * 45, fill: 'backwards' }));
+    say('Tap a success criterion to leave it out, then press <b>Start</b>.');
+    addBtn('Back', 'btn2', home);
+    const go = addBtn('', 'next', () => start(CARDS.filter(c => sel.has(c.sc)), lg.id));
+    function upd() { const n = CARDS.filter(c => sel.has(c.sc)).length; go.textContent = n ? `Start ${n} cards` : 'Start'; go.disabled = !n; }
+    upd();
+}
+
+/* ---------- play ---------- */
+function start(cards, label) {
+    screen = 'play'; clearAll();
+    S = { label, all: cards.slice(), cards: shuffle(cards), i: 0, res: [], newBk: 0, streak: 0, got: 0, rev: 0, tok: Math.random(), locked: true, busy: false };
+    counter.innerHTML = `<div class="piles"><div class="pile" id="pGot"><i></i><b>0</b>Got it</div><div class="pile rv" id="pRev"><i></i><b>0</b>Revise</div></div><div class="divv"></div><span id="cnum"></span>`;
+    const play = el('div', 'play');
+    const cw = el('div', 'cwrap');
+    const opts = el('div', 'optcol');
+    play.append(cw, opts); content.appendChild(play);
+    S.cw = cw; S.optcol = opts;
+    for (let k = 3; k >= 1; k--) { const s = el('div', 'stk'); s.style.transform = `translate(${k * 7}px, ${k * 7}px)`; s.dataset.k = k; cw.appendChild(s); }
+    deal();
+}
+function stackUpdate() {
+    const left = S.cards.length - S.i - 1;
+    S.cw.querySelectorAll('.stk').forEach(s => { const k = +s.dataset.k; s.style.opacity = k <= left ? 1 : 0; });
+}
+const KTYPE = { order: 'Put in order', sort: 'Sort', hotspot: 'Tap the diagram', cloze: 'Fill the gaps' };
+const typeOf = c => c.kind ? KTYPE[c.kind] : c.scene ? 'Predict' : c.pic ? 'Pick the picture' : c.calc ? 'Calculate' : c.vis ? 'Read the diagram' : 'Quick recall';
+const hasKZ = c => c.kind === 'order' || c.kind === 'sort' || c.kind === 'cloze';
+function frontHTML(c) {
+    const body = hasKZ(c) ? `<div class="fvis kz kz-${c.kind}"></div>` : c.vis ? `<div class="fvis">${c.vis}${c.scene ? `<button class="replay" aria-label="Replay">${REPLAY}<span>Replay</span></button>` : ''}</div>` : `<div class="ghost">${c.sc}</div>`;
+    return `<div class="fmeta"><span class="sctag">${c.sc}</span><span class="tchip">${typeOf(c)}</span>${Buckles.isDone(c.id) ? `<span class="bkchip">${BK}Earned</span>` : ''}<span class="lgc">${c.lg}</span></div><div class="fq">${c.q}</div>${body}`;
+}
+function backHTML(c, ok) {
+    const ans = c.ansHTML || (c.pic ? `<div class="apic">${c.opts[c.ans]}</div>` : `<div class="ans">${c.opts[c.ans]}</div>`);
+    const bv = c.backVis || (c.vis && !c.pic ? c.vis : '');
+    const vis = bv ? `<div class="bvis">${bv}</div>` : '';
+    const plain = !bv && !c.pic && !c.ansHTML;
+    return `<div class="bhead ${ok ? 'ok' : 'no'}">${ok ? TICK : CROSS}<span>${ok ? 'Correct' : 'Not quite'}</span><span class="bsc">${c.sc}</span></div>${plain ? `<div class="ghost">${c.sc}</div>` : ''}<div class="bbody${plain ? ' nov' : ''}"><div class="alab">${ok ? 'Answer' : 'The answer is'}</div>${ans}<p class="exp">${c.exp}</p>${vis}</div>`;
+}
+function deal() {
+    const c = S.cur = S.cards[S.i]; S.locked = true; S.ctl = null; S.sc = null;
+    document.getElementById('cnum').innerHTML = `Card <b>${S.i + 1}</b> / ${S.cards.length}`;
+    progress.style.width = (S.i / S.cards.length * 100) + '%';
+    stackUpdate();
+    const card = el('div', 'card');
+    card.innerHTML = `<div class="face front${c.vis || hasKZ(c) ? '' : ' t'}">${frontHTML(c)}</div><div class="face back pat">${PATTERN}<div class="pcode">${c.lg}</div></div>`;
+    S.cw.appendChild(card); S.card = card;
+    A(card, [
+        { transform: 'translate(21px, 21px) rotateY(180deg) scale(1)' },
+        { transform: 'translate(-8px, -22px) rotateY(90deg) scale(1.04)', offset: .45 },
+        { transform: 'translate(0px, 0px) rotateY(0deg) scale(1)' }
+    ], { duration: 720 });
+    tone([[520, .07, 'triangle', .05]]);
+    S.optcol.innerHTML = ''; S.optcol.style.height = '100%';
+    btns.innerHTML = '';
+    addBtn('Decks', 'btn2', home);
+    const front = card.querySelector('.front');
+    if (c.kind) {
+        S.ctl = KIND[c.kind](c, front, S.optcol);
+        S.els = [...S.optcol.children];
+        S.els.forEach((b, j) => A(b, [{ opacity: 0, transform: 'translateX(30px)' }, { opacity: 1, transform: 'none' }], { duration: 420, delay: 380 + j * 70, fill: 'backwards' }));
+        if (S.ctl.check) {
+            const cb = addBtn('Check', 'next', () => {
+                if (!S || S.locked || !S.ctl.ready()) return;
+                S.locked = true; cb.disabled = true;
+                const r = S.ctl.check();
+                finishKind(r.ok, r.anchor, 1100);
+            });
+            cb.id = 'chk';
+            S.refresh = () => { cb.disabled = !S.ctl.ready(); };
+            S.refresh();
+        }
+        say(c.instr + (Buckles.isDone(c.id) ? ' You’ve already earned this buckle.' : ''));
+    } else {
+        S.order = c.ordered ? [0, 1, 2, 3] : shuffle([0, 1, 2, 3]);
+        const box = el('div', 'opts');
+        let grid = box;
+        if (c.pic) { grid = el('div', 'pgrid'); box.appendChild(grid); }
+        const short = !c.pic && c.opts.every(o => o.length < 16);
+        S.els = S.order.map((oi, j) => {
+            const b = el('button', c.pic ? 'pcard' : 'opt' + (short ? ' short' : ''), c.pic ? `<span class="l">${'ABCD'[j]}</span>${c.opts[oi]}` : `<span class="l">${'ABCD'[j]}</span><span>${c.opts[oi]}</span>`);
+            b.onclick = () => choose(j);
+            b.style.opacity = 0;
+            grid.appendChild(b);
+            A(b, [{ opacity: 0, transform: 'translateX(30px)' }, { opacity: 1, transform: 'none' }], { duration: 420, delay: 380 + j * 70, fill: 'forwards' }).then(() => { b.style.opacity = ''; });
+            return b;
+        });
+        S.optcol.appendChild(box);
+        say((c.scene ? 'Watch the model, then choose your prediction. Press <b>Replay</b> to watch again.' : 'Choose the best answer. You can also press <b>1</b> to <b>4</b> on the keyboard.') + (Buckles.isDone(c.id) ? ' You’ve already earned this buckle.' : ''));
+    }
+    if (c.scene) {
+        const sv = front.querySelector('.fvis svg'), ctl = SCENE[c.scene](sv);
+        S.sc = ctl;
+        setTimeout(() => { if (S && S.cur === c) ctl.intro(); }, 760);
+        front.querySelector('.replay').onclick = () => ctl.intro();
+    }
+    setTimeout(() => { if (S && S.cur === c) S.locked = false; }, 450);
+}
+const PRAISE = ['Nailed it.', 'Spot on.', 'Great recall.', 'That’s it.', 'Exactly right.', 'Too easy.', 'Brilliant.'];
+function choose(j) {
+    if (!S || S.locked || S.cur.kind) return;
+    S.locked = true;
+    const c = S.cur, ok = S.order[j] === c.ans, b = S.els[j];
+    S.els.forEach((e, k) => {
+        e.disabled = true; e.style.opacity = '';
+        if (k === j) { e.classList.add(ok ? 'right' : 'wrong'); if (ok) e.querySelector('.l').innerHTML = TICK; }
+        else if (S.order[k] === c.ans) e.classList.add('reveal');
+        else e.classList.add('dim');
+    });
+    resolve(ok, b);
+}
+function finishKind(ok, anchor, delay) {
+    const c = S.cur;
+    if (ok && Buckles.isDone(c.id)) { const r = local(anchor.getBoundingClientRect()); burst(r.x + r.w / 2, r.y + r.h / 2, 26); tone([[784, .11], [1175, .24]]); }
+    setTimeout(() => { if (S && S.cur === c) resolve(ok, anchor, true); }, delay);
+}
+function resolve(ok, b, quiet) {
+    const c = S.cur;
+    S.res.push({ c, ok });
+    const back = S.card.querySelector('.back');
+    back.className = 'face back';
+    back.innerHTML = backHTML(c, ok);
+    A(S.card, [
+        { transform: 'translate(0px, 0px) rotateY(0deg) scale(1)' },
+        { transform: 'translate(0px, -14px) rotateY(-90deg) scale(1.04)', offset: .5 },
+        { transform: 'translate(0px, 0px) rotateY(-180deg) scale(1)' }
+    ], { duration: 640 });
+    if (c.scene) { const sv = back.querySelector('.bvis svg'); if (sv) { const ctl = SCENE[c.scene](sv); setTimeout(() => { if (S && S.cur === c) ctl.outcome(); }, 650); } }
+    if (ok) {
+        S.streak++;
+        const r = local(b.getBoundingClientRect());
+        /* one buckle per question, the first time it is answered correctly */
+        const fresh = !Buckles.isDone(c.id);
+        if (fresh) { Buckles.award(c.id, c.buckles); refreshCount(); celebrate(c.buckles); S.newBk++; tone([[784, .1], [988, .1], [1319, .26]]); }
+        else if (!quiet) { burst(r.x + r.w / 2, r.y + r.h / 2, S.streak >= 3 ? 34 : 24); tone(S.streak >= 3 ? [[784, .1], [988, .1], [1319, .26]] : [[784, .11], [1175, .24]]); }
+        if (!fresh || S.streak >= 3) plusOne(r.x + r.w / 2, r.y - 10, S.streak >= 3 ? `${S.streak} in a row` : '+1');
+        if (!quiet) A(b, [{ transform: 'scale(1)' }, { transform: 'scale(1.05)' }, { transform: 'scale(1)' }], { duration: 360, fill: 'none' });
+        say(`<b>${PRAISE[Math.floor(Math.random() * PRAISE.length)]}</b> ${fresh ? 'You earned a buckle.' : S.streak >= 3 ? `That’s ${S.streak} in a row.` : 'You’ve already earned this buckle.'}`);
+    } else {
+        S.streak = 0;
+        tone([[196, .22, 'triangle', .1]]);
+        say('<b class="no">Not quite.</b> Read the answer card so it sticks next time.');
+    }
+    btns.innerHTML = '';
+    addBtn('Decks', 'btn2', home);
+    const nb = addBtn(S.i === S.cards.length - 1 ? 'See results' : 'Next card', 'next', next);
+    nb.classList.add('pop-in');
+    setTimeout(() => nb.focus({ preventScroll: true }), 50);
+}
+
+/* ---------- drag and drop: drag a tile, or tap it ---------- */
+function dnd(pool, zones, onChange, o = {}) {
+    let sel = null;
+    const all = () => [pool, ...zones];
+    const zoneOf = t => all().find(z => z.box.contains(t));
+    const armAll = on => zones.forEach(z => z.el.classList.toggle('armed', on));
+    const deselect = () => { if (sel) sel.classList.remove('sel'); sel = null; armAll(false); };
+    function moveTo(t, z) {
+        t.style.transform = ''; t.classList.remove('wrong', 'drag');
+        z.box.appendChild(t);
+        A(t, [{ transform: 'scale(.82)' }, { transform: 'scale(1.06)', offset: .6 }, { transform: 'scale(1)' }], { duration: 300, fill: 'none' });
+        tone([[660, .05, 'triangle', .05]]);
+        deselect(); onChange();
+    }
+    function put(t, z) {
+        if (zoneOf(t) === z) { t.style.transform = ''; return; }
+        if (z.cap === 1) { const ex = z.box.querySelector('.tile'); if (ex) moveTo(ex, pool); }
+        moveTo(t, z);
+    }
+    const hit = (x, y) => all().find(z => { const r = z.el.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; });
+    zones.forEach(z => z.el.addEventListener('click', () => { if (sel && S && !S.locked) put(sel, z); }));
+    function tile(html, key, cls = '') {
+        const t = el('span', 'tile ' + cls, html);
+        t.k = key; t.tabIndex = 0; t.setAttribute('role', 'button');
+        const tap = () => {
+            if (!S || S.locked) return;
+            if (zoneOf(t) !== pool) { put(t, pool); return; }
+            if (o.auto) { const e = zones.find(z => !z.box.querySelector('.tile')); if (e) put(t, e); return; }
+            if (sel === t) { deselect(); return; }
+            deselect(); sel = t; t.classList.add('sel'); armAll(true);
+        };
+        t.addEventListener('click', e => e.stopPropagation());
+        t.addEventListener('pointerdown', e => {
+            if (!S || S.locked || e.button > 0) return;
+            e.preventDefault(); e.stopPropagation();
+            if (zoneOf(t) !== pool) { put(t, pool); return; }
+            t.setPointerCapture(e.pointerId);
+            const sx = e.clientX, sy = e.clientY; let moved = false;
+            const move = ev => {
+                const dx = ev.clientX - sx, dy = ev.clientY - sy;
+                if (!moved && Math.hypot(dx, dy) > 6) { moved = true; t.classList.add('drag'); deselect(); }
+                if (!moved) return;
+                t.style.transform = `translate(${dx / scaleK}px, ${dy / scaleK}px) rotate(-3deg) scale(1.05)`;
+                const h = hit(ev.clientX, ev.clientY);
+                all().forEach(z => z.el.classList.toggle('hover', z === h && z !== pool));
+            };
+            const up = ev => {
+                t.removeEventListener('pointermove', move); t.removeEventListener('pointerup', up); t.removeEventListener('pointercancel', up);
+                all().forEach(z => z.el.classList.remove('hover'));
+                if (!moved) { tap(); return; }
+                t.classList.remove('drag');
+                const h = hit(ev.clientX, ev.clientY);
+                if (h && h !== pool) put(t, h); else { t.style.transform = ''; }
+            };
+            t.addEventListener('pointermove', move); t.addEventListener('pointerup', up); t.addEventListener('pointercancel', up);
+        });
+        t.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); tap(); } });
+        return t;
+    }
+    return { tile };
+}
+const KIND = {
+    order(c, front, col) {
+        const kz = front.querySelector('.kz');
+        kz.innerHTML = `<div class="ordtop">${c.ordTop}</div><div class="ogrid" style="grid-template-columns:repeat(${c.cols}, 1fr)"></div>`;
+        const grid = kz.querySelector('.ogrid');
+        const slots = c.seq.map((k, i) => { const s = el('div', 'slot', `<b>${c.slotLab ? c.slotLab[i] : i + 1}</b><div class="sb"></div>`); grid.appendChild(s); return s; });
+        const pool = el('div', 'pool ' + (c.poolCls || '')); col.appendChild(pool);
+        const zones = slots.map(s => ({ el: s, box: s.querySelector('.sb'), cap: 1 }));
+        const D = dnd({ el: pool, box: pool }, zones, () => S.refresh && S.refresh(), { auto: true });
+        shuffle(c.seq).forEach(k => pool.appendChild(D.tile(c.tile(k), k, c.tileCls || '')));
+        return {
+            ready: () => !pool.querySelector('.tile'),
+            check() {
+                let ok = true;
+                zones.forEach((z, i) => { const t = z.box.querySelector('.tile'); const r = t.k === c.seq[i]; t.classList.add(r ? 'right' : 'wrong'); if (!r) ok = false; });
+                return { ok, anchor: grid };
+            }
+        };
+    },
+    sort(c, front, col) {
+        const kz = front.querySelector('.kz');
+        kz.innerHTML = `<div class="bins">${c.bins.map((b, i) => `<div class="bin${i ? '' : ' pk'}"><h3>${b[0]}</h3><div class="sub">${b[1]}</div><div class="area"></div></div>`).join('')}</div>`;
+        const bins = [...kz.querySelectorAll('.bin')];
+        const pool = el('div', 'pool ' + (c.poolCls || 'pool3')); col.appendChild(pool);
+        const zones = bins.map((b, i) => ({ el: b, box: b.querySelector('.area'), cap: Infinity, key: i }));
+        const D = dnd({ el: pool, box: pool }, zones, () => S.refresh && S.refresh());
+        shuffle(c.items).forEach(([html, k]) => pool.appendChild(D.tile(html, k, c.tileCls || 'mtile')));
+        return {
+            ready: () => !pool.querySelector('.tile'),
+            check() {
+                let ok = true;
+                zones.forEach(z => z.box.querySelectorAll('.tile').forEach(t => { const r = t.k === z.key; t.classList.add(r ? 'right' : 'wrong'); if (!r) ok = false; }));
+                return { ok, anchor: kz };
+            }
+        };
+    },
+    cloze(c, front, col) {
+        const kz = front.querySelector('.kz');
+        let i = 0;
+        kz.innerHTML = `<p class="ctext">${c.text.replace(/\[\]/g, () => `<span class="blank" data-i="${i++}"><span class="bb"></span></span>`)}</p>`;
+        const blanks = [...kz.querySelectorAll('.blank')];
+        const pool = el('div', 'pool poolw'); col.appendChild(pool);
+        const zones = blanks.map(b => ({ el: b, box: b.querySelector('.bb'), cap: 1 }));
+        const D = dnd({ el: pool, box: pool }, zones, () => S.refresh && S.refresh(), { auto: true });
+        shuffle(c.bank).forEach(w => pool.appendChild(D.tile(w, w, 'wtile')));
+        return {
+            ready: () => zones.every(z => z.box.querySelector('.tile')),
+            check() {
+                let ok = true;
+                zones.forEach((z, k) => { const t = z.box.querySelector('.tile'); const r = t.k === c.answers[k]; t.classList.add(r ? 'right' : 'wrong'); if (!r) ok = false; });
+                return { ok, anchor: kz };
+            }
+        };
+    },
+    hotspot(c, front, col) {
+        const w = el('div', 'hsw', c.hsSVG); col.appendChild(w);
+        const svg = w.querySelector('svg');
+        svg.querySelectorAll('.hs').forEach(g => {
+            const go = () => {
+                if (!S || S.locked) return;
+                S.locked = true;
+                const k = +g.dataset.k, ok = c.correct.includes(k);
+                svg.classList.add('done');
+                svg.querySelectorAll('.hs').forEach(h => { const kk = +h.dataset.k; if (c.correct.includes(kk)) h.classList.add('good'); else if (h !== g) h.classList.add('off'); });
+                g.classList.add(ok ? 'good' : 'bad');
+                const bul = svg.querySelector('.bulge');
+                if (bul) A(bul, [{ opacity: 0, transform: 'scale(.6, .8)' }, { opacity: 1, transform: 'scale(1, 1)' }], { duration: 900, delay: 150 });
+                finishKind(ok, g, 1500);
+            };
+            g.addEventListener('click', go);
+            g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+        });
+        return {};
+    }
+};
+
+
+async function next() {
+    if (!S || S.busy || !S.locked) return;
+    S.busy = true;
+    const tok = S.tok, last = S.res[S.res.length - 1], pile = document.getElementById(last.ok ? 'pGot' : 'pRev');
+    const pr = local(pile.querySelector('i').getBoundingClientRect()), cr = local(S.card.getBoundingClientRect());
+    const dx = pr.x + pr.w / 2 - (cr.x + cr.w / 2), dy = pr.y + pr.h / 2 - (cr.y + cr.h / 2);
+    btns.querySelectorAll('button').forEach(b => b.disabled = true);
+    S.els.forEach((e, k) => A(e, [{ opacity: getComputedStyle(e).opacity, transform: 'none' }, { opacity: 0, transform: 'translateX(-20px)' }], { duration: 260, delay: k * 30 }));
+    const card = S.card;
+    await A(card, [
+        { transform: 'translate(0px, 0px) rotateY(-180deg) scale(1) rotate(0deg)', opacity: 1 },
+        { transform: `translate(${dx}px, ${dy}px) rotateY(-180deg) scale(.05) rotate(${last.ok ? -14 : 14}deg)`, opacity: .7 }
+    ], { duration: 560, easing: 'cubic-bezier(.55,0,.8,.45)' });
+    if (!S || S.tok !== tok) return;
+    card.remove();
+    if (last.ok) S.got++; else S.rev++;
+    const num = pile.querySelector('b'); num.textContent = last.ok ? S.got : S.rev;
+    A(pile, [{ transform: 'scale(1)' }, { transform: 'scale(1.3)' }, { transform: 'scale(1)' }], { duration: 380, fill: 'none' });
+    if (last.ok) { const p = local(pile.getBoundingClientRect()); burst(pr.x + pr.w / 2, pr.y + pr.h / 2, 10, 70); }
+    S.i++;
+    S.busy = false;
+    if (S.i >= S.cards.length) results(); else deal();
+}
+
+/* ---------- feedback effects ---------- */
+function burst(x, y, n = 24, spread = 130) {
+    const sh = el('div', 'shock'); sh.style.cssText = `left:${x - 20}px;top:${y - 20}px;width:40px;height:40px`; stage.appendChild(sh);
+    A(sh, [{ transform: 'scale(.3)', opacity: 1 }, { transform: `scale(${spread / 22})`, opacity: 0 }], { duration: 600, easing: 'cubic-bezier(.1,.7,.3,1)' }).then(() => sh.remove());
+    for (let i = 0; i < n; i++) {
+        const p = el('i', 'pt'), sz = 7 + Math.random() * 9, a = Math.random() * Math.PI * 2, d = spread * (.45 + Math.random() * .75), col = [PK, PK, NV, '#ff7cc4'][i % 4];
+        const star = i % 5 === 0, round = i % 3 === 0;
+        p.style.cssText = `left:${x - sz / 2}px;top:${y - sz / 2}px;width:${star ? sz * 1.7 : sz}px;height:${star ? sz * 1.7 : sz}px;background:${col};border-radius:${round && !star ? '50%' : '2px'};${star ? 'clip-path:polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%)' : ''}`;
+        stage.appendChild(p);
+        A(p, [{ transform: 'translate(0,0) rotate(0deg) scale(1)', opacity: 1 }, { transform: `translate(${Math.cos(a) * d}px, ${Math.sin(a) * d + 50}px) rotate(${(Math.random() - .5) * 600}deg) scale(.3)`, opacity: 0 }],
+            { duration: 700 + Math.random() * 450, easing: 'cubic-bezier(.12,.7,.3,1)' }).then(() => p.remove());
+    }
+}
+function plusOne(x, y, t) {
+    const p = el('div', 'plus', t); stage.appendChild(p); p.style.left = (x - p.offsetWidth / 2) + 'px'; p.style.top = y + 'px';
+    A(p, [{ transform: 'translateY(10px) scale(.6)', opacity: 0 }, { transform: 'translateY(-26px) scale(1.1)', opacity: 1, offset: .3 }, { transform: 'translateY(-70px) scale(1)', opacity: 0 }], { duration: 1100, easing: 'cubic-bezier(.2,.8,.2,1)' }).then(() => p.remove());
+}
+
+/* ---------- results ---------- */
+function results() {
+    screen = 'results'; clearAll();
+    const res = S.res, N = res.length, n = res.filter(r => r.ok).length;
+    counter.innerHTML = `<b>${S.label}</b>&nbsp;complete`;
+    progress.style.width = '100%';
+    const wrap = el('div', 'res');
+    const left = el('div', 'rleft');
+    const C2 = 2 * Math.PI * 84;
+    left.innerHTML = `<div class="ringw"><svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="84" fill="none" stroke="${LT}" stroke-width="18"/><circle class="rg" cx="100" cy="100" r="84" fill="none" stroke="${PK}" stroke-width="18" stroke-dasharray="${C2.toFixed(1)}" stroke-dashoffset="${C2.toFixed(1)}"/></svg><div class="rnum"><b id="rn">0</b><span>/ ${N}</span></div></div><div class="rlab">Cards correct</div><div class="rbk">${BK}<b>${earnedIn(S.all)} / ${S.all.length}</b><span>Buckles${S.newBk ? ` (+${S.newBk} new)` : ''}</span></div>`;
+    const missed = res.filter(r => !r.ok).map(r => r.c);
+    if (missed.length) { const b = el('button', 'next', `Revise ${missed.length} missed card${missed.length > 1 ? 's' : ''}`); b.onclick = () => start(missed, 'Revision'); left.appendChild(b); }
+    const ag = el('button', 'btn2', 'Play these cards again'); ag.onclick = () => start(S.all, S.label); left.appendChild(ag);
+    const hm = el('button', 'btn2', 'Choose another deck'); hm.onclick = home; left.appendChild(hm);
+
+    const scs = [...new Set(res.map(r => r.c.sc))].sort((a, b) => scNum(a) - scNum(b));
+    const compact = scs.length > 8;
+    const right = el('div', 'rright');
+    right.innerHTML = `<div class="rhead"><span>Your cards by success criterion</span><i><span class="chip y">${TICK}Correct</span><span class="chip n">${CROSS}Revise</span></i></div>`;
+    const list = el('div', 'rlist' + (compact ? ' three' : scs.length > 4 ? ' two' : ''));
+    const blocks = scs.map(sc => {
+        const rs = res.filter(r => r.c.sc === sc).sort((a, b) => b.ok - a.ok), k = rs.filter(r => r.ok).length, f = k / rs.length;
+        const tag = f === 1 ? '<span class="tag sec">Secure</span>' : f >= .5 ? '<span class="tag near">Nearly</span>' : '<span class="tag rev">Revise</span>';
+        const chips = rs.map(r => compact && r.ok ? `<span class="chip y dot" title="${r.c.label}">${TICK}</span>` : `<span class="chip ${r.ok ? 'y' : 'n'}">${r.ok ? TICK : CROSS}${r.c.label}</span>`).join('');
+        const b = el('div', 'rblock', `<div class="rbh"><span class="rsc">${sc}</span>${tag}<b>${k} / ${rs.length}</b></div>${compact ? '' : `<div class="rtx">${SCT[sc]}</div>`}<div class="chips">${chips}</div>`);
+        list.appendChild(b); return b;
+    });
+    right.appendChild(list);
+    wrap.append(left, right); content.appendChild(wrap);
+    let rsz = 1;
+    while (list.scrollHeight > list.clientHeight + 1 && rsz > .62) { rsz -= .03; list.style.setProperty('--rs', rsz.toFixed(2)); }
+    blocks.forEach((b, i) => A(b, [{ opacity: 0, transform: 'translateY(14px)' }, { opacity: 1, transform: 'none' }], { duration: 420, delay: 250 + i * 60, fill: 'backwards' }));
+    say('Take a screenshot of this screen and paste it into Stile as evidence of your work.');
+    const ring = left.querySelector('.rg'), frac = N ? n / N : 0;
+    A(ring, [{ strokeDashoffset: C2 }, { strokeDashoffset: C2 * (1 - frac) }], { duration: 1300, delay: 200, easing: 'cubic-bezier(.3,.7,.2,1)' });
+    const rn = left.querySelector('#rn'), t0 = performance.now() + 200, tok = S.tok;
+    const tick = t => { if (!S || S.tok !== tok || screen !== 'results') return; const k = Math.max(0, Math.min(1, (t - t0) / 1300)); rn.textContent = Math.round(n * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(tick); else if (frac >= .8) ringCelebrate(); };
+    requestAnimationFrame(tick);
+    tone([[523, .1], [659, .1], [784, .1], [1047, .3]]);
+}
+function ringCelebrate() {
+    const r = local(document.querySelector('.ringw').getBoundingClientRect());
+    burst(r.x + r.w / 2, r.y + r.h / 2, 40, 200);
+}
+
+/* keyboard */
+document.addEventListener('keydown', e => {
+    if (screen !== 'play' || !S) return;
+    const k = '1234'.indexOf(e.key) >= 0 ? '1234'.indexOf(e.key) : 'abcd'.indexOf(e.key.toLowerCase());
+    if (k >= 0 && !S.locked && e.key.length === 1) { e.preventDefault(); choose(k); }
+});
+
+/* ---------- scale to window ---------- */
+function fit() {
+    scaleK = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    stage.style.transform = `scale(${scaleK})`;
+    stage.style.margin = `${(720 * scaleK - 720) / 2}px ${(1280 * scaleK - 1280) / 2}px`;
+}
+window.addEventListener('resize', fit);
+fit();
+/* ---------- data check: runs on every load and reports problems before students find them ---------- */
+function validateCards() {
+    const err = [], warn = [], seen = new Map(), labels = new Set(), idRx = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+    const released = new Set(RELEASED_IDS), retired = new Set(RETIRED_IDS);
+    CARDS.forEach((c, i) => {
+        const at = `Card ${i + 1} (${c.id || 'no id'})`;
+        if (typeof c.id !== 'string' || !idRx.test(c.id)) err.push(`${at}: the ID must use lowercase letters, numbers and hyphens only.`);
+        if (seen.has(c.id)) err.push(`${at}: duplicate ID, also used by card ${seen.get(c.id) + 1}. Both would share one buckle.`); else seen.set(c.id, i);
+        if (retired.has(c.id)) err.push(`${at}: this ID was retired and must not be reused. Choose a new ID.`);
+        if (!released.has(c.id)) warn.push(`${at}: new ID. Add '${c.id}' to RELEASED_IDS when you publish this card.`);
+        if (!SCT[c.sc] || !LGOF[c.sc]) err.push(`${at}: ${c.sc} is not listed in SCT and LGS.`);
+        if (!c.label || !c.q || !c.exp) err.push(`${at}: label, question and explanation are all required.`);
+        const lk = c.sc + '|' + c.label; if (labels.has(lk)) warn.push(`${at}: another ${c.sc} card has the label "${c.label}", which makes the results screen confusing.`); labels.add(lk);
+        if (c.scene && (!SCENE[c.scene] || !c.vis)) err.push(`${at}: scene "${c.scene}" needs a matching SCENE entry and a vis.`);
+        if (c.kind) {
+            if (!KIND[c.kind]) { err.push(`${at}: unknown kind "${c.kind}".`); return; }
+            if (!c.instr) warn.push(`${at}: add an instr line so students know what to do.`);
+            if (c.kind === 'order' && (!Array.isArray(c.seq) || c.seq.length < 2 || typeof c.tile !== 'function')) err.push(`${at}: order cards need seq (2 or more) and a tile function.`);
+            if (c.kind === 'sort' && (!Array.isArray(c.bins) || c.bins.length !== 2 || !Array.isArray(c.items) || c.items.some(it => !(it[1] === 0 || it[1] === 1)))) err.push(`${at}: sort cards need 2 bins and items tagged 0 or 1.`);
+            if (c.kind === 'cloze') {
+                const gaps = (c.text.match(/\[\]/g) || []).length, bank = (c.bank || []).slice();
+                if (gaps !== (c.answers || []).length) err.push(`${at}: the text has ${gaps} gaps but ${(c.answers || []).length} answers.`);
+                (c.answers || []).forEach(a => { const k = bank.indexOf(a); if (k < 0) err.push(`${at}: the answer "${a}" is missing from the word bank.`); else bank.splice(k, 1); });
+            }
+            if (c.kind === 'hotspot' && (!c.hsSVG || !Array.isArray(c.correct) || !c.correct.length)) err.push(`${at}: hotspot cards need hsSVG and a correct list.`);
+        } else {
+            if (!Array.isArray(c.opts) || c.opts.length !== 4) err.push(`${at}: multiple choice cards need exactly 4 options.`);
+            if (!Number.isInteger(c.ans) || c.ans < 0 || c.ans > 3) err.push(`${at}: ans must be 0, 1, 2 or 3.`);
+        }
+    });
+    RELEASED_IDS.forEach(id => { if (!seen.has(id) && !retired.has(id) && !ID_ALIASES[id]) err.push(`Released ID '${id}' is missing. If the card was deleted, add it to RETIRED_IDS. If it was renamed, restore the old ID or add an ID_ALIASES entry.`); });
+    Object.entries(ID_ALIASES).forEach(([a, b]) => { if (!seen.has(b)) err.push(`ID_ALIASES points '${a}' to '${b}', but no card has the ID '${b}'.`); });
+    if (err.length || warn.length) {
+        console.group(`Card data check: ${err.length} problem${err.length === 1 ? '' : 's'}, ${warn.length} reminder${warn.length === 1 ? '' : 's'}`);
+        err.forEach(m => console.error(m)); warn.forEach(m => console.warn(m)); console.groupEnd();
+        const b = el('button', 'devcheck' + (err.length ? ' bad' : ''), `Card data check: ${err.length ? `${err.length} problem${err.length === 1 ? '' : 's'}` : `${warn.length} reminder${warn.length === 1 ? '' : 's'}`}. Open the browser console for details.`);
+        b.title = 'Click to hide'; b.onclick = () => b.remove(); stage.appendChild(b);
+    }
+    return { err, warn };
+}
+window.addEventListener('storage', e => { if (e.key === 'buckles-shared') refreshCount(); });
+refreshCount();
+validateCards();
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { fit(); refreshCount(); home(); });
+</script>
+</body>
+</html>
