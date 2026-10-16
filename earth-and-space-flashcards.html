@@ -1,0 +1,1784 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Earth and Space Flashcards</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --navy: #1b1f45;
+        --pink: #ea008a;
+        --mid-grey: #9a9a9a;
+        --light-grey: #e8e8e8;
+        --blank: #f0f3f6;
+        --tint: #e9ecf5;
+        --cond: 'Barlow Condensed', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        --ease: cubic-bezier(.2,.8,.2,1);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #eaeaea; color: var(--navy);
+        display: flex; align-items: center; justify-content: center; overflow: hidden; -webkit-user-select: none; user-select: none; }
+    .stage { width: 1280px; height: 720px; background: #fff; border-top: 6px solid var(--navy); position: relative; padding: 36px 64px 0; flex-shrink: 0; overflow: hidden; transform-origin: center; }
+    .top { gap: 24px; display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 4px solid var(--navy); padding-bottom: 12px; height: 70px; }
+    .sheet-title { white-space: nowrap; flex: 1; min-width: 0; overflow: hidden; font-family: var(--cond); font-size: 42px; font-weight: 900; text-transform: uppercase; letter-spacing: .01em; margin: 0; line-height: 1; }
+    .sheet-title span { color: var(--pink); }
+    .topr { display: flex; align-items: center; gap: 22px; }
+    .counter { white-space: nowrap; font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; color: var(--mid-grey); text-transform: uppercase; display: flex; align-items: center; gap: 22px; }
+    .counter b { color: var(--navy); }
+    .snd { width: 40px; height: 40px; border: 3px solid var(--navy); border-radius: 8px; background: #fff; color: var(--navy); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; }
+    .snd svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+    .snd.on { background: var(--navy); color: #fff; }
+    .content { position: absolute; left: 64px; right: 64px; top: 124px; bottom: 108px; }
+    .caption { position: absolute; left: 64px; right: 64px; bottom: 28px; min-height: 60px; display: flex; align-items: center; gap: 16px; font-size: 25px; font-weight: 500; line-height: 1.32; }
+    .caption::before { content: ''; width: 10px; height: 10px; background: var(--pink); flex-shrink: 0; }
+    .caption .txt { flex: 1; }
+    .caption b { color: var(--pink); font-weight: 800; }
+    .caption b.no { color: var(--navy); }
+    .caption .in { animation: capIn .45s var(--ease); display: block; }
+    @keyframes capIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .progress { position: absolute; left: 0; bottom: 0; height: 6px; background: var(--pink); width: 0; transition: width .6s var(--ease); }
+    .btns { display: flex; gap: 12px; flex-shrink: 0; }
+    .next, .btn2 { font-family: var(--cond); font-size: 26px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; border-radius: 8px; padding: 12px 30px; cursor: pointer; }
+    .next { background: var(--pink); color: #fff; border: 3px solid var(--pink); }
+    .next:disabled { background: #c3c6d0; border-color: #c3c6d0; cursor: default; }
+    .btn2 { background: #fff; color: var(--navy); border: 3px solid var(--navy); }
+    .btn2:hover { background: var(--blank); }
+    button:focus-visible { outline: 3px solid var(--pink); outline-offset: 3px; }
+    .next:focus-visible { outline-color: var(--navy); }
+    .pop-in { animation: capIn .45s var(--ease); }
+    @keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+
+    /* svg text */
+    svg { display: block; }
+    .vis { overflow: hidden; }
+    .halo { paint-order: stroke; stroke: #fff; stroke-width: 5px; stroke-linejoin: round; }
+    .num { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 800; fill: var(--navy); }
+    .lb { font-family: var(--cond); font-size: 18px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; fill: var(--navy); }
+    .lbg { font-family: var(--cond); font-size: 18px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; fill: var(--mid-grey); }
+    .lbs { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 700; fill: var(--navy); }
+    .lg { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 600; fill: var(--navy); }
+    .tiny { font-family: var(--cond); font-size: 15px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; fill: var(--navy); }
+    .bd { font-family: var(--cond); font-size: 19px; font-weight: 900; }
+    .big { font-family: var(--cond); font-size: 44px; font-weight: 900; }
+    .sm { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 700; }
+    .qm { font-family: var(--cond); font-size: 28px; font-weight: 900; }
+    .ax { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 600; fill: var(--mid-grey); }
+    .axp { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 700; fill: var(--pink); }
+    .bigl { font-family: var(--cond); font-size: 36px; font-weight: 900; fill: var(--navy); }
+
+    /* home */
+    .decks { display: grid; grid-template-columns: repeat(5, 1fr); gap: 24px; height: 100%; align-items: center; padding-right: 12px; }
+    .deck { position: relative; height: 430px; background: none; border: none; padding: 0; cursor: pointer; font-family: inherit; color: var(--navy); text-align: left; }
+    .deck::before, .deck::after { content: ''; position: absolute; inset: 0; border: 3px solid var(--navy); border-radius: 14px; transition: transform .35s var(--ease); }
+    .deck::before { transform: translate(12px, 12px); background: var(--navy); }
+    .deck::after { transform: translate(6px, 6px); background: #fff; }
+    .dface { position: absolute; inset: 0; z-index: 1; border: 3px solid var(--navy); border-radius: 14px; background: #fff; padding: 20px 20px 18px; display: flex; flex-direction: column; transition: transform .35s var(--ease), border-color .2s; }
+    .deck:hover .dface, .deck:focus-visible .dface { transform: translate(-4px, -10px) rotate(-1.5deg); border-color: var(--pink); }
+    .deck:hover::after { transform: translate(9px, 4px) rotate(1.5deg); }
+    .deck:focus-visible { outline: none; }
+    .dface svg { width: 100%; height: 112px; }
+    .dcode { font-family: var(--cond); font-size: 66px; font-weight: 900; color: var(--pink); line-height: 1; margin-top: auto; }
+    .dname { font-size: 25px; font-weight: 800; line-height: 1.15; margin-top: 4px; min-height: 58px; }
+    .dmeta span { white-space: nowrap; }
+    .dmeta { gap: 8px; font-size: 17px !important; display: flex; justify-content: space-between; border-top: 3px solid var(--navy); margin-top: 14px; padding-top: 10px; font-family: var(--cond); font-size: 19px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--mid-grey); }
+
+    /* deck screen */
+    .dscreen { display: grid; grid-template-columns: 340px 1fr; gap: 48px; height: 100%; }
+    .dscreen .deck { height: 470px; cursor: default; }
+    .dscreen .deck:hover .dface { transform: none; border-color: var(--navy); }
+    .dscreen .deck:hover::after { transform: translate(6px, 6px); }
+    .dstate { font-size: 19px; font-weight: 600; line-height: 1.3; margin-top: 10px; }
+    .sccol { display: flex; flex-direction: column; min-height: 0; }
+    .sch { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mid-grey); margin-bottom: 10px; display: flex; justify-content: space-between; }
+    .sch button { font: inherit; letter-spacing: inherit; text-transform: inherit; color: var(--navy); background: none; border: none; cursor: pointer; padding: 0; }
+    .sclist { display: flex; flex-direction: column; gap: 6px; overflow-y: auto; padding: 2px 8px 4px 2px; }
+    .scrow { display: grid; grid-template-columns: 30px 60px 1fr auto auto; align-items: center; gap: 14px; border: 3px solid var(--navy); border-radius: 8px; padding: 6px 14px; background: #fff; font-family: inherit;
+        font-size: 17px; font-weight: 600; color: var(--navy); text-align: left; cursor: pointer; line-height: 1.2; min-height: 58px; transition: opacity .2s, background-color .2s; }
+    .scrow:hover { background: #f6f7fb; }
+    .scrow .box { width: 30px; height: 30px; border: 3px solid var(--navy); border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: background-color .2s, border-color .2s; }
+    .scrow .box svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; opacity: 0; }
+    .scrow.on .box { background: var(--pink); border-color: var(--pink); }
+    .scrow.on .box svg { opacity: 1; }
+    .scrow:not(.on) { opacity: .5; border-style: dashed; }
+    .scrow .code { font-family: var(--cond); font-size: 25px; font-weight: 900; }
+    .scrow .n { font-family: var(--cond); font-size: 18px; font-weight: 800; color: var(--mid-grey); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
+
+    /* play */
+    .play { display: grid; grid-template-columns: 612px 1fr; gap: 32px; height: 100%; align-items: center; }
+    .cwrap { position: relative; width: 584px; height: 470px; perspective: 1800px; }
+    .stk { position: absolute; inset: 0; border-radius: 14px; background: var(--navy); border: 3px solid var(--navy); transition: transform .4s var(--ease), opacity .3s; }
+    .stk::after { content: ''; position: absolute; inset: 8px; border: 2px solid rgba(234,0,138,.5); border-radius: 8px; }
+    .card { position: absolute; inset: 0; transform-style: preserve-3d; z-index: 5; }
+    .face { position: absolute; inset: 0; -webkit-backface-visibility: hidden; backface-visibility: hidden; border: 3px solid var(--navy); border-radius: 14px; background: #fff; overflow: hidden; display: flex; flex-direction: column; }
+    .face.back { transform: rotateY(180deg); }
+    .front { padding: 22px 28px 20px; }
+    .fmeta { display: flex; align-items: center; gap: 12px; position: relative; z-index: 1; }
+    .sctag { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #fff; background: var(--navy); border-radius: 6px; padding: 5px 12px 4px; line-height: 1; }
+    .tchip { font-family: var(--cond); font-size: 18px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--pink); border: 3px solid var(--pink); border-radius: 6px; padding: 2px 10px 1px; }
+    .lgc { margin-left: auto; font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; color: var(--mid-grey); }
+    .fq { font-size: 26px; font-weight: 700; line-height: 1.25; margin-top: 14px; position: relative; z-index: 1; }
+    .front.t .fq { font-size: 37px; font-weight: 800; line-height: 1.18; margin: auto 0; padding-bottom: 30px; }
+    .ghost { position: absolute; right: 16px; bottom: -40px; font-family: var(--cond); font-weight: 900; font-size: 210px; color: var(--blank); line-height: 1; pointer-events: none; }
+    .fvis { flex: 1; min-height: 0; margin-top: 10px; display: flex; align-items: center; justify-content: center; }
+    .fvis svg { width: 100%; height: 100%; }
+    .pat { background: var(--navy); border-color: var(--navy); }
+    .pat svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .pcode { position: absolute; left: 30px; top: 22px; font-family: var(--cond); font-size: 70px; font-weight: 900; color: #fff; line-height: 1; }
+    .bhead { display: flex; align-items: center; gap: 12px; padding: 14px 26px; color: #fff; font-family: var(--cond); font-size: 40px; font-weight: 900; text-transform: uppercase; letter-spacing: .02em; line-height: 1; }
+    .bhead.ok { background: var(--pink); }
+    .bhead.no { background: var(--navy); }
+    .bhead svg { width: 36px; height: 36px; fill: none; stroke: #fff; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+    .bsc { margin-left: auto; font-size: 22px; letter-spacing: .08em; opacity: .85; }
+    .bbody { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 16px 28px 18px; }
+    .alab { font-family: var(--cond); font-size: 18px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--mid-grey); }
+    .ans { font-size: 28px; font-weight: 800; line-height: 1.2; margin-top: 4px; }
+    .bhead.ok + .bbody .ans { color: var(--pink); }
+    .apic { height: 118px; margin-top: 6px; }
+    .apic svg { height: 100%; width: auto; }
+    .exp { font-size: 21px; font-weight: 500; line-height: 1.38; margin: 10px 0 0; }
+    .bbody.nov .exp { font-size: 24px; }
+    .bbody.nov .ans { font-size: 32px; }
+    .back .ghost { z-index: 0; }
+    .bbody { position: relative; z-index: 1; }
+    .bvis { flex: 1; min-height: 0; margin-top: 10px; display: flex; justify-content: center; }
+    .bvis svg { width: 100%; height: 100%; }
+
+    /* options */
+    .opts { display: flex; flex-direction: column; gap: 12px; justify-content: center; height: 100%; }
+    .opt { display: flex; align-items: center; gap: 16px; border: 3px solid var(--navy); border-radius: 8px; background: #fff; padding: 12px 18px; min-height: 96px;
+        font-family: inherit; font-size: 23px; font-weight: 600; color: var(--navy); text-align: left; line-height: 1.25; cursor: pointer;
+        transition: background-color .2s, border-color .2s, color .2s, opacity .25s, box-shadow .2s; position: relative; }
+    .opt.short { font-size: 28px; font-weight: 700; }
+    .l { flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background: var(--navy); color: #fff; font-family: var(--cond); font-size: 24px; font-weight: 900;
+        display: flex; align-items: center; justify-content: center; transition: background-color .2s, color .2s; }
+    .l svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+    .l svg path { stroke-dasharray: 30; stroke-dashoffset: 30; animation: draw .35s .12s var(--ease) forwards; }
+    .opt:hover:not(:disabled), .pcard:hover:not(:disabled) { background: #f6f7fb; }
+    .opt:disabled, .pcard:disabled { cursor: default; }
+    .opt.right, .opt.right:hover { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .opt.right .l { background: #fff; color: var(--pink); }
+    .wrong { border-style: dashed !important; opacity: .5; animation: shake .4s; }
+    .reveal { border-color: var(--pink) !important; box-shadow: 0 0 0 5px rgba(234,0,138,.18); }
+    .reveal .l { background: var(--pink); }
+    .dim { opacity: .3; }
+    .pgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .pcard { position: relative; border: 3px solid var(--navy); border-radius: 8px; background: #fff; padding: 12px 8px 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; height: 214px;
+        font-family: inherit; color: var(--navy); transition: background-color .2s, border-color .2s, opacity .25s, box-shadow .2s; }
+    .pcard .l { position: absolute; left: 10px; top: 10px; width: 36px; height: 36px; font-size: 22px; }
+    .pcard svg.vis { width: 100%; height: 170px; }
+    .pcard.right, .pcard.right:hover { border-color: var(--pink); background: #fff; box-shadow: 0 0 0 6px rgba(234,0,138,.22); }
+    .pcard.right .l { background: var(--pink); color: #fff; }
+
+
+    /* interactive cards */
+    .fvis { position: relative; }
+    .replay { position: absolute; right: 0; top: 0; display: flex; align-items: center; gap: 6px; font-family: var(--cond); font-size: 18px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+        background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 6px; padding: 4px 11px 3px 8px; cursor: pointer; }
+    .replay svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+    .replay:hover { background: var(--blank); }
+    .tile { display: inline-flex; align-items: center; gap: 10px; font-family: inherit; font-size: 21px; font-weight: 700; color: var(--navy); background: #fff; border: 3px solid var(--navy); border-radius: 8px; padding: 6px 14px;
+        line-height: 1.2; cursor: grab; touch-action: none; position: relative; z-index: 2; box-shadow: 0 4px 0 #c3c6d0; white-space: nowrap; transition: box-shadow .2s, border-color .2s, background-color .2s; }
+    .tile:hover { background: #f6f7fb; }
+    .tile .mini { width: 32px; height: 32px; flex-shrink: 0; overflow: visible; }
+    .tile.sel { border-color: var(--pink); box-shadow: 0 0 0 4px rgba(234,0,138,.22); }
+    .tile.drag { cursor: grabbing; z-index: 40; box-shadow: 0 14px 30px rgba(27,31,69,.25); border-color: var(--pink); }
+    .tile.right { background: var(--pink); color: #fff; border-color: var(--pink); box-shadow: none; }
+    .tile.wrong { border-style: dashed; background: var(--tint); box-shadow: none; animation: shake .4s; }
+    .tile:focus-visible { outline: 3px solid var(--pink); outline-offset: 2px; }
+    .pool { display: flex; flex-wrap: wrap; gap: 12px; align-content: center; justify-content: center; background: var(--blank); border-radius: 12px; padding: 16px; height: 100%; }
+    .pool2 { display: grid; grid-template-columns: 1fr 1fr; align-content: center; gap: 14px; }
+    .pool2 .tile { justify-content: flex-start; font-size: 22px; padding: 8px 14px; }
+    .pool3 { display: grid; grid-template-columns: repeat(3, 1fr); align-content: center; justify-items: center; gap: 16px; }
+    .mtile { padding: 6px; }
+    .mtile svg { width: 92px; height: 92px; display: block; }
+    .mtile.right svg circle[fill="#fbfbf7"], .mtile.right svg path[fill="#fbfbf7"] { fill: #fff; }
+    .wtile { font-size: 26px; padding: 10px 24px; }
+    .kz { flex-direction: column; align-items: stretch; justify-content: center; gap: 14px; }
+    .ordtop { display: flex; align-items: center; gap: 10px; font-family: var(--cond); font-size: 17px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--mid-grey); white-space: nowrap; }
+    .ordtop i { flex: 1; height: 3px; background: linear-gradient(90deg, var(--pink), var(--light-grey)); }
+    .ordtop .mini { width: 36px; height: 36px; overflow: visible; flex-shrink: 0; }
+    .ogrid { display: grid; gap: 10px; }
+    .slot { position: relative; border: 3px dashed #c3c6d0; border-radius: 10px; min-height: 96px; display: flex; align-items: center; justify-content: center; padding: 20px 4px 6px; transition: border-color .2s, background-color .2s, box-shadow .2s; }
+    .slot > b { position: absolute; left: 8px; top: 3px; font-family: var(--cond); font-size: 16px; font-weight: 900; color: var(--mid-grey); letter-spacing: .04em; }
+    .slot .sb { display: flex; justify-content: center; width: 100%; }
+    .slot:has(.tile) { border-style: solid; border-color: var(--light-grey); }
+    .slot .tile { box-shadow: none; flex-direction: column; gap: 2px; font-size: 15px; padding: 4px 6px; min-width: 100px; }
+    .slot .tile .mini { width: 30px; height: 30px; }
+    .slot .mtile { min-width: 0; padding: 4px; }
+    .slot .mtile svg { width: 74px; height: 74px; }
+    .slot.hover, .slot.armed:hover { border-color: var(--pink); background: rgba(234,0,138,.06); }
+    .bins { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; height: 100%; }
+    .bin { border: 3px solid var(--navy); border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; transition: box-shadow .2s; }
+    .bin h3 { margin: 0; padding: 6px 14px 5px; font-family: var(--cond); font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; color: #fff; background: var(--navy); }
+    .bin.pk { border-color: var(--pink); }
+    .bin.pk h3 { background: var(--pink); }
+    .bin .sub { font-size: 15px; font-weight: 600; color: var(--mid-grey); padding: 5px 14px 0; }
+    .bin .area { flex: 1; display: flex; flex-wrap: wrap; gap: 6px; align-content: flex-start; justify-content: center; padding: 8px; }
+    .bin .mtile svg { width: 54px; height: 54px; }
+    .pool4 { display: grid; grid-template-columns: 1fr 1fr; align-content: center; justify-items: center; gap: 20px; }
+    .ai.am svg { width: 60px; height: 60px; }
+    .ai small { font-size: 14px; }
+    .pair { display: flex; gap: 10px; width: 100%; justify-content: center; }
+    .pair svg { width: 48%; height: 100%; }
+    .bin.hover, .bin.armed { box-shadow: 0 0 0 5px rgba(234,0,138,.18); cursor: pointer; }
+    .ctext { font-size: 24px; font-weight: 600; line-height: 1.95; margin: 0; }
+    .blank { display: inline-flex; vertical-align: middle; min-width: 112px; height: 48px; border: 3px dashed #c3c6d0; border-radius: 8px; margin: 0 3px; align-items: center; justify-content: center; transition: border-color .2s, background-color .2s; }
+    .blank:has(.tile) { border-color: transparent; min-width: 0; }
+    .blank .bb { display: flex; }
+    .blank .tile { box-shadow: none; font-size: 22px; padding: 4px 12px; }
+    .blank.hover, .blank.armed:hover { border-color: var(--pink); background: rgba(234,0,138,.06); }
+    .hsw { height: 100%; border: 3px solid var(--navy); border-radius: 14px; background: #fff; overflow: hidden; display: flex; }
+    .hsw svg { width: 100%; height: 100%; }
+    .spinw { flex-direction: column; }
+    .spinw > svg { flex: 1; min-height: 0; cursor: grab; touch-action: none; }
+    .spinw.grab > svg { cursor: grabbing; }
+    .spinw.done > svg { cursor: default; }
+    .spbtns { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 14px 12px; font-family: var(--cond); font-size: 18px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--mid-grey); }
+    .sbtn { width: 64px; height: 46px; border: 3px solid var(--navy); border-radius: 8px; background: #fff; color: var(--navy); cursor: pointer; display: flex; align-items: center; justify-content: center; touch-action: none; }
+    .sbtn svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+    .sbtn:hover { background: var(--blank); }
+    .sbtn:active { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .spinw.done .sbtn { opacity: .35; pointer-events: none; }
+    .hs { cursor: pointer; }
+    .hs .hok, .hs .hno { display: none; }
+    .hs:hover .hdot { fill: var(--tint); }
+    .hs:focus { outline: none; }
+    .hs:focus-visible .hdot { stroke: var(--pink); }
+    .hsv.done .hpl { display: none; }
+    .hsv.done .hs { cursor: default; }
+    .hs.good .hdot { fill: var(--pink); stroke: #fff; }
+    .hs.good .hok { display: block; }
+    .hs.bad .hdot { stroke-dasharray: 5 4; }
+    .hs.bad .hno { display: block; }
+    .hs.off { opacity: .3; }
+    .arow { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+    .ai { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 13px; font-weight: 700; }
+    .ai .mini { width: 34px; height: 34px; overflow: visible; }
+    .asort { display: grid; grid-template-columns: auto repeat(3, 56px); align-items: center; gap: 4px 8px; margin-top: 6px; justify-content: start; }
+    .asort.a4 { grid-template-columns: repeat(4, 64px); }
+    .asort span { font-family: var(--cond); font-size: 20px; font-weight: 900; text-transform: uppercase; padding-right: 8px; }
+    .asort svg { width: 56px; height: 56px; }
+    .asort.a4 svg { width: 64px; height: 64px; }
+    .actext { font-size: 21px; line-height: 1.4; margin: 6px 0 0; font-weight: 600; }
+    .actext b { color: var(--pink); }
+    /* buckles (shared with the other checking for understanding pages) */
+    .bcount { display: flex; align-items: center; gap: 8px; }
+    .counter-icon { width: 34px; height: 34px; display: block; }
+    .bcount .num { font-family: var(--cond); font-size: 34px; font-weight: 900; line-height: 1; }
+    .bcount .lbl { font-family: var(--cond); font-size: 18px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mid-grey); }
+    .award { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(.8); opacity: 0; pointer-events: none; z-index: 30;
+        background: #fff; border: 3px solid var(--pink); border-radius: 12px; padding: 24px 40px; display: flex; flex-direction: column; align-items: center; gap: 10px;
+        box-shadow: 0 20px 50px rgba(27,31,69,.25); transition: opacity .3s, transform .35s var(--ease); }
+    .award.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    .award.hide { opacity: 0; transform: translate(-50%, -60%) scale(.95); }
+    .award-img { width: 140px; height: auto; }
+    .award-text { font-family: var(--cond); font-size: 40px; font-weight: 900; color: var(--pink); text-transform: uppercase; letter-spacing: .04em; }
+    .confetti-canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 29; }
+    .bkmeta { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-family: var(--cond); font-size: 19px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--navy); }
+    .bkmeta img { width: 22px; height: 22px; }
+    .bkmeta span { color: var(--mid-grey); }
+    .scrow .bk { display: flex; align-items: center; gap: 4px; font-family: var(--cond); font-size: 18px; font-weight: 800; color: var(--navy); white-space: nowrap; }
+    .scrow .bk img { width: 20px; height: 20px; }
+    .bkchip { display: inline-flex; align-items: center; gap: 4px; font-family: var(--cond); font-size: 16px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--navy); }
+    .bkchip img { width: 20px; height: 20px; }
+    .rbk { display: flex; align-items: center; justify-content: center; gap: 10px; margin: -4px 0 10px; font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+    .rbk img { width: 34px; height: 34px; }
+    .rbk b { color: var(--pink); font-size: 30px; }
+    .rbk span { color: var(--mid-grey); font-size: 18px; letter-spacing: .1em; }
+    .devcheck { position: absolute; left: 64px; top: 6px; z-index: 50; font-family: var(--cond); font-size: 15px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+        background: var(--navy); color: #fff; border: none; border-radius: 0 0 6px 6px; padding: 3px 10px; cursor: pointer; }
+    .devcheck.bad { background: var(--pink); }
+    /* piles */
+    .piles { display: flex; gap: 16px; }
+    .pile { white-space: nowrap; display: flex; align-items: center; gap: 8px; font-family: var(--cond); font-size: 18px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--mid-grey); }
+    .pile i { width: 19px; height: 25px; border-radius: 3px; border: 3px solid var(--pink); background: var(--pink); display: block; }
+    .pile.rv i { background: #fff; border: 3px dashed var(--navy); }
+    .pile b { font-size: 26px; color: var(--navy); min-width: 16px; display: inline-block; }
+    .divv { width: 3px; height: 26px; background: var(--light-grey); }
+
+    /* fx */
+    .pt { position: absolute; pointer-events: none; z-index: 60; }
+    .plus { white-space: nowrap; position: absolute; z-index: 61; font-family: var(--cond); font-size: 40px; font-weight: 900; color: var(--pink); pointer-events: none; line-height: 1; }
+    .shock { position: absolute; z-index: 59; border: 4px solid var(--pink); border-radius: 50%; pointer-events: none; }
+
+    /* results */
+    .res { display: grid; grid-template-columns: 300px 1fr; gap: 44px; height: 100%; }
+    .rleft { display: flex; flex-direction: column; align-items: stretch; justify-content: center; gap: 10px; }
+    .ringw { position: relative; width: 180px; height: 180px; align-self: center; }
+    .ringw svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .rnum { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--cond); font-weight: 900; white-space: nowrap; }
+    .rnum b { font-size: 64px; color: var(--pink); line-height: 1; }
+    .rnum span { font-size: 26px; color: var(--mid-grey); margin-left: 8px; align-self: flex-end; margin-bottom: 62px; }
+    .rlab { text-align: center; font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mid-grey); margin: 0 0 12px; }
+    .rleft .next, .rleft .btn2 { font-size: 20px; padding: 10px 12px; white-space: nowrap; letter-spacing: .04em; }
+    .rright { --rs: 1; display: flex; flex-direction: column; min-height: 0; }
+    .rhead { font-family: var(--cond); font-size: 18px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--mid-grey); border-bottom: 4px solid var(--navy); padding-bottom: 6px; display: flex; justify-content: space-between; }
+    .rhead i { font-style: normal; display: flex; gap: 14px; align-items: center; }
+    .rhead i .chip { letter-spacing: 0; text-transform: none; font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+    .rlist { --rs: 1; overflow-y: auto; flex: 1; padding-right: 8px; display: grid; grid-template-columns: 1fr; column-gap: 28px; align-content: start; }
+    .rlist.two { grid-template-columns: 1fr 1fr; }
+    .rlist.three { display: block; column-count: 4; column-gap: 18px; }
+    .rlist.three .rblock { break-inside: avoid; }
+    .rlist.three .rsc { padding: 1px 6px 0; }
+    .rlist.three .chip.n { white-space: normal; }
+    .rblock { padding: calc(var(--rs) * 8px) 0; border-bottom: 2px solid var(--light-grey); min-width: 0; }
+    .rbh { display: flex; align-items: center; gap: 10px; }
+    .rsc { font-family: var(--cond); font-size: calc(var(--rs) * 22px); font-weight: 900; letter-spacing: .04em; border: 3px solid var(--navy); border-radius: 6px; padding: 1px 9px 0; line-height: 1.2; }
+    .rbh b { margin-left: auto; font-family: var(--cond); font-size: calc(var(--rs) * 24px); font-weight: 900; }
+    .rtx { font-size: calc(var(--rs) * 16px); font-weight: 600; line-height: 1.28; margin-top: calc(var(--rs) * 6px); }
+    .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: calc(var(--rs) * 7px); }
+    .chip { font-size: calc(var(--rs) * 14px); font-weight: 700; padding: 2px 9px 2px 6px; border-radius: 5px; display: inline-flex; gap: 5px; align-items: center; line-height: 1.2; }
+    .chip svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .chip.y { background: var(--pink); color: #fff; border: 2px solid var(--pink); }
+    .chip.n { border: 2px dashed var(--navy); color: var(--navy); background: #fff; }
+    .chip.dot { padding: 2px 4px; }
+    .tag { display: inline-block; font-family: var(--cond); font-size: calc(var(--rs) * 16px); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: 2px 8px 1px; border-radius: 5px; }
+    .tag.sec { background: var(--pink); color: #fff; }
+    .tag.near { border: 2px solid var(--pink); color: var(--pink); }
+    .tag.rev { background: var(--navy); color: #fff; }
+    .rlist::-webkit-scrollbar, .sclist::-webkit-scrollbar { width: 8px; }
+    .rlist::-webkit-scrollbar-thumb, .sclist::-webkit-scrollbar-thumb { background: var(--navy); border-radius: 4px; }
+    .rlist::-webkit-scrollbar-track, .sclist::-webkit-scrollbar-track { background: var(--blank); border-radius: 4px; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true"><defs>
+    <radialGradient id="gSun" cx=".42" cy=".4" r=".65"><stop offset="0" stop-color="#ff9ad2"/><stop offset=".5" stop-color="#f0249b"/><stop offset="1" stop-color="#c1006f"/></radialGradient>
+    <radialGradient id="gGlow"><stop offset="0" stop-color="#ea008a" stop-opacity=".35"/><stop offset=".65" stop-color="#ea008a" stop-opacity=".08"/><stop offset="1" stop-color="#ea008a" stop-opacity="0"/></radialGradient>
+    <radialGradient id="gOcean" cx=".4" cy=".35" r=".75"><stop offset="0" stop-color="#eef2fc"/><stop offset="1" stop-color="#b9c4e6"/></radialGradient>
+    <radialGradient id="gShade" cx=".36" cy=".3" r=".78"><stop offset="0" stop-color="#fff" stop-opacity=".45"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#1b1f45" stop-opacity=".28"/></radialGradient>
+    <linearGradient id="gN_R" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1b1f45" stop-opacity=".8"/><stop offset=".47" stop-color="#1b1f45" stop-opacity=".72"/><stop offset=".53" stop-color="#1b1f45" stop-opacity="0"/></linearGradient>
+    <linearGradient id="gN_L" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#1b1f45" stop-opacity=".8"/><stop offset=".47" stop-color="#1b1f45" stop-opacity=".72"/><stop offset=".53" stop-color="#1b1f45" stop-opacity="0"/></linearGradient>
+    <linearGradient id="gN_U" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#1b1f45" stop-opacity=".8"/><stop offset=".47" stop-color="#1b1f45" stop-opacity=".72"/><stop offset=".53" stop-color="#1b1f45" stop-opacity="0"/></linearGradient>
+    <linearGradient id="gN_D" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b1f45" stop-opacity=".8"/><stop offset=".47" stop-color="#1b1f45" stop-opacity=".72"/><stop offset=".53" stop-color="#1b1f45" stop-opacity="0"/></linearGradient>
+    <linearGradient id="gLight" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#ea008a" stop-opacity=".1"/><stop offset="1" stop-color="#ea008a" stop-opacity="0"/></linearGradient>
+    <linearGradient id="gSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e6eaf7"/><stop offset="1" stop-color="#fbfcff"/></linearGradient>
+    <linearGradient id="gBeam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ea008a" stop-opacity=".06"/><stop offset="1" stop-color="#ea008a" stop-opacity=".3"/></linearGradient>
+    <radialGradient id="gWater" cx=".5" cy=".5" r=".55"><stop offset=".6" stop-color="#cdd6f2"/><stop offset="1" stop-color="#e6ebf9"/></radialGradient>
+    <radialGradient id="gNeb"><stop offset="0" stop-color="#ea008a" stop-opacity=".3"/><stop offset=".45" stop-color="#9aa3cc" stop-opacity=".22"/><stop offset="1" stop-color="#9aa3cc" stop-opacity="0"/></radialGradient>
+    <linearGradient id="gUmb" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1b1f45" stop-opacity=".6"/><stop offset="1" stop-color="#1b1f45" stop-opacity=".25"/></linearGradient>
+    <linearGradient id="gPen" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1b1f45" stop-opacity=".16"/><stop offset="1" stop-color="#1b1f45" stop-opacity=".06"/></linearGradient>
+    <pattern id="pSoil" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="#d3d7e4" stroke-width="2"/></pattern>
+</defs></svg>
+<div class="stage" id="stage">
+    <div class="top">
+        <h1 class="sheet-title">Earth and space <span>flashcards</span></h1>
+        <div class="topr"><div class="counter" id="counter"></div>
+            <div class="bcount" title="Buckles earned">
+                <img src="buckle.svg" alt="" class="counter-icon" onerror="this.style.visibility='hidden'">
+                <div class="num" id="buckleCount">0</div>
+                <div class="lbl">Buckles</div>
+            </div>
+            <button class="snd" id="snd" aria-label="Turn sound on"></button></div>
+    </div>
+    <div class="content" id="content"></div>
+    <div class="caption"><div class="txt" id="cap"></div><div class="btns" id="btns"></div></div>
+    <div class="progress" id="progress"></div>
+</div>
+
+<div class="award" id="award" role="status" aria-live="polite">
+    <img src="penguin-with-buckle.svg" alt="" class="award-img" onerror="this.style.display='none'">
+    <div class="award-text" id="awardText">+1 Buckle!</div>
+</div>
+
+<script>
+/* =====================================================================================
+   EARTH AND SPACE FLASHCARDS: MAINTENANCE GUIDE
+   This file doubles as the template for future flashcard resources. Read this before
+   adding, editing or removing cards.
+
+   1. BUCKLES (shared reward system)
+      - Buckles are stored in localStorage under 'buckles-shared', the same record used by
+        the other checking for understanding pages. Each entry is 'PAGE_ID:card-id': 1.
+      - One buckle per card, awarded the first time the card is answered correctly and
+        never again. A wrong answer awards nothing, so the card can still be earned later.
+      - Every total on screen (deck tiles, SC rows, results) is counted from CARDS when the
+        page loads, so adding or removing cards needs no other changes.
+      - PAGE_ID must never change. Changing it would orphan every buckle already earned.
+        When copying this file to make a NEW resource, give that resource its own PAGE_ID.
+
+   2. CARD IDS (permanent)
+      - The first argument of C() is the card's buckle ID, for example 'sc12-spin-earth-west-to-east'.
+      - Use lowercase letters, numbers and hyphens. Start with the SC so IDs stay readable.
+      - Once a card is published its ID is permanent. Labels, questions, options,
+        explanations and visuals can all be edited freely without affecting buckles.
+      - Adding a card: write a new C('new-id', ...) and add 'new-id' to RELEASED_IDS.
+      - Deleting a card: remove the C(...) entry and add its ID to RETIRED_IDS. Leave it in
+        RELEASED_IDS. Never reuse a retired ID.
+      - If an ID ever has to change, add 'old-id': 'new-id' to ID_ALIASES. Earned buckles
+        move across once and are never counted twice.
+
+   3. DATA CHECK
+      - validateCards() runs on every load. Problems and reminders are listed in the browser
+        console, and a small strip appears at the top left of the page. Pink means a problem
+        to fix before publishing. Navy means a reminder, such as registering a new ID.
+
+   4. CARD TYPES (opts[0] is correct unless ans is given)
+      Multiple choice:  C(id, sc, label, question, [4 options], explanation, { vis? , calc? , ordered?, ans? })
+      Pick the picture: as above with { pic: true } and 4 SVG strings as options
+      Predict:          as multiple choice with { scene: 'spin', vis: spinSVG() } (scene in SCENE)
+      Put in order:     { kind: 'order', seq: [...keys in order], tile: key => html, cols, ordTop, slotLab?, instr, ansHTML }
+      Sort:             { kind: 'sort', bins: [[title, hint], [title, hint]], items: [[html, 0 or 1], ...], instr, ansHTML }
+      Fill the gaps:    { kind: 'cloze', text: 'Use [] for each gap', answers: [...], bank: [...answers plus spares], instr, ansHTML }
+      Tap the diagram:  { kind: 'hotspot', hsSVG, correct: [indexes], instr, ansHTML }
+      Spin the model:   { kind: 'spindrag', instr, ansHTML, backVis }
+      New SCs or LGs: add the statement to SCT and the code to the matching LGS entry.
+
+   5. HOUSE STYLE
+      - Swiss design, navy #1b1f45 and pink #ea008a, Barlow / Helvetica, 1280 x 720 stage.
+      - Australian English in all student-facing text. No em dashes.
+      - Animations always play at full speed. Do not add prefers-reduced-motion rules or any
+        code that shortens or disables animation (classroom laptops have reduced motion on).
+      - Diagrams are inline SVG drawn from the shared helpers (globe, sunG, moonG, planet...).
+   ===================================================================================== */
+const FILE_VERSION = '2.0';
+const $ = s => document.querySelector(s);
+const stage = $('#stage'), content = $('#content'), cap = $('#cap'), btns = $('#btns'), counter = $('#counter'), progress = $('#progress'), sndBtn = $('#snd');
+const NV = '#1b1f45', PK = '#ea008a', LT = '#f0f3f6', GR = '#c9ccd6', TN = '#e9ecf5';
+let scaleK = 1;
+function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
+function say(html) { cap.innerHTML = `<span class="in">${html}</span>`; }
+function addBtn(t, cls, fn) { const b = el('button', cls, t); b.onclick = fn; btns.appendChild(b); return b; }
+function A(e, kf, o = {}) { const a = e.animate(kf, { duration: 500, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'both', ...o }); return a.finished.catch(() => {}); }
+const easeInOut = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const local = r => { const s = stage.getBoundingClientRect(); return { x: (r.left - s.left) / scaleK, y: (r.top - s.top) / scaleK, w: r.width / scaleK, h: r.height / scaleK }; };
+const TICK = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+const CROSS = '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+
+/* ---------- sound ---------- */
+let sound = false, actx = null;
+const SPK = on => `<svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/>${on ? '<path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/>' : '<path d="M17 9.5l5 5M22 9.5l-5 5"/>'}</svg>`;
+function setSound(on) { sound = on; sndBtn.innerHTML = SPK(on); sndBtn.classList.toggle('on', on); sndBtn.setAttribute('aria-label', on ? 'Turn sound off' : 'Turn sound on'); }
+sndBtn.onclick = () => { setSound(!sound); if (sound) tone([[880, .1]]); };
+function tone(seq) {
+    if (!sound) return;
+    try {
+        actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+        let t = actx.currentTime + .01;
+        seq.forEach(([f, d, type = 'sine', v = .14]) => {
+            const o = actx.createOscillator(), g = actx.createGain();
+            o.type = type; o.frequency.value = f;
+            g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .012); g.gain.exponentialRampToValueAtTime(.0008, t + d);
+            o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + d + .03); t += d * .62;
+        });
+    } catch (e) {}
+}
+setSound(false);
+
+/* =========================================================
+   DRAWING HELPERS
+   ========================================================= */
+const f1 = v => (+v).toFixed(1);
+const tx = (x, y, s, o = {}) => `<text class="${o.c || 'lb'}" x="${f1(x)}" y="${f1(y)}" text-anchor="${o.a || 'middle'}"${o.fill ? ` style="fill:${o.fill}"` : ''}>${s}</text>`;
+const V = (w, h, inner, cls = '') => `<svg class="vis ${cls}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet">${inner}</svg>`;
+function arr(x1, y1, x2, y2, c = NV, sw = 5, hl = 16, hw = 10) {
+    const a = Math.atan2(y2 - y1, x2 - x1), ux = Math.cos(a), uy = Math.sin(a), bx = x2 - ux * hl, by = y2 - uy * hl, px = -uy * hw, py = ux * hw;
+    return `<line x1="${f1(x1)}" y1="${f1(y1)}" x2="${f1(bx)}" y2="${f1(by)}" stroke="${c}" stroke-width="${sw}" stroke-linecap="round"/><polygon points="${f1(x2)},${f1(y2)} ${f1(bx + px)},${f1(by + py)} ${f1(bx - px)},${f1(by - py)}" fill="${c}" stroke="${c}" stroke-width="1" stroke-linejoin="round"/>`;
+}
+const badge = (x, y, s, o = {}) => `<circle cx="${f1(x)}" cy="${f1(y)}" r="${o.r || 15}" fill="${o.bg || NV}" stroke="#fff" stroke-width="3"/>${tx(x, y + 6.5, s, { c: 'bd', fill: o.fg || '#fff' })}`;
+/* sphere lit on the side facing the sun (sun = direction angle to the Sun) */
+function orb(cx, cy, r, o = {}) {
+    const a = o.sun === undefined ? Math.PI : o.sun, p = a + Math.PI / 2, px = Math.cos(p) * r, py = Math.sin(p) * r;
+    return `<circle cx="${f1(cx)}" cy="${f1(cy)}" r="${r}" fill="${o.fill || '#fff'}"/><path d="M${f1(cx + px)} ${f1(cy + py)} A${r} ${r} 0 0 1 ${f1(cx - px)} ${f1(cy - py)}Z" fill="${NV}" opacity="${o.op || .8}"/><circle cx="${f1(cx)}" cy="${f1(cy)}" r="${r}" fill="none" stroke="${NV}" stroke-width="${o.sw || 3}"/>`;
+}
+/* moon phase as seen from the southern hemisphere. p: 0 new, .25 first quarter, .5 full, .75 last quarter */
+function moonG(p, r) {
+    let s = `<circle r="${r}" fill="${NV}"/>`;
+    const rx = Math.abs(Math.cos(p * 2 * Math.PI)) * r, lit = '#fbfbf7';
+    if (Math.abs(p - .5) < .001) s += `<circle r="${r}" fill="${lit}"/>`;
+    else if (p > .001 && p < .999) {
+        const d = p < .5
+            ? `M0 ${-r} A${r} ${r} 0 0 0 0 ${r} A${f1(rx)} ${r} 0 0 ${p < .25 ? 1 : 0} 0 ${-r}Z`
+            : `M0 ${-r} A${r} ${r} 0 0 1 0 ${r} A${f1(rx)} ${r} 0 0 ${p < .75 ? 1 : 0} 0 ${-r}Z`;
+        s += `<path d="${d}" fill="${lit}"/>`;
+    }
+    [[-.3, -.3, .16], [.28, .18, .12], [-.12, .42, .09], [.35, -.42, .07]].forEach(([x, y, k]) => s += `<circle cx="${f1(x * r)}" cy="${f1(y * r)}" r="${f1(k * r)}" fill="${NV}" opacity=".08"/>`);
+    return s + `<circle r="${r}" fill="none" stroke="${NV}" stroke-width="${r > 40 ? 4 : 3}"/>`;
+}
+const moonPic = p => V(220, 150, `<g transform="translate(110 75)">${moonG(p, 62)}</g>`);
+const moonBig = (p, label) => V(540, 270, `<g transform="translate(270 118)">${moonG(p, 100)}</g>${tx(270, 258, label, { c: 'lbg' })}`);
+function rng(seed) { return () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
+
+/* ---------- visuals ---------- */
+let UID = 0; const uid = p => p + (++UID);
+const DEG = Math.PI / 180;
+const th = (x, y, s, o = {}) => tx(x, y, s, { ...o, c: (o.c || 'lb') + ' halo' });
+function stars(w, h, n, seed = 3) {
+    const R = rng(seed); let s = '';
+    for (let i = 0; i < n; i++) { const big = R() < .14; s += `<circle cx="${f1(R() * w)}" cy="${f1(R() * h)}" r="${big ? 1.7 : (.8 + R() * .6).toFixed(1)}" fill="${NV}" opacity="${(.1 + R() * .22).toFixed(2)}"/>`; }
+    return s;
+}
+function sunG(cx, cy, r, label = 'Sun', o = {}) {
+    const n = o.n || 22; let rays = '';
+    for (let i = 0; i < n; i++) {
+        const a = i / n * 2 * Math.PI, w = r * .07, l = r * (i % 2 ? 1.18 : 1.3), b = r * 1.03, ux = Math.cos(a), uy = Math.sin(a), px = -uy, py = ux;
+        rays += `<polygon points="${f1(cx + ux * b + px * w)},${f1(cy + uy * b + py * w)} ${f1(cx + ux * l)},${f1(cy + uy * l)} ${f1(cx + ux * b - px * w)},${f1(cy + uy * b - py * w)}"/>`;
+    }
+    let s = `<circle cx="${f1(cx)}" cy="${f1(cy)}" r="${f1(r * 1.6)}" fill="url(#gGlow)"/>`;
+    s += `<g fill="${PK}" opacity=".5">${o.spin === false ? '' : `<animateTransform attributeName="transform" type="rotate" from="0 ${cx} ${cy}" to="360 ${cx} ${cy}" dur="80s" repeatCount="indefinite"/>`}${rays}</g>`;
+    s += `<circle cx="${f1(cx)}" cy="${f1(cy)}" r="${r}" fill="url(#gSun)"/>`;
+    const R = rng(Math.round(r * 13) + 7);
+    for (let i = 0; i < 10; i++) { const a = R() * 6.283, d = R() * r * .78; s += `<circle cx="${f1(cx + Math.cos(a) * d)}" cy="${f1(cy + Math.sin(a) * d)}" r="${f1(r * (.05 + R() * .07))}" fill="#ffb3dd" opacity=".35"/>`; }
+    if (label) s += tx(o.lx ?? cx, (o.ly ?? cy) + 6, label, { fill: '#fff', a: o.la || 'middle' });
+    return s;
+}
+function lightRays(x1, cx, cy, r, dys, sw = 2.5) {
+    let s = '';
+    dys.forEach(dy => { const hx = cx + Math.sqrt(Math.max(0, r * r - dy * dy)) * Math.sign(x1 - cx); s += arr(x1, cy + dy, hx + 10 * Math.sign(x1 - cx), cy + dy, PK, sw, 11, 6.5); });
+    return s;
+}
+
+/* ---------- globe: simplified coastlines, orthographic projection ---------- */
+const LAND = {
+    aus: '113.5,-22 114,-26.5 115,-34 118,-35 123.5,-34 129,-31.5 134,-32.5 138,-35.5 140.5,-38 144,-38.3 146.5,-39 150,-37.5 151.3,-33.8 153.6,-28 153,-25 150.8,-22.5 146,-19 145.4,-15 142.5,-10.7 141.6,-13 141.5,-17 140,-17.5 136.8,-15.8 136.8,-12.2 132.6,-11.5 130,-13 129,-15 126,-14 122.3,-17 121,-19.5 117,-20.7',
+    tas: '144.6,-40.7 148.3,-40.9 148,-43.2 146,-43.6 145.2,-42',
+    nzn: '172.7,-34.4 174.8,-36.8 178.5,-37.7 177,-39.2 175,-41.5 173.8,-39.2',
+    nzs: '172.7,-40.5 174.3,-41.7 173,-43.8 171,-45.5 169,-46.6 166.5,-46 168,-44 170.5,-42.5',
+    afr: '-17,21 -17,14.7 -12,7 -8,4.5 -3,5 4,6 9,4 9.5,-1 12,-5 13.5,-12 12,-17 15,-27 18.4,-34.3 20,-34.8 25.6,-34 30,-31 32.5,-28.5 35.5,-24 35,-20 40.5,-15 40,-10 39.3,-6 41.5,-1.5 43,0 48,4.5 51.2,11.8 45,10.5 43.3,11.5 39,15.5 37.5,18.5 34,27 32.3,31.2 29,30.9 25,31.7 20,30.9 19.8,32 15,32.3 11,33.3 10,37 3,36.8 -2,35.1 -6,35.8 -9.8,30 -13,27.5',
+    mad: '49.3,-12 50.4,-15.5 47.1,-24.9 45.2,-25.5 43.3,-22 44,-17 46.4,-15.7',
+    eur: '-9.5,43 -9,38.7 -6,36.2 -2,36.8 3,43 6.5,43.2 9,44.4 12.3,44.2 16,41 18.5,40.2 15.8,38 12.5,38 14,41 13,43.8 13.6,45.7 19.5,42 22.5,36.5 24,38 26.5,40.5 29,41 36,41.5 41,41.2 36,36.8 35,33 34.3,31.3 32.6,29.9 34.6,28 39,22 42.8,14.5 45,12.8 52,15.6 57.8,20.5 59.8,22.5 56.3,24.5 56.4,26.4 52,24 48,29.5 50.3,30 54.5,26.6 58,25.5 66.5,25.4 68.5,23.5 72.8,21 73,17 74.8,12.8 77,8.1 80.2,13 80.3,15.8 86.4,20 89,22 92,21 94.4,16 97.7,16.5 98.2,10 100.5,7.5 103.4,1.3 104.2,1.4 103,6 100.3,13 102.3,12.2 105,8.6 109.3,11.5 108,16 106.3,20.5 110,21.3 116.5,22.8 120.5,27.5 122,30.8 121,32 119,35 122.5,37 118,38.5 121.5,40.9 124,39.8 126.5,37.5 129.4,35.3 129.6,37 127.5,39.8 130,42.6 135.2,43.6 140,48.3 140.5,52 135,54.6 138,56 142,59 155,59 156.6,51 163,55 163,59.7 170,60 180,65 180,69 160,70 150,71.5 140,72.5 130,71 120,73 113,73.6 105,77.6 97,76 87,75 80,73.5 75,72.5 69,73 66,69 60,68.9 54,68.5 44,68.5 41,66.5 35,66 32,69.6 25,71 16,69 12,65.5 5,62 5.5,58.5 8,58 10.6,59.3 12,56 10.5,54 8.5,55 8.5,53.5 4.5,52.5 1.6,51 -1.5,49.5 -4.5,48.5 -1.4,46 -1.8,43.4',
+    gbr: '-5.7,50 1.4,51.2 1.7,52.7 0,53.5 -3,55.9 -2,57.6 -3.3,58.6 -5,58.6 -6.2,56.5 -5,54.9 -3,54 -4.6,53.3 -4.2,52 -5.3,51.7',
+    jpn: '130,31.3 131.4,31.4 132,33.8 135,33.5 137,34.5 140,35 141,38.3 141.5,41.4 140,40.5 139.5,38 137,37 133,35.5 130.9,34 129.6,33.2',
+    phl: '120,18.5 122.2,18.5 122,13.8 124,12.5 126,7 125.4,6 122,7 121.5,13.9 120.6,14.5',
+    sum: '95.3,5.6 98,4 104,-2 106,-6 102.3,-4 100,-0.5',
+    bor: '109,1.7 110.5,-2.9 116,-4 117.5,0 119,5 117,7 115.5,5.4 113,3',
+    png: '131,-1.2 134.5,-4 138,-1.5 141,-2.6 145.8,-5.5 147.5,-8.1 150.5,-10.6 146.5,-8.8 143.5,-9.3 141,-9.2 138,-8.3 137.5,-5 132.6,-4',
+    jav: '105.2,-6.8 108,-6.2 114.5,-7.8 114.4,-8.7 108,-7.8',
+    nam: '-168,65.5 -162,70 -156,71.3 -141,69.7 -128,70 -115,68.8 -105,68 -95,68 -90,69 -82,68.5 -81,64 -87.5,64 -94,61 -94.6,58.8 -92,57 -85,55.3 -82.3,52.9 -79,51.5 -78.5,56.5 -77.4,60 -78,62.4 -72,61.8 -67,58.5 -61.5,56 -56,52 -59.5,47.5 -64.5,49 -61,45.5 -66,44.5 -70.5,41.8 -74,40.6 -76,38 -75.5,35.2 -78.6,33.8 -81.3,31.5 -80,27 -80.4,25.2 -82.6,27.5 -84.3,30 -89.6,30.2 -94,29.6 -97.4,27.5 -97.7,21.8 -96.2,19.3 -94.4,18.2 -90.5,19.9 -90.3,21 -87,21.5 -87.6,18.5 -88.3,16 -83.3,15 -83.6,11 -81.5,9 -79,9.5 -77.4,8.6 -78.4,7.5 -80.5,7.3 -83.5,8.4 -85.7,11 -87.7,13 -91.5,13.9 -94.7,16.2 -96.5,15.7 -101.6,17.8 -105.4,20.4 -105.6,23.2 -109.4,25.9 -112.2,29.6 -114.8,31.5 -112.8,28.4 -109.9,23.2 -112.2,24.9 -115,29.5 -117.1,32.6 -120.6,34.6 -122.5,37.7 -124,40.4 -124.6,48.4 -127.5,50.6 -130.5,54.8 -134,58 -139,59.8 -146,60.5 -152,59 -158,57 -163.5,54.7 -158,58.6 -162,60.2 -165.4,62.5 -164.5,64.2',
+    cub: '-85,21.8 -80,23 -74.2,20.2 -77.5,19.9 -80.5,21.6',
+    grl: '-73,78.5 -60,82 -30,83.5 -20,81.5 -18,76 -21.7,70.4 -27,68.5 -34,66 -40,65 -43.3,60 -48.5,61.5 -52,65 -54,69.6 -56,73.5 -63,76.3',
+    sam: '-77.4,8.6 -75.5,10.6 -71.6,12.4 -68,10.6 -62.5,10.6 -60,8.4 -57,6 -52,4.5 -50,1.8 -48.5,-1.2 -44.5,-2.5 -39.5,-3 -35.2,-5.5 -34.9,-8 -37,-11 -39,-15 -39.6,-19 -41.5,-22.5 -44.5,-23.3 -48.5,-26 -48.6,-28.5 -51,-31.5 -53.5,-34 -57.5,-35.5 -57.6,-38 -62.3,-38.8 -65,-41 -63.8,-42.6 -65.5,-45 -67.6,-46.5 -65.8,-47.8 -69,-51.5 -68.6,-52.6 -70.8,-53.8 -74.3,-52.3 -75.5,-48 -73.6,-43.3 -73.5,-37.5 -71.5,-32 -71.4,-28 -70.2,-18.5 -71.4,-17.5 -76,-14.5 -79.6,-8 -81.3,-4.6 -80,-2.2 -80.9,-0.4 -79.8,1.8 -77.8,4 -77.5,6.7',
+    ant: '-180,-78 -160,-78 -150,-76 -140,-75 -120,-73 -100,-73 -80,-73 -68,-70 -62,-64 -58,-63.5 -60,-66 -62,-70 -60,-75 -45,-78 -30,-77 -20,-73 -10,-71 0,-70 15,-70 30,-69.5 45,-67.5 60,-67 70,-69 80,-67 90,-66.5 100,-66 110,-66 120,-67 130,-66.5 140,-66.7 150,-68.5 160,-70 170,-71.5 179.9,-78'
+};
+function densify(pts, step = 2.5) {
+    const out = [];
+    for (let i = 0; i < pts.length; i++) {
+        const a = pts[i], b0 = pts[(i + 1) % pts.length], b = [b0[0] - a[0] > 180 ? b0[0] - 360 : a[0] - b0[0] > 180 ? b0[0] + 360 : b0[0], b0[1]], n = Math.max(1, Math.ceil(Math.max(Math.abs(b[0] - a[0]), Math.abs(b[1] - a[1])) / step));
+        for (let k = 0; k < n; k++) out.push([a[0] + (b[0] - a[0]) * k / n, a[1] + (b[1] - a[1]) * k / n]);
+    }
+    return out;
+}
+const LANDD = Object.entries(LAND).map(([k, v]) => [k, densify(v.split(' ').map(p => p.split(',').map(Number)))]);
+function view(lon0, tilt = 0, pitch = 0) { return { lon0, ct: Math.cos(tilt * DEG), st: Math.sin(tilt * DEG), cp: Math.cos(pitch * DEG), sp: Math.sin(pitch * DEG) }; }
+function proj3(lat, lon, V) {
+    const la = lat * DEG, lo = (lon - V.lon0) * DEG, cl = Math.cos(la);
+    let X = cl * Math.sin(lo), Y = Math.sin(la), Z = cl * Math.cos(lo);
+    [X, Y] = [X * V.ct - Y * V.st, X * V.st + Y * V.ct];
+    [Y, Z] = [Y * V.cp - Z * V.sp, Y * V.sp + Z * V.cp];
+    return [X, Y, Z];
+}
+function globe(cx, cy, r, V, o = {}) {
+    const id = uid('gc'); let land = '';
+    for (const [k, pts] of LANDD) {
+        const P = pts.map(([lo, la]) => proj3(la, lo, V));
+        if (!P.some(p => p[2] > 0)) continue;
+        const d = P.map((p, i) => { let [X, Y] = p; if (p[2] < 0) { const m = Math.hypot(X, Y) || 1; X /= m; Y /= m; } return (i ? 'L' : 'M') + f1(cx + X * r) + ' ' + f1(cy - Y * r); }).join('') + 'Z';
+        const ice = k === 'ant' || k === 'grl', aus = o.aus && (k === 'aus' || k === 'tas');
+        land += `<path d="${d}" fill="${ice ? '#fbfcff' : aus ? '#f08cc3' : '#8f99c9'}" stroke="${ice ? '#c3cbe6' : aus ? '#d6559d' : '#717cb6'}" stroke-width="${r > 60 ? 1 : .6}" stroke-linejoin="round"/>`;
+    }
+    const C = `cx="${f1(cx)}" cy="${f1(cy)}"`;
+    let s = o.atmo === false ? '' : `<circle ${C} r="${f1(r * 1.07)}" fill="#e3e8f7"/>`;
+    s += `<clipPath id="${id}"><circle ${C} r="${r}"/></clipPath><g clip-path="url(#${id})"><circle ${C} r="${r}" fill="url(#gOcean)"/>${land}${o.inner || ''}`;
+    if (o.sun) s += `<rect x="${f1(cx - r)}" y="${f1(cy - r)}" width="${2 * r}" height="${2 * r}" fill="url(#gN_${o.sun})"/>`;
+    if (o.flat) return s + '</g>';
+    s += `<circle ${C} r="${r}" fill="url(#gShade)"/></g><circle ${C} r="${r}" fill="none" stroke="${NV}" stroke-width="${o.sw || (r > 40 ? 3 : 2.5)}"/>`;
+    return s;
+}
+/* a circle of latitude drawn on the globe: front part solid, back part faint and dashed */
+function latLine(lat, V, cx, cy, r, o = {}) {
+    const day = p => o.sun === 'L' ? p[0] < 0 : p[0] > 0;
+    const pts = []; for (let lo = -180; lo <= 180; lo += 2) pts.push(proj3(lat, lo, V));
+    const segs = []; let cur = null;
+    pts.forEach(p => { const key = (p[2] >= 0 ? 'f' : 'b') + (o.split && day(p) ? 'd' : 'n'); if (!cur || cur.key !== key) { if (cur) cur.pts.push(p); cur = { key, pts: cur ? [cur.pts[cur.pts.length - 1], p] : [p] }; segs.push(cur); } else cur.pts.push(p); });
+    let back = '', front = '';
+    segs.forEach(sg => {
+        const d = sg.pts.map((p, i) => (i ? 'L' : 'M') + f1(cx + p[0] * r) + ' ' + f1(cy - p[1] * r)).join('');
+        const col = sg.key[1] === 'd' ? (o.dayCol || PK) : (o.col || NV);
+        if (sg.key[0] === 'b') back += `<path d="${d}" fill="none" stroke="${col}" stroke-width="${o.split ? 3 : 2}" stroke-dasharray="3 5" opacity="${o.split ? .8 : .45}"/>`;
+        else front += (o.halo ? `<path d="${d}" fill="none" stroke="#fff" stroke-width="${(o.w || 3) + 4}" stroke-linecap="round" opacity=".9"/>` : '') + `<path d="${d}" fill="none" stroke="${col}" stroke-width="${o.w || 3}" stroke-linecap="round"${o.dash ? ` stroke-dasharray="${o.dash}"` : ''}/>`;
+    });
+    return back + front;
+}
+function axisLine(cx, cy, r, V, ext = 26, labels = true) {
+    const N = proj3(90, 0, V), m = Math.hypot(N[0], N[1]) || 1, ux = N[0] / m, uy = -N[1] / m;
+    const nIn = [cx + N[0] * r, cy - N[1] * r], sIn = [cx - N[0] * r, cy + N[1] * r];
+    let s = `<line x1="${f1(cx)}" y1="${f1(cy)}" x2="${f1(N[2] < 0 ? nIn[0] : sIn[0])}" y2="${f1(N[2] < 0 ? nIn[1] : sIn[1])}" stroke="${NV}" stroke-width="2.5" stroke-dasharray="4 4" opacity=".6"/>`;
+    s += `<line x1="${f1(cx)}" y1="${f1(cy)}" x2="${f1(N[2] < 0 ? sIn[0] : nIn[0])}" y2="${f1(N[2] < 0 ? sIn[1] : nIn[1])}" stroke="${NV}" stroke-width="3"/>`;
+    s += `<line x1="${f1(nIn[0])}" y1="${f1(nIn[1])}" x2="${f1(cx + ux * (r + ext))}" y2="${f1(cy + uy * (r + ext))}" stroke="${NV}" stroke-width="3" stroke-linecap="round"/><line x1="${f1(sIn[0])}" y1="${f1(sIn[1])}" x2="${f1(cx - ux * (r + ext))}" y2="${f1(cy - uy * (r + ext))}" stroke="${NV}" stroke-width="3" stroke-linecap="round"/>`;
+    if (labels) s += th(cx + ux * (r + ext + 14), cy + uy * (r + ext + 14) + 6, 'N') + th(cx - ux * (r + ext + 14), cy - uy * (r + ext + 14) + 6, 'S');
+    return s;
+}
+const scrP = (lat, lon, V, cx, cy, r) => { const p = proj3(lat, lon, V); return [cx + p[0] * r, cy - p[1] * r, p[2]]; };
+/* Moon with craters, half lit from the given side */
+function moonOrb(cx, cy, r, sun = 'L', o = {}) {
+    let s = `<g transform="translate(${f1(cx)} ${f1(cy)})">${moonG(.5, r)}`;
+    if (o.red) s += `<circle r="${r}" fill="#b0457a" opacity=".78"/><circle r="${r}" fill="url(#gShade)"/>`;
+    else if (!o.full) {
+        const a = { L: Math.PI, R: 0, U: -Math.PI / 2, D: Math.PI / 2 }[sun], p = a + Math.PI / 2, px = Math.cos(p) * r, py = Math.sin(p) * r;
+        s += `<path d="M${f1(px)} ${f1(py)} A${r} ${r} 0 0 1 ${f1(-px)} ${f1(-py)}Z" fill="${NV}" opacity=".86"/>`;
+    }
+    return s + `<circle r="${r}" fill="none" stroke="${NV}" stroke-width="${r > 20 ? 3 : 2.5}"/></g>`;
+}
+/* stylised planets in tints of navy and pink */
+function planet(n, cx, cy, r) {
+    if (n === 'Earth') return globe(cx, cy, r, view(125, 0, -14), { atmo: false, sw: r > 14 ? 2.5 : 2 });
+    const id = uid('pc'), C = `cx="${f1(cx)}" cy="${f1(cy)}"`;
+    const base = { Mercury: '#c4c8d9', Venus: '#f6dce9', Mars: '#e7629f', Jupiter: '#f7dfea', Saturn: '#f6e6ee', Uranus: '#cfd7f3', Neptune: '#808cd2' }[n];
+    const band = (k, h, c) => `<rect x="${f1(cx - r)}" y="${f1(cy + k * r)}" width="${2 * r}" height="${f1(h * r)}" fill="${c}"/>`;
+    let inner = '';
+    if (n === 'Jupiter') inner = band(-.66, .16, '#e8aacb') + band(-.34, .18, '#c9cfe8') + band(-.04, .12, '#efbdd8') + band(.22, .2, '#dda3c3') + band(.58, .14, '#c9cfe8') + `<ellipse cx="${f1(cx + r * .32)}" cy="${f1(cy + r * .34)}" rx="${f1(r * .22)}" ry="${f1(r * .11)}" fill="#d8418a"/>`;
+    if (n === 'Saturn') inner = band(-.45, .16, '#ecd2e0') + band(-.05, .12, '#e4c4d6') + band(.32, .18, '#ecd2e0');
+    if (n === 'Venus') inner = band(-.5, .3, '#fbeaf2') + band(.15, .28, '#f0cfe1');
+    if (n === 'Uranus') inner = band(-.2, .18, '#dde3f8') + band(.3, .12, '#c0cbef');
+    if (n === 'Neptune') inner = band(-.5, .14, '#6f7bc6') + band(.2, .16, '#6f7bc6') + `<ellipse cx="${f1(cx - r * .25)}" cy="${f1(cy - r * .05)}" rx="${f1(r * .22)}" ry="${f1(r * .12)}" fill="#4d5799"/>`;
+    if (n === 'Mars') inner = `<ellipse cx="${f1(cx - r * .3)}" cy="${f1(cy + r * .1)}" rx="${f1(r * .35)}" ry="${f1(r * .2)}" fill="#c9437f"/><ellipse cx="${f1(cx + r * .35)}" cy="${f1(cy + r * .4)}" rx="${f1(r * .25)}" ry="${f1(r * .14)}" fill="#c9437f"/><ellipse ${C.replace(/cy="[^"]+"/, `cy="${f1(cy - r * .9)}"`)} rx="${f1(r * .45)}" ry="${f1(r * .2)}" fill="#fff"/>`;
+    if (n === 'Mercury') [[-.3, -.2, .2], [.3, .25, .16], [.1, -.45, .12], [-.2, .45, .1]].forEach(([x, y, k]) => inner += `<circle cx="${f1(cx + x * r)}" cy="${f1(cy + y * r)}" r="${f1(k * r)}" fill="#a9aec4"/>`);
+    const sw = r > 14 ? 2.5 : 2;
+    let ringBack = '', ringFront = '';
+    if (n === 'Saturn') {
+        const ring = (rx, ry, c, w, half) => {
+            const pts = []; for (let t = half ? 0 : Math.PI; t <= (half ? Math.PI : 2 * Math.PI) + .001; t += Math.PI / 30) { const x = Math.cos(t) * rx, y = Math.sin(t) * ry, a = -18 * DEG; pts.push([cx + x * Math.cos(a) - y * Math.sin(a), cy + x * Math.sin(a) + y * Math.cos(a)]); }
+            return `<path d="${pts.map((p, i) => (i ? 'L' : 'M') + f1(p[0]) + ' ' + f1(p[1])).join('')}" fill="none" stroke="${c}" stroke-width="${f1(w)}" stroke-linecap="round"/>`;
+        };
+        ringBack = ring(r * 1.85, r * .42, '#9aa3cc', r * .16, false) + ring(r * 1.5, r * .34, '#d8c3d2', r * .2, false);
+        ringFront = ring(r * 1.85, r * .42, '#9aa3cc', r * .16, true) + ring(r * 1.5, r * .34, '#d8c3d2', r * .2, true);
+    }
+    return ringBack + `<clipPath id="${id}"><circle ${C} r="${r}"/></clipPath><g clip-path="url(#${id})"><circle ${C} r="${r}" fill="${base}"/>${inner}<circle ${C} r="${r}" fill="url(#gShade)"/></g><circle ${C} r="${r}" fill="none" stroke="${NV}" stroke-width="${sw}"/>` + ringFront;
+}
+
+function mnemonic(hi) {
+    const W = ['My', 'Very', 'Eager', 'Mother', 'Just', 'Served', 'Us', 'Noodles'], RS = [7, 10, 10, 8, 15, 11, 11, 11];
+    let s = '';
+    W.forEach((w, i) => {
+        const x = 8 + i * 66, on = i === hi, c = on ? '#fff' : NV;
+        s += `<rect x="${x}" y="8" width="62" height="134" rx="7" fill="${on ? PK : '#fff'}" stroke="${on ? PK : NV}" stroke-width="3"/>`;
+        s += `<circle cx="${x + 31}" cy="40" r="22" fill="${on ? '#fff' : LT}" opacity="${on ? .25 : 1}"/>` + planet(PL[i][0], x + 31, 40, RS[i]);
+        s += tx(x + 31, 104, w[0], { c: 'big', fill: c }) + tx(x + 31, 130, w, { c: 'sm', fill: c }) + tx(x + 31, 166, i + 1, { c: 'lbg', fill: on ? PK : null });
+    });
+    return V(540, 172, s);
+}
+const PL = [['Mercury', 7], ['Venus', 11], ['Earth', 11.5], ['Mars', 8.5], ['Jupiter', 26], ['Saturn', 21], ['Uranus', 15], ['Neptune', 14.5]];
+function planetRow(o = {}) {
+    let s = stars(540, 165, 36, 21) + sunG(-62, 82, 100, 'Sun', { lx: 6, la: 'start', n: 18 });
+    PL.forEach(([n, r], i) => {
+        const x = 82 + i * 61;
+        if (i === o.hide) s += `<circle cx="${x}" cy="82" r="22" fill="#fff" stroke="${PK}" stroke-width="3" stroke-dasharray="6 5"/>` + tx(x, 92, '?', { c: 'qm', fill: PK });
+        else s += planet(n, x, 82, r);
+        s += tx(x, 150, o.names ? n : i + 1, { c: o.names ? 'lbs' : 'lbg', fill: i === o.hide ? PK : null });
+    });
+    return V(540, 165, s);
+}
+function nebula() {
+    const R = rng(11), cx = 270, cy = 136;
+    let disc = `<circle cx="${cx}" cy="${cy}" r="170" fill="url(#gNeb)"/>`;
+    for (let arm = 0; arm < 3; arm++) {
+        let d = ''; for (let t = 0; t <= 10.5; t += .12) { const rr = 14 * Math.exp(.22 * t), a = t + arm * 2.094; d += (t ? 'L' : 'M') + f1(cx + Math.cos(a) * rr) + ' ' + f1(cy + Math.sin(a) * rr); }
+        disc += `<path d="${d}" fill="none" stroke="${arm ? '#9aa3cc' : '#f39ac9'}" stroke-width="${arm ? 6 : 8}" stroke-linecap="round" opacity=".35"/>`;
+    }
+    let parts = '';
+    for (let i = 0; i < 70; i++) {
+        const d0 = 50 + R() * 120, a0 = R() * 360, T = (9 + R() * 8).toFixed(1), dur = (3.6 + R() * 2.6).toFixed(2), b = (-R() * 6).toFixed(2), r = (2 + R() * 3.6).toFixed(1), col = [NV, NV, PK, '#8f99c9'][i % 4];
+        parts += `<g><animateTransform attributeName="transform" type="rotate" from="${a0.toFixed(0)} ${cx} ${cy}" to="${(a0 + 360).toFixed(0)} ${cx} ${cy}" dur="${T}s" repeatCount="indefinite"/><circle cx="${f1(cx + d0)}" cy="${cy}" r="${r}" fill="${col}"><animate attributeName="cx" values="${f1(cx + d0)};${cx + 8}" dur="${dur}s" begin="${b}s" repeatCount="indefinite" calcMode="spline" keyTimes="0;1" keySplines=".55 0 1 .5"/><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.15;.85;1" dur="${dur}s" begin="${b}s" repeatCount="indefinite"/></circle></g>`;
+    }
+    let s = stars(540, 290, 50, 9);
+    s += `<g transform="translate(${cx} ${cy}) scale(1 .52) translate(${-cx} ${-cy})"><g><animateTransform attributeName="transform" type="rotate" from="0 ${cx} ${cy}" to="360 ${cx} ${cy}" dur="40s" repeatCount="indefinite"/>${disc}</g>${parts}</g>`;
+    s += `<circle cx="${cx}" cy="${cy}" r="30" fill="url(#gGlow)"><animate attributeName="r" values="26;40;26" dur="2.4s" repeatCount="indefinite"/></circle><circle cx="${cx}" cy="${cy}" r="14" fill="url(#gSun)"><animate attributeName="r" values="12;17;12" dur="2.4s" repeatCount="indefinite"/></circle>`;
+    s += th(cx, cy - 44, 'Young Sun', { c: 'tiny', fill: PK });
+    return V(540, 290, s + tx(cx, 280, 'Spinning cloud of gas and dust', { c: 'lbg' }));
+}
+function orbitArrows() {
+    const S = [100, 145], R = 245, P = [345, 145];
+    const p = a => [S[0] + R * Math.cos(a), S[1] + R * Math.sin(a)];
+    const [x1, y1] = p(.62), [x2, y2] = p(-.62), ta = -.62, tdx = Math.sin(ta), tdy = -Math.cos(ta);
+    let s = stars(540, 290, 44, 4) + sunG(S[0], S[1], 52, 'Sun');
+    s += `<path d="M${f1(x1)} ${f1(y1)} A${R} ${R} 0 0 0 ${f1(x2)} ${f1(y2)}" fill="none" stroke="#9aa3cc" stroke-width="3" stroke-dasharray="8 8"/>` + arr(x2 - tdx * 2, y2 - tdy * 2, x2 + tdx * 14, y2 + tdy * 14, '#9aa3cc', 3, 14, 9);
+    s += arr(P[0], P[1] - 24, P[0], P[1] - 88) + arr(P[0] + 24, P[1], P[0] + 100, P[1]) + arr(P[0] - 24, P[1], P[0] - 100, P[1]) + arr(P[0], P[1] + 24, P[0], P[1] + 88);
+    s += globe(P[0], P[1], 20, view(130, 0, -14), { sun: 'L', atmo: false });
+    s += badge(P[0], P[1] - 106, '1') + badge(P[0] + 118, P[1], '2') + badge(P[0] - 118, P[1], '3') + badge(P[0], P[1] + 106, '4');
+    s += th(372, 116, 'Planet', { c: 'tiny', a: 'start' }) + tx(530, 282, 'Dashed line: orbit', { c: 'lbg', a: 'end' });
+    return V(540, 290, s);
+}
+const SPOLE = view(150, 0, -90);
+function moonOrbit() {
+    let s = stars(540, 290, 44, 8) + `<circle cx="270" cy="134" r="116" fill="none" stroke="#9aa3cc" stroke-width="3" stroke-dasharray="8 8"/>`;
+    s += globe(270, 134, 48, SPOLE) + th(270, 206, 'Earth');
+    s += `<g><animateTransform attributeName="transform" type="rotate" from="0 270 134" to="-360 270 134" dur="9s" repeatCount="indefinite"/>${arr(366, 134, 326, 134, NV, 4, 13, 8)}${arr(386, 114, 386, 50, PK, 5, 15, 10)}${moonOrb(386, 134, 17, 'L', { full: true })}</g>`;
+    s += arr(24, 276, 64, 276, PK, 4, 13, 8) + tx(74, 282, 'Direction of motion', { c: 'lg', a: 'start' }) + arr(300, 276, 340, 276, NV, 4, 13, 8) + tx(350, 282, 'Pull of gravity', { c: 'lg', a: 'start' });
+    return V(540, 290, s);
+}
+function scaleKey() {
+    const V0 = view(134, 0, -10);
+    let s = globe(162, 140, 112, V0);
+    s += `<line x1="52" x2="272" y1="140" y2="140" stroke="#fff" stroke-width="7"/>` + arr(162, 140, 52, 140, NV, 3, 13, 8) + arr(162, 140, 272, 140, NV, 3, 13, 8);
+    s += `<rect x="96" y="97" width="132" height="34" rx="6" fill="#fff" stroke="${NV}" stroke-width="2.5"/>` + tx(162, 121, '12 700 km', { c: 'num' }).replace('class="num"', 'class="num" style="font-size:21px"') + th(162, 272, 'Earth', { c: 'lbg' });
+    let ruler = `<rect x="324" y="122" width="196" height="40" rx="4" fill="#fff" stroke="${NV}" stroke-width="2.5"/>`;
+    for (let i = 0; i <= 30; i++) { const x = 334 + i * 5.8, h = i % 10 === 0 ? 16 : i % 5 === 0 ? 11 : 7; ruler += `<line x1="${f1(x)}" x2="${f1(x)}" y1="122" y2="${122 + h}" stroke="${NV}" stroke-width="${i % 10 ? 1.2 : 2}"/>`; }
+    ruler += [0, 1, 2, 3].map(k => tx(334 + k * 58, 156, k, { c: 'tiny' })).join('');
+    ruler += `<rect x="334" y="104" width="58" height="10" fill="${PK}"/><line x1="334" x2="334" y1="100" y2="122" stroke="${PK}" stroke-width="2"/><line x1="392" x2="392" y1="100" y2="122" stroke="${PK}" stroke-width="2"/>`;
+    s += tx(422, 60, 'Scale', { c: 'lbg' }) + tx(422, 90, '1 cm = 1000 km', { c: 'num' }).replace('class="num"', 'class="num" style="font-size:21px"') + ruler + tx(422, 186, 'cm', { c: 'ax' });
+    return V(540, 285, s);
+}
+function marsOrbit() {
+    let s = stars(540, 285, 50, 14) + `<circle cx="270" cy="140" r="72" fill="none" stroke="#9aa3cc" stroke-width="2.5" stroke-dasharray="7 7"/><circle cx="270" cy="140" r="120" fill="none" stroke="#9aa3cc" stroke-width="2.5" stroke-dasharray="7 7"/>`;
+    s += sunG(270, 140, 24, '', { n: 16 });
+    s += `<g><animateTransform attributeName="transform" type="rotate" from="0 270 140" to="-360 270 140" dur="4s" repeatCount="indefinite"/>${globe(342, 140, 12, view(125, 0, -14), { atmo: false, sw: 2 })}</g>`;
+    s += `<g><animateTransform attributeName="transform" type="rotate" from="0 270 140" to="-360 270 140" dur="7.52s" repeatCount="indefinite"/>${planet('Mars', 390, 140, 10)}</g>`;
+    s += globe(22, 30, 9, view(125, 0, -14), { atmo: false, sw: 2 }) + tx(40, 36, 'Earth: 1 year', { c: 'lg', a: 'start' });
+    s += planet('Mars', 22, 262, 9) + tx(40, 268, 'Mars: 1.9 Earth years', { c: 'lg', a: 'start' });
+    return V(540, 285, s);
+}
+/* Earth side view with the Sun on the right. tilt: dec (south leans to Sun), jun, eq */
+function earthSide(o = {}) {
+    const cx = 220, cy = 148, r = 106, tilt = o.tilt === 'dec' ? 23.5 : o.tilt === 'jun' ? -23.5 : 0;
+    const V0 = view(o.bris === 'night' ? 188 : o.bris === 'day' ? 120 : 112, tilt, -18);
+    let s = stars(540, 292, 40, 5) + sunG(604, cy, 106, 'Sun', { lx: 520 });
+    s += `<rect x="${cx}" y="${cy - 96}" width="${484 - cx}" height="192" fill="url(#gLight)"/>` + lightRays(484, cx, cy, r, [-80, -40, 0, 40, 80]);
+    s += globe(cx, cy, r, V0, { sun: 'R', aus: !!o.bris || o.tilt === 'dec' });
+    s += latLine(0, V0, cx, cy, r, { col: '#fff', w: 2, dash: '7 6' });
+    if (o.ant) s += latLine(-66.5, V0, cx, cy, r, { col: PK, w: 4, halo: true });
+    if (o.lat) s += latLine(-27.5, V0, cx, cy, r, { split: true, sun: 'R', col: '#b9c1e4', w: 5, halo: false });
+    s += axisLine(cx, cy, r, V0);
+    const eqPts = []; for (let lo = -180; lo < 180; lo += 3) { const p = scrP(0, lo, V0, cx, cy, r); if (p[2] > 0) eqPts.push(p); }
+    const eL = eqPts.reduce((a, b) => b[0] < a[0] ? b : a);
+    s += th(eL[0] - 8, eL[1] + 5, 'Equator', { c: 'tiny', a: 'end', fill: '#9a9a9a' });
+    if (o.ant) { const p = scrP(-66.5, V0.lon0 - 90, V0, cx, cy, r); s += th(cx - 30, cy + r + 30, 'Antarctic Circle', { c: 'tiny', a: 'end', fill: PK }); }
+    if (o.bris) {
+        const B = scrP(-27.5, 153, V0, cx, cy, r);
+        s += `<circle cx="${f1(B[0])}" cy="${f1(B[1])}" r="8" fill="${PK}" stroke="#fff" stroke-width="3"/>` + th(B[0], o.bris === 'night' ? B[1] + 28 : B[1] - 16, 'Brisbane', { c: 'tiny', fill: PK });
+    }
+    if (o.lat) {
+        s += `<line x1="12" x2="40" y1="264" y2="264" stroke="${PK}" stroke-width="5" stroke-linecap="round"/>` + tx(48, 270, 'Brisbane in daylight', { c: 'lg', a: 'start' });
+        s += `<line x1="12" x2="40" y1="284" y2="284" stroke="#b9c1e4" stroke-width="5" stroke-linecap="round"/>` + tx(48, 290, 'Brisbane in darkness', { c: 'lg', a: 'start' });
+    }
+    return V(540, 296, s);
+}
+function beam(deg) {
+    const a = deg * Math.PI / 180, gy = 116, w = 22, sp = w / Math.sin(a), L = (gy - 6) / Math.sin(a), dx = Math.cos(a), dy = Math.sin(a);
+    const hits = [-1, 0, 1].map(i => [110 + i * sp, gy]), p = h => [h[0] - dx * L, h[1] - dy * L];
+    let s = `<rect width="220" height="${gy}" fill="url(#gSky)"/><rect x="0" y="${gy}" width="220" height="40" fill="#eceef5"/><rect x="0" y="${gy + 4}" width="220" height="36" fill="url(#pSoil)"/>`;
+    s += `<polygon points="${[p(hits[0]), hits[0], hits[2], p(hits[2])].map(q => q.map(f1).join(',')).join(' ')}" fill="url(#gBeam)"/>`;
+    s += `<ellipse cx="110" cy="${gy + 3}" rx="${f1(sp + 6)}" ry="8" fill="${PK}" opacity=".18"/>`;
+    hits.forEach(h => { const q = p(h); s += arr(q[0], q[1], h[0], h[1] - 2, NV, 2.5, 11, 6); });
+    s += `<line x1="0" x2="220" y1="${gy}" y2="${gy}" stroke="${NV}" stroke-width="3"/><rect x="${f1(110 - sp)}" y="${gy + 2}" width="${f1(2 * sp)}" height="8" rx="2" fill="${PK}"/>`;
+    return V(220, 150, s);
+}
+function sunPaths() {
+    const gy = 232, P = [[60, 480, 196, '1'], [125, 415, 140, '2'], [185, 355, 88, '3']];
+    const len = P.map(([a, b, h]) => { const A2 = (b - a) / 2, B = h; return Math.PI * (3 * (A2 + B) - Math.sqrt((3 * A2 + B) * (A2 + 3 * B))) / 2; });
+    let s = `<rect width="540" height="${gy}" fill="url(#gSky)"/>`;
+    s += `<path d="M0 ${gy} C 50 ${gy - 22} 110 ${gy - 14} 160 ${gy - 6} S 250 ${gy - 20} 300 ${gy - 10} S 430 ${gy - 26} 540 ${gy - 8} L540 ${gy} Z" fill="#dfe3f1"/>`;
+    [[34, 18], [58, 24], [470, 22], [500, 16], [516, 26]].forEach(([x, h]) => s += `<line x1="${x}" x2="${x}" y1="${gy}" y2="${gy - h + 6}" stroke="#8f99c9" stroke-width="3"/><circle cx="${x}" cy="${gy - h}" r="${h * .42}" fill="#aab2d6"/>`);
+    [[392, 22], [420, 16]].forEach(([x, h]) => s += `<rect x="${x}" y="${gy - h}" width="22" height="${h}" fill="#c3cae4"/><polygon points="${x - 3},${gy - h} ${x + 11},${gy - h - 11} ${x + 25},${gy - h}" fill="#9aa3cc"/>`);
+    s += `<rect x="0" y="${gy}" width="540" height="64" fill="#eceef5"/><line x1="0" x2="540" y1="${gy}" y2="${gy}" stroke="${NV}" stroke-width="3"/>`;
+    s += `<g fill="${NV}"><circle cx="270" cy="${gy - 33}" r="6"/><path d="M262 ${gy - 25} h16 l-2 14 h-12 z"/><rect x="264" y="${gy - 12}" width="4" height="12"/><rect x="272" y="${gy - 12}" width="4" height="12"/></g>`;
+    P.forEach(([a, b, h], i) => {
+        const d = `M${b} ${gy} A${(b - a) / 2} ${h} 0 0 0 ${a} ${gy}`, f = (.8 * len[i] / len[0]).toFixed(3);
+        s += `<path d="${d}" fill="none" stroke="${NV}" stroke-width="4" stroke-dasharray="1 11" stroke-linecap="round" opacity=".7"/>`;
+        s += `<g><animateMotion dur="7s" repeatCount="indefinite" path="${d}" keyPoints="0;1;1" keyTimes="0;${f};1" calcMode="linear"/>${sunG(0, 0, 10, '', { n: 10, spin: false })}</g>`;
+    });
+    P.forEach(([a, b, h, n]) => s += badge((a + b) / 2, gy - h - 20, n));
+    s += tx(14, 258, 'West', { a: 'start' }) + tx(526, 258, 'East', { a: 'end' }) + tx(270, 258, 'North', {}) + tx(270, 282, 'Looking north from Brisbane', { c: 'lbg' });
+    const id = uid('sp');
+    return V(540, 292, `<clipPath id="${id}"><rect width="540" height="292" rx="10"/></clipPath><g clip-path="url(#${id})">${s}</g><rect x="1.5" y="1.5" width="537" height="289" rx="9" fill="none" stroke="${NV}" stroke-width="3"/>`);
+}
+const DH = [13.6, 12.9, 12.1, 11.4, 10.8, 10.5, 10.6, 11.2, 11.9, 12.6, 13.3, 13.8], TMP = [30.0, 29.6, 28.6, 26.7, 24.1, 21.8, 21.6, 22.6, 25.0, 26.6, 28.2, 29.2];
+function daylightGraph() {
+    const x0 = 46, x1 = 494, y0 = 236, y1 = 50, step = (x1 - x0) / 12, bw = 22;
+    let s = `<rect x="${x0}" y="${y1}" width="${f1(2 * step)}" height="${y0 - y1}" fill="${PK}" opacity=".07"/><rect x="${f1(x0 + 11 * step)}" y="${y1}" width="${f1(step)}" height="${y0 - y1}" fill="${PK}" opacity=".07"/><rect x="${f1(x0 + 5 * step)}" y="${y1}" width="${f1(3 * step)}" height="${y0 - y1}" fill="${NV}" opacity=".06"/>`;
+    [0, 6, 12, 18, 24].forEach(h => { const y = y0 - h / 24 * (y0 - y1); s += `<line x1="${x0}" x2="${x1}" y1="${f1(y)}" y2="${f1(y)}" stroke="#e3e6ef" stroke-width="1.5"/>` + tx(x0 - 8, y + 5, h, { c: 'ax', a: 'end' }); });
+    [0, 10, 20, 30].forEach(t => { const y = y0 - t / 32 * (y0 - y1); s += tx(x1 + 8, y + 5, t + '°', { c: 'axp', a: 'start' }); });
+    DH.forEach((h, i) => {
+        const x = x0 + step * i + (step - bw) / 2, y = y0 - h / 24 * (y0 - y1);
+        s += `<rect x="${f1(x)}" y="${f1(y)}" width="${bw}" height="${f1(y0 - y)}" rx="2" fill="${NV}"/><rect x="${f1(x + 3)}" y="${f1(y + 3)}" width="5" height="${f1(y0 - y - 6)}" fill="#fff" opacity=".12"/>` + tx(x + bw / 2, y0 + 18, 'JFMAMJJASOND'[i], { c: 'ax' });
+    });
+    const pts = TMP.map((t, i) => [x0 + step * i + step / 2, y0 - t / 32 * (y0 - y1)]);
+    s += `<polyline points="${pts.map(p => p.map(f1).join(',')).join(' ')}" fill="none" stroke="#fff" stroke-width="9" stroke-linejoin="round"/><polyline points="${pts.map(p => p.map(f1).join(',')).join(' ')}" fill="none" stroke="${PK}" stroke-width="4" stroke-linejoin="round"/>`;
+    pts.forEach(p => s += `<circle cx="${f1(p[0])}" cy="${f1(p[1])}" r="5" fill="#fff" stroke="${PK}" stroke-width="3"/>`);
+    s += `<line x1="${x0}" x2="${x1}" y1="${y0}" y2="${y0}" stroke="${NV}" stroke-width="2"/>`;
+    s += tx(x0 + step, y0 + 38, 'Summer', { c: 'tiny', fill: PK }) + tx(x0 + 6.5 * step, y0 + 38, 'Winter', { c: 'tiny' }) + tx(x0 + 11.5 * step, y0 + 38, 'Summer', { c: 'tiny', fill: PK });
+    s += `<rect x="${x0}" y="12" width="16" height="16" rx="2" fill="${NV}"/>` + tx(x0 + 24, 26, 'Daylight hours', { c: 'lg', a: 'start' });
+    s += `<line x1="250" x2="276" y1="20" y2="20" stroke="${PK}" stroke-width="4"/><circle cx="263" cy="20" r="5" fill="#fff" stroke="${PK}" stroke-width="3"/>` + tx(284, 26, 'Average max temperature (°C)', { c: 'lg', a: 'start' });
+    return V(540, 284, s);
+}
+function orbitSeasons() {
+    const cx = 270, cy = 150, rx = 188, ry = 90;
+    let s = stars(540, 300, 50, 6) + `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="none" stroke="#9aa3cc" stroke-width="3" stroke-dasharray="8 8"/>`;
+    s += sunG(cx, cy, 36, 'Sun', { n: 18 });
+    [[cx, cy - ry, '1', 'D'], [cx + rx, cy, '2', 'L'], [cx, cy + ry, '3', 'U'], [cx - rx, cy, '4', 'R']].forEach(([x, y, n, sd]) => {
+        const V0 = view(120, -23.5, 0);
+        s += globe(x, y, 30, V0, { sun: sd, atmo: false }) + axisLine(x, y, 30, V0, 12, false);
+        const N = proj3(90, 0, V0); s += th(x + N[0] * 50, y - N[1] * 50 + 5, 'N', { c: 'tiny' }) + th(x - N[0] * 50, y + N[1] * 50 + 5, 'S', { c: 'tiny' });
+        s += badge(x - 56, y - 26, n);
+    });
+    return V(540, 300, s);
+}
+function rotateTop(o = {}) {
+    const cx = 220, cy = 146, r = 88;
+    let s = stars(540, 292, 40, 12) + sunG(604, cy, 106, 'Sun', { lx: 520 });
+    s += `<rect x="${cx}" y="${cy - 80}" width="${484 - cx}" height="160" fill="url(#gLight)"/>` + lightRays(484, cx, cy, r, [-60, -20, 20, 60]);
+    s += globe(cx, cy, r, SPOLE, { sun: 'R' });
+    s += `<circle cx="${cx}" cy="${cy}" r="4.5" fill="${NV}" stroke="#fff" stroke-width="2"/>` + th(cx, cy + 24, 'South Pole', { c: 'tiny' });
+    const R = 120, a1 = 140 * DEG, a2 = 222 * DEG, p = a => [cx + R * Math.cos(a), cy + R * Math.sin(a)], [x1, y1] = p(a1), [x2, y2] = p(a2);
+    s += `<path d="M${f1(x1)} ${f1(y1)} A${R} ${R} 0 0 1 ${f1(x2)} ${f1(y2)}" fill="none" stroke="${PK}" stroke-width="4"/>` + arr(x2 + 2 * Math.sin(a2), y2 - 2 * Math.cos(a2), x2 - 16 * Math.sin(a2), y2 + 16 * Math.cos(a2), PK, 4, 16, 10);
+    s += tx(cx - R - 12, cy + 6, 'Spin', { a: 'end', fill: PK });
+    if (!o.plain) s += badge(cx + r, cy, '1') + badge(cx, cy - r, '2') + badge(cx - r, cy, '3') + badge(cx, cy + r, '4');
+    else s += th(cx + 50, cy - 36, 'Day') + tx(cx - 50, cy - 36, 'Night', { fill: '#fff' });
+    s += tx(cx, 286, 'Seen from above the South Pole', { c: 'lbg' });
+    return V(540, 292, s);
+}
+function tides() {
+    const cx = 210, cy = 138;
+    let s = stars(540, 285, 40, 15);
+    s += `<ellipse cx="${cx}" cy="${cy}" rx="116" ry="80" fill="url(#gWater)" stroke="${NV}" stroke-width="2.5" stroke-dasharray="7 6"><animate attributeName="rx" values="110;122;110" dur="3s" repeatCount="indefinite"/></ellipse>`;
+    for (let k = 0; k < 4; k++) { const x = cx + [-100, 88, -94, 84][k], y = cy + [-16, -14, 16, 18][k]; s += `<path d="M${x} ${y} q4 -4 8 0 t8 0" fill="none" stroke="#7f8bd0" stroke-width="2" stroke-linecap="round"/>`; }
+    s += globe(cx, cy, 72, SPOLE, { atmo: false });
+    s += moonOrb(474, cy, 26, 'L', { full: true }) + th(474, cy + 52, 'Moon');
+    s += arr(444, cy - 30, 360, cy - 30, '#7f8bd0', 3, 12, 7) + th(402, cy - 42, 'Pull', { c: 'tiny', fill: '#7f8bd0' });
+    s += badge(cx + 144, cy, '1') + badge(cx, cy - 102, '2') + badge(cx - 144, cy, '3') + badge(cx, cy + 102, '4');
+    s += `<rect x="14" y="262" width="26" height="14" rx="3" fill="url(#gWater)" stroke="${NV}" stroke-width="2" stroke-dasharray="5 4"/>` + tx(48, 275, 'Ocean (bulges exaggerated)', { c: 'lg', a: 'start' });
+    return V(540, 285, s);
+}
+/* Sun, Earth and Moon line-ups. type: new, full, q1, q3 */
+function lineup(o) {
+    const sm = o.small, E = sm ? [340, 120] : [330, 122], er = sm ? 54 : 40, mr = sm ? 26 : 17, ox = sm ? 150 : 140, oy = sm ? 86 : 96;
+    const M = { new: [E[0] - ox, E[1]], full: [E[0] + ox, E[1]], q1: [E[0], E[1] - oy], q3: [E[0], E[1] + oy] }[o.type];
+    let s = stars(540, 240, sm ? 20 : 34, 17) + sunG(-30, E[1], 100, sm ? '' : 'Sun', { lx: 30 });
+    if (sm) s += tx(24, E[1] + 13, 'S', { c: 'bigl', fill: '#fff' });
+    if (!sm) [-50, 0, 50].forEach(dy => s += arr(84, E[1] + dy, 128, E[1] + dy, PK, 3, 11, 7));
+    s += `<ellipse cx="${E[0]}" cy="${E[1]}" rx="${ox}" ry="${oy}" fill="none" stroke="#b5bcdc" stroke-width="${sm ? 4 : 3}" stroke-dasharray="7 7"/>`;
+    if (o.shadow === 'solar') s += `<polygon points="${M[0]},${E[1] - 17} ${M[0]},${E[1] + 17} ${E[0] - er + 4},${E[1] + 34} ${E[0] - er + 4},${E[1] - 34}" fill="url(#gPen)"/><polygon points="${M[0]},${E[1] - 17} ${M[0]},${E[1] + 17} ${E[0] - er + 2},${E[1] + 4} ${E[0] - er + 2},${E[1] - 4}" fill="url(#gUmb)"/>`;
+    if (o.shadow === 'lunar') s += `<polygon points="${E[0]},${E[1] - er} ${E[0]},${E[1] + er} 540,${E[1] + 18} 540,${E[1] - 18}" fill="url(#gUmb)"/><path d="M${E[0] - 30} ${E[1] - er - 3} Q ${E[0] + 40} ${E[1] - er - 6} ${M[0] - 10} ${E[1] - 8}" fill="none" stroke="#e05a9c" stroke-width="2.5" stroke-dasharray="5 5"/><path d="M${E[0] - 30} ${E[1] + er + 3} Q ${E[0] + 40} ${E[1] + er + 6} ${M[0] - 10} ${E[1] + 8}" fill="none" stroke="#e05a9c" stroke-width="2.5" stroke-dasharray="5 5"/>` + th(E[0] + 60, E[1] - er - 12, 'Red light bent by the air', { c: 'tiny', fill: '#d8418a' });
+    if (o.tides) s += `<ellipse cx="${E[0]}" cy="${E[1]}" rx="50" ry="62" fill="url(#gWater)" stroke="${NV}" stroke-width="2.5" stroke-dasharray="6 5"/>`;
+    s += globe(E[0], E[1], er, view(110, 0, -12), { sun: 'L', atmo: !o.tides, sw: sm ? 4 : 3 });
+    if (o.shadow === 'solar') s += `<ellipse cx="${E[0] - er + 4}" cy="${E[1]}" rx="4" ry="7" fill="${NV}"/>`;
+    s += moonOrb(M[0], M[1], mr, 'L', { red: o.shadow === 'lunar' });
+    if (sm) {
+        s += o.type === 'q3' ? tx(E[0] + er + 10, E[1] - er + 16, 'E', { a: 'start', c: 'bigl' }) : tx(E[0] + er + 10, E[1] + er, 'E', { a: 'start', c: 'bigl' });
+        s += o.type === 'q1' || o.type === 'q3' ? tx(M[0] - mr - 10, M[1] + 13, 'M', { a: 'end', c: 'bigl' }) : tx(M[0], M[1] - mr - 12, 'M', { c: 'bigl' });
+    } else {
+        s += o.type === 'q3' ? th(E[0] + er + 10, E[1] - er + 4, 'Earth', { a: 'start' }) : th(E[0], E[1] + er + (o.tides ? 42 : 26), 'Earth');
+        s += o.type === 'q1' || o.type === 'q3' ? th(M[0] + mr + 10, M[1] + 6, 'Moon', { a: 'start' }) : th(M[0], M[1] - mr - 10, 'Moon');
+    }
+    return V(540, 240, s);
+}
+function tiltMoonOrbit() {
+    const E = [400, 140], er = 30, a = 18 * DEG, mx = E[0] - 135 * Math.cos(a), my = E[1] - 135 * Math.sin(a);
+    let s = stars(540, 242, 34, 19) + sunG(-30, E[1], 100, 'Sun', { lx: 30 });
+    s += `<line x1="76" x2="536" y1="${E[1]}" y2="${E[1]}" stroke="#b5bcdc" stroke-width="2" stroke-dasharray="6 7"/>`;
+    s += `<path d="${(() => { let d = ''; for (let t = Math.PI; t <= 2 * Math.PI + .01; t += .05) { const x = Math.cos(t) * 135, y = Math.sin(t) * 22; d += (d ? 'L' : 'M') + f1(E[0] + x * Math.cos(a) - y * Math.sin(a)) + ' ' + f1(E[1] + x * Math.sin(a) + y * Math.cos(a)); } return d; })()}" fill="none" stroke="${NV}" stroke-width="2.5" stroke-dasharray="5 5" opacity=".5"/>`;
+    s += `<polygon points="${f1(mx)},${f1(my - 14)} ${f1(mx)},${f1(my + 14)} 520,${f1(my + 3)} 520,${f1(my - 3)}" fill="url(#gUmb)"/>`;
+    s += globe(E[0], E[1], er, view(110, 0, -12), { sun: 'L' });
+    s += `<path d="${(() => { let d = ''; for (let t = 0; t <= Math.PI + .01; t += .05) { const x = Math.cos(t) * 135, y = Math.sin(t) * 22; d += (d ? 'L' : 'M') + f1(E[0] + x * Math.cos(a) - y * Math.sin(a)) + ' ' + f1(E[1] + x * Math.sin(a) + y * Math.cos(a)); } return d; })()}" fill="none" stroke="${NV}" stroke-width="2.5"/>`;
+    s += moonOrb(mx, my, 14, 'L');
+    s += th(mx, my - 24, 'Moon') + th(E[0], E[1] + er + 26, 'Earth') + th(470, my - 14, 'Moon’s shadow', { c: 'tiny' });
+    s += tx(270, 232, 'Moon’s orbit, tilt exaggerated', { c: 'lbg' });
+    return V(540, 242, s);
+}
+function phasesRing() {
+    const cx = 220, cy = 140, ro = 72, rv = 112;
+    let s = stars(540, 292, 40, 23) + sunG(604, cy, 106, 'Sun', { lx: 520 });
+    s += `<rect x="${cx}" y="${cy - 96}" width="${484 - cx}" height="192" fill="url(#gLight)"/>` + [-80, -40, 0, 40, 80].map(dy => arr(484, cy + dy, 412, cy + dy, PK, 2.5, 11, 6.5)).join('');
+    s += `<circle cx="${cx}" cy="${cy}" r="${ro}" fill="none" stroke="#9aa3cc" stroke-width="2.5" stroke-dasharray="6 6"/>` + globe(cx, cy, 30, SPOLE, { sun: 'R', atmo: false });
+    for (let k = 0; k < 8; k++) {
+        const t = k * Math.PI / 4, p = ((-k / 8) % 1 + 1) % 1;
+        s += `<line x1="${f1(cx + (ro + 15) * Math.cos(t))}" y1="${f1(cy + (ro + 15) * Math.sin(t))}" x2="${f1(cx + (rv - 17) * Math.cos(t))}" y2="${f1(cy + (rv - 17) * Math.sin(t))}" stroke="#c9ccd6" stroke-width="2"/>`;
+        s += moonOrb(cx + ro * Math.cos(t), cy + ro * Math.sin(t), 13, 'R');
+        s += `<g transform="translate(${f1(cx + rv * Math.cos(t))} ${f1(cy + rv * Math.sin(t))})">${moonG(p, 15)}</g>`;
+    }
+    const ta = -.36; s += arr(cx + ro * Math.cos(ta), cy + ro * Math.sin(ta), cx + ro * Math.cos(ta) + 12 * Math.sin(ta), cy + ro * Math.sin(ta) - 12 * Math.cos(ta), '#9aa3cc', 3, 12, 7);
+    s += th(536, 266, 'Inner ring: seen from space', { c: 'tiny', a: 'end' }) + th(536, 286, 'Outer ring: seen from Brisbane', { c: 'tiny', a: 'end', fill: PK });
+    return V(540, 296, s);
+}
+
+/* deck icons */
+const ICON = {
+    LG1: (() => { let s = sunG(12, 56, 22, '', { n: 14, spin: false }); [[46, -.25, 'Earth', 7], [76, .5, 'Mars', 6], [110, -.35, 'Jupiter', 13]].forEach(([R, a, n, r]) => { const p = t => [12 + R * Math.cos(t), 56 + R * Math.sin(t)], [x1, y1] = p(-1), [x2, y2] = p(1); s += `<path d="M${f1(x1)} ${f1(y1)} A${R} ${R} 0 0 1 ${f1(x2)} ${f1(y2)}" fill="none" stroke="#b5bcdc" stroke-width="2.5" stroke-dasharray="4 5"/>`; const [px, py] = p(a); s += planet(n, px, py, r); }); return `<svg viewBox="0 0 160 112">${s}</svg>`; })(),
+    LG2: (() => { const V0 = view(118, 23.5, -14); return `<svg viewBox="0 0 160 112">${sunG(190, 56, 44, '', { n: 14, spin: false })}${lightRays(138, 62, 56, 40, [-24, 0, 24], 2.5)}${globe(62, 56, 40, V0, { sun: 'R', aus: true })}${axisLine(62, 56, 40, V0, 10, false)}</svg>`; })(),
+    LG3: (() => { const cx = 80, cy = 58, R = 50, p = a => [cx + R * Math.cos(a), cy + R * Math.sin(a)], [x1, y1] = p(-2.6), [x2, y2] = p(-.6); return `<svg viewBox="0 0 160 112">${globe(cx, cy, 38, SPOLE, { sun: 'R' })}<path d="M${f1(x1)} ${f1(y1)} A${R} ${R} 0 0 1 ${f1(x2)} ${f1(y2)}" fill="none" stroke="${PK}" stroke-width="4"/>${arr(x2, y2, x2 + 12 * Math.sin(.6), y2 + 12 * Math.cos(.6), PK, 4, 12, 8)}</svg>`; })(),
+    LG4: `<svg viewBox="0 0 160 112">${[.1, .25, .5, .75, .9].map((p, i) => `<g transform="translate(${16 + i * 32} 56)">${moonG(p, 13)}</g>`).join('')}</svg>`,
+    LG5: `<svg viewBox="0 0 160 112">${sunG(-8, 56, 36, '', { n: 14, spin: false })}<polygon points="84,48 84,64 126,58 126,54" fill="url(#gUmb)"/>${moonOrb(84, 56, 8, 'L')}${globe(142, 56, 18, view(110, 0, -12), { sun: 'L', atmo: false })}</svg>`
+};
+const PATTERN = (() => { let s = ''; for (let r = 60; r < 900; r += 46) s += `<circle cx="600" cy="490" r="${r}" fill="none" stroke="${PK}" stroke-width="2" opacity="${(.55 - r / 2000).toFixed(2)}"/>`; return `<svg viewBox="0 0 584 470" preserveAspectRatio="xMidYMid slice">${s}<circle cx="600" cy="490" r="34" fill="${PK}"/></svg>`; })();
+
+const miniPlanet = n => `<svg class="mini" viewBox="-21 -21 42 42">${planet(n, 0, 0, n === 'Saturn' ? 9.5 : n === 'Jupiter' ? 14 : n === 'Mercury' ? 8 : 12)}</svg>`;
+/* ---------- animated scenes ---------- */
+const REPLAY = `<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v5h5"/></svg>`;
+const SPIN = { cx: 220, cy: 144, r: 106, places: [[-62, '1'], [28, '2'], [-18, '3'], [62, '4']], intro: 55, out: 52 };
+function spinSVG() {
+    const { cx, cy, r } = SPIN, RB = r * .7;
+    let s = stars(540, 292, 40, 12) + sunG(604, cy, 106, 'Sun', { lx: 520 });
+    s += `<rect x="${cx}" y="${cy - 80}" width="${484 - cx}" height="160" fill="url(#gLight)"/>` + lightRays(484, cx, cy, r, [-60, -20, 20, 60]);
+    s += `<circle cx="${cx}" cy="${cy}" r="${f1(r * 1.07)}" fill="#e3e8f7"/>`;
+    let inner = globe(cx, cy, r, SPOLE, { atmo: false, flat: true });
+    SPIN.places.forEach(([a, n]) => { const x = cx + RB * Math.cos(a * DEG), y = cy + RB * Math.sin(a * DEG); inner += `<g transform="translate(${f1(x)} ${f1(y)})"><g class="cr" data-n="${n}"><circle class="pb" r="18" fill="${NV}" stroke="#fff" stroke-width="3"/>${tx(0, 6.5, n, { c: 'bd', fill: '#fff' })}</g></g>`; });
+    s += `<g class="sg">${inner}</g>`;
+    const cid = uid('sn'); s += `<clipPath id="${cid}"><circle cx="${cx}" cy="${cy}" r="${r}"/></clipPath><rect x="${cx - r}" y="${cy - r}" width="${2 * r}" height="${2 * r}" fill="url(#gN_R)" clip-path="url(#${cid})"/>`;
+    s += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#gShade)"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${NV}" stroke-width="3"/>`;
+    s += `<circle cx="${cx}" cy="${cy}" r="4.5" fill="${NV}" stroke="#fff" stroke-width="2"/>`;
+    const R = 132, a1 = 140 * DEG, a2 = 222 * DEG, p = a => [cx + R * Math.cos(a), cy + R * Math.sin(a)], [x1, y1] = p(a1), [x2, y2] = p(a2);
+    s += `<path d="M${f1(x1)} ${f1(y1)} A${R} ${R} 0 0 1 ${f1(x2)} ${f1(y2)}" fill="none" stroke="${PK}" stroke-width="4"/>` + arr(x2 + 2 * Math.sin(a2), y2 - 2 * Math.cos(a2), x2 - 16 * Math.sin(a2), y2 + 16 * Math.cos(a2), PK, 4, 16, 10);
+    s += tx(cx - R - 12, cy + 6, 'Spin', { a: 'end', fill: PK });
+    s += `<g class="ssl" opacity="0">${th(0, 0, 'Into the night', { c: 'tiny', fill: PK })}</g>`;
+    s += tx(cx, 286, 'Seen from above the South Pole', { c: 'lbg' });
+    return V(540, 292, s);
+}
+const SCENE = {
+    spin(svg) {
+        const { cx, cy, r } = SPIN, g = svg.querySelector('.sg'), crs = [...svg.querySelectorAll('.cr')], ssl = svg.querySelector('.ssl');
+        let tok = 0;
+        const set = a => { g.setAttribute('transform', `rotate(${f1(a)} ${cx} ${cy})`); crs.forEach(c => c.setAttribute('transform', `rotate(${f1(-a)})`)); };
+        const anim = (a0, a1, dur) => { const my = ++tok; return new Promise(res => { const st = performance.now(); const f = n => { if (my !== tok || !document.body.contains(svg)) return; const k = Math.min(1, (n - st) / dur); set(a0 + (a1 - a0) * k); if (k < 1) requestAnimationFrame(f); else res(); }; requestAnimationFrame(f); }); };
+        set(-SPIN.intro);
+        return {
+            intro: () => { ssl.setAttribute('opacity', 0); crs.forEach(c => c.querySelector('.pb').setAttribute('fill', NV)); set(-SPIN.intro); return anim(-SPIN.intro, 0, 2800); },
+            async outcome() {
+                set(0); await anim(0, SPIN.out, 2600);
+                const four = crs.find(c => c.dataset.n === '4'); four.querySelector('.pb').setAttribute('fill', PK);
+                const a = (62 + SPIN.out) * DEG, x = cx + r * .7 * Math.cos(a), y = cy + r * .7 * Math.sin(a);
+                ssl.setAttribute('transform', `translate(${f1(x - 10)} ${f1(y + 40)})`);
+                A(ssl, [{ opacity: 0 }, { opacity: 1 }], { duration: 400 });
+            }
+        };
+    }
+};
+
+/* ---------- tap-the-diagram tide model ---------- */
+function hsSVG(reveal) {
+    const cx = 200, cy = 222, r = 112;
+    let s = stars(520, 460, 60, 31);
+    s += `<ellipse class="bulge" cx="${cx}" cy="${cy}" rx="172" ry="124" fill="url(#gWater)" stroke="${NV}" stroke-width="2.5" stroke-dasharray="7 6" style="transform-origin:${cx}px ${cy}px" opacity="${reveal ? 1 : 0}"/>`;
+    s += globe(cx, cy, r, SPOLE, { atmo: false });
+    s += moonOrb(456, cy, 32, 'L', { full: true }) + th(456, cy + 60, 'Moon');
+    s += th(cx, cy + r + (reveal ? 50 : 34), 'Earth');
+    for (let k = 0; k < 8; k++) {
+        if (reveal && k !== 0 && k !== 4) continue;
+        const a = k * 45 * DEG, rr = reveal ? (k % 4 ? r : 160) : r - 2, x = cx + rr * Math.cos(a), y = cy + rr * Math.sin(a);
+        s += reveal
+            ? `<g transform="translate(${f1(x)} ${f1(y)})"><circle r="15" fill="${PK}" stroke="#fff" stroke-width="3"/><path d="M-6 0.5l4 4 8-9" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></g>`
+            : `<g class="hs" data-k="${k}" tabindex="0" role="button" aria-label="Place ${k + 1}" transform="translate(${f1(x)} ${f1(y)})"><circle class="hpl" r="15" fill="none" stroke="${PK}" stroke-width="3"><animate attributeName="r" values="14;26" dur="1.6s" begin="${(k * .2).toFixed(1)}s" repeatCount="indefinite"/><animate attributeName="opacity" values=".9;0" dur="1.6s" begin="${(k * .2).toFixed(1)}s" repeatCount="indefinite"/></circle><circle class="hdot" r="15" fill="#fff" stroke="${NV}" stroke-width="3.5"/><path class="hok" d="M-6 0.5l4 4 8-9" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><path class="hno" d="M-5 -5l10 10M5 -5l-10 10" fill="none" stroke="${NV}" stroke-width="3" stroke-linecap="round"/></g>`;
+    }
+    if (!reveal) s += tx(260, 450, 'Seen from above the South Pole', { c: 'lbg' });
+    return `<svg class="vis hsv" viewBox="0 0 520 ${reveal ? 400 : 460}" preserveAspectRatio="xMidYMid meet">${s}</svg>`;
+}
+/* ---------- spin-the-globe model (side view, north up, Sun on the right) ---------- */
+const SPG = { cx: 214, cy: 196, r: 150, pitch: -14, start: -42 };
+function spinGlobeInner(off, o = {}) {
+    const { cx, cy, r } = SPG, V0 = view(153 - off, 0, SPG.pitch);
+    let s = globe(cx, cy, r, V0, { sun: 'R', aus: true });
+    s += latLine(0, V0, cx, cy, r, { col: '#fff', w: 2, dash: '7 6' });
+    s += latLine(-27.5, V0, cx, cy, r, { col: PK, w: 2.5, dash: '2 7' });
+    const B = scrP(-27.5, 153, V0, cx, cy, r);
+    if (B[2] > 0) {
+        const day = B[0] > cx;
+        s += `<circle class="bdot" cx="${f1(B[0])}" cy="${f1(B[1])}" r="9" fill="${PK}" stroke="#fff" stroke-width="3"/>`;
+        s += th(B[0], B[1] + 30, o.msg || (day ? 'Brisbane: day' : 'Brisbane: night'), { c: 'tiny', fill: PK });
+    }
+    return s;
+}
+function spinFrame(inner, o = {}) {
+    const { cx, cy, r } = SPG;
+    let s = stars(520, 470, 50, 41) + sunG(612, cy, 120, 'Sun', { lx: 528 });
+    s += `<rect x="${cx}" y="${cy - 110}" width="${470 - cx}" height="220" fill="url(#gLight)"/>` + lightRays(470, cx, cy, r, [-100, -55, 55, 100]);
+    s += `<g class="gl">${inner}</g>`;
+    s += th(cx - r - 26, cy + 9, 'W', { c: 'bigl' }) + th(cx + r + 26, cy + 9, 'E', { c: 'bigl' });
+    s += th(cx, cy - r - 30, 'N') + th(cx, cy + r + 40, 'S');
+    if (o.arrow) {
+        let d = ''; for (let t = -50; t <= 50; t += 4) { const p = scrP(-8, 147 + t, view(147, 0, SPG.pitch), cx, cy, r * 1.03); d += (d ? 'L' : 'M') + f1(p[0]) + ' ' + f1(p[1]); }
+        s += `<path d="${d}" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${PK}" stroke-width="6" stroke-linecap="round"/>`;
+        const e = scrP(-8, 147 + 56, view(147, 0, SPG.pitch), cx, cy, r * 1.03), e0 = scrP(-8, 147 + 48, view(147, 0, SPG.pitch), cx, cy, r * 1.03);
+        s += arr(e0[0], e0[1], e[0], e[1], PK, 6, 22, 14) + th(cx, cy + 92, 'Spins west to east', { c: 'tiny', fill: PK });
+    }
+    return s;
+}
+const spinBack = () => `<svg class="vis" viewBox="0 0 520 440" preserveAspectRatio="xMidYMid meet">${spinFrame(spinGlobeInner(6, { msg: 'Brisbane: sunrise' }), { arrow: true })}</svg>`;
+const mTile = p => `<svg viewBox="-34 -34 68 68">${moonG(p, 30)}</svg>`;
+const ansRow = items => `<div class="arow">${items}</div>`;
+
+/* =========================================================
+   CURRICULUM
+   ========================================================= */
+const LGS = [
+    { id: 'LG1', short: 'Models of the Solar System', text: 'The relative positions of the Earth, Sun and Moon can be represented within models of the Solar System', sc: ['SC1', 'SC2', 'SC3', 'SC4', 'SC5', 'SC6', 'SC7'] },
+    { id: 'LG2', short: 'Seasons', text: 'Seasons are a predictable phenomenon on Earth caused by the relative positions of the Sun and Earth', sc: ['SC8', 'SC9', 'SC10'] },
+    { id: 'LG3', short: 'Day and night', text: 'Day-night cycles are a predictable phenomenon on Earth caused by the relative positions of the Sun, Moon and Earth', sc: ['SC11', 'SC12', 'SC13', 'SC14', 'SC15'] },
+    { id: 'LG4', short: 'Moon phases and tides', text: 'Moon phases and tides are a predictable phenomenon on Earth caused by the relative positions of the Sun, Moon and Earth', sc: ['SC16', 'SC17', 'SC18', 'SC19'] },
+    { id: 'LG5', short: 'Eclipses', text: 'Eclipses are a predictable phenomenon on Earth caused by the relative positions of the Sun, Moon and Earth', sc: ['SC20', 'SC21', 'SC22'] }
+];
+const SCT = {
+    SC1: 'I can create a mnemonic to remember the order of planets in the Solar System',
+    SC2: 'I can describe the role of gravity in the formation of the Solar System',
+    SC3: 'I can explain how gravity keeps planets and moons in their orbits',
+    SC4: 'I can evaluate whether objects in space are satellites',
+    SC5: 'I can calculate the sizes and distances of planets to build scale models of the Solar System',
+    SC6: 'I can explain some limitations of models of the Solar System',
+    SC7: 'I can calculate my age on other planets and round my answers to the nearest year or month',
+    SC8: 'I can explain why the northern and southern hemispheres experience seasons at different times',
+    SC9: 'I can describe the relationship between light intensity and light angle',
+    SC10: 'I can explain the impact of the Earth’s tilt on the seasons',
+    SC11: 'I can describe what causes sunrise on Earth',
+    SC12: 'I can explain how day and night occur on Earth',
+    SC13: 'Describe how your location on Earth affects the number of daylight hours you experience',
+    SC14: 'Explain why summer has longer daylight hours than winter',
+    SC15: 'Describe the relationship between the number of daylight hours and temperature',
+    SC16: 'Determine the phase of the Moon based on the positions of the Sun, Earth and Moon',
+    SC17: 'Describe what causes the phases of the Moon to change each month',
+    SC18: 'Describe how the Moon produces tides on Earth',
+    SC19: 'Explain how tides change with the phases of the Moon',
+    SC20: 'Describe how solar eclipses occur',
+    SC21: 'Describe how lunar eclipses occur',
+    SC22: 'Compare the positions of the Sun, Earth and Moon during solar and lunar eclipses'
+};
+const LGOF = {}; LGS.forEach(l => l.sc.forEach(s => LGOF[s] = l.id));
+
+/* Card factory. The first argument is the card's permanent buckle ID (see the maintenance guide at the top of this script).
+   The first option is the correct one unless ans is given. ordered keeps the options in the order written. */
+const C = (id, sc, label, q, opts, exp, x = {}) => ({ id, sc, lg: LGOF[sc], label, q, opts, exp, ans: 0, ...x });
+const CARDS = [
+    /* LG1 */
+    C('sc1-mnemonic-word-mother', 'SC1', 'Mnemonic word “Mother”', 'In “My Very Eager Mother Just Served Us Noodles”, which planet does “Mother” stand for?', ['Mars', 'Mercury', 'Moon', 'Earth'], '“Mother” is the 4th word, so it stands for the 4th planet from the Sun: Mars. Mercury is “My”.', { vis: mnemonic(3) }),
+    C('sc1-the-6th-planet', 'SC1', 'The 6th planet', 'The planets are numbered by their order from the Sun. Which planet is missing at position 6?', ['Saturn', 'Jupiter', 'Uranus', 'Neptune'], '“Served” is the 6th word in the mnemonic, so the 6th planet from the Sun is Saturn.', { vis: planetRow({ hide: 5 }) }),
+    C('sc1-first-four-planets-in-order', 'SC1', 'First four planets in order', 'Which list shows the first four planets in order from the Sun?', ['Mercury, Venus, Earth, Mars', 'Venus, Mercury, Earth, Mars', 'Mercury, Venus, Mars, Earth', 'Mercury, Earth, Venus, Mars'], '“My Very Eager Mother” gives Mercury, Venus, Earth, Mars.'),
+
+    C('sc2-gravity-forms-the-sun', 'SC2', 'Gravity forms the Sun', 'A huge cloud of gas and dust collapsed to form the Sun. Which force pulled the cloud together?', ['Gravity', 'Friction', 'Magnetic force', 'Air resistance'], 'Gravity pulls every particle towards every other particle. The cloud collapsed inwards and its hot, dense centre became the Sun.', { vis: nebula() }),
+    C('sc2-gravity-forms-the-planets', 'SC2', 'Gravity forms the planets', 'How did gravity help form the planets?', ['It pulled leftover dust and rock into bigger and bigger clumps', 'It pushed pieces off the Sun so they cooled into planets', 'It froze clouds of gas into solid balls', 'It pulled comets together until they exploded'], 'Gravity pulled the leftover material around the young Sun together. Small clumps grew into bigger ones until they became planets.'),
+    C('sc2-why-planets-are-round', 'SC2', 'Why planets are round', 'Why are large planets shaped like spheres?', ['Gravity pulls their material towards the centre from every direction', 'Spinning wears down any corners', 'Wind in space smooths their surface', 'They formed from drops of the melted Sun'], 'Gravity pulls equally towards the centre from all sides, so a large planet settles into a round shape.'),
+
+    C('sc3-direction-of-gravity-on-a-planet', 'SC3', 'Direction of gravity on a planet', 'The planet is orbiting the Sun. Which arrow shows the pull of gravity on the planet?', ['Arrow 1', 'Arrow 2', 'Arrow 3', 'Arrow 4'], 'Gravity pulls the planet towards the centre of the Sun, so arrow 3 is correct. Arrow 1 shows the way it is moving.', { vis: orbitArrows(), ordered: true, ans: 2 }),
+    C('sc3-if-gravity-switched-off', 'SC3', 'If gravity switched off', 'What would happen to the Moon if Earth’s gravity suddenly switched off?', ['It would fly off in a straight line', 'It would fall straight into Earth', 'It would stop and float in one place', 'It would keep orbiting Earth as normal'], 'The Moon is already moving fast. Without gravity pulling it inwards, nothing would curve its path, so it would travel in a straight line.', { vis: moonOrbit() }),
+    C('sc3-why-the-moon-does-not-crash', 'SC3', 'Why the Moon does not crash', 'Earth’s gravity pulls on the Moon. Why doesn’t the Moon crash into Earth?', ['It moves sideways so fast that it keeps falling around Earth', 'There is no gravity in space', 'The Sun pulls it away just as hard', 'Air pushes it back up'], 'Gravity bends the Moon’s path into a curve. Its sideways speed means it keeps missing Earth, so it falls around Earth in an orbit.'),
+
+    C('sc4-artificial-satellite', 'SC4', 'Artificial satellite', 'Which object is an artificial satellite of Earth?', ['The International Space Station', 'The Moon', 'The Sun', 'Mars'], 'Artificial satellites are built and launched by people. The space station orbits Earth about every 90 minutes.'),
+    C('sc4-is-jupiter-a-satellite', 'SC4', 'Is Jupiter a satellite?', 'Jupiter orbits the Sun. Is Jupiter a satellite?', ['Yes. It is a natural satellite of the Sun', 'No. Only moons can be satellites', 'No. Satellites must be made by people', 'Yes. It is an artificial satellite'], 'A satellite is any object that orbits a larger object. Jupiter orbits the Sun, so it is a natural satellite of the Sun.'),
+    C('sc4-is-the-sun-a-satellite-of-earth', 'SC4', 'Is the Sun a satellite of Earth?', 'The Sun crosses our sky every day. Is the Sun a satellite of Earth?', ['No. Earth orbits the Sun, not the other way around', 'Yes. It travels around Earth every day', 'Yes. It is Earth’s natural satellite', 'No. Satellites must be smaller than the Moon'], 'The Sun only looks like it moves because Earth rotates. Earth orbits the Sun, so the Sun is not a satellite of Earth.'),
+
+    C('sc5-scale-model-of-earth', 'SC5', 'Scale model of Earth', 'In this model, 1 cm stands for 1000 km. How wide should the model Earth be?', ['12.7 cm', '1.27 cm', '127 cm', '12 700 cm'], '12 700 km ÷ 1000 km per cm = 12.7 cm.', { vis: scaleKey(), calc: true }),
+    C('sc5-scaling-jupiter', 'SC5', 'Scaling Jupiter', 'Jupiter is about 11 times wider than Earth. If a model Earth is 2 cm wide, how wide should model Jupiter be?', ['22 cm', '13 cm', '5.5 cm', '220 cm'], 'Multiply by 11: 2 cm × 11 = 22 cm. Adding 11 (13 cm) does not keep the sizes in proportion.', { calc: true }),
+    C('sc5-placing-mars', 'SC5', 'Placing Mars', 'Mars is about 1.5 AU from the Sun (1 AU is the distance from Earth to the Sun). In a playground model, 1 AU = 10 m. How far from the model Sun should Mars go?', ['15 m', '1.5 m', '11.5 m', '150 m'], '1.5 AU × 10 m per AU = 15 m.', { calc: true }),
+
+    C('sc6-planet-poster', 'SC6', 'Planet poster', 'Posters like this appear in lots of classrooms. What is their biggest limitation?', ['The planets are drawn far too close together', 'The planets are in the wrong order', 'It leaves out the Sun', 'Some of the planets are missing'], 'Real distances are huge compared to planet sizes. If the gaps were to scale, the outer planets would be far off the page.', { vis: planetRow({ names: true }) }),
+    C('sc6-sizes-and-distances-together', 'SC6', 'Sizes and distances together', 'Why is it hard to show planet sizes and distances to the same scale on one page?', ['If the planets are big enough to see, the distances are too big to fit', 'Planets keep changing size', 'Scientists do not know the distances', 'The Sun is too bright to draw'], 'Space is mostly empty. If Earth were a 1 mm dot, Neptune would be hundreds of metres away.'),
+    C('sc6-basketball-and-peppercorn', 'SC6', 'Basketball and peppercorn', 'A model uses a basketball for the Sun and a peppercorn for Earth, 30 cm apart. What is wrong with it?', ['The peppercorn should be much further away', 'The peppercorn should be as big as the basketball', 'The basketball is too small for the Sun', 'Nothing. This model is fully to scale'], 'The sizes are about right, but at this scale Earth should sit about 26 m from the basketball.'),
+
+    C('sc7-age-on-mars', 'SC7', 'Age on Mars', 'A Mars year is about 1.9 Earth years. Mia is 13 Earth years old. How old is she in Mars years, to the nearest year?', ['7', '25', '6', '11'], '13 ÷ 1.9 = 6.8, which rounds to 7. Divide, because each Mars year is longer than an Earth year.', { vis: marsOrbit(), calc: true }),
+    C('sc7-age-on-mercury', 'SC7', 'Age on Mercury', 'A Mercury year is about 0.24 Earth years. How old is a 12-year-old in Mercury years?', ['50', '3', '12', '288'], '12 ÷ 0.24 = 50. Mercury’s year is short, so you would have had many more Mercury birthdays.', { calc: true }),
+    C('sc7-age-on-jupiter-to-the-month', 'SC7', 'Age on Jupiter, to the month', 'A Jupiter year is about 11.9 Earth years. How old is a 14-year-old in Jupiter years, to the nearest month?', ['1 year and 2 months', '1 year and 18 months', '167 years', '2 years and 6 months'], '14 ÷ 11.9 = 1.18 Jupiter years. 0.18 of a year × 12 months = about 2 months.', { calc: true }),
+
+    /* LG2 */
+    C('sc8-hemisphere-having-summer', 'SC8', 'Hemisphere having summer', 'Which hemisphere is having summer in this diagram?', ['Southern hemisphere', 'Northern hemisphere', 'Both hemispheres', 'Neither hemisphere'], 'The South Pole leans towards the Sun, so the southern hemisphere gets more direct light and longer days.', { vis: earthSide({ tilt: 'dec' }) }),
+    C('sc8-july-in-london', 'SC8', 'July in London', 'It is July and Brisbane is having winter. What season is London, in the northern hemisphere, having?', ['Summer', 'Winter', 'Autumn', 'Spring'], 'The hemispheres have opposite seasons. While the south leans away from the Sun, the north leans towards it.'),
+    C('sc8-why-seasons-are-opposite', 'SC8', 'Why seasons are opposite', 'Why do the northern and southern hemispheres have seasons at different times?', ['When one hemisphere tilts towards the Sun, the other tilts away', 'One hemisphere is always closer to the Sun', 'Earth’s tilt flips over every six months', 'The northern hemisphere has more land'], 'Earth’s axis keeps pointing the same way as it orbits. When one half leans towards the Sun, the other must lean away.'),
+
+    C('sc9-highest-intensity-beam', 'SC9', 'Highest intensity beam', 'The same beam of sunlight hits the ground in each picture. Which gives the highest light intensity?', [beam(90), beam(55), beam(32), beam(15)], 'The beam hits the ground square on, so its energy is packed into the smallest area.', { pic: true }),
+    C('sc9-lower-sun-angle', 'SC9', 'Lower Sun angle', 'As the Sun gets lower in the sky, what happens to the light intensity on the ground?', ['It decreases', 'It increases', 'It stays the same', 'It drops to zero straight away'], 'Low-angle light is spread over a bigger area, so each patch of ground gets less energy.'),
+    C('sc9-midday-sunlight', 'SC9', 'Midday sunlight', 'Why is sunlight at midday more intense than early morning sunlight?', ['The rays hit more directly, so the energy covers a smaller area', 'The Sun is closer to Earth at midday', 'The Sun gives off more light at midday', 'There is less air at midday'], 'At midday the Sun is highest in the sky. Its rays strike more directly and concentrate their energy.'),
+
+    C('sc10-southern-summer-in-the-orbit', 'SC10', 'Southern summer in the orbit', 'Earth’s axis always leans the same way. At which position does the southern hemisphere have summer?', ['Position 1', 'Position 2', 'Position 3', 'Position 4'], 'At position 2 the South Pole leans towards the Sun, so southern places get direct light and long days.', { vis: orbitSeasons(), ordered: true, ans: 1 }),
+    C('sc10-if-earth-had-no-tilt', 'SC10', 'If Earth had no tilt', 'What would happen to the seasons if Earth’s axis had no tilt?', ['There would be no seasons', 'Seasons would be more extreme', 'Every place would have summer all year', 'The hemispheres would swap seasons'], 'Without a tilt, the light angle and day length at each place would stay the same all year.'),
+    C('sc10-summer-in-december', 'SC10', 'Summer in December', 'Why does Australia have summer in December?', ['The southern hemisphere tilts towards the Sun', 'Earth is much closer to the Sun in December', 'The Sun burns hotter in December', 'Earth spins faster in December'], 'Earth’s distance from the Sun barely changes. The tilt gives the south more direct light and longer days in December.'),
+
+    /* LG3 */
+    C('sc11-cause-of-sunrise', 'SC11', 'Cause of sunrise', 'What causes sunrise?', ['Your part of Earth rotates into the Sun’s light', 'The Sun moves up from under the ground', 'Earth moves to the other side of the Sun', 'The Moon moves out of the Sun’s way'], 'The Sun stays put. Earth’s rotation carries your location from the dark half into the lit half.'),
+    C('sc11-direction-of-sunrise', 'SC11', 'Direction of sunrise', 'Earth spins from west to east. In which direction does the Sun appear to rise?', ['East', 'West', 'North', 'South'], 'As Earth turns towards the east, the Sun comes into view on the eastern horizon first.'),
+    C('sc11-about-to-see-sunrise', 'SC11', 'About to see sunrise', 'Which place is about to see sunrise?', ['Place 1', 'Place 2', 'Place 3', 'Place 4'], 'Place 2 is on the edge of the dark half, and Earth’s spin is carrying it into the light.', { vis: rotateTop(), ordered: true, ans: 1 }),
+
+    C('sc12-why-day-and-night-happen', 'SC12', 'Why day and night happen', 'Why do we have day and night?', ['Earth rotates, so each place turns into and out of the Sun’s light', 'Earth orbits the Sun once each day', 'The Sun orbits Earth once each day', 'The Sun switches off at night'], 'Earth spins on its axis about once every 24 hours. The half facing the Sun has day and the other half has night.', { vis: rotateTop({ plain: true }) }),
+    C('sc12-one-rotation-of-earth', 'SC12', 'One rotation of Earth', 'About how long does Earth take to rotate once on its axis?', ['24 hours', '365 days', '29.5 days', '12 hours'], 'One full rotation gives one day and one night, which takes about 24 hours.'),
+    C('sc12-day-or-night-in-brisbane', 'SC12', 'Day or night in Brisbane', 'The Sun is on the right. Is it day or night in Brisbane?', ['Night', 'Day', 'Sunrise', 'Midday'], 'Brisbane is on the half of Earth facing away from the Sun, so it is night there.', { vis: earthSide({ tilt: 'eq', bris: 'night' }) }),
+
+    C('sc13-daylight-on-the-equator', 'SC13', 'Daylight on the equator', 'About how many hours of daylight does a city on the equator get each day of the year?', ['About 12', 'About 6', 'About 18', 'About 24'], 'The equator is always split evenly by the day and night halves, so its day length stays close to 12 hours.'),
+    C('sc13-shortest-winter-day', 'SC13', 'Shortest winter day', 'It is June. Which of these Australian cities has the fewest daylight hours?', ['Hobart', 'Brisbane', 'Cairns', 'Darwin'], 'In winter, places further from the equator have shorter days. Hobart is the furthest south.'),
+    C('sc13-antarctica-in-december', 'SC13', 'Antarctica in December', 'In December, how much daylight does a research station inside the Antarctic Circle get?', ['24 hours', 'None at all', 'About 12 hours', 'About 6 hours'], 'The South Pole leans towards the Sun, so the area inside the Antarctic Circle stays in the light as Earth spins.', { vis: earthSide({ tilt: 'dec', ant: true }) }),
+
+    C('sc14-long-summer-days', 'SC14', 'Long summer days', 'The line shows Brisbane’s path as Earth spins in December. Why are Brisbane’s days longer at this time of year?', ['Brisbane leans towards the Sun, so more of its path is in the light', 'Earth spins more slowly in December', 'Earth is much closer to the Sun in December', 'The Sun gets bigger in summer'], 'More of Brisbane’s path is in the lit half, so it spends more of each 24-hour spin in daylight.', { vis: earthSide({ tilt: 'dec', lat: true, bris: 'day' }) }),
+    C('sc14-winter-sun-path', 'SC14', 'Winter Sun path', 'These paths show the Sun crossing Brisbane’s sky on three different days. Which path is a winter day?', ['Path 1', 'Path 2', 'Path 3', 'All three are the same'], 'In winter the Sun rises later, stays lower and sets sooner, so its path is the shortest: path 3.', { vis: sunPaths(), ordered: true, ans: 2 }),
+    C('sc14-summer-solstice', 'SC14', 'Summer solstice', 'On 21 December, the summer solstice, Brisbane has...', ['its longest day of the year', 'its shortest day of the year', 'exactly 12 hours of daylight', '24 hours of daylight'], 'At the December solstice the southern hemisphere leans furthest towards the Sun, giving its longest day.'),
+
+    C('sc15-more-daylight-hours', 'SC15', 'More daylight hours', 'What usually happens to temperature when a place gets more daylight hours?', ['It rises', 'It falls', 'It stays the same', 'It changes randomly'], 'More hours of sunlight give the Sun more time to heat the ground and the air.'),
+    C('sc15-reading-the-brisbane-graph', 'SC15', 'Reading the Brisbane graph', 'The graph shows daylight hours and temperature in Brisbane. Which statement matches the graph?', ['Months with more daylight tend to be warmer', 'Months with more daylight tend to be cooler', 'Daylight and temperature are not related', 'Temperature is highest in June'], 'The bars and the line are both high in summer and low in winter. They rise and fall together.', { vis: daylightGraph() }),
+    C('sc15-why-long-days-are-warm', 'SC15', 'Why long days are warm', 'Why do longer days usually lead to warmer temperatures?', ['The ground heats for longer than the short night can cool it', 'The Sun gets hotter in summer', 'The Moon reflects more heat in summer', 'Clouds only trap heat in summer'], 'During long days the ground gains heat for many hours and has only a short night to cool down.'),
+
+    /* LG4 */
+    C('sc16-moon-between-sun-and-earth', 'SC16', 'Moon between Sun and Earth', 'Which phase do we see from Earth when the Sun, Moon and Earth line up like this?', ['New moon', 'Full moon', 'First quarter', 'Waxing gibbous'], 'The Moon’s sunlit half faces away from Earth, so we see its dark side: a new moon.', { vis: lineup({ type: 'new' }) }),
+    C('sc16-earth-between-sun-and-moon', 'SC16', 'Earth between Sun and Moon', 'Which phase do we see from Earth with this line-up?', ['Full moon', 'New moon', 'Last quarter', 'Waning crescent'], 'Earth is in the middle, so the whole sunlit face of the Moon points towards us: a full moon.', { vis: lineup({ type: 'full' }) }),
+    C('sc16-spot-the-waxing-gibbous', 'SC16', 'Spot the waxing gibbous', 'Seen from Brisbane, which picture shows a waxing gibbous Moon?', [moonPic(.375), moonPic(.625), moonPic(.125), moonPic(.25)], 'In the southern hemisphere a waxing Moon is lit on the left. Gibbous means more than half of it is lit.', { pic: true }),
+
+    C('sc17-cause-of-moon-phases', 'SC17', 'Cause of Moon phases', 'What causes the phases of the Moon?', ['As the Moon orbits Earth, we see different amounts of its sunlit half', 'Earth’s shadow covers different parts of the Moon', 'Clouds block different parts of the Moon', 'The Moon makes less light at some times'], 'Half of the Moon is always lit by the Sun. Its position in its orbit changes how much of that half faces us.', { vis: phasesRing() }),
+    C('sc17-length-of-the-lunar-cycle', 'SC17', 'Length of the lunar cycle', 'About how long does the Moon take to go through all of its phases?', ['29.5 days', '7 days', '24 hours', '365 days'], 'One lunar cycle, from new moon to new moon, takes about 29.5 days. That is roughly a month.'),
+    C('sc17-phase-after-first-quarter', 'SC17', 'Phase after first quarter', 'This is a first quarter Moon seen from Brisbane. Which phase comes next?', [moonPic(.375), moonPic(.125), moonPic(.75), moonPic(.875)], 'After first quarter the lit part keeps growing on the left, so the next phase is waxing gibbous.', { pic: true, vis: moonBig(.25, 'First quarter') }),
+
+    C('sc18-main-cause-of-tides', 'SC18', 'Main cause of tides', 'What mainly causes tides on Earth?', ['The Moon’s gravity pulling on the oceans', 'Wind pushing water onto beaches', 'Earth’s spin flinging water outwards', 'The Sun heating the oceans'], 'The Moon’s gravity pulls the oceans into bulges. As Earth spins, places move in and out of these bulges.'),
+    C('sc18-where-the-high-tides-are', 'SC18', 'Where the high tides are', 'The Moon pulls the oceans into bulges. Where are the high tides?', ['At 1 and 3', 'At 1 only', 'At 2 and 4', 'At 3 only'], 'One bulge faces the Moon (1) and another forms on the far side (3). Places 2 and 4 have low tide.', { vis: tides() }),
+    C('sc18-high-tides-each-day', 'SC18', 'High tides each day', 'About how many high tides does a beach have each day?', ['Two', 'One', 'Four', 'Twelve'], 'Earth spins through both bulges each day, so most beaches get two high tides and two low tides.'),
+
+    C('sc19-when-spring-tides-happen', 'SC19', 'When spring tides happen', 'Spring tides have the biggest difference between high and low tide. When do they happen?', ['At new moon and full moon', 'At first and last quarter', 'Only in spring', 'Only at full moon'], 'At new and full moon the Sun, Earth and Moon line up, so the Sun’s pull adds to the Moon’s.'),
+    C('sc19-right-angle-line-up', 'SC19', 'Right-angle line-up', 'The Moon is at right angles to the Sun, as seen from Earth. What kind of tides happen?', ['Neap tides, with a small tidal range', 'Spring tides, with a large tidal range', 'No tides at all', 'High tide everywhere at once'], 'The Sun pulls at right angles to the Moon and partly cancels the Moon’s bulges, so the tidal range is small.', { vis: lineup({ type: 'q1', tides: true }) }),
+    C('sc19-why-spring-tides-are-big', 'SC19', 'Why spring tides are big', 'Why are spring tides bigger than neap tides?', ['The Sun and Moon pull in a straight line, so their pulls add together', 'The Moon is much closer to Earth at full moon', 'The Sun’s gravity switches off at full moon', 'Spring weather makes bigger waves'], 'When the Sun, Earth and Moon line up, both pulls stretch the oceans the same way, giving higher highs and lower lows.'),
+
+    /* LG5 */
+    C('sc20-name-the-eclipse', 'SC20', 'Name the eclipse', 'The Moon’s shadow falls on Earth. Which event is this?', ['Solar eclipse', 'Lunar eclipse', 'Full moon', 'Neap tide'], 'The Moon passes between the Sun and Earth and blocks the Sun’s light. People in the shadow see a solar eclipse.', { vis: lineup({ type: 'new', shadow: 'solar' }) }),
+    C('sc20-what-blocks-the-sun', 'SC20', 'What blocks the Sun', 'During a solar eclipse, what blocks the Sun’s light?', ['The Moon', 'Earth’s shadow', 'Clouds', 'Another planet'], 'In a solar eclipse the Moon moves directly between the Sun and Earth.'),
+    C('sc20-phase-for-a-solar-eclipse', 'SC20', 'Phase for a solar eclipse', 'A solar eclipse can only happen at which phase of the Moon?', ['New moon', 'Full moon', 'First quarter', 'Last quarter'], 'The Moon must sit between the Sun and Earth. That is the new moon position.'),
+
+    C('sc21-what-happens-in-a-lunar-eclipse', 'SC21', 'What happens in a lunar eclipse', 'What happens during a lunar eclipse?', ['The Moon moves into Earth’s shadow', 'The Moon blocks the Sun’s light', 'The Moon stops reflecting light', 'Clouds cover the Moon'], 'Earth sits between the Sun and the Moon, and its shadow falls across the Moon.'),
+    C('sc21-the-red-moon', 'SC21', 'The red Moon', 'During a total lunar eclipse the Moon often looks red. Why?', ['Earth’s atmosphere bends some red light into the shadow', 'The Moon heats up and glows', 'The Moon reflects light from Mars', 'The Sun turns red during an eclipse'], 'Earth’s air scatters blue light and bends red light into its shadow, so a little red light still reaches the Moon.', { vis: lineup({ type: 'full', shadow: 'lunar' }) }),
+    C('sc21-phase-for-a-lunar-eclipse', 'SC21', 'Phase for a lunar eclipse', 'A lunar eclipse can only happen at which phase of the Moon?', ['Full moon', 'New moon', 'First quarter', 'Waning crescent'], 'Earth must be between the Sun and the Moon. That is the full moon position.'),
+
+    C('sc22-line-up-for-a-lunar-eclipse', 'SC22', 'Line-up for a lunar eclipse', 'Which line-up could give a lunar eclipse? (S = Sun, E = Earth, M = Moon)', [lineup({ type: 'full', small: true }), lineup({ type: 'new', small: true }), lineup({ type: 'q1', small: true }), lineup({ type: 'q3', small: true })], 'For a lunar eclipse the Sun, Earth and Moon line up with Earth in the middle.', { pic: true }),
+    C('sc22-same-in-both-eclipses', 'SC22', 'Same in both eclipses', 'What do solar and lunar eclipses have in common?', ['The Sun, Earth and Moon line up in a straight line', 'The Moon is between the Sun and Earth', 'They both happen at full moon', 'They can both be seen from everywhere on Earth'], 'Both need a straight line-up. In a solar eclipse the Moon is in the middle. In a lunar eclipse Earth is in the middle.'),
+    C('sc22-not-every-new-moon', 'SC22', 'Not every new moon', 'Why don’t we get a solar eclipse at every new moon?', ['The Moon’s orbit is tilted, so its shadow usually misses Earth', 'The Moon is too small to block the Sun', 'Earth’s shadow gets in the way', 'Eclipses only happen in summer'], 'The Moon’s orbit is tilted by about 5°. Most months its shadow passes above or below Earth.', { vis: tiltMoonOrbit() }),
+    /* interactive cards */
+    C('sc1-planets-in-order', 'SC1', 'Planets in order', 'Put the planets in order, starting closest to the Sun.', [], 'The mnemonic “My Very Eager Mother Just Served Us Noodles” gives the order from the Sun.', { kind: 'order', seq: PL.map(p => p[0]), cols: 4, tile: n => `${miniPlanet(n)}<span>${n}</span>`, tileCls: 'ptile', poolCls: 'pool2',
+        ordTop: `<svg viewBox="-20 -20 40 40" class="mini">${sunG(0, 0, 12, '', { n: 12, spin: false })}</svg><span>Closest to the Sun</span><i></i><span>Furthest away</span>`,
+        instr: 'Drag or tap each planet into place, then press <b>Check</b>.',
+        ansHTML: '<div class="ans">Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune</div>', backVis: planetRow({ names: true }) }),
+    C('sc16-waxing-or-waning', 'SC16', 'Waxing or waning', 'Seen from Brisbane, sort each Moon by whether its lit part is growing or shrinking.', [], 'In the southern hemisphere a waxing Moon is lit on the left side. A waning Moon is lit on the right side.', { kind: 'sort',
+        bins: [['Waxing', 'Lit part growing'], ['Waning', 'Lit part shrinking']], items: [[.125, 0], [.25, 0], [.375, 0], [.625, 1], [.75, 1], [.875, 1]].map(([p, k]) => [mTile(p), k]),
+        instr: 'Drag each Moon into a group, or tap a Moon then a group. Press <b>Check</b>.',
+        ansHTML: `<div class="asort"><span>Waxing</span>${[.125, .25, .375].map(mTile).join('')}<span>Waning</span>${[.625, .75, .875].map(mTile).join('')}</div>` }),
+    C('sc17-phases-after-a-new-moon', 'SC17', 'Phases after a new moon', 'It is a new moon. Put the phases in the order they appear from Brisbane over the next two weeks.', [], 'After a new moon the lit part grows from the left: waxing crescent, first quarter, waxing gibbous, then full moon about 15 days later.', { kind: 'order', seq: [.125, .25, .375, .5], cols: 4, tile: mTile, tileCls: 'mtile', poolCls: 'pool4',
+        slotLab: ['Day 4', 'Day 7', 'Day 11', 'Day 15'],
+        ordTop: `<svg viewBox="-34 -34 68 68" class="mini">${moonG(0, 30)}</svg><span>Day 0: new moon</span><i></i><span>Two weeks later</span>`,
+        instr: 'Drag or tap each Moon into place, then press <b>Check</b>.',
+        ansHTML: `<div class="arow">${[[.125, 'Waxing crescent'], [.25, 'First quarter'], [.375, 'Waxing gibbous'], [.5, 'Full moon']].map(([p, n]) => `<span class="ai am">${mTile(p)}<small>${n}</small></span>`).join('')}</div>` }),
+    C('sc18-tap-a-high-tide', 'SC18', 'Tap a high tide', 'The Moon is on the right. Tap a place on Earth that is having a high tide right now.', [], 'The Moon pulls the oceans into two bulges, one facing the Moon and one on the far side. Both places have a high tide.', { kind: 'hotspot',
+        hsSVG: hsSVG(false), correct: [0, 4], instr: 'Tap one of the places on the diagram.', ansHTML: '<div class="ans">Either place in line with the Moon</div>' }),
+    C('sc22-comparing-eclipses', 'SC22', 'Comparing eclipses', 'Complete the comparison.', [], 'Both eclipses need a straight line-up. The object in the middle blocks the light.', { kind: 'cloze',
+        text: 'In a solar eclipse, the [] is in the middle and its shadow falls on []. In a lunar eclipse, [] is in the middle and its shadow falls on the [].',
+        answers: ['Moon', 'Earth', 'Earth', 'Moon'], bank: ['Moon', 'Moon', 'Earth', 'Earth', 'Sun'],
+        instr: 'Drag or tap a word into each gap, then press <b>Check</b>.', backVis: `<div class="pair">${lineup({ type: 'new', shadow: 'solar' })}${lineup({ type: 'full', shadow: 'lunar' })}</div>`,
+        ansHTML: '<p class="actext">In a solar eclipse, the <b>Moon</b> is in the middle and its shadow falls on <b>Earth</b>. In a lunar eclipse, <b>Earth</b> is in the middle and its shadow falls on the <b>Moon</b>.</p>' }),
+    C('sc9-angle-and-intensity', 'SC9', 'Angle and intensity', 'Complete the sentence about sunlight.', [], 'Low-angle light spreads the same energy over a bigger patch of ground, so each part gets less energy.', { kind: 'cloze',
+        text: 'When sunlight hits the ground at a [] angle, the same energy is spread over a [] area, so the light intensity is [].',
+        answers: ['low', 'larger', 'lower'], bank: ['low', 'high', 'larger', 'smaller', 'lower', 'higher'],
+        instr: 'Drag or tap a word into each gap, then press <b>Check</b>.', backVis: `<div class="pair">${beam(80)}${beam(20)}</div>`,
+        ansHTML: '<p class="actext">When sunlight hits the ground at a <b>low</b> angle, the same energy is spread over a <b>larger</b> area, so the light intensity is <b>lower</b>.</p>' }),
+    C('sc12-next-place-into-night', 'SC12', 'Next place into night', 'Watch the model of Earth spin. Which place will move into night first?', ['Place 1', 'Place 2', 'Place 3', 'Place 4'], 'Seen from above the South Pole, Earth spins clockwise, from west to east. This carries place 4 out of the lit half first. The same spin makes the Sun appear to move from east to west across our sky.', { scene: 'spin', vis: spinSVG(), ordered: true, ans: 3 }),
+    C('sc12-spin-earth-west-to-east', 'SC12', 'Spin Earth west to east', 'Earth spins from west to east. Spin the model the same way until Brisbane reaches sunrise.', [], 'Earth turns towards the east, so Brisbane is carried out of the night and into the Sun’s light. That is why the Sun always appears to rise in the east and set in the west.', { kind: 'spindrag',
+        instr: 'Drag the globe sideways, or hold an arrow button, to spin Earth.', ansHTML: '<div class="ans">Spin it towards the east, from west to east</div>', backVis: spinBack() })
+];
+const scNum = s => +s.slice(2);
+const nb = t => t.replace(/(\d) (cm|mm|m|km|AU|days|hours|years|months|year|month)\b/g, '$1\u00a0$2').replace(/(\d)-year-old/g, '$1\u2011year\u2011old').replace(/(\d) 700/g, '$1\u00a0700').replace(/ = /g, '\u00a0= ');
+CARDS.forEach(c => { c.q = nb(c.q); c.exp = nb(c.exp); if (!c.pic) c.opts = c.opts.map(nb); });
+
+/* ========================== Buckles (localStorage) ======================= */
+/* Same storage and rules as the other checking for understanding pages: one shared
+   'buckles-shared' record, keys namespaced by page, one buckle per question, awarded
+   the first time the question is answered correctly and never again. */
+const PAGE_ID = 'earth-space-flashcards';   /* NEVER CHANGE: it namespaces every buckle this page has awarded */
+CARDS.forEach(c => { c.buckles = 1; });
+
+/* ---------- card ID registry (see the maintenance guide at the top of this script) ---------- */
+/* Every ID ever published. Add new IDs here when you publish new cards. Never remove an ID from this list. */
+const RELEASED_IDS = [
+    'sc1-mnemonic-word-mother', 'sc1-the-6th-planet', 'sc1-first-four-planets-in-order',
+    'sc2-gravity-forms-the-sun', 'sc2-gravity-forms-the-planets', 'sc2-why-planets-are-round',
+    'sc3-direction-of-gravity-on-a-planet', 'sc3-if-gravity-switched-off', 'sc3-why-the-moon-does-not-crash',
+    'sc4-artificial-satellite', 'sc4-is-jupiter-a-satellite', 'sc4-is-the-sun-a-satellite-of-earth',
+    'sc5-scale-model-of-earth', 'sc5-scaling-jupiter', 'sc5-placing-mars',
+    'sc6-planet-poster', 'sc6-sizes-and-distances-together', 'sc6-basketball-and-peppercorn',
+    'sc7-age-on-mars', 'sc7-age-on-mercury', 'sc7-age-on-jupiter-to-the-month',
+    'sc8-hemisphere-having-summer', 'sc8-july-in-london', 'sc8-why-seasons-are-opposite',
+    'sc9-highest-intensity-beam', 'sc9-lower-sun-angle', 'sc9-midday-sunlight',
+    'sc10-southern-summer-in-the-orbit', 'sc10-if-earth-had-no-tilt', 'sc10-summer-in-december',
+    'sc11-cause-of-sunrise', 'sc11-direction-of-sunrise', 'sc11-about-to-see-sunrise',
+    'sc12-why-day-and-night-happen', 'sc12-one-rotation-of-earth', 'sc12-day-or-night-in-brisbane',
+    'sc13-daylight-on-the-equator', 'sc13-shortest-winter-day', 'sc13-antarctica-in-december',
+    'sc14-long-summer-days', 'sc14-winter-sun-path', 'sc14-summer-solstice',
+    'sc15-more-daylight-hours', 'sc15-reading-the-brisbane-graph', 'sc15-why-long-days-are-warm',
+    'sc16-moon-between-sun-and-earth', 'sc16-earth-between-sun-and-moon', 'sc16-spot-the-waxing-gibbous',
+    'sc17-cause-of-moon-phases', 'sc17-length-of-the-lunar-cycle', 'sc17-phase-after-first-quarter',
+    'sc18-main-cause-of-tides', 'sc18-where-the-high-tides-are', 'sc18-high-tides-each-day',
+    'sc19-when-spring-tides-happen', 'sc19-right-angle-line-up', 'sc19-why-spring-tides-are-big',
+    'sc20-name-the-eclipse', 'sc20-what-blocks-the-sun', 'sc20-phase-for-a-solar-eclipse',
+    'sc21-what-happens-in-a-lunar-eclipse', 'sc21-the-red-moon', 'sc21-phase-for-a-lunar-eclipse',
+    'sc22-line-up-for-a-lunar-eclipse', 'sc22-same-in-both-eclipses', 'sc22-not-every-new-moon',
+    'sc1-planets-in-order', 'sc16-waxing-or-waning', 'sc17-phases-after-a-new-moon',
+    'sc18-tap-a-high-tide', 'sc22-comparing-eclipses', 'sc9-angle-and-intensity',
+    'sc12-next-place-into-night', 'sc12-spin-earth-west-to-east',
+];
+/* IDs of cards that have been deleted. Keep them here (and in RELEASED_IDS) so they are never reused. */
+const RETIRED_IDS = [];
+/* Only if an ID ever has to change: 'old-id': 'new-id'. Earned buckles are moved across once, never doubled. */
+const ID_ALIASES = {};
+const Buckles = {
+    key: 'buckles-shared',
+    ns(id) { return PAGE_ID + ':' + id; },
+    load() { try { const d = JSON.parse(localStorage.getItem(this.key)); return d && typeof d === 'object' && !Array.isArray(d) ? d : {}; } catch (e) { return {}; } },
+    save(d) { try { localStorage.setItem(this.key, JSON.stringify(d)); } catch (e) {} },
+    isDone(id) { return !!this.load()[this.ns(id)]; },
+    award(id, n) { const d = this.load(); const k = this.ns(id); if (!d[k]) { d[k] = n; this.save(d); } },
+    total() { return Object.values(this.load()).reduce((a, b) => a + (Number(b) || 0), 0); },
+    /* moves buckles saved under an old ID to its new ID, so a renamed card is never earned twice */
+    migrate() {
+        const d = this.load(); let changed = false;
+        Object.entries(ID_ALIASES).forEach(([from, to]) => {
+            const kf = this.ns(from), kt = this.ns(to);
+            if (d[kf] !== undefined) { if (d[kt] === undefined) d[kt] = d[kf]; delete d[kf]; changed = true; }
+        });
+        if (changed) this.save(d);
+    }
+};
+Buckles.migrate();
+const BK = '<img src="buckle.svg" alt="" onerror="this.style.display=\'none\'">';
+const earnedIn = list => list.filter(c => Buckles.isDone(c.id)).length;
+function refreshCount() { $('#buckleCount').textContent = Buckles.total(); }
+function celebrate(n) {
+    const a = $('#award');
+    $('#awardText').textContent = '+' + n + ' Buckle' + (n > 1 ? 's' : '') + '!';
+    a.classList.remove('hide'); a.classList.add('show');
+    burstConfetti();
+    setTimeout(() => { a.classList.remove('show'); a.classList.add('hide'); setTimeout(() => a.classList.remove('hide'), 360); }, 1100);
+}
+function burstConfetti() {
+    const canvas = document.createElement('canvas');
+    canvas.className = 'confetti-canvas';
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d'), dpr = window.devicePixelRatio || 1;
+    canvas.width = innerWidth * dpr; canvas.height = innerHeight * dpr; ctx.scale(dpr, dpr);
+    const colors = ['#ea008a', '#1b1f45', '#f7a8d4', '#c3c6d0'], cx = innerWidth / 2, cy = innerHeight / 2, parts = [];
+    for (let i = 0; i < 150; i++) {
+        const angle = Math.random() * Math.PI * 2, speed = 4 + Math.random() * 10;
+        parts.push({ x: cx, y: cy, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed - 4, size: 5 + Math.random() * 7,
+            color: colors[Math.floor(Math.random() * colors.length)], rot: Math.random() * Math.PI, vrot: (Math.random() - .5) * .3, life: 0 });
+    }
+    const gravity = 0.22, drag = 0.992; let frame = 0;
+    (function tick() {
+        frame++;
+        ctx.clearRect(0, 0, innerWidth, innerHeight);
+        parts.forEach(p => {
+            p.vx *= drag; p.vy = p.vy * drag + gravity; p.x += p.vx; p.y += p.vy; p.rot += p.vrot; p.life++;
+            ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.globalAlpha = Math.max(0, 1 - p.life / 95);
+            ctx.fillStyle = p.color; ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6); ctx.restore();
+        });
+        if (frame < 95) requestAnimationFrame(tick); else canvas.remove();
+    })();
+}
+
+/* =========================================================
+   SCREENS
+   ========================================================= */
+let screen = 'home', S = null;
+function clearAll() { content.innerHTML = ''; btns.innerHTML = ''; document.querySelectorAll('.pt,.plus,.shock').forEach(e => e.remove()); }
+
+function home() {
+    screen = 'home'; S = null; clearAll();
+    counter.innerHTML = '<span>Year 7 <b>Earth and space</b></span>';
+    progress.style.width = '0';
+    const g = el('div', 'decks');
+    LGS.forEach((lg, i) => {
+        const n = CARDS.filter(c => c.lg === lg.id).length;
+        const b = el('button', 'deck', `<div class="dface">${ICON[lg.id]}<div class="dcode">${lg.id}</div><div class="dname">${lg.short}</div><div class="dmeta"><span>${lg.sc[0]} to ${lg.sc[lg.sc.length - 1]}</span><span>${n} cards</span></div><div class="bkmeta">${BK}${earnedIn(CARDS.filter(c => c.lg === lg.id))} <span>/ ${n} buckles</span></div></div>`);
+        b.onclick = () => deckScreen(lg);
+        g.appendChild(b);
+        A(b, [{ opacity: 0, transform: 'translateY(60px) rotate(4deg)' }, { opacity: 1, transform: 'none' }], { duration: 650, delay: 80 + i * 90 });
+    });
+    content.appendChild(g);
+    say('Choose a deck to see its success criteria.');
+    addBtn('Mix all decks', 'btn2', () => start(CARDS, 'All decks'));
+}
+
+function deckScreen(lg) {
+    screen = 'deck'; clearAll();
+    counter.innerHTML = `<b>${lg.id}</b>&nbsp;${lg.short}`;
+    const sel = new Set(lg.sc);
+    const wrap = el('div', 'dscreen');
+    const left = el('div', 'deck', `<div class="dface">${ICON[lg.id]}<div class="dcode">${lg.id}</div><div class="dstate">${lg.text}</div></div>`);
+    const right = el('div', 'sccol');
+    const head = el('div', 'sch', '<span>Success criteria</span>');
+    const allBtn = el('button', '', 'Select all'); head.appendChild(allBtn);
+    const list = el('div', 'sclist');
+    const rows = lg.sc.map(sc => {
+        const n = CARDS.filter(c => c.sc === sc).length;
+        const r = el('button', 'scrow on', `<span class="box">${TICK}</span><span class="code">${sc}</span><span>${SCT[sc]}</span><span class="n">${n} cards</span><span class="bk">${BK}${earnedIn(CARDS.filter(c => c.sc === sc))}/${n}</span>`);
+        r.onclick = () => { sel.has(sc) ? sel.delete(sc) : sel.add(sc); r.classList.toggle('on', sel.has(sc)); upd(); };
+        list.appendChild(r); return r;
+    });
+    allBtn.onclick = () => { lg.sc.forEach(s => sel.add(s)); rows.forEach(r => r.classList.add('on')); upd(); };
+    right.append(head, list); wrap.append(left, right); content.appendChild(wrap);
+    A(left, [{ opacity: 0, transform: 'translateX(-40px) rotate(-3deg)' }, { opacity: 1, transform: 'none' }], { duration: 550 });
+    rows.forEach((r, i) => A(r, [{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], { duration: 400, delay: 120 + i * 45, fill: 'backwards' }));
+    say('Tap a success criterion to leave it out, then press <b>Start</b>.');
+    addBtn('Back', 'btn2', home);
+    const go = addBtn('', 'next', () => start(CARDS.filter(c => sel.has(c.sc)), lg.id));
+    function upd() { const n = CARDS.filter(c => sel.has(c.sc)).length; go.textContent = n ? `Start ${n} cards` : 'Start'; go.disabled = !n; }
+    upd();
+}
+
+/* ---------- play ---------- */
+function start(cards, label) {
+    screen = 'play'; clearAll();
+    S = { label, all: cards.slice(), cards: shuffle(cards), i: 0, res: [], newBk: 0, streak: 0, got: 0, rev: 0, tok: Math.random(), locked: true, busy: false };
+    counter.innerHTML = `<div class="piles"><div class="pile" id="pGot"><i></i><b>0</b>Got it</div><div class="pile rv" id="pRev"><i></i><b>0</b>Revise</div></div><div class="divv"></div><span id="cnum"></span>`;
+    const play = el('div', 'play');
+    const cw = el('div', 'cwrap');
+    const opts = el('div', 'optcol');
+    play.append(cw, opts); content.appendChild(play);
+    S.cw = cw; S.optcol = opts;
+    for (let k = 3; k >= 1; k--) { const s = el('div', 'stk'); s.style.transform = `translate(${k * 7}px, ${k * 7}px)`; s.dataset.k = k; cw.appendChild(s); }
+    deal();
+}
+function stackUpdate() {
+    const left = S.cards.length - S.i - 1;
+    S.cw.querySelectorAll('.stk').forEach(s => { const k = +s.dataset.k; s.style.opacity = k <= left ? 1 : 0; });
+}
+const KTYPE = { order: 'Put in order', sort: 'Sort', hotspot: 'Tap the diagram', cloze: 'Fill the gaps', spindrag: 'Spin the model' };
+const typeOf = c => c.kind ? KTYPE[c.kind] : c.scene ? 'Predict' : c.pic ? 'Pick the picture' : c.calc ? 'Calculate' : c.vis ? 'Read the diagram' : 'Quick recall';
+const hasKZ = c => c.kind === 'order' || c.kind === 'sort' || c.kind === 'cloze';
+function frontHTML(c) {
+    const body = hasKZ(c) ? `<div class="fvis kz kz-${c.kind}"></div>` : c.vis ? `<div class="fvis">${c.vis}${c.scene ? `<button class="replay" aria-label="Replay">${REPLAY}<span>Replay</span></button>` : ''}</div>` : `<div class="ghost">${c.sc}</div>`;
+    return `<div class="fmeta"><span class="sctag">${c.sc}</span><span class="tchip">${typeOf(c)}</span>${Buckles.isDone(c.id) ? `<span class="bkchip">${BK}Earned</span>` : ''}<span class="lgc">${c.lg}</span></div><div class="fq">${c.q}</div>${body}`;
+}
+function backHTML(c, ok) {
+    const ans = c.ansHTML || (c.pic ? `<div class="apic">${c.opts[c.ans]}</div>` : `<div class="ans">${c.opts[c.ans]}</div>`);
+    const bv = c.backVis || (c.vis && !c.pic ? c.vis : '');
+    const vis = bv ? `<div class="bvis">${bv}</div>` : '';
+    const plain = !bv && !c.pic && !c.ansHTML;
+    return `<div class="bhead ${ok ? 'ok' : 'no'}">${ok ? TICK : CROSS}<span>${ok ? 'Correct' : 'Not quite'}</span><span class="bsc">${c.sc}</span></div>${plain ? `<div class="ghost">${c.sc}</div>` : ''}<div class="bbody${plain ? ' nov' : ''}"><div class="alab">${ok ? 'Answer' : 'The answer is'}</div>${ans}<p class="exp">${c.exp}</p>${vis}</div>`;
+}
+function deal() {
+    const c = S.cur = S.cards[S.i]; S.locked = true; S.ctl = null; S.sc = null;
+    document.getElementById('cnum').innerHTML = `Card <b>${S.i + 1}</b> / ${S.cards.length}`;
+    progress.style.width = (S.i / S.cards.length * 100) + '%';
+    stackUpdate();
+    const card = el('div', 'card');
+    card.innerHTML = `<div class="face front${c.vis || hasKZ(c) ? '' : ' t'}">${frontHTML(c)}</div><div class="face back pat">${PATTERN}<div class="pcode">${c.lg}</div></div>`;
+    S.cw.appendChild(card); S.card = card;
+    A(card, [
+        { transform: 'translate(21px, 21px) rotateY(180deg) scale(1)' },
+        { transform: 'translate(-8px, -22px) rotateY(90deg) scale(1.04)', offset: .45 },
+        { transform: 'translate(0px, 0px) rotateY(0deg) scale(1)' }
+    ], { duration: 720 });
+    tone([[520, .07, 'triangle', .05]]);
+    S.optcol.innerHTML = ''; S.optcol.style.height = '100%';
+    btns.innerHTML = '';
+    addBtn('Decks', 'btn2', home);
+    const front = card.querySelector('.front');
+    if (c.kind) {
+        S.ctl = KIND[c.kind](c, front, S.optcol);
+        S.els = [...S.optcol.children];
+        S.els.forEach((b, j) => A(b, [{ opacity: 0, transform: 'translateX(30px)' }, { opacity: 1, transform: 'none' }], { duration: 420, delay: 380 + j * 70, fill: 'backwards' }));
+        if (S.ctl.check) {
+            const cb = addBtn('Check', 'next', () => {
+                if (!S || S.locked || !S.ctl.ready()) return;
+                S.locked = true; cb.disabled = true;
+                const r = S.ctl.check();
+                finishKind(r.ok, r.anchor, 1100);
+            });
+            cb.id = 'chk';
+            S.refresh = () => { cb.disabled = !S.ctl.ready(); };
+            S.refresh();
+        }
+        say(c.instr + (Buckles.isDone(c.id) ? ' You’ve already earned this buckle.' : ''));
+    } else {
+        S.order = c.ordered ? [0, 1, 2, 3] : shuffle([0, 1, 2, 3]);
+        const box = el('div', 'opts');
+        let grid = box;
+        if (c.pic) { grid = el('div', 'pgrid'); box.appendChild(grid); }
+        const short = !c.pic && c.opts.every(o => o.length < 16);
+        S.els = S.order.map((oi, j) => {
+            const b = el('button', c.pic ? 'pcard' : 'opt' + (short ? ' short' : ''), c.pic ? `<span class="l">${'ABCD'[j]}</span>${c.opts[oi]}` : `<span class="l">${'ABCD'[j]}</span><span>${c.opts[oi]}</span>`);
+            b.onclick = () => choose(j);
+            b.style.opacity = 0;
+            grid.appendChild(b);
+            A(b, [{ opacity: 0, transform: 'translateX(30px)' }, { opacity: 1, transform: 'none' }], { duration: 420, delay: 380 + j * 70, fill: 'forwards' }).then(() => { b.style.opacity = ''; });
+            return b;
+        });
+        S.optcol.appendChild(box);
+        say((c.scene ? 'Watch the model, then choose your prediction. Press <b>Replay</b> to watch again.' : 'Choose the best answer. You can also press <b>1</b> to <b>4</b> on the keyboard.') + (Buckles.isDone(c.id) ? ' You’ve already earned this buckle.' : ''));
+    }
+    if (c.scene) {
+        const sv = front.querySelector('.fvis svg'), ctl = SCENE[c.scene](sv);
+        S.sc = ctl;
+        setTimeout(() => { if (S && S.cur === c) ctl.intro(); }, 760);
+        front.querySelector('.replay').onclick = () => ctl.intro();
+    }
+    setTimeout(() => { if (S && S.cur === c) S.locked = false; }, 450);
+}
+const PRAISE = ['Nailed it.', 'Spot on.', 'Great recall.', 'That’s it.', 'Exactly right.', 'Too easy.', 'Brilliant.'];
+function choose(j) {
+    if (!S || S.locked || S.cur.kind) return;
+    S.locked = true;
+    const c = S.cur, ok = S.order[j] === c.ans, b = S.els[j];
+    S.els.forEach((e, k) => {
+        e.disabled = true; e.style.opacity = '';
+        if (k === j) { e.classList.add(ok ? 'right' : 'wrong'); if (ok) e.querySelector('.l').innerHTML = TICK; }
+        else if (S.order[k] === c.ans) e.classList.add('reveal');
+        else e.classList.add('dim');
+    });
+    resolve(ok, b);
+}
+function finishKind(ok, anchor, delay) {
+    const c = S.cur;
+    if (ok && Buckles.isDone(c.id)) { const r = local(anchor.getBoundingClientRect()); burst(r.x + r.w / 2, r.y + r.h / 2, 26); tone([[784, .11], [1175, .24]]); }
+    setTimeout(() => { if (S && S.cur === c) resolve(ok, anchor, true); }, delay);
+}
+function resolve(ok, b, quiet) {
+    const c = S.cur;
+    S.res.push({ c, ok });
+    const back = S.card.querySelector('.back');
+    back.className = 'face back';
+    back.innerHTML = backHTML(c, ok);
+    A(S.card, [
+        { transform: 'translate(0px, 0px) rotateY(0deg) scale(1)' },
+        { transform: 'translate(0px, -14px) rotateY(-90deg) scale(1.04)', offset: .5 },
+        { transform: 'translate(0px, 0px) rotateY(-180deg) scale(1)' }
+    ], { duration: 640 });
+    if (c.scene) { const sv = back.querySelector('.bvis svg'); if (sv) { const ctl = SCENE[c.scene](sv); setTimeout(() => { if (S && S.cur === c) ctl.outcome(); }, 650); } }
+    if (ok) {
+        S.streak++;
+        const r = local(b.getBoundingClientRect());
+        /* one buckle per question, the first time it is answered correctly */
+        const fresh = !Buckles.isDone(c.id);
+        if (fresh) { Buckles.award(c.id, c.buckles); refreshCount(); celebrate(c.buckles); S.newBk++; tone([[784, .1], [988, .1], [1319, .26]]); }
+        else if (!quiet) { burst(r.x + r.w / 2, r.y + r.h / 2, S.streak >= 3 ? 34 : 24); tone(S.streak >= 3 ? [[784, .1], [988, .1], [1319, .26]] : [[784, .11], [1175, .24]]); }
+        if (!fresh || S.streak >= 3) plusOne(r.x + r.w / 2, r.y - 10, S.streak >= 3 ? `${S.streak} in a row` : '+1');
+        if (!quiet) A(b, [{ transform: 'scale(1)' }, { transform: 'scale(1.05)' }, { transform: 'scale(1)' }], { duration: 360, fill: 'none' });
+        say(`<b>${PRAISE[Math.floor(Math.random() * PRAISE.length)]}</b> ${fresh ? 'You earned a buckle.' : S.streak >= 3 ? `That’s ${S.streak} in a row.` : 'You’ve already earned this buckle.'}`);
+    } else {
+        S.streak = 0;
+        tone([[196, .22, 'triangle', .1]]);
+        say('<b class="no">Not quite.</b> Read the answer card so it sticks next time.');
+    }
+    btns.innerHTML = '';
+    addBtn('Decks', 'btn2', home);
+    const nb = addBtn(S.i === S.cards.length - 1 ? 'See results' : 'Next card', 'next', next);
+    nb.classList.add('pop-in');
+    setTimeout(() => nb.focus({ preventScroll: true }), 50);
+}
+
+/* ---------- drag and drop: drag a tile, or tap it ---------- */
+function dnd(pool, zones, onChange, o = {}) {
+    let sel = null;
+    const all = () => [pool, ...zones];
+    const zoneOf = t => all().find(z => z.box.contains(t));
+    const armAll = on => zones.forEach(z => z.el.classList.toggle('armed', on));
+    const deselect = () => { if (sel) sel.classList.remove('sel'); sel = null; armAll(false); };
+    function moveTo(t, z) {
+        t.style.transform = ''; t.classList.remove('wrong', 'drag');
+        z.box.appendChild(t);
+        A(t, [{ transform: 'scale(.82)' }, { transform: 'scale(1.06)', offset: .6 }, { transform: 'scale(1)' }], { duration: 300, fill: 'none' });
+        tone([[660, .05, 'triangle', .05]]);
+        deselect(); onChange();
+    }
+    function put(t, z) {
+        if (zoneOf(t) === z) { t.style.transform = ''; return; }
+        if (z.cap === 1) { const ex = z.box.querySelector('.tile'); if (ex) moveTo(ex, pool); }
+        moveTo(t, z);
+    }
+    const hit = (x, y) => all().find(z => { const r = z.el.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; });
+    zones.forEach(z => z.el.addEventListener('click', () => { if (sel && S && !S.locked) put(sel, z); }));
+    function tile(html, key, cls = '') {
+        const t = el('span', 'tile ' + cls, html);
+        t.k = key; t.tabIndex = 0; t.setAttribute('role', 'button');
+        const tap = () => {
+            if (!S || S.locked) return;
+            if (zoneOf(t) !== pool) { put(t, pool); return; }
+            if (o.auto) { const e = zones.find(z => !z.box.querySelector('.tile')); if (e) put(t, e); return; }
+            if (sel === t) { deselect(); return; }
+            deselect(); sel = t; t.classList.add('sel'); armAll(true);
+        };
+        t.addEventListener('click', e => e.stopPropagation());
+        t.addEventListener('pointerdown', e => {
+            if (!S || S.locked || e.button > 0) return;
+            e.preventDefault(); e.stopPropagation();
+            if (zoneOf(t) !== pool) { put(t, pool); return; }
+            t.setPointerCapture(e.pointerId);
+            const sx = e.clientX, sy = e.clientY; let moved = false;
+            const move = ev => {
+                const dx = ev.clientX - sx, dy = ev.clientY - sy;
+                if (!moved && Math.hypot(dx, dy) > 6) { moved = true; t.classList.add('drag'); deselect(); }
+                if (!moved) return;
+                t.style.transform = `translate(${dx / scaleK}px, ${dy / scaleK}px) rotate(-3deg) scale(1.05)`;
+                const h = hit(ev.clientX, ev.clientY);
+                all().forEach(z => z.el.classList.toggle('hover', z === h && z !== pool));
+            };
+            const up = ev => {
+                t.removeEventListener('pointermove', move); t.removeEventListener('pointerup', up); t.removeEventListener('pointercancel', up);
+                all().forEach(z => z.el.classList.remove('hover'));
+                if (!moved) { tap(); return; }
+                t.classList.remove('drag');
+                const h = hit(ev.clientX, ev.clientY);
+                if (h && h !== pool) put(t, h); else { t.style.transform = ''; }
+            };
+            t.addEventListener('pointermove', move); t.addEventListener('pointerup', up); t.addEventListener('pointercancel', up);
+        });
+        t.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); tap(); } });
+        return t;
+    }
+    return { tile };
+}
+const KIND = {
+    order(c, front, col) {
+        const kz = front.querySelector('.kz');
+        kz.innerHTML = `<div class="ordtop">${c.ordTop}</div><div class="ogrid" style="grid-template-columns:repeat(${c.cols}, 1fr)"></div>`;
+        const grid = kz.querySelector('.ogrid');
+        const slots = c.seq.map((k, i) => { const s = el('div', 'slot', `<b>${c.slotLab ? c.slotLab[i] : i + 1}</b><div class="sb"></div>`); grid.appendChild(s); return s; });
+        const pool = el('div', 'pool ' + (c.poolCls || '')); col.appendChild(pool);
+        const zones = slots.map(s => ({ el: s, box: s.querySelector('.sb'), cap: 1 }));
+        const D = dnd({ el: pool, box: pool }, zones, () => S.refresh && S.refresh(), { auto: true });
+        shuffle(c.seq).forEach(k => pool.appendChild(D.tile(c.tile(k), k, c.tileCls || '')));
+        return {
+            ready: () => !pool.querySelector('.tile'),
+            check() {
+                let ok = true;
+                zones.forEach((z, i) => { const t = z.box.querySelector('.tile'); const r = t.k === c.seq[i]; t.classList.add(r ? 'right' : 'wrong'); if (!r) ok = false; });
+                return { ok, anchor: grid };
+            }
+        };
+    },
+    sort(c, front, col) {
+        const kz = front.querySelector('.kz');
+        kz.innerHTML = `<div class="bins">${c.bins.map((b, i) => `<div class="bin${i ? '' : ' pk'}"><h3>${b[0]}</h3><div class="sub">${b[1]}</div><div class="area"></div></div>`).join('')}</div>`;
+        const bins = [...kz.querySelectorAll('.bin')];
+        const pool = el('div', 'pool pool3'); col.appendChild(pool);
+        const zones = bins.map((b, i) => ({ el: b, box: b.querySelector('.area'), cap: Infinity, key: i }));
+        const D = dnd({ el: pool, box: pool }, zones, () => S.refresh && S.refresh());
+        shuffle(c.items).forEach(([html, k]) => pool.appendChild(D.tile(html, k, 'mtile')));
+        return {
+            ready: () => !pool.querySelector('.tile'),
+            check() {
+                let ok = true;
+                zones.forEach(z => z.box.querySelectorAll('.tile').forEach(t => { const r = t.k === z.key; t.classList.add(r ? 'right' : 'wrong'); if (!r) ok = false; }));
+                return { ok, anchor: kz };
+            }
+        };
+    },
+    cloze(c, front, col) {
+        const kz = front.querySelector('.kz');
+        let i = 0;
+        kz.innerHTML = `<p class="ctext">${c.text.replace(/\[\]/g, () => `<span class="blank" data-i="${i++}"><span class="bb"></span></span>`)}</p>`;
+        const blanks = [...kz.querySelectorAll('.blank')];
+        const pool = el('div', 'pool poolw'); col.appendChild(pool);
+        const zones = blanks.map(b => ({ el: b, box: b.querySelector('.bb'), cap: 1 }));
+        const D = dnd({ el: pool, box: pool }, zones, () => S.refresh && S.refresh(), { auto: true });
+        shuffle(c.bank).forEach(w => pool.appendChild(D.tile(w, w, 'wtile')));
+        return {
+            ready: () => zones.every(z => z.box.querySelector('.tile')),
+            check() {
+                let ok = true;
+                zones.forEach((z, k) => { const t = z.box.querySelector('.tile'); const r = t.k === c.answers[k]; t.classList.add(r ? 'right' : 'wrong'); if (!r) ok = false; });
+                return { ok, anchor: kz };
+            }
+        };
+    },
+    spindrag(c, front, col) {
+        const w = el('div', 'hsw spinw');
+        w.innerHTML = `<svg class="vis" viewBox="0 0 520 440" preserveAspectRatio="xMidYMid meet">${spinFrame(spinGlobeInner(SPG.start))}</svg><div class="spbtns"><button class="sbtn" data-d="-1" aria-label="Spin left">${'<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>'}</button><span>Drag the globe or hold a button</span><button class="sbtn" data-d="1" aria-label="Spin right">${'<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>'}</button></div>`;
+        col.appendChild(w);
+        const svg = w.querySelector('svg'), g = svg.querySelector('.gl');
+        let off = SPG.start, pend = false, over = false, hold = 0, holdRAF = 0;
+        const draw = () => { if (pend) return; pend = true; requestAnimationFrame(() => { pend = false; g.innerHTML = spinGlobeInner(off); }); };
+        const end = (ok) => {
+            over = true; S.locked = true; cancelAnimationFrame(holdRAF); hold = 0;
+            w.classList.add('done');
+            if (ok) {
+                g.innerHTML = spinGlobeInner(off, { msg: 'Sunrise in Brisbane!' });
+                const dot = g.querySelector('.bdot');
+                A(dot, [{ transform: 'scale(1)' }, { transform: 'scale(1.8)' }, { transform: 'scale(1)' }], { duration: 600, fill: 'none' });
+                dot.style.transformOrigin = 'center'; dot.style.transformBox = 'fill-box';
+                finishKind(true, dot, 1200);
+            } else {
+                const a0 = off, st = performance.now(), tok = S.tok;
+                tone([[196, .22, 'triangle', .1]]);
+                const f = n => { if (!S || S.tok !== tok) return; const k = Math.min(1, (n - st) / 1800); off = a0 + (6 - a0) * easeInOut(k); g.innerHTML = spinGlobeInner(off, { msg: k < 1 ? 'Earth spins the other way' : 'Sunrise in Brisbane' }); if (k < 1) requestAnimationFrame(f); else finishKind(false, g, 900); };
+                requestAnimationFrame(f);
+            }
+        };
+        const nudge = d => {
+            if (over || !S || S.locked) return;
+            off += d; draw();
+            if (off >= 4) end(true); else if (off <= -88) end(false);
+        };
+        svg.addEventListener('pointerdown', e => {
+            if (over || !S || S.locked) return;
+            e.preventDefault(); svg.setPointerCapture(e.pointerId); let lx = e.clientX;
+            w.classList.add('grab');
+            const mv = ev => { nudge((ev.clientX - lx) / scaleK * .35); lx = ev.clientX; };
+            const up = () => { svg.removeEventListener('pointermove', mv); svg.removeEventListener('pointerup', up); svg.removeEventListener('pointercancel', up); w.classList.remove('grab'); };
+            svg.addEventListener('pointermove', mv); svg.addEventListener('pointerup', up); svg.addEventListener('pointercancel', up);
+        });
+        w.querySelectorAll('.sbtn').forEach(b => {
+            const d = +b.dataset.d;
+            const loop = () => { if (!hold) return; nudge(d * 1.1); holdRAF = requestAnimationFrame(loop); };
+            b.addEventListener('pointerdown', e => { e.preventDefault(); hold = d; loop(); });
+            ['pointerup', 'pointerleave', 'pointercancel'].forEach(t => b.addEventListener(t, () => { hold = 0; cancelAnimationFrame(holdRAF); }));
+            b.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); nudge(d * 8); } });
+        });
+        return {};
+    },
+    hotspot(c, front, col) {
+        const w = el('div', 'hsw', c.hsSVG); col.appendChild(w);
+        const svg = w.querySelector('svg');
+        svg.querySelectorAll('.hs').forEach(g => {
+            const go = () => {
+                if (!S || S.locked) return;
+                S.locked = true;
+                const k = +g.dataset.k, ok = c.correct.includes(k);
+                svg.classList.add('done');
+                svg.querySelectorAll('.hs').forEach(h => { const kk = +h.dataset.k; if (c.correct.includes(kk)) h.classList.add('good'); else if (h !== g) h.classList.add('off'); });
+                g.classList.add(ok ? 'good' : 'bad');
+                const bul = svg.querySelector('.bulge');
+                if (bul) A(bul, [{ opacity: 0, transform: 'scale(.6, .8)' }, { opacity: 1, transform: 'scale(1, 1)' }], { duration: 900, delay: 150 });
+                finishKind(ok, g, 1500);
+            };
+            g.addEventListener('click', go);
+            g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+        });
+        return {};
+    }
+};
+
+
+async function next() {
+    if (!S || S.busy || !S.locked) return;
+    S.busy = true;
+    const tok = S.tok, last = S.res[S.res.length - 1], pile = document.getElementById(last.ok ? 'pGot' : 'pRev');
+    const pr = local(pile.querySelector('i').getBoundingClientRect()), cr = local(S.card.getBoundingClientRect());
+    const dx = pr.x + pr.w / 2 - (cr.x + cr.w / 2), dy = pr.y + pr.h / 2 - (cr.y + cr.h / 2);
+    btns.querySelectorAll('button').forEach(b => b.disabled = true);
+    S.els.forEach((e, k) => A(e, [{ opacity: getComputedStyle(e).opacity, transform: 'none' }, { opacity: 0, transform: 'translateX(-20px)' }], { duration: 260, delay: k * 30 }));
+    const card = S.card;
+    await A(card, [
+        { transform: 'translate(0px, 0px) rotateY(-180deg) scale(1) rotate(0deg)', opacity: 1 },
+        { transform: `translate(${dx}px, ${dy}px) rotateY(-180deg) scale(.05) rotate(${last.ok ? -14 : 14}deg)`, opacity: .7 }
+    ], { duration: 560, easing: 'cubic-bezier(.55,0,.8,.45)' });
+    if (!S || S.tok !== tok) return;
+    card.remove();
+    if (last.ok) S.got++; else S.rev++;
+    const num = pile.querySelector('b'); num.textContent = last.ok ? S.got : S.rev;
+    A(pile, [{ transform: 'scale(1)' }, { transform: 'scale(1.3)' }, { transform: 'scale(1)' }], { duration: 380, fill: 'none' });
+    if (last.ok) { const p = local(pile.getBoundingClientRect()); burst(pr.x + pr.w / 2, pr.y + pr.h / 2, 10, 70); }
+    S.i++;
+    S.busy = false;
+    if (S.i >= S.cards.length) results(); else deal();
+}
+
+/* ---------- feedback effects ---------- */
+function burst(x, y, n = 24, spread = 130) {
+    const sh = el('div', 'shock'); sh.style.cssText = `left:${x - 20}px;top:${y - 20}px;width:40px;height:40px`; stage.appendChild(sh);
+    A(sh, [{ transform: 'scale(.3)', opacity: 1 }, { transform: `scale(${spread / 22})`, opacity: 0 }], { duration: 600, easing: 'cubic-bezier(.1,.7,.3,1)' }).then(() => sh.remove());
+    for (let i = 0; i < n; i++) {
+        const p = el('i', 'pt'), sz = 7 + Math.random() * 9, a = Math.random() * Math.PI * 2, d = spread * (.45 + Math.random() * .75), col = [PK, PK, NV, '#ff7cc4'][i % 4];
+        const star = i % 5 === 0, round = i % 3 === 0;
+        p.style.cssText = `left:${x - sz / 2}px;top:${y - sz / 2}px;width:${star ? sz * 1.7 : sz}px;height:${star ? sz * 1.7 : sz}px;background:${col};border-radius:${round && !star ? '50%' : '2px'};${star ? 'clip-path:polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%)' : ''}`;
+        stage.appendChild(p);
+        A(p, [{ transform: 'translate(0,0) rotate(0deg) scale(1)', opacity: 1 }, { transform: `translate(${Math.cos(a) * d}px, ${Math.sin(a) * d + 50}px) rotate(${(Math.random() - .5) * 600}deg) scale(.3)`, opacity: 0 }],
+            { duration: 700 + Math.random() * 450, easing: 'cubic-bezier(.12,.7,.3,1)' }).then(() => p.remove());
+    }
+}
+function plusOne(x, y, t) {
+    const p = el('div', 'plus', t); stage.appendChild(p); p.style.left = (x - p.offsetWidth / 2) + 'px'; p.style.top = y + 'px';
+    A(p, [{ transform: 'translateY(10px) scale(.6)', opacity: 0 }, { transform: 'translateY(-26px) scale(1.1)', opacity: 1, offset: .3 }, { transform: 'translateY(-70px) scale(1)', opacity: 0 }], { duration: 1100, easing: 'cubic-bezier(.2,.8,.2,1)' }).then(() => p.remove());
+}
+
+/* ---------- results ---------- */
+function results() {
+    screen = 'results'; clearAll();
+    const res = S.res, N = res.length, n = res.filter(r => r.ok).length;
+    counter.innerHTML = `<b>${S.label}</b>&nbsp;complete`;
+    progress.style.width = '100%';
+    const wrap = el('div', 'res');
+    const left = el('div', 'rleft');
+    const C2 = 2 * Math.PI * 84;
+    left.innerHTML = `<div class="ringw"><svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="84" fill="none" stroke="${LT}" stroke-width="18"/><circle class="rg" cx="100" cy="100" r="84" fill="none" stroke="${PK}" stroke-width="18" stroke-dasharray="${C2.toFixed(1)}" stroke-dashoffset="${C2.toFixed(1)}"/></svg><div class="rnum"><b id="rn">0</b><span>/ ${N}</span></div></div><div class="rlab">Cards correct</div><div class="rbk">${BK}<b>${earnedIn(S.all)} / ${S.all.length}</b><span>Buckles${S.newBk ? ` (+${S.newBk} new)` : ''}</span></div>`;
+    const missed = res.filter(r => !r.ok).map(r => r.c);
+    if (missed.length) { const b = el('button', 'next', `Revise ${missed.length} missed card${missed.length > 1 ? 's' : ''}`); b.onclick = () => start(missed, 'Revision'); left.appendChild(b); }
+    const ag = el('button', 'btn2', 'Play these cards again'); ag.onclick = () => start(S.all, S.label); left.appendChild(ag);
+    const hm = el('button', 'btn2', 'Choose another deck'); hm.onclick = home; left.appendChild(hm);
+
+    const scs = [...new Set(res.map(r => r.c.sc))].sort((a, b) => scNum(a) - scNum(b));
+    const compact = scs.length > 8;
+    const right = el('div', 'rright');
+    right.innerHTML = `<div class="rhead"><span>Your cards by success criterion</span><i><span class="chip y">${TICK}Correct</span><span class="chip n">${CROSS}Revise</span></i></div>`;
+    const list = el('div', 'rlist' + (compact ? ' three' : scs.length > 4 ? ' two' : ''));
+    const blocks = scs.map(sc => {
+        const rs = res.filter(r => r.c.sc === sc).sort((a, b) => b.ok - a.ok), k = rs.filter(r => r.ok).length, f = k / rs.length;
+        const tag = f === 1 ? '<span class="tag sec">Secure</span>' : f >= .5 ? '<span class="tag near">Nearly</span>' : '<span class="tag rev">Revise</span>';
+        const chips = rs.map(r => compact && r.ok ? `<span class="chip y dot" title="${r.c.label}">${TICK}</span>` : `<span class="chip ${r.ok ? 'y' : 'n'}">${r.ok ? TICK : CROSS}${r.c.label}</span>`).join('');
+        const b = el('div', 'rblock', `<div class="rbh"><span class="rsc">${sc}</span>${tag}<b>${k} / ${rs.length}</b></div>${compact ? '' : `<div class="rtx">${SCT[sc]}</div>`}<div class="chips">${chips}</div>`);
+        list.appendChild(b); return b;
+    });
+    right.appendChild(list);
+    wrap.append(left, right); content.appendChild(wrap);
+    let rsz = 1;
+    while (list.scrollHeight > list.clientHeight + 1 && rsz > .62) { rsz -= .03; list.style.setProperty('--rs', rsz.toFixed(2)); }
+    blocks.forEach((b, i) => A(b, [{ opacity: 0, transform: 'translateY(14px)' }, { opacity: 1, transform: 'none' }], { duration: 420, delay: 250 + i * 60, fill: 'backwards' }));
+    say('Take a screenshot of this screen and paste it into Stile as evidence of your work.');
+    const ring = left.querySelector('.rg'), frac = N ? n / N : 0;
+    A(ring, [{ strokeDashoffset: C2 }, { strokeDashoffset: C2 * (1 - frac) }], { duration: 1300, delay: 200, easing: 'cubic-bezier(.3,.7,.2,1)' });
+    const rn = left.querySelector('#rn'), t0 = performance.now() + 200, tok = S.tok;
+    const tick = t => { if (!S || S.tok !== tok || screen !== 'results') return; const k = Math.max(0, Math.min(1, (t - t0) / 1300)); rn.textContent = Math.round(n * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(tick); else if (frac >= .8) ringCelebrate(); };
+    requestAnimationFrame(tick);
+    tone([[523, .1], [659, .1], [784, .1], [1047, .3]]);
+}
+function ringCelebrate() {
+    const r = local(document.querySelector('.ringw').getBoundingClientRect());
+    burst(r.x + r.w / 2, r.y + r.h / 2, 40, 200);
+}
+
+/* keyboard */
+document.addEventListener('keydown', e => {
+    if (screen !== 'play' || !S) return;
+    const k = '1234'.indexOf(e.key) >= 0 ? '1234'.indexOf(e.key) : 'abcd'.indexOf(e.key.toLowerCase());
+    if (k >= 0 && !S.locked && e.key.length === 1) { e.preventDefault(); choose(k); }
+});
+
+/* ---------- scale to window ---------- */
+function fit() {
+    scaleK = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    stage.style.transform = `scale(${scaleK})`;
+    stage.style.margin = `${(720 * scaleK - 720) / 2}px ${(1280 * scaleK - 1280) / 2}px`;
+}
+window.addEventListener('resize', fit);
+fit();
+/* ---------- data check: runs on every load and reports problems before students find them ---------- */
+function validateCards() {
+    const err = [], warn = [], seen = new Map(), labels = new Set(), idRx = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+    const released = new Set(RELEASED_IDS), retired = new Set(RETIRED_IDS);
+    CARDS.forEach((c, i) => {
+        const at = `Card ${i + 1} (${c.id || 'no id'})`;
+        if (typeof c.id !== 'string' || !idRx.test(c.id)) err.push(`${at}: the ID must use lowercase letters, numbers and hyphens only.`);
+        if (seen.has(c.id)) err.push(`${at}: duplicate ID, also used by card ${seen.get(c.id) + 1}. Both would share one buckle.`); else seen.set(c.id, i);
+        if (retired.has(c.id)) err.push(`${at}: this ID was retired and must not be reused. Choose a new ID.`);
+        if (!released.has(c.id)) warn.push(`${at}: new ID. Add '${c.id}' to RELEASED_IDS when you publish this card.`);
+        if (!SCT[c.sc] || !LGOF[c.sc]) err.push(`${at}: ${c.sc} is not listed in SCT and LGS.`);
+        if (!c.label || !c.q || !c.exp) err.push(`${at}: label, question and explanation are all required.`);
+        const lk = c.sc + '|' + c.label; if (labels.has(lk)) warn.push(`${at}: another ${c.sc} card has the label "${c.label}", which makes the results screen confusing.`); labels.add(lk);
+        if (c.scene && (!SCENE[c.scene] || !c.vis)) err.push(`${at}: scene "${c.scene}" needs a matching SCENE entry and a vis.`);
+        if (c.kind) {
+            if (!KIND[c.kind]) { err.push(`${at}: unknown kind "${c.kind}".`); return; }
+            if (!c.instr) warn.push(`${at}: add an instr line so students know what to do.`);
+            if (c.kind === 'order' && (!Array.isArray(c.seq) || c.seq.length < 2 || typeof c.tile !== 'function')) err.push(`${at}: order cards need seq (2 or more) and a tile function.`);
+            if (c.kind === 'sort' && (!Array.isArray(c.bins) || c.bins.length !== 2 || !Array.isArray(c.items) || c.items.some(it => !(it[1] === 0 || it[1] === 1)))) err.push(`${at}: sort cards need 2 bins and items tagged 0 or 1.`);
+            if (c.kind === 'cloze') {
+                const gaps = (c.text.match(/\[\]/g) || []).length, bank = (c.bank || []).slice();
+                if (gaps !== (c.answers || []).length) err.push(`${at}: the text has ${gaps} gaps but ${(c.answers || []).length} answers.`);
+                (c.answers || []).forEach(a => { const k = bank.indexOf(a); if (k < 0) err.push(`${at}: the answer "${a}" is missing from the word bank.`); else bank.splice(k, 1); });
+            }
+            if (c.kind === 'hotspot' && (!c.hsSVG || !Array.isArray(c.correct) || !c.correct.length)) err.push(`${at}: hotspot cards need hsSVG and a correct list.`);
+        } else {
+            if (!Array.isArray(c.opts) || c.opts.length !== 4) err.push(`${at}: multiple choice cards need exactly 4 options.`);
+            if (!Number.isInteger(c.ans) || c.ans < 0 || c.ans > 3) err.push(`${at}: ans must be 0, 1, 2 or 3.`);
+        }
+    });
+    RELEASED_IDS.forEach(id => { if (!seen.has(id) && !retired.has(id) && !ID_ALIASES[id]) err.push(`Released ID '${id}' is missing. If the card was deleted, add it to RETIRED_IDS. If it was renamed, restore the old ID or add an ID_ALIASES entry.`); });
+    Object.entries(ID_ALIASES).forEach(([a, b]) => { if (!seen.has(b)) err.push(`ID_ALIASES points '${a}' to '${b}', but no card has the ID '${b}'.`); });
+    if (err.length || warn.length) {
+        console.group(`Card data check: ${err.length} problem${err.length === 1 ? '' : 's'}, ${warn.length} reminder${warn.length === 1 ? '' : 's'}`);
+        err.forEach(m => console.error(m)); warn.forEach(m => console.warn(m)); console.groupEnd();
+        const b = el('button', 'devcheck' + (err.length ? ' bad' : ''), `Card data check: ${err.length ? `${err.length} problem${err.length === 1 ? '' : 's'}` : `${warn.length} reminder${warn.length === 1 ? '' : 's'}`}. Open the browser console for details.`);
+        b.title = 'Click to hide'; b.onclick = () => b.remove(); stage.appendChild(b);
+    }
+    return { err, warn };
+}
+window.addEventListener('storage', e => { if (e.key === 'buckles-shared') refreshCount(); });
+refreshCount();
+validateCards();
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { fit(); refreshCount(); home(); });
+</script>
+</body>
+</html>
