@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eclipses: Checking for Understanding</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --navy: #1b1f45;
+        --pink: #ea008a;
+        --mid-grey: #9a9a9a;
+        --light-grey: #e8e8e8;
+        --blank: #f0f3f6;
+        --tint: #e9ecf5;
+        --cond: 'Barlow Condensed', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        --ease: cubic-bezier(.2,.8,.2,1);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #eaeaea; color: var(--navy);
+        display: flex; align-items: center; justify-content: center; overflow: hidden; -webkit-user-select: none; user-select: none; }
+    .stage { width: 1280px; height: 720px; background: #fff; border-top: 6px solid var(--navy); position: relative; padding: 36px 64px 0; flex-shrink: 0; overflow: hidden; transform-origin: center; }
+    .top { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 4px solid var(--navy); padding-bottom: 12px; }
+    .sheet-title { font-family: var(--cond); font-size: 44px; font-weight: 900; text-transform: uppercase; letter-spacing: .01em; margin: 0; line-height: 1; }
+    .sheet-title span { color: var(--pink); }
+    .counter { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; color: var(--mid-grey); text-transform: uppercase; }
+    .counter b { color: var(--navy); }
+    .content { position: absolute; left: 64px; right: 64px; top: 124px; bottom: 108px; }
+    .caption { position: absolute; left: 64px; right: 64px; bottom: 28px; min-height: 60px; display: flex; align-items: center; gap: 16px; font-size: 25px; font-weight: 500; line-height: 1.32; }
+    .caption::before { content: ''; width: 10px; height: 10px; background: var(--pink); flex-shrink: 0; }
+    .caption .txt { flex: 1; }
+    .caption b { color: var(--pink); font-weight: 800; }
+    .caption b.no { color: var(--navy); }
+    .caption .in { animation: capIn .45s var(--ease); display: block; }
+    @keyframes capIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .progress { position: absolute; left: 0; bottom: 0; height: 6px; background: var(--pink); width: 0; transition: width .6s var(--ease); }
+
+    .next { font-family: var(--cond); font-size: 26px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; background: var(--pink); color: #fff;
+        border: none; border-radius: 8px; padding: 12px 30px; cursor: pointer; flex-shrink: 0; }
+    .next[hidden] { display: none; }
+    .next:disabled { background: #c3c6d0; cursor: default; }
+    button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--pink); outline-offset: 3px; }
+    .next:focus-visible { outline-color: var(--navy); }
+    .pop-in { animation: capIn .45s var(--ease); }
+    @keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+
+    /* question frame */
+    .q { display: flex; flex-direction: column; height: 100%; }
+    .qhead { display: flex; align-items: center; gap: 18px; }
+    .qtitle { font-size: 40px; font-weight: 800; line-height: 1.15; }
+    .tchip { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--pink); border: 3px solid var(--pink); border-radius: 6px; padding: 3px 12px 2px; }
+    .sctag { margin-left: auto; font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--navy); box-shadow: inset 0 0 0 3px var(--navy); border-radius: 6px; padding: 6px 12px 5px; line-height: 1; }
+    .prompt { font-size: 28px; font-weight: 600; margin-top: 6px; line-height: 1.3; }
+    .body { flex: 1; min-height: 0; margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 30px; }
+    .body.stack { flex-direction: column; gap: 24px; }
+    .center { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+    .dlbl { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mid-grey); }
+
+    /* svg classes */
+    svg { overflow: visible; display: block; }
+    .oname { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; fill: var(--navy); }
+    .olbl { font-family: var(--cond); font-size: 15px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; fill: var(--navy); }
+    .flbl { font-family: var(--cond); font-size: 24px; font-weight: 800; fill: var(--navy); }
+    .spd { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; fill: var(--mid-grey); }
+    .leg { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 600; fill: var(--mid-grey); }
+    .skyt { font-family: var(--cond); font-size: 18px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; fill: #b9bddb; }
+
+    /* multiple choice */
+    .opts { display: grid; gap: 10px; }
+    .col .opt { font-size: 23px; padding: 9px 18px; }
+    .opts.g2 { grid-template-columns: 1fr 1fr; gap: 18px; width: 100%; }
+    .opt { display: flex; align-items: center; gap: 16px; border: 3px solid var(--navy); border-radius: 8px; background: #fff; padding: 12px 20px;
+        font-family: inherit; font-size: 25px; font-weight: 600; color: var(--navy); text-align: left; line-height: 1.25; cursor: pointer;
+        transition: background-color .2s, border-color .2s, color .2s, opacity .2s; }
+    .opts.g2 .opt { min-height: 104px; font-size: 30px; font-weight: 700; padding: 16px 24px; }
+    .opt .l { flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background: var(--navy); color: #fff; font-family: var(--cond); font-size: 24px; font-weight: 900;
+        display: flex; align-items: center; justify-content: center; transition: background-color .2s, color .2s; }
+    .opt:hover:not(:disabled) { background: #f6f7fb; }
+    .opt.sel { background: var(--tint); }
+    .opt.sel .l { background: var(--pink); }
+    .opt.right, .opt.right:hover { background: var(--pink); border-color: var(--pink); color: #fff; opacity: 1; }
+    .opt.right .l { background: #fff; color: var(--pink); }
+    .opt.wrong { border-style: dashed; opacity: .5; animation: shake .4s; cursor: default; }
+    .opt:disabled { cursor: default; }
+
+    /* picture choices */
+    .pgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; width: 100%; }
+    .pgrid.g22 { grid-template-columns: 1fr 1fr; gap: 14px; width: 500px; flex-shrink: 0; }
+    .pcard { position: relative; border: 3px solid var(--navy); border-radius: 8px; background: #fff; padding: 16px 4px 12px; cursor: pointer;
+        display: flex; flex-direction: column; align-items: center; gap: 8px; font-family: inherit; color: var(--navy); transition: background-color .2s, border-color .2s, opacity .2s; }
+    .pgrid.g22 .pcard { padding: 14px 8px 12px; }
+    .pcard svg { overflow: hidden; }
+    .pcard .l { position: absolute; left: 10px; top: 10px; width: 38px; height: 38px; border-radius: 50%; background: var(--navy); color: #fff; font-family: var(--cond); font-size: 23px; font-weight: 900;
+        display: flex; align-items: center; justify-content: center; transition: background-color .2s; }
+    .pcard .cap { font-size: 22px; font-weight: 700; line-height: 1.2; text-align: center; }
+    .pcard:hover:not(:disabled) { background: #f6f7fb; }
+    .pcard.sel { background: var(--tint); }
+    .pcard.sel .l { background: var(--pink); }
+    .pcard.right, .pcard.right:hover { border-color: var(--pink); background: #fff; box-shadow: 0 0 0 5px rgba(234,0,138,.18); opacity: 1; }
+    .pcard.right .l { background: var(--pink); }
+    .pcard.wrong { border-style: dashed; opacity: .45; animation: shake .4s; cursor: default; }
+    .pcard:disabled { cursor: default; }
+
+    /* quote */
+    .quote { border-left: 8px solid var(--pink); padding: 4px 0 4px 20px; font-size: 25px; font-weight: 600; font-style: italic; line-height: 1.3; margin-bottom: 14px; }
+    .col { display: flex; flex-direction: column; justify-content: center; flex: 1; min-width: 0; }
+
+    /* scenes */
+    .scene { position: relative; border: 3px solid var(--navy); border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #fff; }
+    .scene.dark { background: var(--navy); }
+    .scene > svg { overflow: hidden; }
+    .replay { position: absolute; right: 12px; top: 12px; display: flex; align-items: center; gap: 6px; font-family: var(--cond); font-size: 19px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+        background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 6px; padding: 5px 12px 4px 9px; cursor: pointer; z-index: 3; }
+    .replay svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+    .replay:hover { background: var(--blank); }
+    .card { width: 306px; border: 3px solid var(--navy); border-radius: 8px; overflow: hidden; flex-shrink: 0; }
+    .card .ccap { padding: 10px 14px 12px; font-size: 21px; font-weight: 700; line-height: 1.25; text-align: center; }
+
+    /* drag tiles */
+    .tile { font-family: inherit; font-size: 24px; font-weight: 700; color: var(--navy); background: #fff; border: 3px solid var(--navy); border-radius: 8px; padding: 6px 16px; line-height: 1.25;
+        cursor: grab; touch-action: none; position: relative; z-index: 2; transition: transform .3s var(--ease), box-shadow .2s, border-color .2s; box-shadow: 0 4px 0 #c3c6d0; white-space: nowrap; text-align: center; }
+    .tile.sm { font-size: 20px; padding: 4px 12px; white-space: normal; max-width: 100%; }
+    .tile.pic { padding: 6px; line-height: 0; border-radius: 10px; }
+    .tile.obj { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 12px 4px; font-family: var(--cond); font-size: 19px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+    .tile svg { pointer-events: none; }
+    .tile.sel { border-color: var(--pink); box-shadow: 0 0 0 4px rgba(234,0,138,.22); }
+    .tile.drag { transition: none; cursor: grabbing; z-index: 30; box-shadow: 0 14px 30px rgba(27,31,69,.25); border-color: var(--pink); }
+    .tile.right { background: var(--pink); color: #fff; border-color: var(--pink); box-shadow: none; cursor: default; }
+    .tile.pic.right, .tile.obj.right { background: #fff; color: var(--navy); box-shadow: 0 0 0 4px rgba(234,0,138,.25); }
+    .tile.wrong { border-style: dashed; background: var(--tint); box-shadow: none; animation: shake .4s; }
+
+    /* sort */
+    .sort { display: grid; grid-template-columns: 1fr 360px 1fr; gap: 18px; width: 100%; height: 100%; }
+    .sort3 { display: flex; flex-direction: column; gap: 12px; width: 100%; align-self: stretch; }
+    .binrow { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .bin { border: 3px solid var(--navy); border-radius: 8px; display: flex; flex-direction: column; overflow: visible; transition: box-shadow .2s; }
+    .bin.pk { border-color: var(--pink); }
+    .bin.gy { border-color: #6b6f8f; }
+    .bin h3 { margin: 0; padding: 8px 16px 7px; font-family: var(--cond); font-size: 28px; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; color: #fff; background: var(--navy); }
+    .bin.pk h3 { background: var(--pink); }
+    .bin.gy h3 { background: #6b6f8f; }
+    .bin .sub { font-size: 18px; font-weight: 600; color: var(--mid-grey); padding: 8px 16px 0; }
+    .bin .area { flex: 1; padding: 10px 12px; display: flex; flex-wrap: wrap; gap: 10px; align-content: flex-start; justify-content: center; border-radius: 0 0 6px 6px; transition: background-color .2s; }
+    .bin.hover .area, .bin.armed:hover .area { background: rgba(234,0,138,.06); }
+    .bin.armed { box-shadow: 0 0 0 4px rgba(234,0,138,.15); cursor: pointer; }
+    .pool { background: var(--blank); border-radius: 8px; padding: 14px; display: flex; flex-wrap: wrap; gap: 10px; align-content: center; justify-content: center; transition: background-color .2s; }
+    .pool.hover { background: #e3e7ee; }
+
+    /* drop slots */
+    .slot { width: 200px; height: 50px; border: 3px dashed #c3c6d0; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: border-color .2s, background-color .2s; }
+    .slot.abs { position: absolute; z-index: 2; transition: border-color .2s, background-color .2s, opacity .4s; }
+    .slot.round { border-radius: 50%; }
+    .slot.hover, .slot.armed:hover { border-color: var(--pink); background: rgba(234,0,138,.06); }
+    .slot.armed { border-color: #e7a3c9; cursor: pointer; }
+    .slot.filled { border-color: transparent; background: none; }
+    .slot.wrong { animation: shake .4s; }
+    .slot .tile { box-shadow: none; padding: 5px 14px; font-size: 23px; }
+    .slot .tile.pic { padding: 6px; }
+    .slot .tile.obj { padding: 6px 12px 4px; font-size: 19px; }
+    .bside { width: 320px; display: flex; flex-direction: column; gap: 10px; height: 336px; flex-shrink: 0; }
+    .bside .pool { flex: 1; flex-direction: column; flex-wrap: nowrap; align-items: center; justify-content: center; gap: 8px; }
+    .bside .pool.wrap { flex-direction: row; flex-wrap: wrap; align-content: center; gap: 10px; }
+    .lrow { display: flex; align-items: center; gap: 12px; }
+    .lrow .ll { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; width: 96px; flex-shrink: 0; white-space: nowrap; }
+    .lrow .slot { flex: 1; width: auto; height: 52px; }
+    .lrow .slot .tile { font-size: 21px; padding: 5px 12px; }
+    .prow { display: flex; gap: 20px; }
+    .pcol { display: flex; flex-direction: column; gap: 10px; }
+
+    /* cloze */
+    .cloze { font-size: 30px; font-weight: 600; line-height: 2.15; max-width: 1100px; }
+    .slot.cs { display: inline-flex; vertical-align: middle; width: auto; min-width: 170px; height: 54px; margin: 0 6px; padding: 0 2px; }
+    .slot.cs.filled { min-width: 0; margin: 0 2px; padding: 0; }
+    .slot.cs .tile { font-size: 26px; padding: 4px 14px; }
+    .cpool { width: 100%; min-height: 76px; }
+
+    /* match */
+    .mgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px 16px; }
+    .mcard { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .mgrid .slot { width: 204px; height: 48px; }
+    .mgrid .slot .tile { font-size: 20px; padding: 4px 10px; }
+    .narrow { width: 250px; height: 372px; gap: 6px; }
+    .narrow .tile { font-size: 19px; padding: 3px 10px; }
+    .narrow .pool { gap: 5px; padding: 10px; }
+
+    /* order */
+    .orow { display: grid; grid-template-columns: repeat(8, 118px); gap: 14px; }
+    .ocell { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .onum { font-family: var(--cond); font-size: 22px; font-weight: 900; color: var(--mid-grey); }
+    .ofix { width: 118px; height: 118px; border: 3px solid var(--navy); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+    .ofix span { font-family: var(--cond); font-size: 15px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+    .slot.oslot { width: 118px; height: 118px; border-radius: 10px; }
+    .opool { width: 100%; min-height: 124px; flex-wrap: nowrap; gap: 14px; }
+
+    /* hotspots */
+    .hs { cursor: pointer; outline: none; }
+    .hs .ring { fill: none; stroke: transparent; stroke-width: 5; transition: stroke .2s; }
+    .hs:hover .ring { stroke: #c3c6d0; }
+    .hs:focus-visible .ring { stroke: #e7a3c9; }
+    .hs.sel .ring { stroke: var(--pink); }
+    .hs.right .ring { stroke: var(--pink); stroke-width: 7; }
+    .hs.wrong { cursor: default; }
+    .hs.wrong .ring { stroke: var(--navy); stroke-dasharray: 5 6; stroke-width: 3; }
+    .hs.wrong .hit { fill: rgba(255,255,255,.6); }
+    .hs.off { cursor: default; }
+
+    /* end */
+    .scorecard { border: 3px solid var(--pink); border-radius: 8px; padding: 30px 60px; text-align: center; }
+    .scorecard .big { font-family: var(--cond); font-size: 120px; font-weight: 900; color: var(--pink); line-height: 1; }
+    .scorecard .dlbl { margin-top: 8px; }
+    .dots { display: flex; gap: 8px; justify-content: center; margin-top: 22px; }
+    .dots span { width: 34px; height: 34px; border-radius: 6px; border: 3px solid var(--navy); font-family: var(--cond); font-size: 17px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+    .dots span.y { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .again { margin-top: 26px; font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+        background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 8px; padding: 8px 22px; cursor: pointer; }
+
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+    <div class="top">
+        <h1 class="sheet-title">Checking <span>eclipses</span></h1>
+        <div class="counter" id="counter"></div>
+    </div>
+    <div class="content" id="content"></div>
+    <div class="caption"><div class="txt" id="cap"></div><button class="next" id="next" hidden>Check</button></div>
+    <div class="progress" id="progress"></div>
+</div>
+<script>
+const $ = s => document.querySelector(s);
+const content = $('#content'), cap = $('#cap'), btn = $('#next'), counter = $('#counter'), progress = $('#progress');
+const PK = '#ea008a', NV = '#1b1f45', GR = '#c9ccd6', DT = '#b5b9c6', LT = '#f0f3f6';
+const DK = '#2f3460', SUN = '#f5b400', SUNL = '#fff1c2', EA = '#d4e2f5', RED = '#b4432d';
+const NS = 'http://www.w3.org/2000/svg';
+let scaleK = 1, uid = 0;
+function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
+function say(html) { cap.innerHTML = `<span class="in">${html}</span>`; }
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const lerp = (a, b, t) => a + (b - a) * t, clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+function mix(a, b, t) { const p = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)), A = p(a), B = p(b); return '#' + A.map((v, i) => Math.round(v + (B[i] - v) * t).toString(16).padStart(2, '0')).join(''); }
+
+/* ---------- animation helpers ---------- */
+let runId = 0;
+const easeOut = t => 1 - (1 - t) * (1 - t), easeIn = t => t * t, easeInOut = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+function play(dur, step, guard) {
+    const id = runId, ok = guard || (() => id === runId);
+    return new Promise(res => {
+        const st = performance.now();
+        const f = n => { if (!ok()) return; const t = Math.min(1, (n - st) / dur); step(t); if (t < 1) requestAnimationFrame(f); else res(); };
+        requestAnimationFrame(f);
+    });
+}
+const always = () => true;
+function wait(ms) { const id = runId; return new Promise(r => setTimeout(() => { if (id === runId) r(); }, ms)); }
+
+/* ---------- drawing helpers ---------- */
+const DIR = { r: 0, l: Math.PI, u: -Math.PI / 2, d: Math.PI / 2 };
+function arrowSVG(x, y, ang, len, o = {}) {
+    const c = o.c || PK, sw = o.sw || 8, hw = o.hw || 13, hl = Math.min(o.hl || 22, len);
+    if (len < 1) return '';
+    const ux = Math.cos(ang), uy = Math.sin(ang), ex = x + ux * len, ey = y + uy * len, bx = ex - ux * hl, by = ey - uy * hl, px = -uy * hw, py = ux * hw;
+    const f = v => v.toFixed(1);
+    let s = len > hl ? `<line x1="${f(x)}" y1="${f(y)}" x2="${f(bx)}" y2="${f(by)}" stroke="${c}" stroke-width="${sw}"/>` : '';
+    s += `<polygon points="${f(ex)},${f(ey)} ${f(bx + px)},${f(by + py)} ${f(bx - px)},${f(by - py)}" fill="${c}" stroke="${c}" stroke-width="1.5" stroke-linejoin="round"/>`;
+    if (o.label) {
+        const fs = o.fs || 24, full = o.full || len, op = o.lop === undefined ? 1 : o.lop;
+        const tx = x + ux * full / 2, ty = y - 16;
+        s += `<text class="flbl" x="${f(tx)}" y="${f(ty)}" text-anchor="middle" opacity="${op}" style="font-size:${fs}px">${o.label}</text>`;
+    }
+    return s;
+}
+function growArrow(g, x, y, ang, len, o = {}, dur = 450) {
+    const tok = g._tok = (g._tok || 0) + 1;
+    return play(dur, k => { g.innerHTML = arrowSVG(x, y, ang, len * easeOut(k), { ...o, full: len, lop: k }); }, () => g._tok === tok && document.body.contains(g));
+}
+const replayIcon = `<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v5h5"/></svg>`;
+
+/* Moon face as seen from Australia: p = 0 new, .25 first quarter, .5 full, .75 third quarter. Waxing light grows from the left. */
+function craters(r) { const c = (x, y, s) => `<circle cx="${(x * r).toFixed(1)}" cy="${(y * r).toFixed(1)}" r="${(s * r).toFixed(1)}" fill="${NV}" opacity=".07"/>`; return c(-.34, -.3, .22) + c(.3, .24, .28) + c(.14, -.52, .12) + c(-.26, .46, .14) + c(.55, -.15, .1); }
+function face(p, r, o = {}) {
+    const lit = o.lit || '#fff', dark = o.dark || DK, st = o.stroke || NV, sw = o.sw || Math.max(2, r * .05);
+    const q = ((p % 1) + 1) % 1, k = Math.cos(2 * Math.PI * q);
+    let s = `<circle r="${r}" fill="${dark}"/>`;
+    if (Math.abs(q - .5) < .005) s += `<circle r="${r}" fill="${lit}"/>`;
+    else if (q > .005 && q < .995) {
+        const wax = q < .5, cres = k > 0, rx = (Math.abs(k) * r).toFixed(2);
+        s += `<path d="M0 ${-r}A${r} ${r} 0 0 ${wax ? 0 : 1} 0 ${r}A${rx} ${r} 0 0 ${wax ? (cres ? 1 : 0) : (cres ? 0 : 1)} 0 ${-r}Z" fill="${lit}"/>`;
+    }
+    if (!o.plain) s += craters(r);
+    return s + `<circle r="${r}" fill="none" stroke="${st}" stroke-width="${sw}"/>`;
+}
+function faceSVG(p, size, o = {}) { const r = size / 2 - (o.pad === undefined ? 3 : o.pad); return `<svg viewBox="${-size / 2} ${-size / 2} ${size} ${size}" width="${size}" height="${size}">${face(p, r, o)}</svg>`; }
+const SKYF = { dark: '#2c3160', stroke: '#50568a', lit: '#f6f6f1' };
+
+/* Seen from above: lit half faces the Sun (default: Sun on the left) */
+function tdMoon(r, ang = Math.PI) {
+    const rot = ((ang - Math.PI) * 180 / Math.PI).toFixed(1);
+    return `<g transform="rotate(${rot})"><circle r="${r}" fill="${DK}"/><path d="M0 ${-r}A${r} ${r} 0 0 0 0 ${r}Z" fill="#fff"/><circle r="${r}" fill="none" stroke="${NV}" stroke-width="${Math.max(2, r * .12).toFixed(1)}"/></g>`;
+}
+function tdEarth(r, ang = Math.PI) {
+    const rot = ((ang - Math.PI) * 180 / Math.PI).toFixed(1);
+    return `<g transform="rotate(${rot})"><circle r="${r}" fill="${EA}"/><path d="M0 ${-r}A${r} ${r} 0 0 1 0 ${r}Z" fill="${DK}" opacity=".85"/><circle r="${r}" fill="none" stroke="${NV}" stroke-width="3"/></g>`;
+}
+function sunDisc(r) {
+    let rays = ''; for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6, c = Math.cos(a), s = Math.sin(a); rays += `<line x1="${(c * (r + 6)).toFixed(1)}" y1="${(s * (r + 6)).toFixed(1)}" x2="${(c * (r + 16)).toFixed(1)}" y2="${(s * (r + 16)).toFixed(1)}"/>`; }
+    return `<g stroke="${SUN}" stroke-width="5" stroke-linecap="round">${rays}</g><circle r="${r}" fill="${SUN}"/>`;
+}
+function person(x, y, s = 1) {
+    return `<g transform="translate(${x} ${y}) scale(${s})" stroke="${NV}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><polyline points="-7,0 0,-14 7,0"/><line x1="0" y1="-14" x2="0" y2="-27"/><polyline points="-8,-17 0,-24 10,-34"/><circle cx="0" cy="-34" r="5.5" fill="${NV}" stroke="none"/></g>`;
+}
+function stars(W, H, n, seed) {
+    let s = '', a = seed * 7919;
+    const r = () => (a = (a * 9301 + 49297) % 233280) / 233280;
+    for (let i = 0; i < n; i++) s += `<circle cx="${(r() * W).toFixed(1)}" cy="${(r() * H).toFixed(1)}" r="${(r() * 1.3 + .6).toFixed(1)}" fill="#fff" opacity="${(.2 + r() * .45).toFixed(2)}"/>`;
+    return s;
+}
+const mpos = (p, c) => { const t = Math.PI - 2 * Math.PI * p; return [c.cx + c.R * Math.cos(t), c.cy + c.R * Math.sin(t)]; };
+const moonAt = (p, c, r) => { const [x, y] = mpos(p, c); return `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)})">${tdMoon(r)}</g>`; };
+function chevron(x, y, dx, dy) {
+    const f = v => v.toFixed(1), px = -dy, py = dx;
+    return `<polyline points="${f(x - dx * 6 + px * 6)},${f(y - dy * 6 + py * 6)} ${f(x + dx * 6)},${f(y + dy * 6)} ${f(x - dx * 6 - px * 6)},${f(y - dy * 6 - py * 6)}" fill="none" stroke="${DT}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+}
+function sunArrows(x, ys, len, o = {}) {
+    return ys.map(y => arrowSVG(x, y, 0, len, { c: SUN, sw: o.sw || 7, hl: o.hl || 18, hw: o.hw || 12 })).join('') + (o.nolabel ? '' : `<text class="spd" x="${x}" y="${ys[0] - 18}" style="font-size:19px">Sunlight</text>`);
+}
+/* top-down orbit diagram: Sun to the left, Moon orbits anticlockwise (seen from above the North Pole) */
+function orbitBase(c) {
+    let s = sunArrows(c.sunX, c.sunYs, c.sunLen);
+    s += `<circle cx="${c.cx}" cy="${c.cy}" r="${c.R}" fill="none" stroke="${GR}" stroke-width="3" stroke-dasharray="2 9" stroke-linecap="round"/>`;
+    [.0625, .3125, .5625, .8125].forEach(p => { const t = Math.PI - 2 * Math.PI * p, x = c.cx + c.R * Math.cos(t), y = c.cy + c.R * Math.sin(t); s += chevron(x, y, Math.sin(t), -Math.cos(t)); });
+    s += `<g transform="translate(${c.cx} ${c.cy})">${tdEarth(c.er)}</g>`;
+    if (c.elabel !== false) s += `<text class="olbl" x="${c.cx}" y="${c.cy + c.er + 22}" text-anchor="middle" style="font-size:17px">Earth</text>`;
+    return s;
+}
+const seenAbove = (W, H) => `<text class="leg" x="${W - 12}" y="${H - 12}" text-anchor="end">Seen from above</text>`;
+
+/* ---------- flow ---------- */
+let qi = 0, firstTry = [], tries = 0, mode = 'check', cur = null;
+const CHIP = { mc: 'Multiple choice', sort: 'Drag and drop', cloze: 'Fill the gaps', match: 'Match up', order: 'Put in order', label: 'Label the diagram', hotspot: 'Click the diagram' };
+function render() {
+    runId++;
+    content.innerHTML = ''; tries = 0; mode = 'check';
+    const q = QS[qi];
+    counter.innerHTML = `Question <b>${qi + 1}</b> / ${QS.length}`;
+    progress.style.width = (qi / QS.length * 100) + '%';
+    const wrap = el('div', 'q');
+    wrap.appendChild(el('div', 'qhead', `<div class="qtitle">${q.title}</div><div class="tchip">${q.chip || CHIP[q.kind]}</div><div class="sctag">${q.sc}</div>`));
+    wrap.appendChild(el('div', 'prompt', q.prompt));
+    const body = el('div', 'body'); wrap.appendChild(body); content.appendChild(wrap);
+    cur = KINDS[q.kind](q, body);
+    say(q.instr || cur.instr);
+    btn.hidden = false; btn.textContent = 'Check';
+    refresh();
+}
+function refresh() { if (mode === 'check') btn.disabled = !cur.ready(); }
+function check() {
+    tries++;
+    const r = cur.check();
+    if (r.ok) {
+        if (tries === 1) firstTry[qi] = true;
+        say(`<b>Correct.</b> ${QS[qi].msg}`);
+        mode = 'next'; btn.disabled = false; btn.textContent = qi === QS.length - 1 ? 'Finish' : 'Next';
+        btn.classList.remove('pop-in'); void btn.offsetWidth; btn.classList.add('pop-in');
+        if (cur.done) cur.done();
+    } else {
+        say(`<b class="no">Not quite.</b> ${r.hint}`);
+        refresh();
+    }
+}
+btn.onclick = () => {
+    if (btn.disabled) return;
+    if (mode === 'check') check();
+    else if (qi === QS.length - 1) finish();
+    else { qi++; render(); }
+};
+function finish() {
+    runId++;
+    content.innerHTML = '';
+    btn.hidden = true;
+    counter.innerHTML = '<b>Complete</b>';
+    progress.style.width = '100%';
+    const n = firstTry.filter(Boolean).length;
+    say('Take a screenshot of this screen and paste it into Stile as evidence of your work.');
+    const c = el('div', 'center');
+    const dots = QS.map((_, i) => `<span class="${firstTry[i] ? 'y' : ''}">${i + 1}</span>`).join('');
+    const card = el('div', 'scorecard pop-in', `<div class="big">${n} / ${QS.length}</div><div class="dlbl">Correct on the first try</div><div class="dots">${dots}</div>`);
+    const again = el('button', 'again', 'Start again');
+    again.onclick = () => { qi = 0; firstTry = []; render(); };
+    c.append(card, again); content.appendChild(c);
+}
+
+/* ---------- scenes ---------- */
+function mountScene(sp, parent) {
+    const sc = el('div', 'scene' + (sp.cls ? ' ' + sp.cls : ''));
+    sc.innerHTML = `<svg viewBox="0 0 ${sp.w} ${sp.h}" width="${sp.w}" height="${sp.h}">${sp.svg || ''}</svg>`;
+    parent.appendChild(sc);
+    const ctl = sp.anim ? (sp.anim(sc.querySelector('svg'), sc) || {}) : {};
+    ctl.el = sc;
+    if (ctl.run) {
+        if (!ctl.loop) { const rp = el('button', 'replay', `${replayIcon}<span>Replay</span>`); sc.appendChild(rp); rp.onclick = () => { runId++; ctl.run(); }; }
+        ctl.run();
+    }
+    return ctl;
+}
+
+/* ---------- multiple choice ---------- */
+const L = 'ABCD';
+function mcCore(els, q, extra = {}) {
+    let sel = null;
+    els.forEach((b, i) => b.onclick = () => {
+        if (mode !== 'check' || b.classList.contains('wrong')) return;
+        els.forEach(x => x.classList.remove('sel')); b.classList.add('sel'); sel = i; refresh();
+    });
+    return {
+        instr: extra.instr || 'Choose an answer, then press <b>Check</b>.',
+        ready: () => sel !== null,
+        check() {
+            const b = els[sel];
+            b.classList.remove('sel');
+            if (sel === q.answer) { b.classList.add('right'); els.forEach(x => x.disabled = true); return { ok: true }; }
+            b.classList.add('wrong'); b.disabled = true;
+            const h = q.opts[sel].hint; sel = null; return { ok: false, hint: h };
+        },
+        done: extra.done
+    };
+}
+
+/* ---------- drag and drop (drag, or tap a tile then tap a target) ---------- */
+function dnd(pool, zones, onChange) {
+    let sel = null;
+    const all = () => [pool, ...zones];
+    const zoneOf = t => all().find(z => z.box.contains(t));
+    const armAll = on => zones.forEach(z => z.el.classList.toggle('armed', on && !z.locked));
+    const deselect = () => { if (sel) sel.classList.remove('sel'); sel = null; armAll(false); };
+    function moveTo(t, z) {
+        const from = zoneOf(t);
+        t.style.transform = ''; t.classList.remove('wrong');
+        z.box.appendChild(t);
+        if (from && from !== z && from.onTake) from.onTake(t);
+        if (z.onPut) z.onPut(t);
+        deselect(); onChange();
+    }
+    function put(t, z) {
+        const from = zoneOf(t);
+        if (z.locked || from === z) { t.style.transform = ''; return; }
+        if (z.cap === 1) {
+            const ex = z.box.querySelector('.tile');
+            if (ex) { if (ex.classList.contains('right')) { t.style.transform = ''; return; } moveTo(ex, pool); }
+        }
+        moveTo(t, z);
+    }
+    const hit = (x, y) => all().find(z => { const r = z.el.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; });
+    all().forEach(z => {
+        const act = () => { if (sel && !z.locked) put(sel, z); };
+        z.el.addEventListener('click', act);
+        z.el.addEventListener('keydown', e => { if (e.target === z.el && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); act(); } });
+    });
+    function tile(html, v) {
+        const t = el('span', 'tile', html);
+        t.v = v === undefined ? html : v;
+        t.tabIndex = 0; t.setAttribute('role', 'button'); t.setAttribute('aria-label', String(t.v));
+        const tap = () => {
+            if (t.classList.contains('right')) return;
+            t.style.transform = '';
+            const z = zoneOf(t);
+            if (z !== pool) { put(t, pool); return; }
+            if (sel === t) { deselect(); return; }
+            deselect(); sel = t; t.classList.add('sel'); armAll(true);
+        };
+        t.addEventListener('click', e => e.stopPropagation());
+        t.addEventListener('pointerdown', e => {
+            if (t.classList.contains('right') || e.button > 0) return;
+            e.preventDefault(); e.stopPropagation(); t.setPointerCapture(e.pointerId);
+            const sx = e.clientX, sy = e.clientY; let moved = false;
+            const move = ev => {
+                const dx = ev.clientX - sx, dy = ev.clientY - sy;
+                if (!moved && Math.hypot(dx, dy) > 6) { moved = true; t.classList.add('drag'); }
+                if (!moved) return;
+                t.style.transform = `translate(${dx / scaleK}px, ${dy / scaleK}px)`;
+                const h = hit(ev.clientX, ev.clientY);
+                all().forEach(z => z.el.classList.toggle('hover', z === h));
+            };
+            const up = ev => {
+                t.removeEventListener('pointermove', move); t.removeEventListener('pointerup', up); t.removeEventListener('pointercancel', up);
+                t.classList.remove('drag'); all().forEach(z => z.el.classList.remove('hover'));
+                if (!moved) { tap(); return; }
+                const h = hit(ev.clientX, ev.clientY);
+                if (h) put(t, h); else t.style.transform = '';
+            };
+            t.addEventListener('pointermove', move); t.addEventListener('pointerup', up); t.addEventListener('pointercancel', up);
+        });
+        t.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); tap(); } });
+        return t;
+    }
+    return { tile };
+}
+function mkZone(z, id, ans) {
+    return { el: z, box: z, cap: 1, id, ans: [].concat(ans), onPut() { z.classList.add('filled'); }, onTake() { z.classList.remove('filled'); } };
+}
+function slotCheck(q, zones) {
+    let bad = 0, hint = null;
+    zones.forEach(z => {
+        const t = z.box.querySelector('.tile'); z.el.classList.remove('wrong');
+        if (!t || t.classList.contains('right')) return;
+        t.classList.remove('wrong'); void t.offsetWidth;
+        if (z.ans.includes(t.v)) { t.classList.add('right'); z.locked = true; }
+        else { bad++; t.classList.add('wrong'); z.el.classList.add('wrong'); if (!hint) hint = (q.hints && q.hints[t.v]) || (q.slotHints && q.slotHints[z.id]) || q.wrongHint || 'Check this one again.'; }
+    });
+    if (bad) return { ok: false, hint: (bad > 1 ? `${bad} answers need changing. ` : '') + hint };
+    return { ok: true };
+}
+const filledAll = zones => () => zones.every(z => z.box.querySelector('.tile'));
+const clearWrong = zones => () => { zones.forEach(z => z.el.classList.remove('wrong')); refresh(); };
+const mkPool = cls => { const p = el('div', 'pool' + (cls ? ' ' + cls : '')); return { el: p, box: p, cap: Infinity, pool: true }; };
+
+/* ---------- question types ---------- */
+const KINDS = {
+    mc(q, body) {
+        let ctl = {};
+        const pic = q.opts[0].pic !== undefined;
+        if (q.scene) ctl = mountScene(q.scene, body);
+        let host = body;
+        if (q.quote || (q.scene && !pic)) { host = el('div', 'col'); body.appendChild(host); }
+        if (q.quote) host.appendChild(el('div', 'quote', q.quote));
+        const g = el('div', pic ? (q.scene ? 'pgrid g22' : 'pgrid') : (host === body ? 'opts g2' : 'opts'));
+        const els = q.opts.map((o, i) => {
+            const inner = o.pic !== undefined ? `<span class="l">${L[i]}</span>${o.pic}${o.t ? `<span class="cap">${o.t}</span>` : ''}` : `<span class="l">${L[i]}</span><span>${o.t}</span>`;
+            const b = el('button', pic ? 'pcard' : 'opt', inner); b.setAttribute('aria-label', `Option ${L[i]}`); g.appendChild(b); return b;
+        });
+        host.appendChild(g);
+        if (q.scene && q.quote) body.style.justifyContent = 'flex-start';
+        return mcCore(els, q, { instr: q.instr, done: () => { if (ctl.done) ctl.done(); } });
+    },
+    sort(q, body) {
+        const wrap = el('div', 'sort3');
+        const bins = q.bins.map(b => { const e = el('div', 'bin' + (b.cls ? ' ' + b.cls : ''), `<h3>${b.h}</h3>${b.sub ? `<div class="sub">${b.sub}</div>` : ''}<div class="area"></div>`); e.tabIndex = 0; return e; });
+        const P = mkPool();
+        const row = el('div', 'binrow'); row.style.gridTemplateColumns = `repeat(${bins.length}, 1fr)`;
+        bins.forEach(b => row.appendChild(b)); wrap.append(P.el, row);
+        body.appendChild(wrap);
+        const zones = bins.map((b, i) => ({ el: b, box: b.querySelector('.area'), cap: Infinity, key: q.bins[i].key }));
+        const D = dnd(P, zones, () => refresh());
+        shuffle(q.items).forEach(([t, k, h]) => { const tl = D.tile(t, t); tl.classList.add('sm'); tl.k = k; tl.h = h; P.el.appendChild(tl); });
+        return {
+            zones,
+            instr: 'Drag each tile into a group (or tap a tile, then a group), then press <b>Check</b>.',
+            ready: () => !P.el.querySelector('.tile'),
+            check() {
+                const wrong = [];
+                zones.forEach(z => z.box.querySelectorAll('.tile').forEach(t => {
+                    if (t.classList.contains('right')) return;
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (t.k === z.key) t.classList.add('right'); else { t.classList.add('wrong'); wrong.push(t.h); }
+                }));
+                return wrong.length ? { ok: false, hint: (wrong.length > 1 ? `${wrong.length} tiles need moving. ` : '') + wrong[0] } : { ok: true };
+            }
+        };
+    },
+    cloze(q, body) {
+        body.classList.add('stack');
+        const p = el('div', 'cloze'), zones = [];
+        q.text.split(/\[\[(.+?)\]\]/).forEach((s, i) => {
+            if (i % 2 === 0) { p.appendChild(document.createTextNode(s)); return; }
+            const z = el('span', 'slot cs'); z.tabIndex = 0; z.setAttribute('aria-label', `Gap ${zones.length + 1}`);
+            p.appendChild(z); zones.push(mkZone(z, zones.length, s.split('|')));
+        });
+        const P = mkPool('cpool');
+        body.append(p, P.el);
+        const D = dnd(P, zones, clearWrong(zones));
+        shuffle(q.tiles).forEach(t => P.el.appendChild(D.tile(t, t)));
+        return { zones, instr: 'Drag a word into each gap (or tap a word, then a gap), then press <b>Check</b>.', ready: filledAll(zones), check: () => slotCheck(q, zones) };
+    },
+    match(q, body) {
+        const grid = el('div', 'mgrid');
+        const zones = shuffle(q.items).map(it => {
+            const card = el('div', 'mcard', it.pic);
+            const z = el('div', 'slot'); z.tabIndex = 0; z.setAttribute('aria-label', 'Name space');
+            card.appendChild(z); grid.appendChild(card);
+            return mkZone(z, it.ans, it.ans);
+        });
+        const side = el('div', 'bside narrow', `<div class="dlbl">${q.poolLabel || 'Names'}</div>`);
+        const P = mkPool(); side.appendChild(P.el);
+        body.append(grid, side);
+        const D = dnd(P, zones, clearWrong(zones));
+        shuffle(q.tiles).forEach(t => P.el.appendChild(D.tile(t, t)));
+        return { zones, instr: 'Drag a name under each Moon (or tap a name, then a space), then press <b>Check</b>.', ready: filledAll(zones), check: () => slotCheck(q, zones) };
+    },
+    order(q, body) {
+        body.classList.add('stack');
+        const row = el('div', 'orow');
+        let n = 1;
+        if (q.fixed) row.appendChild(el('div', 'ocell', `<div class="onum">${n++}</div><div class="ofix">${q.fixed.pic}<span>${q.fixed.t}</span></div>`));
+        const zones = q.seq.map(s => {
+            const c = el('div', 'ocell', `<div class="onum">${n++}</div>`);
+            const z = el('div', 'slot oslot'); z.tabIndex = 0; z.setAttribute('aria-label', `Space ${n - 1}`);
+            c.appendChild(z); row.appendChild(c);
+            return mkZone(z, s.v, s.v);
+        });
+        const P = mkPool('opool');
+        body.append(row, P.el);
+        const D = dnd(P, zones, clearWrong(zones));
+        shuffle(q.seq).forEach(s => { const t = D.tile(s.pic, s.v); t.classList.add('pic'); t.setAttribute('aria-label', s.aria || 'Moon'); P.el.appendChild(t); });
+        return { zones, instr: 'Drag the Moons into order (or tap a Moon, then a space), then press <b>Check</b>.', ready: filledAll(zones), check: () => slotCheck(q, zones) };
+    },
+    label(q, body) {
+        const zones = [], ctls = [];
+        const mkSlot = (s, host, abs) => {
+            const z = el('div', 'slot' + (abs ? ' abs' : '') + (s.cls ? ' ' + s.cls : ''));
+            if (abs) { z.style.left = s.x + 'px'; z.style.top = s.y + 'px'; }
+            if (s.w) z.style.width = s.w + 'px';
+            if (s.h) z.style.height = s.h + 'px';
+            z.tabIndex = 0; z.setAttribute('aria-label', s.aria || 'Drop space');
+            host.appendChild(z); zones.push(mkZone(z, s.id, q.answer[s.id]));
+        };
+        if (q.panels) {
+            const prow = el('div', 'prow'); body.appendChild(prow);
+            q.panels.forEach(pn => {
+                const col = el('div', 'pcol'); prow.appendChild(col);
+                ctls.push(mountScene(pn.scene, col));
+                pn.rows.forEach(r => { const row = el('div', 'lrow', `<span class="ll">${r.label}</span>`); col.appendChild(row); mkSlot(r, row); });
+            });
+        } else {
+            const c = mountScene(q.scene, body); ctls.push(c);
+            (q.slots || []).forEach(s => mkSlot(s, c.el, true));
+        }
+        const side = el('div', 'bside'); if (q.sideW) side.style.width = q.sideW + 'px';
+        if (q.rows) q.rows.forEach(r => { const row = el('div', 'lrow', `<span class="ll">${r.label}</span>`); side.appendChild(row); mkSlot(r, row); });
+        side.appendChild(el('div', 'dlbl', q.poolLabel || 'Labels'));
+        const P = mkPool(q.poolCls); side.appendChild(P.el); body.appendChild(side);
+        const D = dnd(P, zones, clearWrong(zones));
+        shuffle(q.tiles).forEach(t => {
+            const o = typeof t === 'string' ? { v: t, html: t } : t;
+            const tl = D.tile(o.html, o.v); if (o.cls) tl.classList.add(o.cls); P.el.appendChild(tl);
+        });
+        return { zones, instr: q.instrL || 'Drag each label into a space (or tap a label, then a space), then press <b>Check</b>.', ready: filledAll(zones), check: () => slotCheck(q, zones), done: () => ctls.forEach(c => c.done && c.done()) };
+    },
+    hotspot(q, body) {
+        const ctl = mountScene(q.scene, body);
+        if (q.card) body.appendChild(el('div', 'card', q.card));
+        const svg = ctl.el.querySelector('svg');
+        const layer = document.createElementNS(NS, 'g'); svg.appendChild(layer);
+        let sel = null;
+        const spots = q.spots.map((s, i) => {
+            const g = document.createElementNS(NS, 'g');
+            g.setAttribute('class', 'hs'); g.setAttribute('tabindex', '0'); g.setAttribute('role', 'button'); g.setAttribute('aria-label', s.aria || `Position ${i + 1}`);
+            g.innerHTML = `<circle class="hit" cx="${s.x.toFixed(1)}" cy="${s.y.toFixed(1)}" r="${s.r}" fill="transparent"/><circle class="ring" cx="${s.x.toFixed(1)}" cy="${s.y.toFixed(1)}" r="${s.r - 3}"/>`;
+            layer.appendChild(g);
+            const pick = () => {
+                if (mode !== 'check' || g.classList.contains('wrong')) return;
+                spots.forEach(x => x.classList.remove('sel')); g.classList.add('sel'); sel = i; refresh();
+            };
+            g.addEventListener('click', pick);
+            g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
+            return g;
+        });
+        return {
+            instr: 'Click a position on the diagram, then press <b>Check</b>.',
+            ready: () => sel !== null,
+            check() {
+                const g = spots[sel]; g.classList.remove('sel');
+                if (sel === q.answer) { g.classList.add('right'); spots.forEach(x => x.classList.add('off')); return { ok: true }; }
+                g.classList.add('wrong'); const h = q.spots[sel].hint; sel = null; return { ok: false, hint: h };
+            },
+            done: () => { if (ctl.done) ctl.done(); }
+        };
+    }
+};
+
+/* ---------- scale to window ---------- */
+function fit() {
+    const st = $('#stage');
+    scaleK = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    st.style.transform = `scale(${scaleK})`;
+    st.style.margin = `${(720 * scaleK - 720) / 2}px ${(1280 * scaleK - 1280) / 2}px`;
+}
+window.addEventListener('resize', fit);
+fit();
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { fit(); render(); });
+
+/* =========================================================
+   ECLIPSES (SC20, SC21, SC22)
+   ========================================================= */
+const PP = [0, .125, .25, .375, .5, .625, .75, .875];
+const notScale = (x, y, a = 'end') => `<text class="leg" x="${x}" y="${y}" text-anchor="${a}" style="font-size:16px">Not to scale</text>`;
+const leader = (x1, y1, x2, y2) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${NV}" stroke-width="2.5"/><circle cx="${x2}" cy="${y2}" r="4.5" fill="${NV}" stroke="#fff" stroke-width="1.5"/>`;
+
+/* ---------- sky views ---------- */
+function lunarSky(W, H, rm, o = {}) {
+    const id = 'lc' + (++uid), cx = W / 2, cy = o.cy || H / 2, Ru = rm * 2.6;
+    const svg = `<rect width="${W}" height="${H}" fill="${NV}"/>${stars(W, H, o.n || 40, o.seed || 5)}
+        <defs><clipPath id="${id}"><circle cx="${cx}" cy="${cy}" r="${rm}"/></clipPath></defs>
+        <g transform="translate(${cx} ${cy})">${face(.5, rm, { lit: '#f2f1ea', stroke: '#50568a', sw: 2 })}</g>
+        <g clip-path="url(#${id})"><circle class="lpen" cy="${cy}" r="${(Ru * 1.5).toFixed(1)}" fill="${NV}" opacity=".3"/><circle class="lumb" cy="${cy}" r="${Ru.toFixed(1)}" fill="#3b2b2e"/></g>
+        ${o.label ? `<text class="skyt lst" x="${cx}" y="${H - 20}" text-anchor="middle"></text>` : ''}`;
+    const init = s => {
+        const pen = s.querySelector('.lpen'), umb = s.querySelector('.lumb'), lst = s.querySelector('.lst'), span = Ru * 1.5 + rm + 8;
+        return u => {
+            const sx = cx + lerp(-span, span, u), d = Math.abs(sx - cx), k = clamp((Ru + rm - d) / (2 * rm), 0, 1);
+            pen.setAttribute('cx', sx.toFixed(1)); umb.setAttribute('cx', sx.toFixed(1)); umb.setAttribute('fill', mix('#3b2b2e', RED, Math.pow(k, 1.5)));
+            if (lst) lst.textContent = k >= 1 ? 'Total lunar eclipse' : k > 0 ? 'Partial lunar eclipse' : 'Full Moon';
+        };
+    };
+    return { svg, init };
+}
+function solarSky(W, H, rs, o = {}) {
+    const id = 'sg' + (++uid), cx = W / 2, cy = o.cy || H / 2;
+    const svg = `<defs><radialGradient id="${id}"><stop offset=".6" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>
+        <rect class="ssky" width="${W}" height="${H}" fill="#cfe0f5"/><g class="sst" opacity="0">${stars(W, H, 26, o.seed || 11)}</g>
+        <circle class="scor" cx="${cx}" cy="${cy}" r="${(rs * 1.7).toFixed(1)}" fill="url(#${id})" opacity="0"/>
+        <circle cx="${cx}" cy="${cy}" r="${rs}" fill="${SUN}"/><circle class="smn" cy="${cy}" r="${(rs * 1.04).toFixed(1)}" fill="${DK}"/>`;
+    const init = s => {
+        const sky = s.querySelector('.ssky'), st = s.querySelector('.sst'), cor = s.querySelector('.scor'), mn = s.querySelector('.smn'), span = rs * 2.3 + 12;
+        return u => {
+            const mx = cx + lerp(span, -span, u), c = clamp(1 - Math.abs(mx - cx) / (2.08 * rs), 0, 1);
+            mn.setAttribute('cx', mx.toFixed(1)); sky.setAttribute('fill', mix('#cfe0f5', NV, Math.pow(c, 5)));
+            st.setAttribute('opacity', clamp((c - .85) / .15, 0, 1).toFixed(2)); cor.setAttribute('opacity', clamp((c - .95) / .05, 0, 1).toFixed(2));
+        };
+    };
+    return { svg, init };
+}
+function skyLoop(set, pause = 1100) {
+    return {
+        loop: true,
+        async run() {
+            const id = runId;
+            while (id === runId) {
+                set(0); await wait(500);
+                await play(2700, k => set(.5 * easeOut(k))); await wait(pause);
+                await play(2700, k => set(.5 + .5 * easeIn(k))); await wait(600);
+            }
+        }
+    };
+}
+
+/* ---------- Q: spot the solar eclipse ---------- */
+function eclPic(mode) {
+    let s = `<circle cx="-34" cy="80" r="82" fill="${SUN}"/><text class="olbl" x="6" y="85">Sun</text>`;
+    const E = (x, y) => `<g transform="translate(${x} ${y})">${tdEarth(22)}</g>`, M = (x, y) => `<g transform="translate(${x} ${y})">${tdMoon(9)}</g>`;
+    const T = (x, y, t) => `<text class="olbl" x="${x}" y="${y}" text-anchor="middle">${t}</text>`;
+    s += `<line x1="52" y1="80" x2="246" y2="80" stroke="${GR}" stroke-width="2" stroke-dasharray="3 6"/>`;
+    if (mode === 'lunar') s += E(130, 80) + M(212, 80) + T(130, 124, 'Earth') + T(212, 106, 'Moon');
+    if (mode === 'solar') s += M(124, 80) + E(204, 80) + T(124, 106, 'Moon') + T(204, 124, 'Earth');
+    if (mode === 'side') s += E(150, 80) + M(150, 136) + T(150, 46, 'Earth') + `<text class="olbl" x="166" y="141">Moon</text>`;
+    if (mode === 'miss') s += M(124, 36) + E(204, 80) + T(124, 62, 'Moon') + T(204, 124, 'Earth');
+    return `<svg viewBox="0 0 250 160" width="250" height="160">${s}</svg>`;
+}
+
+/* ---------- Q: label the solar eclipse ---------- */
+const sceneLabel = {
+    w: 800, h: 330,
+    svg: `<circle cx="-160" cy="165" r="230" fill="${SUN}"/><text class="oname" x="20" y="171">Sun</text>
+        <g transform="translate(620 165)">${tdEarth(120)}</g><text class="oname" x="620" y="316" text-anchor="middle">Earth</text>
+        <polygon points="330,141 620,54 620,276 330,189" fill="${NV}" opacity=".2"/>
+        <polygon points="330,141 505,165 330,189" fill="${NV}" opacity=".9"/>
+        <g transform="translate(330 165)">${tdMoon(24)}</g>
+        ${leader(280, 165, 302, 165)}${leader(450, 58, 450, 116)}${leader(440, 262, 440, 168)}${notScale(790, 320)}`
+};
+
+/* ---------- Q: who sees what ---------- */
+const W3 = { ms: 250, mr: 20, s: .345, ut: 392, ex: 480 };
+const PEOPLE = [['A', 375, 165], ['B', 392, 108], ['C', 444, 66]];
+const sceneWho = {
+    w: 600, h: 330,
+    svg: `<circle cx="-150" cy="165" r="210" fill="${SUN}"/><text class="oname" x="14" y="171">Sun</text>
+        <g transform="translate(480 165)">${tdEarth(105)}</g><text class="oname" x="480" y="314" text-anchor="middle">Earth</text>
+        <polygon class="pen" fill="${NV}" opacity=".22"/><polygon class="umb" fill="${NV}" opacity=".9"/>
+        <g class="mn">${tdMoon(20)}</g>
+        <g class="pp" opacity="0">${PEOPLE.map(([l, x, y]) => `<circle cx="${x}" cy="${y}" r="14" fill="#fff" stroke="${NV}" stroke-width="3"/><text x="${x}" y="${y + 6}" text-anchor="middle" style="font-family:var(--cond);font-size:18px;font-weight:900;fill:${NV}">${l}</text>`).join('')}</g>
+        ${notScale(12, 320, 'start')}`,
+    anim(svg) {
+        const mn = svg.querySelector('.mn'), pen = svg.querySelector('.pen'), umb = svg.querySelector('.umb'), pp = svg.querySelector('.pp');
+        const { ms, mr, s, ut, ex } = W3, sp = (ex - ms) * s;
+        const set = my => {
+            mn.setAttribute('transform', `translate(${ms} ${my.toFixed(1)})`);
+            pen.setAttribute('points', `${ms},${my - mr} ${ex},${my - mr - sp} ${ex},${my + mr + sp} ${ms},${my + mr}`);
+            umb.setAttribute('points', `${ms},${my - mr} ${ut},${my} ${ms},${my + mr}`);
+        };
+        return {
+            async run() {
+                pp.setAttribute('opacity', 0); set(32);
+                await wait(400);
+                await play(2800, k => set(lerp(32, 165, easeInOut(k))));
+                await play(400, k => pp.setAttribute('opacity', k));
+            }
+        };
+    }
+};
+
+/* ---------- Q: only at New Moon ---------- */
+const C5 = { cx: 215, cy: 165, R: 108, er: 30, sunX: 8, sunYs: [85, 165, 245], sunLen: 54 };
+const sceneNew = {
+    w: 360, h: 330,
+    svg: orbitBase(C5) + `<g class="sh" opacity="0"><polygon points="107,148 186,165 107,182" fill="${NV}" opacity=".85"/></g>` + moonAt(0, C5, 18)
+        + `<text class="olbl" x="107" y="136" text-anchor="middle" style="font-size:16px">New Moon</text>` + seenAbove(360, 330),
+    anim(svg) { return { done() { const g = svg.querySelector('.sh'); play(500, k => g.setAttribute('opacity', k), always); } }; }
+};
+
+/* ---------- Q: make a lunar eclipse ---------- */
+const objTile = (v, inner) => ({ v, cls: 'obj', html: `<svg viewBox="-36 -36 72 72" width="72" height="72">${inner}</svg><span>${v}</span>` });
+const sceneMake = {
+    w: 800, h: 330,
+    svg: `<circle cx="-160" cy="165" r="230" fill="${SUN}"/><text class="oname" x="20" y="171">Sun</text>
+        <line x1="80" y1="165" x2="790" y2="165" stroke="${GR}" stroke-width="2" stroke-dasharray="3 8"/>
+        <g class="res" opacity="0"><polygon class="ep" fill="${NV}" opacity=".2"/><polygon class="eu" fill="${NV}" opacity=".85"/>
+        <g transform="translate(380 165)">${tdEarth(56)}</g><text class="oname" x="380" y="250" text-anchor="middle">Earth</text>
+        <g transform="translate(650 165)"><circle r="22" fill="#f2f1ea" stroke="${NV}" stroke-width="2.5"/><circle class="rd" r="22" fill="${RED}" opacity="0"/></g>
+        <g class="rl" opacity="0">${leader(560, 284, 560, 196)}<text class="olbl" x="560" y="304" text-anchor="middle" style="font-size:17px">Earth\u2019s shadow</text><text class="olbl" x="650" y="126" text-anchor="middle" style="font-size:17px">Blood Moon</text></g></g>
+        ${notScale(790, 320)}`,
+    anim(svg, sc) {
+        return {
+            async done() {
+                sc.querySelectorAll('.slot').forEach(s => s.style.opacity = 0);
+                const res = svg.querySelector('.res'), ep = svg.querySelector('.ep'), eu = svg.querySelector('.eu'), rd = svg.querySelector('.rd'), rl = svg.querySelector('.rl');
+                const shade = f => { const x1 = 380 + 420 * f, xu = 380 + 620 * f, yu = 165 - 56 + 56 * (xu - 380) / 620; ep.setAttribute('points', `380,109 ${x1},${109 - 42 * f} ${x1},${221 + 42 * f} 380,221`); eu.setAttribute('points', `380,109 ${xu},${yu.toFixed(1)} ${xu},${(330 - yu).toFixed(1)} 380,221`); };
+                shade(0);
+                await play(350, k => res.setAttribute('opacity', k), always);
+                await play(900, k => shade(easeOut(k)), always);
+                await play(900, k => rd.setAttribute('opacity', (k * .95).toFixed(2)), always);
+                await play(350, k => rl.setAttribute('opacity', k), always);
+            }
+        };
+    }
+};
+
+/* ---------- Q: blood Moon ---------- */
+const LS7 = lunarSky(520, 327, 62, { label: true, cy: 150, seed: 2 });
+const sceneBlood = { w: 520, h: 327, cls: 'dark', svg: LS7.svg, anim(svg) { return skyLoop(LS7.init(svg), 1400); } };
+
+/* ---------- Q: Ava's claim (tilted orbit) ---------- */
+const AV = { ex: 190, ey: 165, rx: 150, ry: 40, ph: -18 * Math.PI / 180 };
+const sceneTilt = {
+    w: 400, h: 330,
+    svg: sunArrows(4, [100, 165, 230], 30, { sw: 6, hl: 14, hw: 10, nolabel: true })
+        + `<text class="leg" x="200" y="36" text-anchor="middle" style="font-size:16px">Side view (tilt exaggerated)</text>
+        <polygon points="190,137 400,150 400,180 190,193" fill="${NV}" opacity=".2"/>
+        <text class="olbl" x="394" y="206" text-anchor="end" style="font-size:14px">Earth\u2019s shadow</text>
+        <ellipse cx="${AV.ex}" cy="${AV.ey}" rx="${AV.rx}" ry="${AV.ry}" transform="rotate(-18 ${AV.ex} ${AV.ey})" fill="none" stroke="${GR}" stroke-width="3" stroke-dasharray="2 8" stroke-linecap="round"/>
+        <g transform="translate(${AV.ex} ${AV.ey})">${tdEarth(28)}</g>
+        <text class="olbl fm" x="333" y="94" text-anchor="middle" style="font-size:15px" opacity="0">Full Moon</text>
+        <g class="mn">${tdMoon(10)}</g>`,
+    anim(svg) {
+        const mn = svg.querySelector('.mn'), fm = svg.querySelector('.fm');
+        const set = t => { const x = AV.rx * Math.cos(t), y = AV.ry * Math.sin(t); mn.setAttribute('transform', `translate(${(AV.ex + x * Math.cos(AV.ph) - y * Math.sin(AV.ph)).toFixed(1)} ${(AV.ey + x * Math.sin(AV.ph) + y * Math.cos(AV.ph)).toFixed(1)})`); };
+        return {
+            loop: true,
+            async run() {
+                const id = runId;
+                while (id === runId) {
+                    await play(2600, k => set(Math.PI - Math.PI * k));
+                    await play(250, k => fm.setAttribute('opacity', k)); await wait(900);
+                    await play(250, k => fm.setAttribute('opacity', 1 - k));
+                    await play(2600, k => set(-Math.PI * k));
+                }
+            }
+        };
+    }
+};
+
+/* ---------- Q: two eclipses ---------- */
+const chipAB = l => `<rect x="10" y="10" width="34" height="34" rx="6" fill="#fff" stroke="${NV}" stroke-width="3"/><text x="27" y="35" text-anchor="middle" style="font-family:var(--cond);font-size:22px;font-weight:900;fill:${NV}">${l}</text>`;
+const SS9 = solarSky(360, 200, 48, { seed: 4 }), LS9 = lunarSky(360, 200, 46, { seed: 8 });
+const panelSolar = { w: 360, h: 200, svg: SS9.svg + chipAB('A'), anim(svg) { return skyLoop(SS9.init(svg), 1300); } };
+const panelLunar = { w: 360, h: 200, cls: 'dark', svg: LS9.svg + chipAB('B'), anim(svg) { return skyLoop(LS9.init(svg), 1300); } };
+
+/* ---------- Q: where is the Moon (hotspot) ---------- */
+const C10 = { cx: 450, cy: 165, R: 122, er: 32, sunX: 18, sunYs: [75, 135, 195, 255], sunLen: 74 };
+const spotHints = [
+    '',
+    'Close, but the Moon isn\u2019t lined up with the Sun and Earth here, so its shadow misses Earth.',
+    'At a quarter Moon, the Moon is off to the side. Its shadow points out into space.',
+    'Here the Moon\u2019s shadow points away from Earth, out into space.',
+    'Here Earth is in the middle. That\u2019s where a lunar eclipse can happen, not a solar one.',
+    'Here the Moon\u2019s shadow points away from Earth, out into space.',
+    'At a quarter Moon, the Moon is off to the side. Its shadow points out into space.',
+    'Close, but the Moon isn\u2019t lined up with the Sun and Earth here, so its shadow misses Earth.'
+];
+const corona = (() => { const id = 'cg' + (++uid); return `<svg viewBox="0 0 300 226" width="300" height="226"><defs><radialGradient id="${id}"><stop offset=".55" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs><rect width="300" height="226" fill="${NV}"/>${stars(300, 226, 18, 6)}<circle cx="150" cy="113" r="96" fill="url(#${id})"/><circle cx="150" cy="113" r="56" fill="${DK}"/></svg>`; })();
+
+/* =========================================================
+   QUESTIONS
+   ========================================================= */
+const QS = [
+    { kind: 'mc', title: 'Spot the solar eclipse', sc: 'SC20', prompt: 'Which diagram shows the Sun, Moon and Earth during a solar eclipse?',
+      opts: [
+        { pic: eclPic('lunar'), hint: 'Here Earth is in the middle, so Earth\u2019s shadow falls on the Moon. That\u2019s a lunar eclipse.' },
+        { pic: eclPic('solar'), hint: '' },
+        { pic: eclPic('side'), hint: 'The Moon isn\u2019t lined up with the Sun and Earth, so its shadow can\u2019t fall on Earth.' },
+        { pic: eclPic('miss'), hint: 'The Moon is between the Sun and Earth, but not exactly in line, so its shadow misses Earth.' }],
+      answer: 1, msg: 'In a solar eclipse, the Moon passes directly between the Sun and Earth and casts its shadow on Earth.' },
+
+    { kind: 'label', title: 'Label the shadow', sc: 'SC20', prompt: 'Drag each label onto the solar eclipse diagram.', scene: sceneLabel,
+      slots: [{ id: 'moon', x: 80, y: 140 }, { id: 'pen', x: 350, y: 8 }, { id: 'umb', x: 340, y: 262 }],
+      answer: { moon: 'Moon', pen: 'Penumbra', umb: 'Umbra' },
+      tiles: ['Moon', 'Umbra', 'Penumbra', 'Earth\u2019s shadow', 'Sunlight'],
+      hints: { 'Earth\u2019s shadow': 'In a solar eclipse, Earth isn\u2019t blocking the light. Whose shadow is shown here?', Sunlight: 'Sunlight is blocked in this part of the diagram. Which part of the shadow is it?' },
+      slotHints: { moon: 'This small object sits between the Sun and Earth.', umb: 'The darkest, central part of a shadow is called the umbra.', pen: 'The lighter, outer part of a shadow is called the penumbra.' },
+      msg: 'The Moon\u2019s umbra causes a total eclipse. Its penumbra causes a partial eclipse.' },
+
+    { kind: 'label', title: 'Who sees what?', sc: 'SC20', prompt: 'Watch the Moon move into line. What does each person see?', scene: sceneWho, sideW: 520,
+      rows: [{ id: 'A', label: 'Person A' }, { id: 'B', label: 'Person B' }, { id: 'C', label: 'Person C' }], poolCls: 'wrap',
+      answer: { A: 'Total eclipse', B: 'Partial eclipse', C: 'No eclipse' },
+      tiles: ['Total eclipse', 'Partial eclipse', 'No eclipse', 'Lunar eclipse'],
+      hints: { 'Lunar eclipse': 'The Moon\u2019s shadow is falling on Earth, so everyone here would see a solar eclipse, or none at all.' },
+      slotHints: { A: 'Person A is in the darkest part of the shadow, the umbra. The Sun is completely covered.', B: 'Person B is in the lighter outer shadow, the penumbra. Only part of the Sun is covered.', C: 'Person C is outside the Moon\u2019s shadow, so the Sun isn\u2019t blocked at all.' },
+      instrL: 'Watch, then drag a label next to each person and press <b>Check</b>.',
+      msg: 'Only people in the small umbra see a total eclipse. People in the penumbra see a partial eclipse.' },
+
+    { kind: 'mc', title: 'Eye safety', sc: 'SC20', prompt: 'What is a safe way to look at a solar eclipse?',
+      opts: [
+        { t: 'Through dark sunglasses', hint: 'Even very dark sunglasses let through enough sunlight to damage your eyes.' },
+        { t: 'By taking quick glances', hint: 'Even a short look can burn your retina, and it doesn\u2019t hurt while it happens.' },
+        { t: 'Through binoculars', hint: 'Binoculars concentrate the sunlight and make eye damage even worse.' },
+        { t: 'With certified eclipse glasses', hint: '' }],
+      answer: 3, msg: 'Never look straight at the Sun. Use certified eclipse glasses or a pinhole projector.' },
+
+    { kind: 'mc', title: 'Only at New Moon', sc: 'SC22', prompt: 'Why can a solar eclipse only happen at a New Moon?', scene: sceneNew,
+      opts: [
+        { t: 'At New Moon, the Moon is dark, so it blocks sunlight better.', hint: 'The whole Moon blocks light, whatever phase it is. It\u2019s about where the Moon is, not how it looks.' },
+        { t: 'Only at New Moon is the Moon between the Sun and Earth.', hint: '' },
+        { t: 'At New Moon, Earth is between the Sun and the Moon.', hint: 'That\u2019s the line-up at Full Moon. It can cause a lunar eclipse, not a solar one.' },
+        { t: 'The Sun is weakest at New Moon, so the Moon can cover it.', hint: 'The Sun shines just as brightly all month. Think about the positions of the Sun, Moon and Earth.' }],
+      answer: 1, msg: 'A solar eclipse needs the Moon between the Sun and Earth. That only happens at New Moon.' },
+
+    { kind: 'label', title: 'Make a lunar eclipse', sc: 'SC21', prompt: 'Drag Earth and the Moon into place to make a lunar eclipse.', scene: sceneMake, poolLabel: 'Objects',
+      slots: [{ id: 'mid', x: 315, y: 100, w: 130, h: 130, cls: 'round', aria: 'Middle position' }, { id: 'far', x: 585, y: 100, w: 130, h: 130, cls: 'round', aria: 'Far position' }],
+      answer: { mid: 'Earth', far: 'Moon' },
+      tiles: [objTile('Earth', tdEarth(30)), objTile('Moon', tdMoon(14))],
+      hints: { Moon: 'With the Moon in the middle, its shadow falls on Earth. That makes a solar eclipse.', Earth: 'With the Moon in the middle, its shadow falls on Earth. That makes a solar eclipse.' },
+      instrL: 'Drag each object into a space (or tap it, then a space), then press <b>Check</b>.',
+      msg: 'Earth is in the middle, so Earth\u2019s shadow falls on the Moon. This can only happen at a Full Moon.' },
+
+    { kind: 'mc', chip: 'Watch and choose', title: 'Blood Moon', sc: 'SC21', prompt: 'Watch a total lunar eclipse. Why does the Moon turn red?', scene: sceneBlood,
+      instr: 'Watch, then choose an answer and press <b>Check</b>.',
+      opts: [
+        { t: 'The Moon heats up and glows red in the shadow.', hint: 'The Moon never makes its own light, even in a shadow.' },
+        { t: 'Earth\u2019s atmosphere filters sunlight, so mostly red light reaches the Moon.', hint: '' },
+        { t: 'Red light reflects off Earth\u2019s deserts onto the Moon.', hint: 'It\u2019s not Earth\u2019s surface. Think about the air that sunlight passes through on its way to the Moon.' },
+        { t: 'The Sun turns red during a lunar eclipse.', hint: 'The Sun doesn\u2019t change colour. Something between the Sun and the Moon filters its light.' }],
+      answer: 1, msg: 'Sunlight passing through Earth\u2019s atmosphere loses most of its blue light, so red light reaches the Moon.' },
+
+    { kind: 'mc', title: 'Ava\u2019s claim', sc: 'SC21', prompt: 'Ava is talking about lunar eclipses. Is she right?', scene: sceneTilt,
+      quote: '\u201cEvery Full Moon has a lunar eclipse, because Earth is between the Sun and the Moon.\u201d',
+      opts: [
+        { t: 'Yes. Every Full Moon has a lunar eclipse.', hint: 'Most Full Moons have no eclipse at all. Watch where the Moon passes in the diagram.' },
+        { t: 'Yes, but we only notice it on clear nights.', hint: 'Clear skies help, but most Full Moons have no eclipse even on a clear night.' },
+        { t: 'No. Its tilted orbit usually misses Earth\u2019s shadow.', hint: '' },
+        { t: 'No. Earth is never between the Sun and the Moon.', hint: 'Sometimes it is. That\u2019s exactly when a lunar eclipse happens.' }],
+      answer: 2, msg: 'The Moon\u2019s orbit is slightly tilted, so the Sun, Earth and Moon only line up perfectly now and then.' },
+
+    { kind: 'label', chip: 'Watch and label', title: 'Two eclipses', sc: 'SC22', prompt: 'Watch both eclipses. Drag a label into each space.', sideW: 270,
+      panels: [{ scene: panelSolar, rows: [{ id: 'aT', label: 'Type' }, { id: 'aM', label: 'Middle' }] }, { scene: panelLunar, rows: [{ id: 'bT', label: 'Type' }, { id: 'bM', label: 'Middle' }] }],
+      answer: { aT: 'Solar eclipse', aM: 'Moon in the middle', bT: 'Lunar eclipse', bM: 'Earth in the middle' },
+      tiles: ['Solar eclipse', 'Lunar eclipse', 'Moon in the middle', 'Earth in the middle'],
+      slotHints: { aT: 'In A, the Moon covers the Sun during the day. Which eclipse is that?', aM: 'In A, something blocks the Sun\u2019s light before it reaches Earth. Which object is in the middle?', bT: 'In B, the Moon goes dark and turns red at night. Which eclipse is that?', bM: 'In B, a shadow covers the whole Moon. Whose shadow is big enough to do that?' },
+      instrL: 'Drag each label into a space (or tap a label, then a space), then press <b>Check</b>.',
+      msg: 'In a solar eclipse the Moon is in the middle. In a lunar eclipse Earth is in the middle.' },
+
+    { kind: 'hotspot', title: 'Where\u2019s the Moon?', sc: 'SC22', prompt: 'Seen from above. Click where the Moon must be for a solar eclipse.',
+      scene: { w: 720, h: 330, svg: orbitBase(C10) + `<g class="shc" opacity="0"><polygon points="328,147 420,165 328,183" fill="${NV}" opacity=".85"/></g>` + PP.map(p => moonAt(p, C10, 18)).join('') + seenAbove(720, 330),
+        anim(svg) { return { done() { const g = svg.querySelector('.shc'); play(500, k => g.setAttribute('opacity', k), always); } }; } },
+      spots: PP.map((p, i) => { const [x, y] = mpos(p, C10); return { x, y, r: 30, hint: spotHints[i], aria: `Moon position ${i + 1}` }; }),
+      card: `${corona}<div class="ccap">A total solar eclipse</div>`,
+      answer: 0, msg: 'At New Moon, the Moon sits between the Sun and Earth, so its shadow can fall on Earth.' },
+
+    { kind: 'sort', title: 'Solar, lunar or both?', sc: 'SC22', prompt: 'Sort each statement: solar eclipse, lunar eclipse, or both?',
+      bins: [{ h: 'Solar eclipse', key: 's' }, { h: 'Both', key: 'b', cls: 'gy' }, { h: 'Lunar eclipse', key: 'l', cls: 'pk' }],
+      items: [
+        ['The Moon is between the Sun and Earth', 's', 'When the Moon is in the middle, its shadow falls on Earth. That\u2019s a solar eclipse.'],
+        ['Only happens at a New Moon', 's', 'The Moon is only between the Sun and Earth at New Moon. That line-up gives a solar eclipse.'],
+        ['Needs eclipse glasses to watch', 's', 'Only a solar eclipse means looking towards the Sun, which can damage your eyes.'],
+        ['Earth is between the Sun and the Moon', 'l', 'When Earth is in the middle, its shadow falls on the Moon. That\u2019s a lunar eclipse.'],
+        ['Only happens at a Full Moon', 'l', 'Earth is only between the Sun and the Moon at Full Moon. That line-up gives a lunar eclipse.'],
+        ['The Moon can turn red', 'l', 'The Moon turns red when it sits in Earth\u2019s shadow. That\u2019s a lunar eclipse.'],
+        ['The Sun, Earth and Moon line up', 'b', 'Every eclipse needs all three to line up. Only the order changes.'],
+        ['A shadow has an umbra and penumbra', 'b', 'Both the Moon\u2019s shadow and Earth\u2019s shadow have a dark umbra and a lighter penumbra.']],
+      msg: 'Both eclipses need a perfect line-up. Which object sits in the middle decides the type.' },
+
+    { kind: 'cloze', title: 'Compare the line-ups', sc: 'SC22', prompt: 'Drag the words to compare the two types of eclipse.',
+      text: 'In a solar eclipse, the [[Moon]] is in the middle and its shadow falls on [[Earth]]. This can only happen at a [[New Moon]]. In a lunar eclipse, [[Earth]] is in the middle and its shadow falls on the [[Moon]]. This can only happen at a [[Full Moon]].',
+      tiles: ['Moon', 'Moon', 'Earth', 'Earth', 'New Moon', 'Full Moon', 'Sun', 'First quarter'],
+      hints: { Sun: 'The Sun is always at one end, giving the light. It\u2019s never in the middle.', 'First quarter': 'At first quarter, the Moon is off to the side, so nothing lines up.' },
+      slotHints: ['In a solar eclipse, the Sun\u2019s light is blocked before it reaches Earth. What blocks it?', 'The Moon\u2019s shadow lands on our planet.', 'The Moon is between the Sun and Earth at this phase.', 'In a lunar eclipse, our planet blocks the sunlight.', 'Earth\u2019s shadow lands on the Moon.', 'Earth is between the Sun and the Moon at this phase.'],
+      msg: 'Solar: Sun, Moon, Earth at New Moon. Lunar: Sun, Earth, Moon at Full Moon.' }
+];
+
+</script>
+</body>
+</html>
