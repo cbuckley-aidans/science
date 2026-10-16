@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Levers and Net Force: Checking for Understanding</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --navy: #1b1f45;
+        --pink: #ea008a;
+        --mid-grey: #9a9a9a;
+        --light-grey: #e8e8e8;
+        --blank: #f0f3f6;
+        --tint: #e9ecf5;
+        --cond: 'Barlow Condensed', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        --ease: cubic-bezier(.2,.8,.2,1);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #eaeaea; color: var(--navy);
+        display: flex; align-items: center; justify-content: center; overflow: hidden; -webkit-user-select: none; user-select: none; }
+    .stage { width: 1280px; height: 720px; background: #fff; border-top: 6px solid var(--navy); position: relative; padding: 36px 64px 0; flex-shrink: 0; overflow: hidden; transform-origin: center; }
+    .top { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 4px solid var(--navy); padding-bottom: 12px; }
+    .sheet-title { font-family: var(--cond); font-size: 44px; font-weight: 900; text-transform: uppercase; letter-spacing: .01em; margin: 0; line-height: 1; }
+    .sheet-title span { color: var(--pink); }
+    .counter { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; color: var(--mid-grey); text-transform: uppercase; }
+    .counter b { color: var(--navy); }
+    .content { position: absolute; left: 64px; right: 64px; top: 124px; bottom: 108px; }
+    .caption { position: absolute; left: 64px; right: 64px; bottom: 28px; min-height: 60px; display: flex; align-items: center; gap: 16px; font-size: 25px; font-weight: 500; line-height: 1.32; }
+    .caption::before { content: ''; width: 10px; height: 10px; background: var(--pink); flex-shrink: 0; }
+    .caption .txt { flex: 1; }
+    .caption b { color: var(--pink); font-weight: 800; }
+    .caption b.no { color: var(--navy); }
+    .caption .in { animation: capIn .45s var(--ease); display: block; }
+    @keyframes capIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .progress { position: absolute; left: 0; bottom: 0; height: 6px; background: var(--pink); width: 0; transition: width .6s var(--ease); }
+
+    .next { font-family: var(--cond); font-size: 26px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; background: var(--pink); color: #fff;
+        border: none; border-radius: 8px; padding: 12px 30px; cursor: pointer; flex-shrink: 0; }
+    .next[hidden] { display: none; }
+    .next:disabled { background: #c3c6d0; cursor: default; }
+    button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--pink); outline-offset: 3px; }
+    .next:focus-visible { outline-color: var(--navy); }
+    .pop-in { animation: capIn .45s var(--ease); }
+    @keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+
+    /* question frame */
+    .q { display: flex; flex-direction: column; height: 100%; }
+    .qhead { display: flex; align-items: center; gap: 18px; }
+    .qtitle { font-size: 40px; font-weight: 800; line-height: 1.15; }
+    .tchip { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--pink); border: 3px solid var(--pink); border-radius: 6px; padding: 3px 12px 2px; }
+    .sctag { margin-left: auto; font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--navy); box-shadow: inset 0 0 0 3px var(--navy); border-radius: 6px; padding: 6px 12px 5px; line-height: 1; }
+    .prompt { font-size: 28px; font-weight: 600; margin-top: 6px; line-height: 1.3; }
+    .body { flex: 1; min-height: 0; margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 30px; }
+    .center { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+    .dlbl { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mid-grey); }
+
+    /* svg classes */
+    svg { overflow: visible; display: block; }
+    .obj { fill: var(--blank); stroke: var(--navy); stroke-width: 4; }
+    .oname { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; fill: var(--navy); }
+    .flbl { font-family: var(--cond); font-size: 24px; font-weight: 800; fill: var(--navy); }
+    .spd { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; fill: var(--mid-grey); }
+    .leg { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 600; fill: var(--mid-grey); }
+    .gnd { stroke: #c9ccd6; stroke-width: 4; }
+    .fig line, .fig polyline { stroke: var(--navy); stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+    .fig circle { fill: var(--navy); }
+    .sball { fill: #fff; stroke: var(--navy); stroke-width: 4; }
+    .spent { fill: var(--navy); }
+    .pole { font-family: var(--cond); font-size: 26px; font-weight: 900; text-anchor: middle; }
+    .clip { fill: none; stroke: var(--navy); stroke-width: 3; stroke-linecap: round; }
+
+    /* multiple choice */
+    .opts { display: grid; gap: 10px; }
+    .col .opt { font-size: 23px; padding: 9px 18px; }
+    .opts.g2 { grid-template-columns: 1fr 1fr; gap: 18px; width: 100%; }
+    .opt { display: flex; align-items: center; gap: 16px; border: 3px solid var(--navy); border-radius: 8px; background: #fff; padding: 12px 20px;
+        font-family: inherit; font-size: 25px; font-weight: 600; color: var(--navy); text-align: left; line-height: 1.25; cursor: pointer;
+        transition: background-color .2s, border-color .2s, color .2s, opacity .2s; }
+    .opts.g2 .opt { min-height: 104px; font-size: 30px; font-weight: 700; padding: 16px 24px; }
+    .opt .l { flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background: var(--navy); color: #fff; font-family: var(--cond); font-size: 24px; font-weight: 900;
+        display: flex; align-items: center; justify-content: center; transition: background-color .2s, color .2s; }
+    .opt:hover:not(:disabled) { background: #f6f7fb; }
+    .opt.sel { background: var(--tint); }
+    .opt.sel .l { background: var(--pink); }
+    .opt.right, .opt.right:hover { background: var(--pink); border-color: var(--pink); color: #fff; opacity: 1; }
+    .opt.right .l { background: #fff; color: var(--pink); }
+    .opt.wrong { border-style: dashed; opacity: .5; animation: shake .4s; cursor: default; }
+    .opt:disabled { cursor: default; }
+    .gly { flex-shrink: 0; }
+    .gd { fill: #b5b9c6; } .go { fill: var(--navy); } .gs { fill: none; stroke: var(--navy); stroke-width: 3; }
+    .opt.right .gd { fill: rgba(255,255,255,.6); } .opt.right .go { fill: #fff; } .opt.right .gs { stroke: #fff; }
+    .opt.right .gsf { fill: #fff; }
+    .pred .opts { width: 380px; }
+    .pred .opt { min-height: 76px; font-size: 26px; font-weight: 700; padding: 10px 18px; }
+
+    /* picture choices */
+    .pgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; width: 100%; }
+    .pgrid.g22 { grid-template-columns: 1fr 1fr; gap: 14px; width: 500px; }
+    .pcard { position: relative; border: 3px solid var(--navy); border-radius: 8px; background: #fff; padding: 16px 4px 12px; cursor: pointer;
+        display: flex; flex-direction: column; align-items: center; gap: 8px; font-family: inherit; color: var(--navy); transition: background-color .2s, border-color .2s, opacity .2s; }
+    .pgrid.g22 .pcard { padding: 12px 8px 8px; }
+    .pcard .l { position: absolute; left: 10px; top: 10px; width: 38px; height: 38px; border-radius: 50%; background: var(--navy); color: #fff; font-family: var(--cond); font-size: 23px; font-weight: 900;
+        display: flex; align-items: center; justify-content: center; transition: background-color .2s; }
+    .pcard .cap { font-size: 22px; font-weight: 700; line-height: 1.2; text-align: center; }
+    .pcard:hover:not(:disabled) { background: #f6f7fb; }
+    .pcard.sel { background: var(--tint); }
+    .pcard.sel .l { background: var(--pink); }
+    .pcard.right, .pcard.right:hover { border-color: var(--pink); background: #fff; box-shadow: 0 0 0 5px rgba(234,0,138,.18); opacity: 1; }
+    .pcard.right .l { background: var(--pink); }
+    .pcard.wrong { border-style: dashed; opacity: .45; animation: shake .4s; cursor: default; }
+    .pcard:disabled { cursor: default; }
+
+    /* quote */
+    .quote { border-left: 8px solid var(--pink); padding: 4px 0 4px 20px; font-size: 25px; font-weight: 600; font-style: italic; line-height: 1.3; margin-bottom: 14px; }
+    .quote b { font-style: normal; font-weight: 800; color: var(--pink); }
+    .col { display: flex; flex-direction: column; }
+
+    /* scenes */
+    .scene { position: relative; border: 3px solid var(--navy); border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #fff; }
+    .scene > svg { overflow: hidden; }
+    .replay { position: absolute; right: 12px; top: 12px; display: flex; align-items: center; gap: 6px; font-family: var(--cond); font-size: 19px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+        background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 6px; padding: 5px 12px 4px 9px; cursor: pointer; }
+    .replay svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+    .replay:hover { background: var(--blank); }
+
+    /* drag tiles */
+    .tile { font-family: inherit; font-size: 24px; font-weight: 700; color: var(--navy); background: #fff; border: 3px solid var(--navy); border-radius: 8px; padding: 6px 16px; line-height: 1.25;
+        cursor: grab; touch-action: none; position: relative; z-index: 2; transition: transform .3s var(--ease), box-shadow .2s, border-color .2s; box-shadow: 0 4px 0 #c3c6d0; white-space: nowrap; text-align: center; }
+    .tile.sm { font-size: 22px; padding: 6px 12px; white-space: normal; }
+    .tile.sel { border-color: var(--pink); box-shadow: 0 0 0 4px rgba(234,0,138,.22); }
+    .tile.drag { transition: none; cursor: grabbing; z-index: 30; box-shadow: 0 14px 30px rgba(27,31,69,.25); border-color: var(--pink); }
+    .tile.right { background: var(--pink); color: #fff; border-color: var(--pink); box-shadow: none; cursor: default; }
+    .tile.wrong { border-style: dashed; background: var(--tint); box-shadow: none; animation: shake .4s; }
+
+    /* sort */
+    .sort { display: grid; grid-template-columns: 1fr 360px 1fr; gap: 18px; width: 100%; height: 100%; }
+    .bin { border: 3px solid var(--navy); border-radius: 8px; display: flex; flex-direction: column; overflow: visible; transition: box-shadow .2s; }
+    .bin.pk { border-color: var(--pink); }
+    .bin h3 { margin: 0; padding: 8px 16px 7px; font-family: var(--cond); font-size: 28px; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; color: #fff; background: var(--navy); }
+    .bin.pk h3 { background: var(--pink); }
+    .bin .sub { font-size: 18px; font-weight: 600; color: var(--mid-grey); padding: 8px 16px 0; }
+    .bin .area { flex: 1; padding: 12px 14px; display: flex; flex-wrap: wrap; gap: 10px; align-content: flex-start; justify-content: center; border-radius: 0 0 6px 6px; transition: background-color .2s; }
+    .bin.hover .area, .bin.armed:hover .area { background: rgba(234,0,138,.06); }
+    .bin.armed { box-shadow: 0 0 0 4px rgba(234,0,138,.15); cursor: pointer; }
+    .pool { background: var(--blank); border-radius: 8px; padding: 14px; display: flex; flex-wrap: wrap; gap: 10px; align-content: center; justify-content: center; transition: background-color .2s; }
+    .pool.hover { background: #e3e7ee; }
+    .pool.col1 { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 8px; }
+
+    /* force diagram builder */
+    .bwrap { position: relative; width: 806px; height: 336px; border: 3px solid var(--navy); border-radius: 8px; flex-shrink: 0; }
+    .bwrap > svg { position: absolute; left: 0; top: 0; }
+    .slot { position: absolute; width: 200px; height: 50px; border: 3px dashed #c3c6d0; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: border-color .2s, background-color .2s; }
+    .slot.hover, .slot.armed:hover { border-color: var(--pink); background: rgba(234,0,138,.06); }
+    .slot.armed { border-color: #e7a3c9; cursor: pointer; }
+    .slot.filled { border-color: transparent; background: none; }
+    .slot.wrong { animation: shake .4s; }
+    .slot .tile { box-shadow: none; padding: 5px 14px; font-size: 23px; }
+    .bside { width: 320px; display: flex; flex-direction: column; gap: 10px; height: 336px; }
+    .bside .pool { flex: 1; flex-direction: column; flex-wrap: nowrap; align-items: center; justify-content: center; }
+
+    /* end */
+    .scorecard { border: 3px solid var(--pink); border-radius: 8px; padding: 30px 60px; text-align: center; }
+    .scorecard .big { font-family: var(--cond); font-size: 120px; font-weight: 900; color: var(--pink); line-height: 1; }
+    .scorecard .dlbl { margin-top: 8px; }
+    .dots { display: flex; gap: 8px; justify-content: center; margin-top: 22px; }
+    .dots span { width: 34px; height: 34px; border-radius: 6px; border: 3px solid var(--navy); font-family: var(--cond); font-size: 17px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+    .dots span.y { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .again { margin-top: 26px; font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+        background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 8px; padding: 8px 22px; cursor: pointer; }
+
+    /* lever markers and brackets */
+    .mkr circle { stroke-width: 3; }
+    .mkr text { font-family: var(--cond); font-size: 20px; font-weight: 900; text-anchor: middle; }
+    .mF circle { fill: var(--navy); stroke: var(--navy); } .mF text { fill: #fff; }
+    .mL circle { fill: #fff; stroke: var(--navy); } .mL text { fill: var(--navy); }
+    .mE circle { fill: var(--pink); stroke: var(--pink); } .mE text { fill: #fff; }
+    .br line { stroke: #9a9a9a; stroke-width: 5; stroke-linecap: round; transition: stroke .4s; }
+    .br.pk line { stroke: var(--pink); }
+    .br.e.on line { stroke: var(--pink); } .br.r.on line { stroke: var(--navy); }
+    .gdl { stroke: #c3c6d0; stroke-width: 2; stroke-dasharray: 5 6; }
+    .tagt { font-family: var(--cond); font-size: 24px; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; fill: var(--pink); }
+    .lbl { font-family: var(--cond); font-size: 21px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; fill: var(--mid-grey); }
+    .lbl.nv { fill: var(--navy); } .lbl.pk { fill: var(--pink); }
+    .fadein { animation: capIn .45s var(--ease) both; }
+
+    /* hotspots */
+    .hs { cursor: pointer; outline: none; }
+    .hs .halo { fill: transparent; }
+    .hs .ring { fill: #fff; stroke: var(--navy); stroke-width: 3.5; transition: fill .2s, stroke .2s; }
+    .hs .lead { stroke: var(--navy); stroke-width: 2.5; }
+    .hs .dot { fill: var(--navy); stroke: #fff; stroke-width: 2; transition: fill .2s; }
+    .hs text { font-family: var(--cond); font-size: 25px; font-weight: 900; fill: var(--navy); text-anchor: middle; pointer-events: none; }
+    .hs .pulse { fill: none; stroke: var(--pink); stroke-width: 3; opacity: 0; transform-box: fill-box; transform-origin: center; animation: hsPulse 2.4s var(--ease) infinite; }
+    @keyframes hsPulse { 0% { opacity: .7; transform: scale(1); } 70%, 100% { opacity: 0; transform: scale(1.6); } }
+    .hs:hover .ring { fill: var(--tint); }
+    .hs.sel .ring { fill: var(--pink); stroke: var(--pink); } .hs.sel text { fill: #fff; } .hs.sel .dot { fill: var(--pink); } .hs.sel .lead { stroke: var(--pink); }
+    .hs:focus-visible .ring { stroke: var(--pink); stroke-width: 6; }
+    .hs.wrong { opacity: .3; cursor: default; } .hs.wrong .ring { stroke-dasharray: 5 4; }
+    .hs.right .ring { fill: var(--pink); stroke: var(--pink); } .hs.right text { fill: #fff; } .hs.right .dot { fill: var(--pink); } .hs.right .lead { stroke: var(--pink); }
+    .hs.done { cursor: default; } .hs.done .pulse, .hs.wrong .pulse { display: none; }
+    .hs.fade { opacity: .25; }
+
+    /* three-group sort */
+    .sort3 { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: auto 1fr; gap: 14px 18px; width: 100%; height: 100%; }
+    .sort3 .pool { grid-column: 1 / -1; min-height: 130px; padding: 12px; }
+    .sort3 .bin.alt { border-color: var(--navy); }
+
+    /* cloze */
+    .cloze { display: flex; flex-direction: column; gap: 14px; width: 100%; }
+    .ccard { display: grid; grid-template-columns: 200px 1fr; align-items: center; gap: 24px; border: 3px solid var(--navy); border-radius: 8px; padding: 10px 24px; }
+    .ccard.pk { border-color: var(--pink); }
+    .chd2 { font-family: var(--cond); font-size: 32px; font-weight: 900; text-transform: uppercase; line-height: 1; }
+    .ccard.pk .chd2 { color: var(--pink); }
+    .ctext { font-size: 26px; font-weight: 600; line-height: 2.05; }
+    .blank { display: inline-flex; vertical-align: middle; align-items: center; justify-content: center; min-width: 150px; height: 50px; margin: 0 4px; border: 3px dashed #c3c6d0; border-radius: 8px; line-height: 1;
+        transition: border-color .2s, background-color .2s; }
+    .blank.hover, .blank.armed:hover { border-color: var(--pink); background: rgba(234,0,138,.06); }
+    .blank.armed { border-color: #e7a3c9; cursor: pointer; }
+    .blank.filled { border-color: transparent; }
+    .blank.wrong { animation: shake .4s; }
+    .blank .tile { box-shadow: none; padding: 4px 14px; font-size: 24px; }
+    .pool.row { min-height: 74px; }
+
+    /* calculate */
+    .calcrow { display: flex; align-items: center; gap: 14px; }
+    .clbl { font-family: var(--cond); font-size: 34px; font-weight: 900; text-transform: uppercase; letter-spacing: .02em; margin-right: 4px; }
+    .num { width: 150px; height: 64px; font-family: var(--cond); font-size: 40px; font-weight: 900; color: var(--navy); text-align: center; background: #fff;
+        border: 3px solid var(--navy); border-radius: 8px; outline: none; user-select: text; -webkit-user-select: text; transition: background-color .2s, border-color .2s, color .2s; }
+    .num:focus { border-color: var(--pink); box-shadow: 0 0 0 4px rgba(234,0,138,.18); }
+    .num.wrong { animation: shake .4s; border-style: dashed; }
+    .num.right { background: var(--pink); border-color: var(--pink); color: #fff; box-shadow: none; }
+    .unit { font-family: var(--cond); font-size: 34px; font-weight: 900; margin-right: 22px; }
+    .seg { display: flex; gap: 10px; }
+    .dirb { display: flex; align-items: center; gap: 10px; font-family: inherit; font-size: 24px; font-weight: 700; color: var(--navy); background: #fff; border: 3px solid var(--navy); border-radius: 8px;
+        height: 64px; padding: 0 20px; cursor: pointer; transition: background-color .2s, border-color .2s, color .2s; }
+    .dirb svg { width: 34px; height: 20px; fill: none; stroke: currentColor; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+    .dirb:hover:not(:disabled) { background: #f6f7fb; }
+    .dirb.sel { background: var(--tint); border-color: var(--pink); }
+    .dirb.right { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .dirb:disabled { cursor: default; }
+
+    /* slider */
+    .slwrap { display: flex; flex-direction: column; align-items: center; }
+    .slrow { display: flex; align-items: center; gap: 18px; width: 720px; margin-top: 10px; font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--mid-grey); }
+    .slrow input { flex: 1; accent-color: var(--pink); height: 30px; cursor: pointer; }
+    .slrow input:disabled { cursor: default; }
+    .grab { cursor: ew-resize; }
+    .sort { grid-template-columns: 1fr 400px 1fr; grid-template-rows: minmax(0, 1fr); }
+    .sort .tile { font-size: 22px; padding: 6px 13px; }
+    .br polygon { fill: #9a9a9a; transition: fill .4s; }
+    .br.e.on polygon { fill: var(--pink); } .br.r.on polygon { fill: var(--navy); }
+    .ldr { stroke: var(--navy); stroke-width: 2.5; }
+    .ldot { fill: var(--navy); stroke: #fff; stroke-width: 2.5; }
+    .slot .tile { width: 100%; }
+
+    /* classify pictures */
+    .cgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 16px; width: 100%; }
+    .ccl { display: flex; align-items: center; gap: 10px; border: 3px solid var(--navy); border-radius: 8px; padding: 8px 10px; background: #fff; transition: border-color .2s, box-shadow .2s; }
+    .ccl svg { flex-shrink: 0; }
+    .ccl .side { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 0; }
+    .ccl .nm { white-space: nowrap; font-family: var(--cond); font-size: 19px; font-weight: 900; text-transform: uppercase; letter-spacing: .01em; line-height: 1; margin-bottom: 4px; }
+    .cb { font-family: inherit; font-size: 19px; font-weight: 700; color: var(--navy); background: #fff; border: 2.5px solid var(--navy); border-radius: 6px; height: 32px; cursor: pointer; transition: background-color .2s, border-color .2s, color .2s; }
+    .cb:hover:not(:disabled) { background: #f6f7fb; }
+    .cb.sel { background: var(--tint); border-color: var(--pink); }
+    .cb.right { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .cb:disabled { cursor: default; }
+    .ccl.right { border-color: var(--pink); box-shadow: 0 0 0 4px rgba(234,0,138,.15); }
+    .ccl.wrong { border-style: dashed; animation: shake .4s; }
+    .mks text { font-size: 16px; }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+    <div class="top">
+        <h1 class="sheet-title">Checking <span>levers and net force</span></h1>
+        <div class="counter" id="counter"></div>
+    </div>
+    <div class="content" id="content"></div>
+    <div class="caption"><div class="txt" id="cap"></div><button class="next" id="next" hidden>Check</button></div>
+    <div class="progress" id="progress"></div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const content = $('#content'), cap = $('#cap'), btn = $('#next'), counter = $('#counter'), progress = $('#progress');
+const PK = '#ea008a', NV = '#1b1f45', GR = '#c9ccd6', DT = '#b5b9c6', LT = '#f0f3f6', MG = '#9a9a9a';
+const NS = 'http://www.w3.org/2000/svg';
+let scaleK = 1;
+function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
+function sel(tag, cls, html) { const e = document.createElementNS(NS, tag); if (cls) e.setAttribute('class', cls); if (html !== undefined) e.innerHTML = html; return e; }
+function say(html) { cap.innerHTML = `<span class="in">${html}</span>`; }
+
+/* ---------- animation helpers ---------- */
+let runId = 0;
+const easeOut = t => 1 - (1 - t) * (1 - t), easeIn = t => t * t, easeInOut = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+function play(dur, step, guard) {
+    const id = runId, ok = guard || (() => id === runId);
+    return new Promise(res => {
+        const st = performance.now();
+        const f = n => { if (!ok()) return; const t = Math.min(1, (n - st) / dur); step(t); if (t < 1) requestAnimationFrame(f); else res(); };
+        requestAnimationFrame(f);
+    });
+}
+function wait(ms) { const id = runId; return new Promise(r => setTimeout(() => { if (id === runId) r(); }, ms)); }
+
+/* ---------- drawing helpers ---------- */
+const f1 = v => (Math.round(v * 10) / 10).toString();
+const DIR = { r: 0, l: Math.PI, u: -Math.PI / 2, d: Math.PI / 2 };
+function arrowSVG(x, y, ang, len, o = {}) {
+    const c = o.c || PK, sw = o.sw || 8, hw = o.hw || 13, hl = Math.min(o.hl || 22, len);
+    if (len < 1) return '';
+    const ux = Math.cos(ang), uy = Math.sin(ang), ex = x + ux * len, ey = y + uy * len, bx = ex - ux * hl, by = ey - uy * hl, px = -uy * hw, py = ux * hw;
+    let s = len > hl ? `<line x1="${f1(x)}" y1="${f1(y)}" x2="${f1(bx)}" y2="${f1(by)}" stroke="${c}" stroke-width="${sw}"/>` : '';
+    s += `<polygon points="${f1(ex)},${f1(ey)} ${f1(bx + px)},${f1(by + py)} ${f1(bx - px)},${f1(by - py)}" fill="${c}" stroke="${c}" stroke-width="1.5" stroke-linejoin="round"/>`;
+    if (o.label) {
+        const fs = o.fs || 24, est = o.label.length * fs * .48, full = o.full || len, op = o.lop === undefined ? 1 : o.lop;
+        let tx, ty, an;
+        if (Math.abs(ux) > .9) {
+            ty = y + (o.below ? (o.dy || 34) : -16);
+            if (est <= full - 6) { tx = x + ux * full / 2; an = 'middle'; } else { tx = x + ux * 4; an = ux > 0 ? 'start' : 'end'; }
+        } else if (Math.abs(uy) > .9) { tx = x + (o.left ? -18 : 18); ty = y + uy * full / 2 + 8; an = o.left ? 'end' : 'start'; }
+        else { tx = x + ux * full / 2 + 20; ty = y + uy * full / 2 + 8; an = 'start'; }
+        s += `<text class="flbl" x="${f1(tx)}" y="${f1(ty)}" text-anchor="${an}" opacity="${op}" style="font-size:${fs}px${o.lc ? ';fill:' + o.lc : ''}">${o.label}</text>`;
+    }
+    return s;
+}
+function growArrow(g, x, y, ang, len, o = {}, dur = 450) {
+    const tok = g._tok = (g._tok || 0) + 1;
+    return play(dur, k => { g.innerHTML = arrowSVG(x, y, ang, len * easeOut(k), { ...o, full: len, lop: k }); }, () => g._tok === tok && document.body.contains(g));
+}
+function clearArrow(g) { g._tok = (g._tok || 0) + 1; g.innerHTML = ''; }
+const mark = (x, y, t) => `<g class="mkr m${t}"><circle cx="${f1(x)}" cy="${f1(y)}" r="17"/><text x="${f1(x)}" y="${f1(y + 7)}">${t}</text></g>`;
+const bracket = (x1, x2, y, cls) => `<g class="br ${cls}"><line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}"/><line x1="${x1}" y1="${y - 9}" x2="${x1}" y2="${y + 9}"/><line x1="${x2}" y1="${y - 9}" x2="${x2}" y2="${y + 9}"/></g>`;
+const guide = (x, y1, y2) => `<line class="gdl" x1="${x}" y1="${y1}" x2="${x}" y2="${y2}"/>`;
+const ground = (gy, w = 740, x0 = 0) => `<line class="gnd" x1="${x0}" x2="${w}" y1="${gy + 2}" y2="${gy + 2}"/>`;
+const replayIcon = `<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v5h5"/></svg>`;
+const legend = (x, y) => `<circle cx="${x}" cy="${y - 6}" r="6" fill="${DT}"/><text class="leg" x="${x + 14}" y="${y}">Dots show where it was every quarter of a second</text>`;
+
+const POSE = {
+    pull: { f1: [20, 0], f2: [-18, 0], hip: [-6, -58], sh: [-20, -100], hd: [-27, -117], h: [22, -72] }
+};
+function fig(x, gy, pose, flip, k = 1) {
+    const p = POSE[pose], q = a => a.join(','), h2 = [p.h[0] - 5, p.h[1] + 7];
+    return `<g class="fig" transform="translate(${x} ${gy}) scale(${flip ? -k : k} ${k})"><polyline points="${q(p.f1)} ${q(p.hip)} ${q(p.f2)}"/><line x1="${p.hip[0]}" y1="${p.hip[1]}" x2="${p.sh[0]}" y2="${p.sh[1]}"/><polyline points="${q(p.sh)} ${q(h2)}"/><polyline points="${q(p.sh)} ${q(p.h)}"/><circle cx="${p.hd[0]}" cy="${p.hd[1]}" r="14"/></g>`;
+}
+
+/* option glyphs: grey dots are earlier positions, navy dot is the object */
+function glyph(k) {
+    const D = x => `<circle class="gd" cx="${x}" cy="20" r="3.6"/>`, O = (x, y = 20) => `<circle class="go" cx="${x}" cy="${y}" r="7"/>`;
+    let s = '';
+    if (k === 'faster') { [4, 13, 27, 48].forEach(x => s += D(x)); s += O(78); }
+    else if (k === 'slower') { [4, 34, 56, 70].forEach(x => s += D(x)); s += O(80); }
+    else if (k === 'steady') { [4, 22, 40, 58].forEach(x => s += D(x)); s += O(76); }
+    else if (k === 'stops') { [4, 28, 45, 56].forEach(x => s += D(x)); s += O(64) + `<rect class="go" x="78" y="7" width="5" height="26" rx="2"/>`; }
+    return `<svg class="gly" viewBox="0 0 88 40" width="74" height="34">${s}</svg>`;
+}
+const EFFECT = { faster: 'Speeds up', slower: 'Slows down', steady: 'Steady speed', stops: 'Stops' };
+
+/* =========================================================
+   PICTURES AND STATIC SCENES
+   ========================================================= */
+
+/* Q1: label a class 1 lever */
+/* dimension line with a gap for a label box, arrowheads at both ends */
+const dim = (x1, x2, y, g1, g2, cls) => `<g class="br ${cls}"><line x1="${x1 + 10}" y1="${y}" x2="${g1 - 6}" y2="${y}"/><line x1="${g2 + 6}" y1="${y}" x2="${x2 - 10}" y2="${y}"/>
+    <polygon points="${x1},${y} ${x1 + 16},${y - 8} ${x1 + 16},${y + 8}"/><polygon points="${x2},${y} ${x2 - 16},${y - 8} ${x2 - 16},${y + 8}"/></g>`;
+const leader = (x1, y1, x2, y2) => `<line class="ldr" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/><circle class="ldot" cx="${x2}" cy="${y2}" r="7"/>`;
+const LABEL_SCENE = `<line class="gnd" x1="20" x2="780" y1="232" y2="232"/>
+    <rect x="50" y="140" width="740" height="14" rx="3" fill="${NV}"/>
+    <polygon points="420,154 382,230 458,230" fill="${NV}"/>
+    <path class="obj" d="M674 140 L666 104 L690 78 L732 72 L765 90 L774 140 Z" stroke-linejoin="round"/>
+    ${arrowSVG(90, 24, DIR.d, 110)}
+    ${guide(90, 160, 290)}${guide(420, 238, 290)}${guide(720, 160, 290)}
+    ${dim(90, 420, 278, 155, 355, 'e')}${dim(420, 720, 278, 470, 670, 'r')}
+    ${leader(130, 65, 96, 65)}${leader(640, 95, 692, 112)}${leader(370, 195, 420, 202)}`;
+
+/* Q2: which bracket is the effort arm of a class 3 lever */
+function armPic(a, b) {
+    const y = 80, F = 36, E = 104, Lx = 200, by = 160;
+    const top = x => x === F ? 140 : x === E ? 142 : 86;
+    return `<svg viewBox="0 0 250 175" width="254" height="178">
+        <rect x="16" y="${y - 10}" width="218" height="10" rx="2" fill="${NV}"/>
+        <polygon points="${F},${y} ${F - 17},${y + 30} ${F + 17},${y + 30}" fill="${NV}"/>
+        <rect class="obj" x="${Lx - 22}" y="${y - 50}" width="44" height="40" rx="3" style="stroke-width:3"/>
+        ${arrowSVG(E, 138, DIR.u, 54, { sw: 6, hl: 16, hw: 10 })}
+        <text class="leg" x="${F}" y="132" text-anchor="middle">Fulcrum</text>
+        <text class="leg" x="${E + 12}" y="128">Effort</text>
+        <text class="leg" x="${Lx}" y="22" text-anchor="middle">Load</text>
+        ${guide(a, top(a), by - 10)}${guide(b, top(b), by - 10)}
+        ${bracket(a, b, by, 'pk')}</svg>`;
+}
+
+/* Q3: claw hammer pulling a nail
+   The hammer is drawn in its own coordinates (eye of the head at 0,0, handle pointing up),
+   then rotated and placed so the curved back of the claw rests on the board. */
+const HAM = (() => {
+    const DEG = -3, S = .95, th = DEG * Math.PI / 180, c = Math.cos(th), s = Math.sin(th), CY = 300, FX = 380, VW = 800, VH = 365;
+    const R = ([x, y]) => [S * (x * c - y * s), S * (x * s + y * c)];
+    const cub = (a, b, d, e, t) => { const u = 1 - t; return [0, 1].map(i => u * u * u * a[i] + 3 * u * u * t * b[i] + 3 * u * t * t * d[i] + t * t * t * e[i]); };
+    const BACK = [[-18, 17], [-40, 19], [-70, 34], [-92, 12]];
+    let low = R([24, 17]);
+    for (let i = 0; i <= 40; i++) { const p = R(cub(...BACK, i / 40)); if (p[1] > low[1]) low = p; }
+    const tx = FX - low[0], ty = CY - low[1];
+    const W = p => { const r = R(p); return [r[0] + tx, r[1] + ty]; };
+    const sw = v => f1(v / S);
+    const P = p => f1(p[0]) + ' ' + f1(p[1]);
+
+    /* hammer in local coordinates */
+    const head = `M-22 -17 L22 -17 Q31 -17 35 -11 L60 -11 L65 -16 L88 -16 Q93 -16 93 -11 L93 11 Q93 16 88 16 L65 16 L60 11 L35 11 Q31 17 22 17 L-18 17
+        C-40 19 -70 34 -92 12 C-102 6 -109 -5 -112 -15 Q-112 -19 -108 -19 L-105 -18 C-98 -7 -82 -1 -62 -3 C-45 -4 -33 -10 -22 -17 Z`;
+    const handle = `M-11 -15 L-9.5 -150 Q-10.5 -190 -13.5 -212 L-14 -258 Q-14 -274 0 -274 Q14 -274 14 -258 L13.5 -212 Q10.5 -190 9.5 -150 L11 -15 Z`;
+    const grip = `M-13 -206 L-14 -258 Q-14 -274 0 -274 Q14 -274 14 -258 L13 -206 Q0 -200 -13 -206 Z`;
+    let ridges = ''; for (let y = -216; y >= -258; y -= 9) ridges += `<line x1="-12" y1="${y}" x2="12" y2="${y}" stroke="#3d4477" stroke-width="${sw(2.5)}" stroke-linecap="round"/>`;
+    const local = `<g transform="translate(${f1(tx)} ${f1(ty)}) rotate(${DEG}) scale(${S})">
+        <path d="${handle}" fill="#ecd7b4" stroke="${NV}" stroke-width="${sw(4)}" stroke-linejoin="round"/>
+        <path d="M-3 -24 Q-1 -90 -4 -150 Q-6 -175 -5 -198 M4 -30 Q6 -100 3 -160 Q1 -185 4 -200" fill="none" stroke="#d2b789" stroke-width="${sw(2)}" stroke-linecap="round"/>
+        <path d="${grip}" fill="${NV}"/>${ridges}
+        <path d="${head}" fill="#dfe2ea" stroke="${NV}" stroke-width="${sw(4)}" stroke-linejoin="round"/>
+        <rect x="65" y="-16" width="28" height="32" rx="5" fill="#c9cedb" stroke="${NV}" stroke-width="${sw(4)}"/>
+        <line x1="70" y1="-10" x2="70" y2="10" stroke="#fff" stroke-width="${sw(3)}" stroke-linecap="round" opacity=".8"/>
+        <path d="M-16 -11 L22 -11 Q28 -11 31 -7" fill="none" stroke="#fff" stroke-width="${sw(3.5)}" stroke-linecap="round" opacity=".85"/>
+        <path d="M-30 6 C-56 13 -84 10 -101 -9" fill="none" stroke="#9aa0b5" stroke-width="${sw(2.5)}" stroke-linecap="round"/>
+        <path d="M-11 -17 L11 -17" stroke="${NV}" stroke-width="${sw(4)}"/>
+    </g>`;
+
+    /* nail: vertical in the world, head tucked over the claw tip */
+    const nh = W([-100, -15.5]), nx = nh[0];
+    const nail = `<line x1="${f1(nx)}" y1="${f1(nh[1])}" x2="${f1(nx)}" y2="${CY}" stroke="${NV}" stroke-width="5"/>
+        <line x1="${f1(nx)}" y1="${CY + 4}" x2="${f1(nx)}" y2="${CY + 46}" stroke="${MG}" stroke-width="4" stroke-dasharray="5 5"/>
+        <path d="M${f1(nx)} ${CY + 46} l-2.5 -2 h5 z" fill="${MG}"/>`;
+    const nailHead = `<rect x="${f1(nx - 14)}" y="${f1(nh[1] - 3)}" width="28" height="6" rx="3" fill="${NV}"/>`;
+
+    /* board */
+    let grain = '';
+    [[20, 320, 180], [250, 328, 140], [500, 318, 200], [90, 344, 160], [420, 350, 220], [660, 338, 110]].forEach(([x, y, w]) =>
+        grain += `<path d="M${x} ${y} q${w / 4} -5 ${w / 2} 0 t${w / 2} 0" fill="none" stroke="#dcc7a2" stroke-width="2" stroke-linecap="round"/>`);
+    const board = `<rect x="0" y="${CY}" width="${VW}" height="${VH - CY}" fill="#f4e9d6"/>${grain}<line x1="0" x2="${VW}" y1="${CY}" y2="${CY}" stroke="${NV}" stroke-width="3"/>`;
+
+    /* pull: a curved arrow around the point the hammer rocks on */
+    const top = W([0, -232]), F = [FX, CY], rr = Math.hypot(top[0] - F[0], top[1] - F[1]), a0 = Math.atan2(top[1] - F[1], top[0] - F[0]) + .1, a1 = a0 + .24;
+    const ap = a => [F[0] + rr * Math.cos(a), F[1] + rr * Math.sin(a)];
+    const pe = ap(a1), tg = a1 + Math.PI / 2;
+    const pull = `<path d="M${P(ap(a0))} A${f1(rr)} ${f1(rr)} 0 0 1 ${P(ap(a1 - .03))}" fill="none" stroke="${PK}" stroke-width="7" stroke-linecap="round"/>
+        ${arrowSVG(pe[0] - Math.cos(tg) * 8, pe[1] - Math.sin(tg) * 8, tg, 24, { sw: 7, hl: 22, hw: 13 })}
+        <text class="lbl pk" x="${f1(pe[0] + 18)}" y="${f1(pe[1] + 6)}">Pull</text>`;
+
+    /* close-up of the claw, nail and board */
+    const ZC = [(nx + FX) / 2 - 4, CY - 20], K = 2, IC = [190, 150], IR = 112, zr = IR / K;
+    const Z = p => [IC[0] + K * (p[0] - ZC[0]), IC[1] + K * (p[1] - ZC[1])];
+    const dx = IC[0] - ZC[0], dy = IC[1] - ZC[1], dl = Math.hypot(dx, dy), ux = dx / dl, uy = dy / dl;
+    const inset = `<defs><clipPath id="hamzc"><circle cx="${IC[0]}" cy="${IC[1]}" r="${IR}"/></clipPath></defs>
+        <circle cx="${f1(ZC[0])}" cy="${f1(ZC[1])}" r="${f1(zr)}" fill="none" stroke="${NV}" stroke-width="2.5" stroke-dasharray="6 5"/>
+        <line x1="${f1(ZC[0] + ux * zr)}" y1="${f1(ZC[1] + uy * zr)}" x2="${f1(IC[0] - ux * IR)}" y2="${f1(IC[1] - uy * IR)}" stroke="${NV}" stroke-width="2.5" stroke-dasharray="6 5"/>
+        <circle cx="${IC[0]}" cy="${IC[1]}" r="${IR}" fill="#fff"/>
+        <g clip-path="url(#hamzc)"><use href="#hamsc" transform="translate(${f1(IC[0])} ${f1(IC[1])}) scale(${K}) translate(${f1(-ZC[0])} ${f1(-ZC[1])})"/></g>
+        <circle cx="${IC[0]}" cy="${IC[1]}" r="${IR}" fill="none" stroke="${NV}" stroke-width="4"/>
+        <text class="lbl" x="${IC[0]}" y="${IC[1] - IR - 12}" text-anchor="middle" style="font-size:18px">Close-up</text>`;
+
+    const svg = `<g id="hamsc">${board}${nail}${local}${nailHead}</g>${pull}${inset}
+        <text class="lbl" x="${f1(Z([nx, 0])[0] - 16)}" y="${f1(Z([0, CY])[1] - 14)}" text-anchor="end">Nail</text>
+        <text class="lbl" x="${VW - 24}" y="${VH - 20}" text-anchor="end">Wood</text>`;
+
+    const eye = W([0, -17]), gp = W([0, -236]), zA = Z([nx, nh[1] - 3]), zB = Z([FX, CY]);
+    const spots = [
+        { x: zA[0], y: zA[1], lx: 46, ly: 86, word: 'Load', wx: 46, wy: 50 },
+        { x: zB[0], y: zB[1], lx: 80, ly: 272, word: 'Fulcrum', wx: 112, wy: 296, an: 'start' },
+        { x: eye[0], y: eye[1], lx: eye[0] + 88, ly: eye[1] - 50 },
+        { x: gp[0], y: gp[1], lx: gp[0] - 76, ly: gp[1] + 4, word: 'Effort', wx: gp[0] - 76, wy: gp[1] - 30 }
+    ];
+    return { svg, spots, VW, VH };
+})();
+
+/* Q4: pictures of everyday levers to classify */
+const mks = (x, y, t) => `<g class="mkr mks m${t}"><circle cx="${x}" cy="${y}" r="12"/><text x="${x}" y="${y + 5.5}">${t}</text></g>`;
+const smallArrow = (x, y, ang, len) => arrowSVG(x, y, ang, len, { sw: 5, hl: 14, hw: 9 });
+const metal = (pts, w = 10) => `<polyline points="${pts}" fill="none" stroke="${NV}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/><polyline points="${pts}" fill="none" stroke="#dfe2ea" stroke-width="${w - 6}" stroke-linecap="round" stroke-linejoin="round"/>`;
+const LEVER_PICS = [
+    { name: 'Seesaw', ans: 1, hint: 'Seesaw: the pivot sits between the push and the load. Which part is in the middle?',
+      svg: `<line class="gnd" x1="6" x2="214" y1="122" y2="122"/>
+        <rect x="14" y="78" width="192" height="9" rx="2" fill="${NV}"/>
+        <polygon points="110,87 92,120 128,120" fill="${NV}"/>
+        <path class="obj" d="M164 78 L160 58 L174 44 L196 46 L204 60 L202 78 Z" style="stroke-width:3" stroke-linejoin="round"/>
+        ${smallArrow(32, 28, DIR.d, 46)}`,
+      marks: [[140, 106, 'F'], [182, 26, 'L'], [56, 46, 'E']] },
+    { name: 'Scissors', ans: 1, hint: 'Scissors: the pivot screw sits between your fingers and the paper. Which part is in the middle?',
+      svg: `<rect x="150" y="72" width="66" height="7" fill="#fff" stroke="${MG}" stroke-width="2"/>
+        <path d="M104 71 L208 56 L203 66 L112 81 Z" fill="#dfe2ea" stroke="${NV}" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M104 81 L208 96 L203 86 L112 71 Z" fill="#dfe2ea" stroke="${NV}" stroke-width="3" stroke-linejoin="round"/>
+        <line x1="108" y1="76" x2="66" y2="56" stroke="${NV}" stroke-width="7" stroke-linecap="round"/><line x1="108" y1="76" x2="66" y2="96" stroke="${NV}" stroke-width="7" stroke-linecap="round"/>
+        <ellipse cx="48" cy="50" rx="19" ry="12" fill="none" stroke="${NV}" stroke-width="6"/><ellipse cx="48" cy="102" rx="19" ry="12" fill="none" stroke="${NV}" stroke-width="6"/>
+        <circle cx="108" cy="76" r="6" fill="#fff" stroke="${NV}" stroke-width="3"/>
+        ${smallArrow(48, 8, DIR.d, 26)}${smallArrow(48, 144, DIR.u, 26)}`,
+      marks: [[108, 46, 'F'], [182, 106, 'L'], [80, 20, 'E']] },
+    { name: 'Wheelbarrow', ans: 2, hint: 'Wheelbarrow: the wheel is the fulcrum at one end and you lift at the other end. What sits in the middle?',
+      svg: `<line class="gnd" x1="6" x2="214" y1="134" y2="134"/>
+        <line x1="40" y1="110" x2="198" y2="74" stroke="${NV}" stroke-width="6" stroke-linecap="round"/>
+        <line x1="140" y1="88" x2="146" y2="132" stroke="${NV}" stroke-width="6" stroke-linecap="round"/>
+        <path d="M64 60 Q86 36 104 46 Q124 34 148 60 Z" fill="#c9cedb" stroke="${NV}" stroke-width="3" stroke-linejoin="round"/>
+        <polygon points="58,60 154,60 140,98 76,98" fill="${LT}" stroke="${NV}" stroke-width="3.5" stroke-linejoin="round"/>
+        <circle cx="40" cy="110" r="22" fill="#fff" stroke="${NV}" stroke-width="6"/><circle cx="40" cy="110" r="4" fill="${NV}"/>
+        ${smallArrow(198, 124, DIR.u, 46)}`,
+      marks: [[22, 74, 'F'], [106, 22, 'L'], [176, 112, 'E']] },
+    { name: 'Nutcracker', ans: 2, hint: 'Nutcracker: the hinge is at one end and your hand squeezes at the other end. What sits in the middle?',
+      svg: `<circle cx="80" cy="75" r="14" fill="#e8d3b0" stroke="${NV}" stroke-width="3"/><path d="M70 67 Q80 75 70 84 M90 67 Q80 75 90 84" fill="none" stroke="#b08c5c" stroke-width="2"/>
+        ${metal('26,70 206,40')}${metal('26,80 206,110')}
+        <circle cx="26" cy="75" r="10" fill="${NV}"/><circle cx="26" cy="75" r="3.5" fill="#fff"/>
+        ${smallArrow(188, 6, DIR.d, 30)}${smallArrow(188, 146, DIR.u, 30)}`,
+      marks: [[26, 46, 'F'], [80, 120, 'L'], [160, 20, 'E']] },
+    { name: 'Tweezers', ans: 3, hint: 'Tweezers: the joined end is the fulcrum and the bead is at the tips. Where do your fingers squeeze?',
+      svg: `${metal('22,71 110,59 199,73', 8)}${metal('22,79 110,91 199,77', 8)}
+        <path d="M14 70 Q8 75 14 80 L24 80 L24 70 Z" fill="${NV}"/>
+        <circle cx="206" cy="75" r="7" fill="${LT}" stroke="${NV}" stroke-width="3"/>
+        ${smallArrow(110, 22, DIR.d, 30)}${smallArrow(110, 128, DIR.u, 30)}`,
+      marks: [[22, 46, 'F'], [204, 104, 'L'], [138, 34, 'E']] },
+    { name: 'Fishing rod', ans: 3, hint: 'Fishing rod: the back hand is the fulcrum and the fish is at the tip. Where does the front hand push?',
+      svg: `<line x1="30" y1="130" x2="200" y2="20" stroke="${NV}" stroke-width="6" stroke-linecap="round"/>
+        <line x1="30" y1="130" x2="54" y2="114.5" stroke="${NV}" stroke-width="11" stroke-linecap="round"/>
+        <line x1="200" y1="20" x2="200" y2="70" stroke="${MG}" stroke-width="2"/>
+        <g transform="translate(200 90) scale(.85)"><path d="M0 -22 Q14 -6 0 18 Q-14 -6 0 -22 Z" fill="${LT}" stroke="${NV}" stroke-width="3"/><path d="M0 16 L-9 30 L9 30 Z" fill="${NV}"/><circle cx="-3" cy="-8" r="2.5" fill="${NV}"/></g>
+        <circle cx="30" cy="130" r="9" fill="${NV}"/><circle cx="76" cy="100" r="9" fill="${NV}"/>
+        ${smallArrow(76, 146, DIR.u, 34)}`,
+      marks: [[14, 104, 'F'], [176, 96, 'L'], [102, 130, 'E']] }
+];
+
+/* Q8: fishing rod */
+const ROD = (() => {
+    const B = [52, 300], T = [228, 46], u = [(T[0] - B[0]), (T[1] - B[1])], L = Math.hypot(...u), n = [u[0] / L, u[1] / L];
+    const H = [B[0] + n[0] * 78, B[1] + n[1] * 78];
+    return { B, T, H, L, svg: `<g transform="translate(14 0)"><line x1="${B[0]}" y1="${B[1]}" x2="${T[0]}" y2="${T[1]}" stroke="${NV}" stroke-width="7" stroke-linecap="round"/>
+        <line x1="${B[0]}" y1="${B[1]}" x2="${f1(B[0] + n[0] * 40)}" y2="${f1(B[1] + n[1] * 40)}" stroke="${NV}" stroke-width="13" stroke-linecap="round"/>
+        <line x1="${T[0]}" y1="${T[1]}" x2="${T[0]}" y2="150" stroke="${MG}" stroke-width="2"/>
+        <g transform="translate(${T[0]} 172)"><path d="M0 -22 Q14 -6 0 18 Q-14 -6 0 -22 Z" fill="${LT}" stroke="${NV}" stroke-width="3"/><path d="M0 16 L-9 30 L9 30 Z" fill="${NV}"/><circle cx="-3" cy="-8" r="2.5" fill="${NV}"/></g>
+        <circle cx="${B[0]}" cy="${B[1]}" r="11" fill="${NV}"/><circle cx="${f1(H[0])}" cy="${f1(H[1])}" r="11" fill="${NV}"/>
+        <text class="lbl" x="${B[0] + 20}" y="${B[1] + 7}" style="font-size:18px">Back hand</text>
+        <text class="lbl" x="${f1(H[0] + 20)}" y="${f1(H[1] + 7)}" style="font-size:18px">Front hand</text>
+        <g class="post"></g></g>` };
+})();
+
+/* Q13: Sam's box */
+const SAM_SVG = `${ground(210, 360, 0)}<rect class="obj" x="160" y="130" width="110" height="80" rx="4"/><text class="oname" x="215" y="177" text-anchor="middle">Box</text>
+    ${arrowSVG(28, 170, DIR.r, 132, { label: 'Push 60 N', fs: 21 })}
+    ${arrowSVG(270, 232, DIR.l, 55, { c: NV, label: 'Friction 25 N', fs: 21, below: true, dy: 34 })}<g class="net"></g><text class="flbl nett" x="215" y="72" text-anchor="middle" opacity="0" style="font-size:21px">Net force 35 N</text>`;
+
+/* =========================================================
+   QUESTIONS
+   ========================================================= */
+const QS = [
+    { kind: 'label', title: 'Parts of a lever', sc: 'SC12', prompt: 'Drag each label to the correct part of this lever.',
+      scene: LABEL_SCENE,
+      slots: [
+        { x: 130, y: 40, ans: 'Effort' }, { x: 440, y: 70, ans: 'Load' }, { x: 170, y: 170, ans: 'Fulcrum' },
+        { x: 155, y: 253, ans: 'Effort arm' }, { x: 470, y: 253, ans: 'Resistance arm' }],
+      hints: {
+        Fulcrum: 'The fulcrum is the fixed point the lever turns around.',
+        Load: 'The load is the object the lever moves. Here it is the rock.',
+        Effort: 'The effort is the force you apply. Look for the pink arrow.',
+        'Effort arm': 'The effort arm runs from the fulcrum to where the effort is applied.',
+        'Resistance arm': 'The resistance arm runs from the fulcrum to the load.' },
+      done: w => w.querySelectorAll('.br').forEach(b => b.classList.add('on')),
+      msg: 'Both arms are measured from the fulcrum: one to the effort and one to the load.' },
+
+    { kind: 'mcpic', title: 'Measure from the fulcrum', sc: 'SC12', prompt: 'This is a class 3 lever. Which pink line shows its effort arm?',
+      opts: [
+        { svg: armPic(36, 200), hint: 'This line runs from the fulcrum to the load. That is the resistance arm.' },
+        { svg: armPic(104, 200), hint: 'Arms are always measured from the fulcrum. This line starts at the effort.' },
+        { svg: armPic(36, 104), hint: '' },
+        { svg: armPic(104, 234), hint: 'Arms are always measured from the fulcrum. This line starts at the effort.' }],
+      answer: 2, msg: 'The effort arm runs from the fulcrum to where the effort is applied, even when the effort is in the middle.' },
+
+    { kind: 'hotspot', title: 'Pulling a nail', sc: 'SC12', prompt: 'A claw hammer is used to pull out a nail. Where is the fulcrum?',
+      W: HAM.VW, H: HAM.VH, scene: HAM.svg, spots: HAM.spots,
+      hints: [
+        'This is where the claw grips the nail. The nail is the load being moved.',
+        '',
+        'This is where the handle joins the head. It moves as the hammer rocks. The fulcrum stays still.',
+        'This is where the hand pulls, so it is the effort. Look for the point the hammer turns around.'],
+      answer: 1, tag: 'Class 1 lever', msg: 'The hammer turns where the curve of the claw rests on the wood. The fulcrum is between the load and effort, so it is a class 1 lever.' },
+
+    { kind: 'classify', title: 'What class?', sc: 'SC12', prompt: 'Look at where the fulcrum, load and effort are. Choose the class of each lever.',
+      items: LEVER_PICS,
+      msg: 'Find what is in the middle: the fulcrum for class 1, the load for class 2, the effort for class 3.' },
+
+    { kind: 'watchmc', title: 'Your forearm', sc: 'SC12', prompt: 'Watch the arm lift the ball. What class of lever is the forearm?',
+      opts: [
+        { t: 'Class 1 lever', hint: 'The elbow is the fulcrum, and it sits at one end of the forearm, not in the middle.' },
+        { t: 'Class 2 lever', hint: 'The ball is the load, and it sits at the far end of the forearm, not in the middle.' },
+        { t: 'Class 3 lever', hint: '' },
+        { t: 'It is not a lever', hint: 'The forearm is a rigid bar that turns around the elbow, so it is a lever.' }],
+      answer: 2, msg: 'The elbow is the fulcrum and the ball is the load. The biceps pulls in the middle, so the forearm is a class 3 lever.' },
+
+    { kind: 'slider', title: 'Move the fulcrum', sc: 'SC13', prompt: 'Move the fulcrum so this lever becomes a force multiplier.',
+      msg: 'The effort arm is now longer than the resistance arm. A small effort lifts the heavy load, but only a short distance.' },
+
+    { kind: 'cloze', title: 'Force versus speed', sc: 'SC13', prompt: 'Drag a word into each gap to contrast the two types of lever.',
+      cards: [
+        ['', 'Force multiplier', 'Its effort arm is {0} than its resistance arm. A small effort moves a heavy load a {1} distance.'],
+        ['pk', 'Speed multiplier', 'Its effort arm is {2} than its resistance arm. A {3} effort moves the load a long distance, quickly.']],
+      blanks: [
+        ['longer', 'To need less effort, push further from the fulcrum. Compare the two arms again.'],
+        ['short', 'Gaining force means losing distance. How far does the load move?'],
+        ['shorter', 'A speed multiplier is the opposite of a force multiplier. Compare the two arms again.'],
+        ['large', 'Moving the load far and fast has a cost. Does it take more or less effort?']],
+      extra: ['long', 'small', 'equal'],
+      msg: 'There is always a trade-off: gain force and lose distance, or gain distance and speed and use more force.' },
+
+    { kind: 'mcside', title: 'Ava\u2019s claim', sc: 'SC13', prompt: 'Ava is fishing. Is her claim correct?',
+      quote: '\u201cMy fishing rod is a force multiplier, because it makes the fish easier to lift.\u201d',
+      side: ROD.svg, sideW: 280,
+      opts: [
+        { t: 'Yes. Every lever is a force multiplier.', hint: 'Some levers are speed multipliers. They need more effort, not less.' },
+        { t: 'No. Its effort arm is shorter, so it is a speed multiplier.', hint: '' },
+        { t: 'Yes. The rod makes the fish lighter.', hint: 'A lever can\u2019t change the weight of the load. Compare the lengths of the two arms.' },
+        { t: 'No. A fishing rod is not a lever.', hint: 'The rod is a rigid bar that turns around the back hand, so it is a lever.' }],
+      answer: 1, sideDone: svg => rodDone(svg),
+      msg: 'A fishing rod is a speed multiplier. The front hand moves a little, but the tip moves a long way, fast.' },
+
+    { kind: 'sort', title: 'Force or speed?', sc: 'SC13', prompt: 'Sort each lever by how it is used.',
+      bins: [['f', 'Force multiplier', 'Small effort, load moves a short distance'], ['s', 'Speed multiplier', 'Large effort, load moves far and fast']],
+      items: [
+        ['Nutcracker', 'f', 'You squeeze far from the hinge, so the effort arm is longer. A small squeeze cracks the nut.'],
+        ['Pliers', 'f', 'The handles are much longer than the jaws, so a small squeeze gives a strong grip.'],
+        ['Claw hammer', 'f', 'The handle is much longer than the claw, so a small pull gives a big force on the nail.'],
+        ['Wheelbarrow', 'f', 'The handles are further from the wheel than the load, so you lift a heavy load with less effort.'],
+        ['Tennis racquet', 's', 'Your arm swings a short way, but the racquet head moves a long way, very fast.'],
+        ['Hockey stick', 's', 'Your lower hand moves a short way while the blade moves a long way, quickly.'],
+        ['Your forearm', 's', 'The biceps attaches close to the elbow, so the effort arm is short. The hand moves far and fast.'],
+        ['Golf club', 's', 'Your hands move a short way, but the club head swings a long way, very fast.']],
+      msg: 'Force multipliers make work easier. Speed multipliers make the load move further and faster.' },
+
+    { kind: 'calc', title: 'Net force', sc: 'SC14', prompt: 'Two forces act on this trolley. Calculate the net force.',
+      W: 900, H: 230, label: 'Net force =', dirs: ['l', 'r', '0'], answer: { n: 15, d: 'l' }, scene: s => trolleyScene(s),
+      hint: (n, d) => n === 85 ? 'The forces act in opposite directions, so subtract the smaller force from the larger force.'
+        : n === 15 ? 'The size is right. The net force acts in the direction of the larger force.'
+        : d === '0' ? 'The forces are not the same size, so they are not balanced.'
+        : 'Subtract the smaller force from the larger force, then use the direction of the larger force.',
+      msg: '50 N \u2212 35 N = 15 N left. The forces are unbalanced, so the trolley speeds up to the left.' },
+
+    { kind: 'calc', title: 'Tug of war', sc: 'SC14', prompt: 'Each number shows how hard one person pulls. Calculate the net force on the rope.',
+      W: 1100, H: 262, label: 'Net force =', dirs: ['l', 'r', '0'], answer: { n: 15, d: 'l' }, scene: s => tugScene(s),
+      hint: (n, d) => n === 585 ? 'The two teams pull in opposite directions. Add up each team, then subtract.'
+        : (n === 300 || n === 285) ? 'That is one team\u2019s total. Now subtract the other team\u2019s total.'
+        : n === 15 ? 'The size is right. The net force points towards the team with the larger total.'
+        : d === '0' ? 'Add up each team. Are the two totals really the same?'
+        : 'Add up each team\u2019s forces first. Then subtract the smaller total from the larger total.',
+      msg: 'Left team: 160 + 140 = 300 N. Right team: 95 + 100 + 90 = 285 N. 300 \u2212 285 = 15 N left.' },
+
+    { kind: 'calc', title: 'The missing force', sc: 'SC14', prompt: 'The net force on the crate is 20 N right. Calculate the friction force.',
+      W: 900, H: 250, label: 'Friction =', dirs: ['l', 'r'], answer: { n: 30, d: 'l' }, scene: s => crateScene(s),
+      hint: (n, d) => n === 70 ? 'If friction were 70 N, it would beat the push and the net force would point left. Friction is smaller than the push.'
+        : n === 30 ? 'The size is right. If friction pushed right as well, the net force would be 80 N. Which way must it act?'
+        : 'Push minus friction must equal the net force. What do you subtract from 50 N to get 20 N?',
+      msg: '50 N \u2212 30 N = 20 N right. Friction acts against the push, so it points left.' },
+
+    { kind: 'mcside', title: 'Spot the mistake', sc: 'SC14', prompt: 'Sam calculated the net force on this box. What mistake did Sam make?',
+      quote: 'Sam\u2019s answer: <b>60 N + 25 N = 85 N right</b>',
+      side: SAM_SVG, sideW: 360,
+      opts: [
+        { t: 'Sam added the forces, but they act in opposite directions, so they should be subtracted.', hint: '' },
+        { t: 'Sam gave the wrong direction. The net force points left.', hint: 'The push is the larger force, so the net force does point right. Check how the forces were combined.' },
+        { t: 'Sam forgot to include the unit.', hint: 'Sam did include N. Check how the two forces were combined.' },
+        { t: 'Nothing. Sam\u2019s answer is correct.', hint: 'The push and friction act in opposite directions, so they work against each other.' }],
+      answer: 0, sideDone: svg => { svg.querySelector('.nett').classList.add('fadein'); svg.querySelector('.nett').setAttribute('opacity', 1); growArrow(svg.querySelector('.net'), 178, 92, DIR.r, 77); },
+      msg: 'Opposite directions means subtract: 60 N \u2212 25 N = 35 N right.' },
+
+    { kind: 'predict', scene: 'kayak', title: 'Steady paddling', sc: 'SC14', prompt: 'Both forces on this moving kayak are 80 N. What happens next?',
+      opts: [
+        { g: 'faster', hint: 'The forces are equal and opposite, so there is no net force to speed it up.' },
+        { g: 'steady', hint: '' },
+        { g: 'slower', hint: 'The paddling force matches the water resistance, so nothing slows it down overall.' },
+        { g: 'stops', hint: 'Balanced forces don\u2019t stop a moving object. They keep its motion the same.' }],
+      answer: 1, msg: '80 N \u2212 80 N = 0 N. The forces are balanced, so the kayak keeps moving at a steady speed.' }
+];
+const TOTAL = QS.length;
+const CHIP = { mc: 'Multiple choice', mcpic: 'Multiple choice', mcside: 'Multiple choice', sort: 'Drag and drop', sort3: 'Drag and drop', label: 'Label the diagram',
+    hotspot: 'Tap the diagram', classify: 'Classify', watchmc: 'Watch and choose', slider: 'Interactive', cloze: 'Fill the gaps', calc: 'Calculate', predict: 'Predict' };
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+/* ---------- flow ---------- */
+let qi = 0, firstTry = [], tries = 0, mode = 'check', cur = null;
+function render() {
+    runId++;
+    content.innerHTML = ''; tries = 0; mode = 'check';
+    const q = QS[qi];
+    counter.innerHTML = `Question <b>${qi + 1}</b> / ${TOTAL}`;
+    progress.style.width = (qi / TOTAL * 100) + '%';
+    const wrap = el('div', 'q');
+    wrap.appendChild(el('div', 'qhead', `<div class="qtitle">${q.title}</div><div class="tchip">${CHIP[q.kind]}</div><div class="sctag">${q.sc}</div>`));
+    wrap.appendChild(el('div', 'prompt', q.prompt));
+    const body = el('div', 'body'); wrap.appendChild(body); content.appendChild(wrap);
+    cur = KINDS[q.kind](q, body);
+    say(cur.instr);
+    btn.hidden = false; btn.textContent = 'Check';
+    refresh();
+}
+function refresh() { if (mode === 'check') btn.disabled = !cur.ready(); }
+function check() {
+    tries++;
+    const r = cur.check();
+    if (r.ok) {
+        if (tries === 1) firstTry[qi] = true;
+        say(`<b>Correct.</b> ${QS[qi].msg}`);
+        mode = 'next'; btn.disabled = false; btn.textContent = qi === TOTAL - 1 ? 'Finish' : 'Next';
+        btn.classList.remove('pop-in'); void btn.offsetWidth; btn.classList.add('pop-in');
+        if (cur.done) cur.done();
+    } else {
+        say(`<b class="no">Not quite.</b> ${r.hint}`);
+        refresh();
+    }
+}
+btn.onclick = () => {
+    if (btn.disabled) return;
+    if (mode === 'check') check();
+    else if (qi === TOTAL - 1) finish();
+    else { qi++; render(); }
+};
+function finish() {
+    runId++;
+    content.innerHTML = '';
+    btn.hidden = true;
+    counter.innerHTML = '<b>Complete</b>';
+    progress.style.width = '100%';
+    const n = firstTry.filter(Boolean).length;
+    say('Take a screenshot of this screen and paste it into Stile as evidence of your work.');
+    const c = el('div', 'center');
+    const dots = QS.map((_, i) => `<span class="${firstTry[i] ? 'y' : ''}">${i + 1}</span>`).join('');
+    const card = el('div', 'scorecard pop-in', `<div class="big">${n} / ${TOTAL}</div><div class="dlbl">Correct on the first try</div><div class="dots">${dots}</div>`);
+    const again = el('button', 'again', 'Start again');
+    again.onclick = () => { qi = 0; firstTry = []; render(); };
+    c.append(card, again); content.appendChild(c);
+}
+
+/* ---------- multiple choice core ---------- */
+function mcCore(els, q, extra = {}) {
+    let s = null;
+    els.forEach((b, i) => b.onclick = () => {
+        if (mode !== 'check' || b.classList.contains('wrong')) return;
+        els.forEach(x => x.classList.remove('sel')); b.classList.add('sel'); s = i; refresh();
+    });
+    return {
+        instr: extra.instr || 'Choose an answer, then press <b>Check</b>.',
+        ready: () => s !== null,
+        check() {
+            const b = els[s];
+            b.classList.remove('sel');
+            if (s === q.answer) { b.classList.add('right'); els.forEach(x => x.disabled = true); return { ok: true }; }
+            b.classList.add('wrong'); b.disabled = true;
+            const h = q.opts[s].hint; s = null; return { ok: false, hint: h };
+        },
+        done: extra.done
+    };
+}
+const L = 'ABCD';
+const arrowIcon = d => `<svg viewBox="0 0 34 20"><path d="${d === 'l' ? 'M32 10H3M11 2L3 10l8 8' : 'M2 10h29M23 2l8 8-8 8'}"/></svg>`;
+const KINDS = {
+    mcpic(q, body) {
+        const g = el('div', 'pgrid');
+        const els = q.opts.map((o, i) => { const b = el('button', 'pcard', `<span class="l">${L[i]}</span>${o.svg}`); b.setAttribute('aria-label', 'Option ' + L[i]); g.appendChild(b); return b; });
+        body.appendChild(g);
+        return mcCore(els, q);
+    },
+    mcside(q, body) {
+        const side = el('div', 'scene');
+        side.innerHTML = `<svg viewBox="0 0 ${q.sideW} 330" width="${q.sideW}" height="330">${q.side}</svg>`;
+        const col = el('div', 'col'); col.style.flex = '1';
+        col.appendChild(el('div', 'quote', q.quote));
+        const g = el('div', 'opts');
+        const els = q.opts.map((o, i) => { const b = el('button', 'opt', `<span class="l">${L[i]}</span><span>${o.t}</span>`); g.appendChild(b); return b; });
+        col.appendChild(g); body.append(side, col);
+        body.style.justifyContent = 'flex-start';
+        return mcCore(els, q, { done: () => q.sideDone(side.querySelector('svg')) });
+    },
+    predict(q, body) {
+        body.classList.add('pred');
+        const sc = el('div', 'scene');
+        sc.innerHTML = `<svg viewBox="0 0 740 330" width="734" height="327"></svg>`;
+        const rp = el('button', 'replay', `${replayIcon}<span>Replay</span>`); sc.appendChild(rp);
+        const g = el('div', 'opts');
+        const els = q.opts.map(o => { const b = el('button', 'opt', `${glyph(o.g)}<span>${EFFECT[o.g]}</span>`); g.appendChild(b); return b; });
+        body.append(sc, g);
+        const S = SCENES[q.scene](sc.querySelector('svg'));
+        let solved = false;
+        const go = () => { runId++; S.run(solved); };
+        S.introDone = false;
+        rp.onclick = go;
+        go();
+        return mcCore(els, q, { instr: 'Watch, then choose what happens next and press <b>Check</b>.', done: () => { solved = true; runId++; S.run(true, S.introDone); } });
+    },
+    watchmc(q, body) {
+        body.classList.add('pred');
+        const sc = el('div', 'scene');
+        sc.innerHTML = `<svg viewBox="0 0 740 330" width="734" height="327"></svg>`;
+        const g = el('div', 'opts');
+        const els = q.opts.map((o, i) => { const b = el('button', 'opt', `<span class="l">${L[i]}</span><span>${o.t}</span>`); g.appendChild(b); return b; });
+        body.append(sc, g);
+        const S = forearmScene(sc.querySelector('svg'));
+        S.loop();
+        return mcCore(els, q, { instr: 'Find the fulcrum, load and effort, then choose an answer and press <b>Check</b>.', done: () => { runId++; S.final(); } });
+    },
+    hotspot(q, body) {
+        const sc = el('div', 'scene');
+        sc.innerHTML = `<svg viewBox="0 0 ${q.W} ${q.H}" width="${q.W}" height="${q.H}">${q.scene}<g class="hsl"></g><g class="post"></g></svg>`;
+        body.appendChild(sc);
+        const layer = sc.querySelector('.hsl'), post = sc.querySelector('.post');
+        let s = null;
+        const els = q.spots.map((p, i) => {
+            const g = sel('g', 'hs', `<circle class="halo" cx="${f1(p.lx)}" cy="${f1(p.ly)}" r="32"/><line class="lead" x1="${f1(p.x)}" y1="${f1(p.y)}" x2="${f1(p.lx)}" y2="${f1(p.ly)}"/>
+                <circle class="dot" cx="${f1(p.x)}" cy="${f1(p.y)}" r="5.5"/><circle class="pulse" cx="${f1(p.lx)}" cy="${f1(p.ly)}" r="22"/><circle class="ring" cx="${f1(p.lx)}" cy="${f1(p.ly)}" r="22"/><text x="${f1(p.lx)}" y="${f1(p.ly + 9)}">${L[i]}</text>`);
+            g.setAttribute('tabindex', '0'); g.setAttribute('role', 'button'); g.setAttribute('aria-label', 'Point ' + L[i]);
+            const pick = () => {
+                if (mode !== 'check' || g.classList.contains('wrong')) return;
+                els.forEach(x => x.classList.remove('sel')); g.classList.add('sel'); s = i; refresh();
+            };
+            g.addEventListener('click', pick);
+            g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
+            layer.appendChild(g); return g;
+        });
+        return {
+            instr: 'Tap a letter on the diagram, then press <b>Check</b>.',
+            ready: () => s !== null,
+            check() {
+                const g = els[s]; g.classList.remove('sel');
+                if (s === q.answer) { g.classList.add('right'); els.forEach(x => { x.classList.add('done'); x.removeAttribute('tabindex'); }); return { ok: true }; }
+                g.classList.add('wrong'); g.removeAttribute('tabindex');
+                const h = q.hints[s]; s = null; return { ok: false, hint: h };
+            },
+            done() {
+                els.forEach((g, i) => { if (!q.spots[i].word) g.classList.add('fade'); });
+                let h = '';
+                q.spots.forEach(p => { if (p.word) h += `<text class="lbl nv fadein" x="${f1(p.wx)}" y="${f1(p.wy)}" text-anchor="${p.an || 'middle'}">${p.word}</text>`; });
+                h += `<text class="tagt fadein" x="${q.W - 24}" y="42" text-anchor="end">${q.tag}</text>`;
+                post.innerHTML = h;
+            }
+        };
+    },
+    sort(q, body) {
+        const wrap = el('div', 'sort');
+        const mk = (cls, h, sub) => { const b = el('div', 'bin ' + cls, `<h3>${h}</h3><div class="sub">${sub}</div><div class="area"></div>`); b.tabIndex = 0; return b; };
+        const b0 = mk('', q.bins[0][1], q.bins[0][2]), b1 = mk('pk', q.bins[1][1], q.bins[1][2]);
+        const pool = el('div', 'pool');
+        wrap.append(b0, pool, b1); body.appendChild(wrap);
+        const zones = [{ el: b0, box: b0.querySelector('.area'), cap: Infinity, key: q.bins[0][0] }, { el: b1, box: b1.querySelector('.area'), cap: Infinity, key: q.bins[1][0] }];
+        return sortCore(q, pool, zones);
+    },
+    sort3(q, body) {
+        const wrap = el('div', 'sort3');
+        const pool = el('div', 'pool');
+        wrap.appendChild(pool);
+        const zones = q.bins.map(([k, h, sub], i) => {
+            const b = el('div', 'bin' + (i === 1 ? ' pk' : ''), `<h3>${h}</h3><div class="sub">${sub}</div><div class="area"></div>`); b.tabIndex = 0;
+            wrap.appendChild(b);
+            return { el: b, box: b.querySelector('.area'), cap: Infinity, key: k };
+        });
+        body.appendChild(wrap);
+        return sortCore(q, pool, zones);
+    },
+    classify(q, body) {
+        const g = el('div', 'cgrid');
+        const cards = shuffle(q.items).map(it => {
+            const c = el('div', 'ccl', `<svg viewBox="0 0 220 150" width="200" height="136">${it.svg}<g class="mk"></g></svg>`);
+            const side = el('div', 'side', `<div class="nm">${it.name}</div>`);
+            c.it = it; c.sel = null;
+            c.btns = [1, 2, 3].map(n => {
+                const b = el('button', 'cb', `Class ${n}`);
+                b.onclick = () => { if (mode !== 'check' || c.classList.contains('right')) return; c.btns.forEach(x => x.classList.remove('sel')); b.classList.add('sel'); c.sel = n; c.classList.remove('wrong'); refresh(); };
+                side.appendChild(b); return b;
+            });
+            c.appendChild(side); g.appendChild(c); return c;
+        });
+        body.appendChild(g);
+        const reveal = c => { c.querySelector('.mk').innerHTML = `<g class="fadein">${c.it.marks.map(m => mks(...m)).join('')}</g>`; };
+        return {
+            instr: 'Choose a class for every picture, then press <b>Check</b>. Class 1: fulcrum in the middle. Class 2: load in the middle. Class 3: effort in the middle.',
+            ready: () => cards.every(c => c.sel !== null),
+            check() {
+                const bad = [];
+                cards.forEach(c => {
+                    if (c.classList.contains('right')) return;
+                    c.classList.remove('wrong'); void c.offsetWidth;
+                    if (c.sel === c.it.ans) {
+                        c.classList.add('right'); c.btns.forEach((b, i) => { b.disabled = true; b.classList.remove('sel'); if (i + 1 === c.sel) b.classList.add('right'); }); reveal(c);
+                    } else { c.classList.add('wrong'); c.btns.forEach(b => b.classList.remove('sel')); c.sel = null; bad.push(c.it.hint); }
+                });
+                return bad.length ? { ok: false, hint: (bad.length > 1 ? `${bad.length} pictures need another try. ` : '') + bad[0] } : { ok: true };
+            }
+        };
+    },
+    label(q, body) {
+        const wrap = el('div', 'bwrap');
+        wrap.innerHTML = `<svg viewBox="0 0 800 330" width="800" height="330">${q.scene}</svg>`;
+        const side = el('div', 'bside', '<div class="dlbl">Labels</div>');
+        const pool = el('div', 'pool'); side.appendChild(pool);
+        body.append(wrap, side);
+        const zones = q.slots.map(sl => {
+            const s = el('div', 'slot'); s.style.left = sl.x + 'px'; s.style.top = sl.y + 'px'; s.tabIndex = 0; s.setAttribute('aria-label', 'Empty label');
+            wrap.appendChild(s);
+            return { el: s, box: s, cap: 1, ans: sl.ans, onPut: () => s.classList.add('filled'), onTake: () => s.classList.remove('filled') };
+        });
+        const D = dnd({ el: pool, box: pool, cap: Infinity, pool: true }, zones, () => { zones.forEach(z => z.el.classList.remove('wrong')); refresh(); });
+        shuffle(q.slots.map(s => s.ans)).forEach(t => pool.appendChild(D.tile(t)));
+        return {
+            instr: 'Drag each label onto a box (or tap a label, then a box), then press <b>Check</b>.',
+            ready: () => zones.every(z => z.box.querySelector('.tile')),
+            check() {
+                const bad = [];
+                zones.forEach(z => {
+                    const t = z.box.querySelector('.tile'); z.el.classList.remove('wrong');
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (t.textContent === z.ans) { t.classList.add('right'); z.locked = true; }
+                    else { t.classList.add('wrong'); z.el.classList.add('wrong'); bad.push(t.textContent); }
+                });
+                return bad.length ? { ok: false, hint: (bad.length > 1 ? `${bad.length} labels need moving. ` : '') + q.hints[bad[0]] } : { ok: true };
+            },
+            done: () => q.done(wrap)
+        };
+    },
+    cloze(q, body) {
+        const wrap = el('div', 'cloze');
+        const zones = [];
+        q.cards.forEach(([cls, h, txt]) => {
+            const c = el('div', 'ccard ' + cls, `<div class="chd2">${h}</div><div class="ctext">${txt.replace(/\{(\d)\}/g, '<span class="blank" data-i="$1" tabindex="0" aria-label="Gap"></span>')}</div>`);
+            wrap.appendChild(c);
+        });
+        const pool = el('div', 'pool row'); wrap.appendChild(pool);
+        body.appendChild(wrap);
+        wrap.querySelectorAll('.blank').forEach(b => {
+            const i = +b.dataset.i;
+            zones[i] = { el: b, box: b, cap: 1, ans: q.blanks[i][0], hint: q.blanks[i][1], onPut: () => b.classList.add('filled'), onTake: () => b.classList.remove('filled') };
+        });
+        const D = dnd({ el: pool, box: pool, cap: Infinity, pool: true }, zones, () => { zones.forEach(z => z.el.classList.remove('wrong')); refresh(); });
+        shuffle([...q.blanks.map(b => b[0]), ...q.extra]).forEach(t => pool.appendChild(D.tile(t)));
+        return {
+            instr: 'Drag a word into each gap (or tap a word, then a gap), then press <b>Check</b>.',
+            ready: () => zones.every(z => z.box.querySelector('.tile')),
+            check() {
+                const bad = [];
+                zones.forEach(z => {
+                    const t = z.box.querySelector('.tile'); z.el.classList.remove('wrong');
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (t.textContent === z.ans) { t.classList.add('right'); z.locked = true; }
+                    else { t.classList.add('wrong'); z.el.classList.add('wrong'); bad.push(z.hint); }
+                });
+                return bad.length ? { ok: false, hint: (bad.length > 1 ? `${bad.length} gaps need changing. ` : '') + bad[0] } : { ok: true };
+            }
+        };
+    },
+    calc(q, body) {
+        body.style.flexDirection = 'column'; body.style.gap = '18px';
+        const sc = el('div', 'scene');
+        sc.innerHTML = `<svg viewBox="0 0 ${q.W} ${q.H}" width="${q.W}" height="${q.H}"></svg>`;
+        const S = q.scene(sc.querySelector('svg'));
+        const row = el('div', 'calcrow', `<span class="clbl">${q.label}</span>`);
+        const inp = el('input', 'num'); inp.setAttribute('inputmode', 'decimal'); inp.setAttribute('autocomplete', 'off'); inp.setAttribute('aria-label', q.label + ' in newtons'); inp.maxLength = 6;
+        row.append(inp, el('span', 'unit', 'N'));
+        const seg = el('div', 'seg');
+        const LBL = { l: `${arrowIcon('l')}<span>Left</span>`, r: `<span>Right</span>${arrowIcon('r')}`, '0': '<span>Balanced</span>' };
+        let dir = null;
+        const bs = q.dirs.map(d => {
+            const b = el('button', 'dirb', LBL[d]); b.dataset.d = d;
+            b.onclick = () => { if (mode !== 'check') return; bs.forEach(x => x.classList.remove('sel')); b.classList.add('sel'); dir = d; refresh(); };
+            seg.appendChild(b); return b;
+        });
+        row.appendChild(seg);
+        body.append(sc, row);
+        const val = () => { const v = inp.value.trim().replace(/n$/i, '').trim(); return v === '' || isNaN(+v) ? null : +v; };
+        inp.addEventListener('input', () => { inp.classList.remove('wrong'); refresh(); });
+        inp.addEventListener('keydown', e => { if (e.key === 'Enter' && mode === 'check' && !btn.disabled) check(); });
+        return {
+            instr: 'Type the size of the force, choose its direction, then press <b>Check</b>.',
+            ready: () => val() !== null && dir !== null,
+            check() {
+                const n = val();
+                if (n === q.answer.n && dir === q.answer.d) {
+                    inp.classList.add('right'); inp.disabled = true;
+                    bs.forEach(b => { b.disabled = true; b.classList.remove('sel'); if (b.dataset.d === dir) b.classList.add('right'); });
+                    return { ok: true };
+                }
+                inp.classList.remove('wrong'); void inp.offsetWidth; inp.classList.add('wrong');
+                return { ok: false, hint: q.hint(n, dir) };
+            },
+            done: () => S.done()
+        };
+    },
+    slider(q, body) {
+        body.style.flexDirection = 'column';
+        const sc = el('div', 'scene slwrap');
+        sc.style.padding = '6px 20px 14px';
+        sc.innerHTML = `<svg viewBox="0 0 900 300" width="900" height="300"></svg>`;
+        const row = el('div', 'slrow', '<span>Fulcrum</span>');
+        const rg = el('input'); rg.type = 'range'; rg.min = 230; rg.max = 670; rg.step = 10; rg.value = 600; rg.setAttribute('aria-label', 'Fulcrum position');
+        row.appendChild(rg); sc.appendChild(row); body.appendChild(sc);
+        const S = leverSlider(sc.querySelector('svg'), +rg.value);
+        let moved = false;
+        const setX = x => { x = Math.max(230, Math.min(670, Math.round(x / 10) * 10)); rg.value = x; S.set(x); moved = true; refresh(); };
+        rg.addEventListener('input', () => setX(+rg.value));
+        const svg = sc.querySelector('svg');
+        svg.addEventListener('pointerdown', e => {
+            if (mode !== 'check') return;
+            e.preventDefault(); svg.setPointerCapture(e.pointerId);
+            const toX = ev => { const p = svg.createSVGPoint(); p.x = ev.clientX; p.y = ev.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()).x; };
+            setX(toX(e));
+            const mv = ev => setX(toX(ev));
+            const up = () => { svg.removeEventListener('pointermove', mv); svg.removeEventListener('pointerup', up); svg.removeEventListener('pointercancel', up); };
+            svg.addEventListener('pointermove', mv); svg.addEventListener('pointerup', up); svg.addEventListener('pointercancel', up);
+        });
+        return {
+            instr: 'Drag the fulcrum (or use the slider), then press <b>Check</b>.',
+            ready: () => moved,
+            check() {
+                const ea = S.ea(), ra = S.ra();
+                if (ea > ra) { rg.disabled = true; svg.classList.remove('grab'); return { ok: true }; }
+                if (ea === ra) return { ok: false, hint: 'The two arms are the same length, so the effort and the load are the same size. Make the effort arm longer.' };
+                return { ok: false, hint: 'The effort arm is shorter than the resistance arm, so this is a speed multiplier. Move the fulcrum towards the load.' };
+            },
+            done: () => S.tip()
+        };
+    }
+};
+
+function sortCore(q, pool, zones) {
+    const D = dnd({ el: pool, box: pool, cap: Infinity, pool: true }, zones, () => refresh());
+    shuffle(q.items).forEach(([t, k, h]) => { const tl = D.tile(t); tl.k = k; tl.h = h; pool.appendChild(tl); });
+    return {
+        instr: 'Drag each tile into a group (or tap a tile, then a group), then press <b>Check</b>.',
+        ready: () => !pool.querySelector('.tile'),
+        check() {
+            const wrong = [];
+            zones.forEach(z => z.box.querySelectorAll('.tile').forEach(t => {
+                t.classList.remove('wrong'); void t.offsetWidth;
+                if (t.k === z.key) t.classList.add('right'); else { t.classList.add('wrong'); wrong.push(t.h); }
+            }));
+            return wrong.length ? { ok: false, hint: (wrong.length > 1 ? `${wrong.length} tiles need moving. ` : '') + wrong[0] } : { ok: true };
+        }
+    };
+}
+
+/* ---------- drag and drop (drag, or tap a tile then tap a target) ---------- */
+function dnd(pool, zones, onChange) {
+    let s = null;
+    const all = () => [pool, ...zones];
+    const zoneOf = t => all().find(z => z.box.contains(t));
+    const armAll = on => zones.forEach(z => z.el.classList.toggle('armed', on && !z.locked));
+    const deselect = () => { if (s) s.classList.remove('sel'); s = null; armAll(false); };
+    function moveTo(t, z) {
+        const from = zoneOf(t);
+        t.style.transform = ''; t.classList.remove('wrong');
+        z.box.appendChild(t);
+        if (from && from !== z && from.onTake) from.onTake(t);
+        if (z.onPut) z.onPut(t);
+        deselect(); onChange();
+    }
+    function put(t, z) {
+        const from = zoneOf(t);
+        if (z.locked || from === z) { t.style.transform = ''; return; }
+        if (z.cap === 1) {
+            const ex = z.box.querySelector('.tile');
+            if (ex) { if (ex.classList.contains('right')) { t.style.transform = ''; return; } moveTo(ex, pool); }
+        }
+        moveTo(t, z);
+    }
+    const hit = (x, y) => all().find(z => { const r = z.el.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; });
+    all().forEach(z => {
+        const act = () => { if (s && !z.locked) put(s, z); };
+        z.el.addEventListener('click', act);
+        z.el.addEventListener('keydown', e => { if (e.target === z.el && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); act(); } });
+    });
+    function tile(text) {
+        const t = el('span', 'tile', text);
+        t.tabIndex = 0; t.setAttribute('role', 'button');
+        const tap = () => {
+            if (t.classList.contains('right')) return;
+            t.style.transform = '';
+            const z = zoneOf(t);
+            if (z !== pool && s && s !== t) { if (!z.locked) put(s, z); return; }
+            if (z !== pool) { put(t, pool); return; }
+            if (s === t) { deselect(); return; }
+            deselect(); s = t; t.classList.add('sel'); armAll(true);
+        };
+        t.addEventListener('click', e => e.stopPropagation());
+        t.addEventListener('pointerdown', e => {
+            if (t.classList.contains('right') || e.button > 0) return;
+            e.preventDefault(); e.stopPropagation(); t.setPointerCapture(e.pointerId);
+            const sx = e.clientX, sy = e.clientY; let moved = false;
+            const move = ev => {
+                const dx = ev.clientX - sx, dy = ev.clientY - sy;
+                if (!moved && Math.hypot(dx, dy) > 6) { moved = true; t.classList.add('drag'); }
+                if (!moved) return;
+                t.style.transform = `translate(${dx / scaleK}px, ${dy / scaleK}px)`;
+                const h = hit(ev.clientX, ev.clientY);
+                all().forEach(z => z.el.classList.toggle('hover', z === h));
+            };
+            const up = ev => {
+                t.removeEventListener('pointermove', move); t.removeEventListener('pointerup', up); t.removeEventListener('pointercancel', up);
+                t.classList.remove('drag'); all().forEach(z => z.el.classList.remove('hover'));
+                if (!moved) { tap(); return; }
+                const h = hit(ev.clientX, ev.clientY);
+                if (h) put(t, h); else t.style.transform = '';
+            };
+            t.addEventListener('pointermove', move); t.addEventListener('pointerup', up); t.addEventListener('pointercancel', up);
+        });
+        t.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); tap(); } });
+        return t;
+    }
+    return { tile };
+}
+
+/* =========================================================
+   ANIMATED SCENES
+   ========================================================= */
+function arcPath(cx, cy, r, a0, a1) {
+    const x0 = cx + r * Math.cos(a0), y0 = cy + r * Math.sin(a0), x1 = cx + r * Math.cos(a1), y1 = cy + r * Math.sin(a1);
+    return `M${f1(x0)} ${f1(y0)} A${f1(r)} ${f1(r)} 0 0 ${a1 > a0 ? 1 : 0} ${f1(x1)} ${f1(y1)}`;
+}
+
+/* Q5: forearm lifting a ball (class 3 lever) */
+function forearmScene(svg) {
+    const O = { x: 236, y: 250 }, S = { x: 212, y: 70 }, LEN = 300, AT = 62, T = { x: 228, y: 98 }, MAX = -34 * Math.PI / 180, BR = 28;
+    svg.innerHTML = `<rect x="0" y="0" width="740" height="330" fill="#fff"/>
+        <path d="M70 330 V96 Q70 50 130 46 L200 46 Q236 48 238 80 L238 330 Z" fill="${LT}"/>
+        <circle cx="146" cy="-6" r="40" fill="${LT}"/>
+        <path class="trail" fill="none" stroke="${GR}" stroke-width="3" stroke-dasharray="7 8"/>
+        <line x1="${S.x}" y1="${S.y}" x2="${O.x}" y2="${O.y}" stroke="${NV}" stroke-width="34" stroke-linecap="round"/>
+        <line x1="${S.x}" y1="${S.y}" x2="${O.x}" y2="${O.y}" stroke="#fff" stroke-width="25" stroke-linecap="round"/>
+        <g class="fa"><line class="fo" stroke="${NV}" stroke-width="30" stroke-linecap="round"/><line class="fi" stroke="#fff" stroke-width="21" stroke-linecap="round"/></g>
+        <path class="bic" fill="#f9d2e8" stroke="${PK}" stroke-width="3" stroke-linejoin="round"/>
+        <circle cx="${O.x}" cy="${O.y}" r="8" fill="${NV}"/>
+        <g class="ball"></g><g class="eff"></g>
+        <text class="lbl" x="${O.x}" y="${O.y + 58}" text-anchor="middle">Elbow joint</text>
+        <line class="gdl" x1="282" y1="44" x2="252" y2="112"/><text class="lbl" x="262" y="34">Biceps muscle</text>
+        <text class="lbl bl"></text>
+        <g class="post"></g>`;
+    const fo = svg.querySelector('.fo'), fi = svg.querySelector('.fi'), bic = svg.querySelector('.bic'), ball = svg.querySelector('.ball'), eff = svg.querySelector('.eff'), bl = svg.querySelector('.bl'), post = svg.querySelector('.post');
+    const pt = (a, d) => ({ x: O.x + d * Math.cos(a), y: O.y + d * Math.sin(a) });
+    const bc = a => { const H = pt(a, LEN); return { x: H.x + (BR + 10) * Math.sin(a), y: H.y - (BR + 10) * Math.cos(a) }; };
+    let trail = ''; for (let i = 0; i <= 24; i++) { const c = bc(MAX * i / 24); trail += (i ? ' L' : 'M') + f1(c.x) + ' ' + f1(c.y); }
+    svg.querySelector('.trail').setAttribute('d', trail);
+    ball.innerHTML = `<circle r="${BR}" fill="${LT}" stroke="${NV}" stroke-width="4"/><path d="M${-BR} 0 Q0 -14 ${BR} 0" fill="none" stroke="${NV}" stroke-width="2.5"/>`;
+    const draw = a => {
+        const H = pt(a, LEN), A0 = pt(a, AT), A = { x: A0.x + 14 * Math.sin(a), y: A0.y - 14 * Math.cos(a) }, B = bc(a);
+        [fo, fi].forEach(l => { l.setAttribute('x1', O.x); l.setAttribute('y1', O.y); l.setAttribute('x2', f1(H.x)); l.setAttribute('y2', f1(H.y)); });
+        const mx = (T.x + A.x) / 2, my = (T.y + A.y) / 2, dx = A.x - T.x, dy = A.y - T.y, dl = Math.hypot(dx, dy), px = dy / dl, py = -dx / dl;
+        const s = px < 0 ? -1 : 1;
+        bic.setAttribute('d', `M${T.x} ${T.y} Q${f1(mx + s * px * 40)} ${f1(my + s * py * 40)} ${f1(A.x)} ${f1(A.y)} Q${f1(mx + s * px * 6)} ${f1(my + s * py * 6)} ${T.x} ${T.y} Z`);
+        ball.setAttribute('transform', `translate(${f1(B.x)} ${f1(B.y)})`);
+        bl.setAttribute('x', f1(B.x + BR + 14)); bl.setAttribute('y', f1(B.y + 8)); bl.textContent = 'Ball';
+        const ang = Math.atan2(T.y - A.y, T.x - A.x);
+        eff.innerHTML = arrowSVG(A.x + 14, A.y - 4, ang, 58, { sw: 6, hl: 17, hw: 11 });
+        return { H, A, B };
+    };
+    draw(0);
+    return {
+        async loop() {
+            const id = runId;
+            await wait(500);
+            while (id === runId) {
+                await play(1500, k => draw(MAX * easeInOut(k)));
+                await wait(600);
+                await play(1500, k => draw(MAX * (1 - easeInOut(k))));
+                await wait(700);
+            }
+        },
+        final() {
+            const p = draw(MAX * .55);
+            post.innerHTML = `<g class="fadein">${mark(O.x - 34, O.y + 2, 'F')}${mark(p.A.x + 12, p.A.y + 38, 'E')}${mark(p.B.x - BR - 22, p.B.y - BR - 4, 'L')}
+                <text class="tagt" x="720" y="300" text-anchor="end">Class 3 lever</text></g>`;
+        }
+    };
+}
+
+/* Q6: lever with a movable fulcrum */
+function leverSlider(svg, x0) {
+    const Y = 150, LX = 170, EX = 730, GY = 228;
+    svg.classList.add('grab');
+    svg.innerHTML = `<line class="gnd" x1="40" x2="860" y1="${GY + 2}" y2="${GY + 2}"/>
+        <g class="lev"><rect x="110" y="${Y - 14}" width="680" height="14" rx="3" fill="${NV}"/>
+            <rect class="obj" x="${LX - 46}" y="${Y - 84}" width="92" height="70" rx="4"/><text class="oname" x="${LX}" y="${Y - 42}" text-anchor="middle">Load</text>
+            ${arrowSVG(EX, Y - 110, DIR.d, 92)}<text class="flbl" x="${EX - 16}" y="${Y - 70}" text-anchor="end">Effort</text></g>
+        <polygon class="fulc" fill="${NV}"/>
+        <g class="tr"></g>
+        <g class="brs"></g>`;
+    const lev = svg.querySelector('.lev'), fu = svg.querySelector('.fulc'), brs = svg.querySelector('.brs'), tr = svg.querySelector('.tr');
+    let fx = x0;
+    const set = x => {
+        fx = x;
+        fu.setAttribute('points', `${fx},${Y} ${fx - 34},${GY} ${fx + 34},${GY}`);
+        brs.innerHTML = `${guide(LX, Y + 6, 242)}${guide(EX, Y + 6, 242)}
+            <polygon points="${fx - 44},${GY - 16} ${fx - 56},${GY - 8} ${fx - 44},${GY}" fill="${GR}"/><polygon points="${fx + 44},${GY - 16} ${fx + 56},${GY - 8} ${fx + 44},${GY}" fill="${GR}"/>
+            ${bracket(LX, fx, 252, 'r on')}${bracket(fx, EX, 252, 'e on')}
+            <text class="lbl nv" x="${(LX + fx) / 2}" y="284" text-anchor="middle">Resistance arm</text>
+            <text class="lbl pk" x="${(fx + EX) / 2}" y="284" text-anchor="middle">Effort arm</text>`;
+    };
+    set(x0);
+    return {
+        set, ea: () => EX - fx, ra: () => fx - LX,
+        async tip() {
+            const th = Math.min(11, Math.asin(Math.min(1, 46 / (EX - fx))) * 180 / Math.PI), rad = th * Math.PI / 180;
+            const ea = 790 - fx, ra = fx - 110;
+            await play(1400, k => {
+                const a = th * easeInOut(k), r = rad * easeInOut(k);
+                lev.setAttribute('transform', `rotate(${f1(a)} ${fx} ${Y})`);
+                if (r > .001) tr.innerHTML = `<path d="${arcPath(fx, Y - 7, ea + 14, 0, r)}" fill="none" stroke="${PK}" stroke-width="6" stroke-linecap="round"/>
+                    <path d="${arcPath(fx, Y - 7, ra + 14, Math.PI, Math.PI + r)}" fill="none" stroke="${NV}" stroke-width="6" stroke-linecap="round"/>`;
+            });
+        }
+    };
+}
+
+/* Q8: arcs on the fishing rod */
+function rodDone(svg) {
+    const { B, T, H } = ROD, post = svg.querySelector('.post');
+    const a0 = Math.atan2(T[1] - B[1], T[0] - B[0]), sw = -0.22;
+    const rT = Math.hypot(T[0] - B[0], T[1] - B[1]), rH = Math.hypot(H[0] - B[0], H[1] - B[1]);
+    post.innerHTML = `<path d="${arcPath(B[0], B[1], rT, a0, a0 + sw)}" fill="none" stroke="${NV}" stroke-width="4" stroke-dasharray="6 6"/>
+        <path d="${arcPath(B[0], B[1], rH, a0, a0 + sw)}" fill="none" stroke="${PK}" stroke-width="5"/>
+        <g class="fadein">${mark(B[0] - 4, B[1] - 34, 'F')}${mark(H[0] - 30, H[1] - 6, 'E')}${mark(T[0] - 34, T[1] - 4, 'L')}</g>`;
+}
+
+/* Q10: trolley */
+function trolleyScene(svg) {
+    const GY = 196, K = 3.4;
+    svg.innerHTML = `${ground(GY, 900)}<g class="tg"><rect class="obj" x="380" y="104" width="140" height="66" rx="6"/><text class="oname" x="450" y="144" text-anchor="middle">Trolley</text>
+        <circle cx="412" cy="182" r="13" fill="${NV}"/><circle cx="488" cy="182" r="13" fill="${NV}"/><circle cx="412" cy="182" r="4" fill="#fff"/><circle cx="488" cy="182" r="4" fill="#fff"/>
+        ${arrowSVG(520, 137, DIR.r, 35 * K, { label: '35 N' })}${arrowSVG(380, 137, DIR.l, 50 * K, { c: NV, label: '50 N' })}<g class="net"></g></g>`;
+    const tg = svg.querySelector('.tg'), net = svg.querySelector('.net');
+    return {
+        async done() {
+            const id = runId;
+            await growArrow(net, 450, 64, DIR.l, 15 * K, { label: 'Net force 15 N', fs: 22 });
+            await wait(400);
+            await play(1500, k => tg.setAttribute('transform', `translate(${f1(-160 * easeIn(k))} 0)`), () => id === runId);
+        }
+    };
+}
+
+/* Q11: tug of war */
+function tugScene(svg) {
+    const GY = 224, K = 1.15, RY = GY - 72 * K + 2;
+    const L = [[190, 160], [320, 140]], R = [[780, 95], [880, 100], [980, 90]];
+    let s = `${ground(GY, 1100)}<line x1="550" x2="550" y1="${GY - 14}" y2="${GY + 14}" stroke="${PK}" stroke-width="4"/><g class="tw">`;
+    s += `<line x1="150" x2="1030" y1="${RY}" y2="${RY}" stroke="#b58b5a" stroke-width="7" stroke-linecap="round"/>`;
+    s += `<polygon points="550,${RY + 4} 538,${RY + 30} 562,${RY + 30}" fill="${PK}"/>`;
+    L.forEach(([x, n]) => { s += fig(x, GY, 'pull', false, K); s += `<text class="flbl" x="${x - 12}" y="36" text-anchor="middle">${n} N</text>` + arrowSVG(x + 12, 52, DIR.l, 48, { c: NV, sw: 5, hl: 15, hw: 9 }); });
+    R.forEach(([x, n]) => { s += fig(x, GY, 'pull', true, K); s += `<text class="flbl" x="${x + 12}" y="36" text-anchor="middle">${n} N</text>` + arrowSVG(x - 12, 52, DIR.r, 48, { sw: 5, hl: 15, hw: 9 }); });
+    s += `</g><text class="lbl" x="255" y="${GY + 32}" text-anchor="middle">Left team</text><text class="lbl" x="880" y="${GY + 32}" text-anchor="middle">Right team</text>`;
+    svg.innerHTML = s;
+    const tw = svg.querySelector('.tw');
+    return {
+        async done() {
+            const id = runId;
+            await wait(300);
+            await play(1800, k => tw.setAttribute('transform', `translate(${f1(-90 * easeIn(k))} 0)`), () => id === runId);
+        }
+    };
+}
+
+/* Q12: crate with a missing friction force */
+function crateScene(svg) {
+    const GY = 200, K = 2.9;
+    let hatch = ''; for (let i = 0; i < 34; i++) hatch += `<line x1="${60 + i * 24}" y1="${GY + 4}" x2="${48 + i * 24}" y2="${GY + 16}" stroke="${GR}" stroke-width="2"/>`;
+    svg.innerHTML = `<line x1="40" x2="860" y1="${GY + 2}" y2="${GY + 2}" stroke="${NV}" stroke-width="4"/>${hatch}
+        <rect class="obj" x="390" y="110" width="130" height="90" rx="4"/><line x1="402" y1="122" x2="508" y2="188" stroke="${NV}" stroke-width="2"/><line x1="508" y1="122" x2="402" y2="188" stroke="${NV}" stroke-width="2"/>
+        <rect x="425" y="140" width="60" height="30" fill="${LT}"/><text class="oname" x="455" y="162" text-anchor="middle">Crate</text>
+        ${arrowSVG(240, 155, DIR.r, 50 * K, { label: 'Push 50 N' })}
+        ${arrowSVG(394, 62, DIR.r, 20 * K, { c: MG, sw: 6, hl: 18, hw: 11 })}<text class="lbl" x="${394 + 20 * K + 12}" y="70">Net force 20 N right</text>
+        <g class="mys"><circle cx="575" cy="155" r="26" fill="#fff" stroke="${NV}" stroke-width="3" stroke-dasharray="6 5"/><text class="flbl" x="575" y="164" text-anchor="middle" style="font-size:28px">?</text>
+        <text class="lbl nv" x="612" y="163">Friction</text></g><g class="fr"></g>`;
+    const mys = svg.querySelector('.mys'), fr = svg.querySelector('.fr');
+    return {
+        async done() {
+            await play(300, k => mys.setAttribute('opacity', 1 - k));
+            await growArrow(fr, 520, 222, DIR.l, 30 * K, { c: NV, label: 'Friction 30 N', below: true, dy: 30, fs: 22 });
+        }
+    };
+}
+
+function mkTrail(layer, pos, y, every = 250) {
+    let next = 0;
+    return {
+        reset() { layer.innerHTML = ''; next = 0; },
+        upto(T) { while (next <= T + .5) { const p = pos(next); layer.insertAdjacentHTML('beforeend', `<circle cx="${p.x.toFixed(1)}" cy="${(y === undefined ? p.y : y).toFixed(1)}" r="5.5" fill="${DT}"/>`); next += every; } }
+    };
+}
+const phase = (T0, T1, dur, apply) => play(dur, k => apply(T0 + (T1 - T0) * k));
+
+const SCENES = {
+    kayak(svg) {
+        const WY = 220, I = 2000, O = 2000, x0 = 140, v = .1, HL = 96;
+        let wave = `M0 ${WY}`; for (let x = 0; x <= 740; x += 40) wave += ` q10 -6 20 0 t20 0`;
+        svg.innerHTML = `<g class="ob">
+                <g class="pad"><line x1="-70" y1="-104" x2="66" y2="18" stroke="${NV}" stroke-width="5" stroke-linecap="round"/>
+                    <ellipse cx="-74" cy="-108" rx="9" ry="20" transform="rotate(-48 -74 -108)" fill="${NV}"/><ellipse cx="70" cy="22" rx="9" ry="20" transform="rotate(-48 70 22)" fill="${NV}"/></g>
+                <line x1="2" y1="-14" x2="6" y2="-62" stroke="${NV}" stroke-width="8" stroke-linecap="round"/><circle cx="8" cy="-78" r="13" fill="${NV}"/>
+                <polyline points="6,-56 -12,-58 -18,-62" fill="none" stroke="${NV}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+                <polyline points="6,-52 20,-40 22,-30" fill="none" stroke="${NV}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M${-HL} -14 Q-50 18 0 18 Q60 18 ${HL} -16 Q40 -22 0 -18 Q-50 -20 ${-HL} -14 Z" fill="${LT}" stroke="${NV}" stroke-width="4" stroke-linejoin="round"/>
+                <g class="af"></g><g class="ab"></g>
+            </g>
+            <path d="${wave} V330 H0 Z" fill="#e6ebf3"/><path d="${wave}" fill="none" stroke="#9fb0cc" stroke-width="3"/><g class="tr"></g>
+            <text class="spd mv" text-anchor="middle">Moving &rarr;</text>
+            <text class="spd st" x="724" y="40" text-anchor="end" opacity="0">Net force 0 N</text>
+            ${legend(16, 318)}`;
+        const ob = svg.querySelector('.ob'), pad = svg.querySelector('.pad'), af = svg.querySelector('.af'), ab = svg.querySelector('.ab'), mv = svg.querySelector('.mv'), st = svg.querySelector('.st');
+        const pos = T => ({ x: x0 + v * T });
+        const tr = mkTrail(svg.querySelector('.tr'), pos, 282);
+        const set = T => {
+            const x = pos(T).x;
+            ob.setAttribute('transform', `translate(${f1(x)} ${WY - 4})`);
+            pad.setAttribute('transform', `rotate(${f1(18 * Math.sin(T / 260))} 2 -42)`);
+            mv.setAttribute('x', f1(x)); mv.setAttribute('y', WY - 132);
+            tr.upto(T);
+        };
+        return {
+            async run(full, skipIntro) {
+                if (!skipIntro) {
+                    this.introDone = false;
+                    tr.reset(); clearArrow(af); clearArrow(ab); mv.setAttribute('opacity', 1); st.setAttribute('opacity', 0);
+                    await phase(0, I, I, set);
+                    mv.setAttribute('opacity', 0);
+                    growArrow(ab, -HL, -8, DIR.l, 70, { c: NV, label: 'Water resistance 80 N', fs: 20 });
+                    await growArrow(af, HL, -8, DIR.r, 70, { label: 'Paddling force 80 N', fs: 20 });
+                    this.introDone = true;
+                }
+                if (!full) return;
+                await wait(skipIntro ? 100 : 500);
+                await phase(I, I + O, O, set);
+                await play(300, k => st.setAttribute('opacity', k));
+            }
+        };
+    }
+};
+
+/* ---------- scale to window ---------- */
+function fit() {
+    const st = $('#stage');
+    scaleK = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    st.style.transform = `scale(${scaleK})`;
+    st.style.margin = `${(720 * scaleK - 720) / 2}px ${(1280 * scaleK - 1280) / 2}px`;
+}
+window.addEventListener('resize', fit);
+fit();
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { fit(); render(); });
+
+</script>
+</body>
+</html>
