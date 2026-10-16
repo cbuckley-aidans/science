@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tides: Checking for Understanding</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --navy: #1b1f45;
+        --pink: #ea008a;
+        --mid-grey: #9a9a9a;
+        --light-grey: #e8e8e8;
+        --blank: #f0f3f6;
+        --tint: #e9ecf5;
+        --cond: 'Barlow Condensed', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        --ease: cubic-bezier(.2,.8,.2,1);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #eaeaea; color: var(--navy);
+        display: flex; align-items: center; justify-content: center; overflow: hidden; -webkit-user-select: none; user-select: none; }
+    .stage { width: 1280px; height: 720px; background: #fff; border-top: 6px solid var(--navy); position: relative; padding: 36px 64px 0; flex-shrink: 0; overflow: hidden; transform-origin: center; }
+    .top { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 4px solid var(--navy); padding-bottom: 12px; }
+    .sheet-title { font-family: var(--cond); font-size: 44px; font-weight: 900; text-transform: uppercase; letter-spacing: .01em; margin: 0; line-height: 1; }
+    .sheet-title span { color: var(--pink); }
+    .counter { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; color: var(--mid-grey); text-transform: uppercase; }
+    .counter b { color: var(--navy); }
+    .content { position: absolute; left: 64px; right: 64px; top: 124px; bottom: 108px; }
+    .caption { position: absolute; left: 64px; right: 64px; bottom: 28px; min-height: 60px; display: flex; align-items: center; gap: 16px; font-size: 25px; font-weight: 500; line-height: 1.32; }
+    .caption::before { content: ''; width: 10px; height: 10px; background: var(--pink); flex-shrink: 0; }
+    .caption .txt { flex: 1; }
+    .caption b { color: var(--pink); font-weight: 800; }
+    .caption b.no { color: var(--navy); }
+    .caption .in { animation: capIn .45s var(--ease); display: block; }
+    @keyframes capIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .progress { position: absolute; left: 0; bottom: 0; height: 6px; background: var(--pink); width: 0; transition: width .6s var(--ease); }
+
+    .next { font-family: var(--cond); font-size: 26px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; background: var(--pink); color: #fff;
+        border: none; border-radius: 8px; padding: 12px 30px; cursor: pointer; flex-shrink: 0; }
+    .next[hidden] { display: none; }
+    .next:disabled { background: #c3c6d0; cursor: default; }
+    button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--pink); outline-offset: 3px; }
+    .next:focus-visible { outline-color: var(--navy); }
+    .pop-in { animation: capIn .45s var(--ease); }
+    @keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+
+    /* question frame */
+    .q { display: flex; flex-direction: column; height: 100%; }
+    .qhead { display: flex; align-items: center; gap: 18px; }
+    .qtitle { font-size: 40px; font-weight: 800; line-height: 1.15; }
+    .tchip { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--pink); border: 3px solid var(--pink); border-radius: 6px; padding: 3px 12px 2px; }
+    .sctag { margin-left: auto; font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--navy); box-shadow: inset 0 0 0 3px var(--navy); border-radius: 6px; padding: 6px 12px 5px; line-height: 1; }
+    .prompt { font-size: 28px; font-weight: 600; margin-top: 6px; line-height: 1.3; }
+    .body { flex: 1; min-height: 0; margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 30px; }
+    .center { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+    .dlbl { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mid-grey); }
+
+    /* svg classes */
+    svg { overflow: visible; display: block; }
+    .oname { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; fill: var(--navy); }
+    .elbl { font-family: var(--cond); font-size: 18px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; fill: #fff; }
+    .flbl { font-family: var(--cond); font-size: 24px; font-weight: 800; fill: var(--navy); }
+    .spd { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; fill: var(--mid-grey); }
+    .leg { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 600; fill: var(--mid-grey); }
+    .lbn { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 19px; font-weight: 700; fill: var(--navy); }
+    .clk { font-family: var(--cond); font-size: 34px; font-weight: 900; fill: var(--navy); letter-spacing: .02em; }
+    .stt { font-family: var(--cond); font-size: 30px; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; fill: var(--pink); }
+    .mlbl { font-family: var(--cond); font-size: 17px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; fill: var(--navy); }
+    .gax { font-family: var(--cond); font-size: 15px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; fill: var(--mid-grey); }
+    .phl { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; fill: var(--pink); }
+
+    /* multiple choice */
+    .opts { display: grid; gap: 10px; }
+    .col .opt { font-size: 23px; padding: 9px 18px; }
+    .opts.g2 { grid-template-columns: 1fr 1fr; gap: 18px; width: 100%; }
+    .opt { display: flex; align-items: center; gap: 16px; border: 3px solid var(--navy); border-radius: 8px; background: #fff; padding: 12px 20px;
+        font-family: inherit; font-size: 25px; font-weight: 600; color: var(--navy); text-align: left; line-height: 1.25; cursor: pointer;
+        transition: background-color .2s, border-color .2s, color .2s, opacity .2s; }
+    .opts.g2 .opt { min-height: 104px; font-size: 30px; font-weight: 700; padding: 16px 24px; }
+    .opt .l { flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background: var(--navy); color: #fff; font-family: var(--cond); font-size: 24px; font-weight: 900;
+        display: flex; align-items: center; justify-content: center; transition: background-color .2s, color .2s; }
+    .opt:hover:not(:disabled) { background: #f6f7fb; }
+    .opt.sel { background: var(--tint); }
+    .opt.sel .l { background: var(--pink); }
+    .opt.right, .opt.right:hover { background: var(--pink); border-color: var(--pink); color: #fff; opacity: 1; }
+    .opt.right .l { background: #fff; color: var(--pink); }
+    .opt.wrong { border-style: dashed; opacity: .5; animation: shake .4s; cursor: default; }
+    .opt:disabled { cursor: default; }
+    .pred .opts { width: 380px; }
+    .pred .opt { min-height: 76px; font-size: 26px; font-weight: 700; padding: 10px 18px; }
+
+    /* picture choices */
+    .pgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; width: 100%; }
+    .pcard { position: relative; border: 3px solid var(--navy); border-radius: 8px; background: #fff; padding: 16px 4px 12px; cursor: pointer;
+        display: flex; flex-direction: column; align-items: center; gap: 8px; font-family: inherit; color: var(--navy); transition: background-color .2s, border-color .2s, opacity .2s; }
+    .pcard .l { position: absolute; left: 10px; top: 10px; width: 38px; height: 38px; border-radius: 50%; background: var(--navy); color: #fff; font-family: var(--cond); font-size: 23px; font-weight: 900;
+        display: flex; align-items: center; justify-content: center; transition: background-color .2s; }
+    .pcard .cap { font-size: 22px; font-weight: 700; line-height: 1.2; text-align: center; }
+    .pcard:hover:not(:disabled) { background: #f6f7fb; }
+    .pcard.sel { background: var(--tint); }
+    .pcard.sel .l { background: var(--pink); }
+    .pcard.right, .pcard.right:hover { border-color: var(--pink); background: #fff; box-shadow: 0 0 0 5px rgba(234,0,138,.18); opacity: 1; }
+    .pcard.right .l { background: var(--pink); }
+    .pcard.wrong { border-style: dashed; opacity: .45; animation: shake .4s; cursor: default; }
+    .pcard:disabled { cursor: default; }
+
+    /* quote */
+    .quote { border-left: 8px solid var(--pink); padding: 4px 0 4px 20px; font-size: 25px; font-weight: 600; font-style: italic; line-height: 1.3; margin-bottom: 14px; }
+    .col { display: flex; flex-direction: column; }
+
+    /* scenes */
+    .scene { position: relative; border: 3px solid var(--navy); border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #fff; }
+    .scene > svg { overflow: hidden; }
+    .replay { position: absolute; right: 12px; top: 12px; display: flex; align-items: center; gap: 6px; font-family: var(--cond); font-size: 19px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+        background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 6px; padding: 5px 12px 4px 9px; cursor: pointer; }
+    .replay svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+    .replay:hover { background: var(--blank); }
+
+    /* drag tiles */
+    .tile { font-family: inherit; font-size: 24px; font-weight: 700; color: var(--navy); background: #fff; border: 3px solid var(--navy); border-radius: 8px; padding: 6px 16px; line-height: 1.25;
+        cursor: grab; touch-action: none; position: relative; z-index: 2; transition: transform .3s var(--ease), box-shadow .2s, border-color .2s; box-shadow: 0 4px 0 #c3c6d0; white-space: nowrap; text-align: center; }
+    .tile.sm { font-size: 21px; padding: 6px 12px; white-space: normal; }
+    .tile.sel { border-color: var(--pink); box-shadow: 0 0 0 4px rgba(234,0,138,.22); }
+    .tile.drag { transition: none; cursor: grabbing; z-index: 30; box-shadow: 0 14px 30px rgba(27,31,69,.25); border-color: var(--pink); }
+    .tile.right { background: var(--pink); color: #fff; border-color: var(--pink); box-shadow: none; cursor: default; }
+    .tile.wrong { border-style: dashed; background: var(--tint); box-shadow: none; animation: shake .4s; }
+
+    /* sort */
+    .sort { display: grid; grid-template-columns: 1fr 360px 1fr; grid-template-rows: minmax(0, 1fr); gap: 18px; width: 100%; height: 100%; }
+    .sort .tile.sm { font-size: 20px; padding: 5px 12px; }
+    .bin { border: 3px solid var(--navy); border-radius: 8px; display: flex; flex-direction: column; overflow: visible; transition: box-shadow .2s; }
+    .bin.pk { border-color: var(--pink); }
+    .bin h3 { margin: 0; padding: 8px 16px 7px; font-family: var(--cond); font-size: 28px; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; color: #fff; background: var(--navy); }
+    .bin.pk h3 { background: var(--pink); }
+    .bin .area { flex: 1; padding: 12px 14px; display: flex; flex-wrap: wrap; gap: 10px; align-content: flex-start; justify-content: center; border-radius: 0 0 6px 6px; transition: background-color .2s; }
+    .bin.hover .area, .bin.armed:hover .area { background: rgba(234,0,138,.06); }
+    .bin.armed { box-shadow: 0 0 0 4px rgba(234,0,138,.15); cursor: pointer; }
+    .pool { background: var(--blank); border-radius: 8px; padding: 14px; display: flex; flex-wrap: wrap; gap: 10px; align-content: center; justify-content: center; transition: background-color .2s; }
+    .pool.hover { background: #e3e7ee; }
+    .pool.col1 { flex-direction: column; flex-wrap: nowrap; align-items: stretch; justify-content: center; gap: 10px; }
+
+    /* label the diagram */
+    .bwrap { position: relative; width: 806px; height: 336px; border: 3px solid var(--navy); border-radius: 8px; flex-shrink: 0; }
+    .bwrap > svg { position: absolute; left: 0; top: 0; overflow: hidden; }
+    .slot { position: absolute; width: 180px; height: 50px; border: 3px dashed #c3c6d0; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #fff; transition: border-color .2s, background-color .2s; }
+    .slot.hover, .slot.armed:hover { border-color: var(--pink); background: #fdf0f7; }
+    .slot.armed { border-color: #e7a3c9; cursor: pointer; }
+    .slot.filled { border-color: transparent; background: none; }
+    .slot.wrong { animation: shake .4s; }
+    .slot .tile { box-shadow: none; padding: 5px 14px; font-size: 23px; }
+    .bside { width: 320px; display: flex; flex-direction: column; gap: 10px; height: 336px; }
+    .bside .pool { flex: 1; flex-direction: column; flex-wrap: nowrap; align-items: center; justify-content: center; }
+
+    /* cloze */
+    .cloze { display: flex; flex-direction: column; gap: 22px; width: 100%; }
+    .ctext { font-size: 27px; font-weight: 600; line-height: 2.1; }
+    .cslot { display: inline-flex; align-items: center; justify-content: center; min-width: 190px; height: 50px; vertical-align: middle; margin: 0 4px;
+        border: 3px dashed #c3c6d0; border-radius: 8px; transition: border-color .2s, background-color .2s, min-width .2s; line-height: 1.25; }
+    .cslot.hover, .cslot.armed:hover { border-color: var(--pink); background: #fdf0f7; }
+    .cslot.armed { border-color: #e7a3c9; cursor: pointer; }
+    .cslot.filled { border-color: transparent; min-width: 0; }
+    .cslot.wrong { animation: shake .4s; }
+    .cslot .tile { box-shadow: none; padding: 4px 14px; font-size: 24px; }
+    .cpool { min-height: 76px; }
+
+    /* order */
+    .order { display: grid; grid-template-columns: 540px 1fr; grid-template-rows: minmax(0, 1fr); gap: 24px; width: 100%; height: 100%; }
+    .order .tile.sm { font-size: 20px; }
+    .olist { display: flex; flex-direction: column; justify-content: center; gap: 10px; }
+    .orow { display: flex; align-items: center; gap: 14px; }
+    .onum { flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background: var(--navy); color: #fff; font-family: var(--cond); font-size: 24px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+    .odrop { flex: 1; min-height: 58px; border: 3px dashed #c3c6d0; border-radius: 8px; display: flex; align-items: center; padding: 2px; transition: border-color .2s, background-color .2s; }
+    .orow.hover .odrop, .orow.armed:hover .odrop { border-color: var(--pink); background: #fdf0f7; }
+    .orow.armed { cursor: pointer; }
+    .orow.armed .odrop { border-color: #e7a3c9; }
+    .orow.filled .odrop { border-color: transparent; }
+    .orow.wrong .odrop { animation: shake .4s; }
+    .odrop .tile { box-shadow: none; width: 100%; text-align: left; }
+
+    /* end */
+    .scorecard { border: 3px solid var(--pink); border-radius: 8px; padding: 30px 60px; text-align: center; }
+    .scorecard .big { font-family: var(--cond); font-size: 120px; font-weight: 900; color: var(--pink); line-height: 1; }
+    .scorecard .dlbl { margin-top: 8px; }
+    .dots { display: flex; gap: 8px; justify-content: center; margin-top: 22px; }
+    .dots span { width: 34px; height: 34px; border-radius: 6px; border: 3px solid var(--navy); font-family: var(--cond); font-size: 17px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+    .dots span.y { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .again { margin-top: 26px; font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+        background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 8px; padding: 8px 22px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+    <div class="top">
+        <h1 class="sheet-title">Checking <span>tides</span></h1>
+        <div class="counter" id="counter"></div>
+    </div>
+    <div class="content" id="content"></div>
+    <div class="caption"><div class="txt" id="cap"></div><button class="next" id="next" hidden>Check</button></div>
+    <div class="progress" id="progress"></div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const content = $('#content'), cap = $('#cap'), btn = $('#next'), counter = $('#counter'), progress = $('#progress');
+const PK = '#ea008a', NV = '#1b1f45', GR = '#c9ccd6', DT = '#b5b9c6', LT = '#f0f3f6', WT = '#cfe0f3', SD = '#f0e4c8', SN = '#f7c948', MG = '#d3d6df', TN = '#e9ecf5';
+let scaleK = 1;
+function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
+function say(html) { cap.innerHTML = `<span class="in">${html}</span>`; }
+
+/* ---------- animation helpers ---------- */
+let runId = 0;
+const easeOut = t => 1 - (1 - t) * (1 - t), easeInOut = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+function play(dur, step, guard) {
+    const id = runId, ok = guard || (() => id === runId);
+    return new Promise(res => {
+        const st = performance.now();
+        const f = n => { if (!ok()) return; const t = Math.min(1, (n - st) / dur); step(t); if (t < 1) requestAnimationFrame(f); else res(); };
+        requestAnimationFrame(f);
+    });
+}
+function wait(ms) { const id = runId; return new Promise(r => setTimeout(() => { if (id === runId) r(); }, ms)); }
+const phase = (T0, T1, dur, apply, ease) => play(dur, k => apply(T0 + (T1 - T0) * (ease ? ease(k) : k)));
+
+/* ---------- drawing helpers ---------- */
+const DIR = { r: 0, l: Math.PI, u: -Math.PI / 2, d: Math.PI / 2 };
+function arrowSVG(x, y, ang, len, o = {}) {
+    const c = o.c || PK, sw = o.sw || 8, hw = o.hw || 13, hl = Math.min(o.hl || 22, len);
+    if (len < 1) return '';
+    const ux = Math.cos(ang), uy = Math.sin(ang), ex = x + ux * len, ey = y + uy * len, bx = ex - ux * hl, by = ey - uy * hl, px = -uy * hw, py = ux * hw;
+    const f = v => v.toFixed(1);
+    let s = len > hl ? `<line x1="${f(x)}" y1="${f(y)}" x2="${f(bx)}" y2="${f(by)}" stroke="${c}" stroke-width="${sw}"/>` : '';
+    s += `<polygon points="${f(ex)},${f(ey)} ${f(bx + px)},${f(by + py)} ${f(bx - px)},${f(by - py)}" fill="${c}" stroke="${c}" stroke-width="1.5" stroke-linejoin="round"/>`;
+    return s;
+}
+const replayIcon = `<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v5h5"/></svg>`;
+
+function earthSVG(r, lbl = true) {
+    return `<circle r="${r}" fill="${NV}"/>` + (lbl ? `<text class="elbl" y="6" text-anchor="middle">Earth</text>` : '');
+}
+function moonGrey(r, lbl) {
+    return `<circle r="${r}" fill="${MG}" stroke="${NV}" stroke-width="3"/><circle cx="${(-r * .3).toFixed(1)}" cy="${(-r * .25).toFixed(1)}" r="${(r * .2).toFixed(1)}" fill="#b9bdca"/>
+        <circle cx="${(r * .32).toFixed(1)}" cy="${(r * .3).toFixed(1)}" r="${(r * .14).toFixed(1)}" fill="#b9bdca"/>` + (lbl ? `<text class="oname" y="${r + 26}" text-anchor="middle">Moon</text>` : '');
+}
+/* seen from above: the half facing the Sun (on the right) is lit */
+function moonLit(r) {
+    return `<circle r="${r}" fill="${NV}"/><path d="M0 ${-r} A${r} ${r} 0 0 1 0 ${r} Z" fill="#fff"/><circle r="${r}" fill="none" stroke="${NV}" stroke-width="3"/>`;
+}
+function sunRight(cx, cy, r) {
+    let rays = '';
+    for (let a = 140; a <= 220; a += 16) { const t = a * Math.PI / 180; rays += `<line x1="${(cx + (r + 10) * Math.cos(t)).toFixed(1)}" y1="${(cy + (r + 10) * Math.sin(t)).toFixed(1)}" x2="${(cx + (r + 30) * Math.cos(t)).toFixed(1)}" y2="${(cy + (r + 30) * Math.sin(t)).toFixed(1)}"/>`; }
+    return `<g stroke="${NV}" stroke-width="3" stroke-linecap="round">${rays}</g><circle cx="${cx}" cy="${cy}" r="${r}" fill="${SN}" stroke="${NV}" stroke-width="3"/>`;
+}
+
+/* ---------- pictures for multiple choice ---------- */
+function oceanPic(k) {
+    const cx = 96, cy = 85;
+    const st = `fill="${WT}" stroke="${NV}" stroke-width="3"`;
+    let o = '';
+    if (k === 'even') o = `<circle cx="${cx}" cy="${cy}" r="52" ${st}/>`;
+    if (k === 'one') o = `<path d="M${cx} ${cy - 50} C ${cx + 44} ${cy - 50} ${cx + 80} ${cy - 26} ${cx + 80} ${cy} C ${cx + 80} ${cy + 26} ${cx + 44} ${cy + 50} ${cx} ${cy + 50} A 50 50 0 0 1 ${cx} ${cy - 50} Z" ${st}/>`;
+    if (k === 'two') o = `<ellipse cx="${cx}" cy="${cy}" rx="74" ry="44" ${st}/>`;
+    if (k === 'side') o = `<ellipse cx="${cx}" cy="${cy}" rx="44" ry="68" ${st}/>`;
+    return `<svg viewBox="0 0 250 170" width="250" height="170">${o}<g transform="translate(${cx} ${cy})">${earthSVG(36)}</g><g transform="translate(224 ${cy})">${moonGrey(17)}</g>
+        <text class="oname" x="224" y="${cy + 44}" text-anchor="middle" style="font-size:17px">Moon</text></svg>`;
+}
+function tideGraph(k) {
+    const X0 = 42, X1 = 240, M = 94;
+    const P = { spring: [50, 0, 4], neap: [15, 0, 4], once: [50, 0, 2], high: [25, -25, 4] }[k];
+    let d = '';
+    for (let i = 0; i <= 160; i++) { const x = X0 + (X1 - X0) * i / 160, y = M + P[1] - P[0] * Math.sin(2 * Math.PI * P[2] * i / 160); d += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1); }
+    return `<svg viewBox="0 0 250 180" width="250" height="180">
+        <line x1="${X0}" y1="${M}" x2="${X1}" y2="${M}" stroke="${GR}" stroke-width="2" stroke-dasharray="6 6"/>
+        <line x1="${X0}" y1="34" x2="${X0}" y2="152" stroke="${NV}" stroke-width="3" stroke-linecap="round"/><line x1="${X0}" y1="152" x2="${X1}" y2="152" stroke="${NV}" stroke-width="3" stroke-linecap="round"/>
+        <path d="${d}" fill="none" stroke="${PK}" stroke-width="4" stroke-linejoin="round"/>
+        <text class="gax" x="26" y="98" text-anchor="middle" transform="rotate(-90 26 98)">Water level</text>
+        <text class="gax" x="${(X0 + X1) / 2}" y="174" text-anchor="middle">Two days</text></svg>`;
+}
+const PICS = { ocean: oceanPic, graph: tideGraph };
+
+/* =========================================================
+   QUESTIONS
+   ========================================================= */
+const QS = [
+    { kind: 'mc', title: 'What is a tide?', sc: 'SC18', prompt: 'Which of these best describes tides?',
+      opts: [
+        { t: 'Waves crashing onto the beach, caused by the wind', hint: 'Waves come every few seconds and are caused by wind. Tides change slowly over hours.' },
+        { t: 'The regular rise and fall of sea level along the coast', hint: '' },
+        { t: 'Ocean currents carrying water around the world', hint: 'Currents move water from place to place. Tides are about the water level going up and down.' },
+        { t: 'Sea level rising after heavy rain', hint: 'Rain adds very little water to the ocean. Tides rise and fall in a regular pattern, rain or shine.' }],
+      answer: 1, msg: 'Tides are the regular rise and fall of sea level. They happen in a predictable pattern every day.' },
+
+    { kind: 'watch', scene: 'beach', title: 'Tide watch', sc: 'SC18', prompt: 'Watch the water at this beach over six hours. What is happening?',
+      opts: [
+        { t: 'The tide is going out. More beach is exposed.', hint: 'Watch the edge of the water. Is it moving up or down the beach?' },
+        { t: 'The tide is coming in. Less beach is exposed.', hint: '' },
+        { t: 'The tide is coming in. More beach is exposed.', hint: 'As the water rises, it covers the sand. What happens to the dry beach?' },
+        { t: 'A big wave is washing up the beach.', hint: 'A wave lasts a few seconds. This change happened slowly over six hours.' }],
+      answer: 1, msg: 'As the tide comes in, the water rises and covers more of the beach. About six hours later it is high tide.' },
+
+    { kind: 'cloze', title: 'The cause', sc: 'SC18', prompt: 'Drag the words into the gaps to complete the sentences.',
+      text: 'Tides are mainly caused by the {gravitational} pull of the {Moon}. How strongly an object pulls depends on its {mass} and its {distance} from Earth.',
+      tiles: ['gravitational', 'Moon', 'mass', 'distance', 'magnetic', 'wind', 'colour', 'temperature'],
+      why: { gravitational: 'Which non-contact force pulls objects with mass towards each other?', Moon: 'The main cause of tides is our closest neighbour in space.',
+             mass: 'Objects with more matter pull more strongly. What is the word for the amount of matter?', distance: 'Closer objects pull more strongly. What word describes how far away something is?' },
+      msg: 'The Moon is massive and close to Earth, so its gravity pulls strongly on our oceans.' },
+
+    { kind: 'mcpic', pics: 'ocean', title: 'Ocean shape', sc: 'SC18', prompt: 'Earth is covered in ocean. Which shape does the Moon pull it into?',
+      opts: [
+        { p: 'even', t: 'No change', hint: 'The Moon\u2019s gravity pulls on the water, so the ocean can\u2019t stay evenly spread.' },
+        { p: 'one', t: 'One bulge', hint: 'There is a bulge facing the Moon, but there is also a second bulge on the opposite side.' },
+        { p: 'two', t: 'Two bulges', hint: '' },
+        { p: 'side', t: 'Top and bottom', hint: 'The water is pulled towards the Moon, so the bulges line up with the Moon.' }],
+      answer: 2, msg: 'The Moon pulls hardest on the water closest to it. This makes a bulge facing the Moon and another on the far side.' },
+
+    { kind: 'label', title: 'High or low?', sc: 'SC18', prompt: 'The Moon makes the ocean bulge. Drag a label to each place on the coast.',
+      side: 'Labels',
+      scene: `<ellipse cx="330" cy="165" rx="120" ry="80" fill="${WT}" stroke="${NV}" stroke-width="3"/>
+        <g transform="translate(330 165)">${earthSVG(60)}</g><g transform="translate(728 165)">${moonGrey(30, true)}</g>
+        <g fill="${NV}"><circle cx="450" cy="165" r="6"/><circle cx="210" cy="165" r="6"/><circle cx="330" cy="85" r="6"/><circle cx="330" cy="245" r="6"/></g>`,
+      slots: [
+        { x: 462, y: 140, ans: 'High tide', why: 'The ocean bulges out here, so the water is deep. Which tide is this?' },
+        { x: 18, y: 140, ans: 'High tide', why: 'The far side of Earth has a bulge too, so the water is deep here.' },
+        { x: 240, y: 22, ans: 'Low tide', why: 'Water has been pulled away from here into the bulges, so the water is shallow.' },
+        { x: 240, y: 258, ans: 'Low tide', why: 'Water has been pulled away from here into the bulges, so the water is shallow.' }],
+      tiles: ['High tide', 'High tide', 'Low tide', 'Low tide'],
+      msg: 'Places in a bulge have high tide. Places between the bulges have low tide.' },
+
+    { kind: 'predict', scene: 'spin', title: 'A day in town', sc: 'SC18', prompt: 'As Earth spins, how many high tides does the town get each day?',
+      opts: [
+        { t: 'One high tide', hint: 'There are two bulges, one facing the Moon and one on the far side. The town passes through both.' },
+        { t: 'Two high tides', hint: '' },
+        { t: 'Four high tides', hint: 'The town passes through each bulge once per spin. How many bulges are there?' },
+        { t: 'No high tides', hint: 'The town just passed through the bulge facing the Moon. That was a high tide.' }],
+      answer: 1, msg: 'Earth spins through both bulges each day, so most beaches get two high tides and two low tides.' },
+
+    { kind: 'order', title: 'Moon to beach', sc: 'SC18', prompt: 'Put the steps in order to explain how the Moon causes a high tide.',
+      items: ['The Moon\u2019s gravity pulls on Earth\u2019s oceans.', 'Water closest to the Moon is pulled the most.', 'The ocean bulges on the near and far sides.', 'As Earth spins, a beach moves into a bulge.', 'Water rises up the beach. It is high tide.'],
+      hints: ['Start with the cause. What does the Moon do to the oceans?', 'After the pull, think about which water is pulled the most.', 'Uneven pulling changes the shape of the ocean. What shape does it make?',
+              'The bulges stay lined up with the Moon. What moves through them?', 'Finish with what you would see at the beach.'],
+      msg: 'The Moon\u2019s gravity makes the ocean bulge. As Earth spins, beaches move in and out of the bulges.' },
+
+    { kind: 'mc', title: 'Sun versus Moon', sc: 'SC18', prompt: 'The Sun is far more massive than the Moon. Why does the Moon affect tides more?',
+      opts: [
+        { t: 'The Moon is much closer to Earth', hint: '' },
+        { t: 'The Sun\u2019s gravity doesn\u2019t reach Earth', hint: 'The Sun\u2019s gravity keeps Earth in orbit, so it definitely reaches us.' },
+        { t: 'The Moon is more massive than the Sun', hint: 'The Sun is millions of times more massive than the Moon.' },
+        { t: 'The Moon is magnetic, so it pulls the water', hint: 'Tides are caused by gravity, not magnetism.' }],
+      answer: 0, msg: 'The Sun is about 400 times further away than the Moon, so its effect on tides is only about half as strong.' },
+
+    { kind: 'sort', title: 'Spring or neap?', sc: 'SC19', prompt: 'Drag each card to the type of tide it matches.',
+      bins: [{ h: 'Spring tide', k: 's' }, { h: 'Neap tide', k: 'n', pk: true }],
+      items: [
+        ['New Moon', 's', 'At new Moon, the Moon is between Earth and the Sun. They line up.'],
+        ['Full Moon', 's', 'At full Moon, Earth is between the Sun and the Moon. They still line up.'],
+        ['First quarter', 'n', 'At first quarter, the Moon is at a right angle to the Sun, so their pulls don\u2019t line up.'],
+        ['Third quarter', 'n', 'At third quarter, the Moon is at a right angle to the Sun, so their pulls don\u2019t line up.'],
+        ['Sun, Moon and Earth in a line', 's', 'When they line up, the Sun\u2019s and Moon\u2019s pulls add together.'],
+        ['Sun and Moon at right angles', 'n', 'At right angles, the Sun\u2019s pull works against the Moon\u2019s bulges.'],
+        ['Highest highs, lowest lows', 's', 'These extreme tides happen when the pulls add together.'],
+        ['Highs and lows less extreme', 'n', 'A small difference happens when the pulls work against each other.']],
+      msg: 'Spring tides happen at new and full Moon, when everything lines up. Neap tides happen at the quarter Moons.' },
+
+    { kind: 'label', title: 'Label the orbit', sc: 'SC19', prompt: 'The Moon is shown at four places in its orbit. Drag a tide label to each Moon.',
+      side: 'Tides',
+      scene: `${sunRight(870, 165, 100)}<text class="oname" x="778" y="44" text-anchor="middle">Sun</text>
+        <circle cx="370" cy="165" r="120" fill="none" stroke="${GR}" stroke-width="3" stroke-dasharray="8 8"/>
+        ${arrowSVG(285.1, 80.1, Math.atan2(.7071, -.7071), 26, { c: '#9a9a9a', sw: 4, hl: 14, hw: 9 })}<text class="leg" x="208" y="74" text-anchor="end">Moon\u2019s orbit</text>
+        <g transform="translate(370 165)">${earthSVG(34)}</g>
+        <g transform="translate(490 165)">${moonLit(16)}</g><g transform="translate(370 45)">${moonLit(16)}</g>
+        <g transform="translate(250 165)">${moonLit(16)}</g><g transform="translate(370 285)">${moonLit(16)}</g>`,
+      slots: [
+        { x: 520, y: 140, ans: 'Spring tide', why: 'This Moon is in a straight line with Earth and the Sun.' },
+        { x: 40, y: 140, ans: 'Spring tide', why: 'Earth is between the Sun and this Moon, so all three are in a straight line.' },
+        { x: 400, y: 20, ans: 'Neap tide', why: 'This Moon is at a right angle to the line joining Earth and the Sun.' },
+        { x: 400, y: 260, ans: 'Neap tide', why: 'This Moon is at a right angle to the line joining Earth and the Sun.' }],
+      tiles: ['Spring tide', 'Spring tide', 'Neap tide', 'Neap tide'],
+      behind: g => play(500, k => { g.innerHTML = `<line x1="234" y1="165" x2="${(234 + 530 * easeOut(k)).toFixed(1)}" y2="165" stroke="${PK}" stroke-width="4" stroke-dasharray="12 9"/>`; }),
+      front: g => {
+          g.innerHTML = `<text class="phl" x="490" y="208" text-anchor="middle">New Moon</text><text class="phl" x="250" y="208" text-anchor="middle">Full Moon</text>
+            <text class="phl" x="344" y="52" text-anchor="end">First quarter</text><text class="phl" x="344" y="292" text-anchor="end">Third quarter</text>`;
+          play(500, k => g.setAttribute('opacity', k));
+      },
+      msg: 'When the Moon lines up with the Sun and Earth, there is a spring tide. At right angles, there is a neap tide.' },
+
+    { kind: 'predict', scene: 'range', title: 'A quarter turn', sc: 'SC19', prompt: 'The Moon moves to first quarter. How does the gap between high and low tide change?',
+      opts: [
+        { t: 'It gets bigger', hint: 'At new Moon the pulls line up. As the Moon moves away from that line, they stop adding together.' },
+        { t: 'It gets smaller', hint: '' },
+        { t: 'It stays the same', hint: 'The Moon moves but the Sun doesn\u2019t. Do their pulls still line up?' },
+        { t: 'The tides stop', hint: 'The Moon still pulls on the ocean at first quarter, so there are still tides.' }],
+      answer: 1, msg: 'At first quarter, the Sun pulls at right angles to the Moon, so the difference shrinks to a neap tide. It grows again by full Moon.' },
+
+    { kind: 'mcpic', pics: 'graph', title: 'Read the graph', sc: 'SC19', prompt: 'Each graph shows a beach\u2019s water level over two days. Which shows spring tides?',
+      opts: [
+        { p: 'neap', hint: 'The water rises and falls, but only a little. That is a neap tide.' },
+        { p: 'high', hint: 'The highs are very high, but the lows aren\u2019t very low. Spring tides have both.' },
+        { p: 'spring', hint: '' },
+        { p: 'once', hint: 'This beach only gets one high tide each day. Most beaches get two.' }],
+      answer: 2, msg: 'Spring tides have very high highs and very low lows, so the line rises and falls the most.' },
+
+    { kind: 'mcside', side: 'year', title: 'Mia\u2019s claim', sc: 'SC19', prompt: 'Mia is reading a tide chart. Is she right?',
+      quote: '\u201cSpring tides only happen in spring. That\u2019s why they\u2019re called spring tides.\u201d',
+      opts: [
+        { t: 'Yes. The Sun is closest to Earth in spring.', hint: 'The seasons don\u2019t control spring tides. They depend on where the Moon is.' },
+        { t: 'Yes. Warmer water rises higher in spring.', hint: 'Warm water doesn\u2019t cause spring tides. The pull of the Sun and Moon does.' },
+        { t: 'No. Spring tides happen in summer, when days are longest.', hint: 'Spring tides don\u2019t depend on the season at all.' },
+        { t: 'No. Spring tides happen about twice a month, at new and full Moon.', hint: '' }],
+      answer: 3, msg: 'Spring tides happen at every new and full Moon, all year round. The name comes from the water \u2018springing\u2019 up.' },
+
+    { kind: 'cloze', title: 'Explain it', sc: 'SC19', prompt: 'Drag the words into the gaps to complete the explanation.',
+      text: 'At new and full Moon, the Sun, Moon and Earth are in a {straight line}. Their pulls {add together}, making a {spring} tide. At the quarter Moons, the Sun and Moon are at {right angles}, making a {neap} tide.',
+      tiles: ['straight line', 'add together', 'spring', 'right angles', 'neap', 'work against each other', 'high', 'low'],
+      why: { 'straight line': 'Picture the Sun, Earth and a new Moon. How are they arranged?', 'add together': 'When the pulls line up, they combine to make bigger bulges.',
+             spring: 'The tide with the biggest difference between high and low has a special name.', 'right angles': 'At the quarter Moons, the Moon is a quarter of the way around its orbit. What angle is that?',
+             neap: 'The tide with the smallest difference between high and low has a special name.' },
+      msg: 'The positions of the Sun, Moon and Earth decide whether we get a spring tide or a neap tide.' }
+];
+const TOTAL = QS.length;
+const CHIP = { mc: 'Multiple choice', mcpic: 'Multiple choice', mcside: 'Multiple choice', sort: 'Drag and drop', label: 'Label the diagram', predict: 'Predict', watch: 'Watch and choose', cloze: 'Fill the gaps', order: 'Put in order' };
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+/* ---------- flow ---------- */
+let qi = 0, firstTry = [], tries = 0, mode = 'check', cur = null;
+function render() {
+    runId++;
+    content.innerHTML = ''; tries = 0; mode = 'check';
+    const q = QS[qi];
+    counter.innerHTML = `Question <b>${qi + 1}</b> / ${TOTAL}`;
+    progress.style.width = (qi / TOTAL * 100) + '%';
+    const wrap = el('div', 'q');
+    wrap.appendChild(el('div', 'qhead', `<div class="qtitle">${q.title}</div><div class="tchip">${CHIP[q.kind]}</div><div class="sctag">${q.sc}</div>`));
+    wrap.appendChild(el('div', 'prompt', q.prompt));
+    const body = el('div', 'body'); wrap.appendChild(body); content.appendChild(wrap);
+    cur = KINDS[q.kind](q, body);
+    say(cur.instr);
+    btn.hidden = false; btn.textContent = 'Check';
+    refresh();
+}
+function refresh() { if (mode === 'check') btn.disabled = !cur.ready(); }
+function check() {
+    tries++;
+    const r = cur.check();
+    if (r.ok) {
+        if (tries === 1) firstTry[qi] = true;
+        say(`<b>Correct.</b> ${QS[qi].msg}`);
+        mode = 'next'; btn.disabled = false; btn.textContent = qi === TOTAL - 1 ? 'Finish' : 'Next';
+        btn.classList.remove('pop-in'); void btn.offsetWidth; btn.classList.add('pop-in');
+        if (cur.done) cur.done();
+    } else {
+        say(`<b class="no">Not quite.</b> ${r.hint}`);
+        refresh();
+    }
+}
+btn.onclick = () => {
+    if (btn.disabled) return;
+    if (mode === 'check') check();
+    else if (qi === TOTAL - 1) finish();
+    else { qi++; render(); }
+};
+function finish() {
+    runId++;
+    content.innerHTML = '';
+    btn.hidden = true;
+    counter.innerHTML = '<b>Complete</b>';
+    progress.style.width = '100%';
+    const n = firstTry.filter(Boolean).length;
+    say('Take a screenshot of this screen and paste it into Stile as evidence of your work.');
+    const c = el('div', 'center');
+    const dots = QS.map((_, i) => `<span class="${firstTry[i] ? 'y' : ''}">${i + 1}</span>`).join('');
+    const card = el('div', 'scorecard pop-in', `<div class="big">${n} / ${TOTAL}</div><div class="dlbl">Correct on the first try</div><div class="dots">${dots}</div>`);
+    const again = el('button', 'again', 'Start again');
+    again.onclick = () => { qi = 0; firstTry = []; render(); };
+    c.append(card, again); content.appendChild(c);
+}
+
+/* ---------- multiple choice core ---------- */
+function mcCore(els, q, extra = {}) {
+    let sel = null;
+    els.forEach((b, i) => b.onclick = () => {
+        if (mode !== 'check' || b.classList.contains('wrong')) return;
+        els.forEach(x => x.classList.remove('sel')); b.classList.add('sel'); sel = i; refresh();
+    });
+    return {
+        instr: extra.instr || 'Choose an answer, then press <b>Check</b>.',
+        ready: () => sel !== null,
+        check() {
+            const b = els[sel];
+            b.classList.remove('sel');
+            if (sel === q.answer) { b.classList.add('right'); els.forEach(x => x.disabled = true); return { ok: true }; }
+            b.classList.add('wrong'); b.disabled = true;
+            const h = q.opts[sel].hint; sel = null; return { ok: false, hint: h };
+        },
+        done: extra.done
+    };
+}
+const L = 'ABCD';
+const textOpts = q => q.opts.map((o, i) => el('button', 'opt', `<span class="l">${L[i]}</span><span>${o.t}</span>`));
+
+/* slot-based checking shared by label, cloze and order */
+function slotCheck(zones, match, hintOf, noun) {
+    let bad = 0, hint = null;
+    zones.forEach(z => {
+        const t = z.box.querySelector('.tile'); z.el.classList.remove('wrong');
+        if (!t || t.classList.contains('right')) return;
+        t.classList.remove('wrong'); void t.offsetWidth;
+        if (match(t, z)) { t.classList.add('right'); z.locked = true; }
+        else { bad++; t.classList.add('wrong'); void z.el.offsetWidth; z.el.classList.add('wrong'); if (!hint) hint = hintOf(t, z); }
+    });
+    return bad ? { ok: false, hint: (bad > 1 ? `${bad} ${noun} need changing. ` : '') + hint } : { ok: true };
+}
+
+const KINDS = {
+    mc(q, body) {
+        const g = el('div', 'opts g2');
+        const els = textOpts(q); els.forEach(b => g.appendChild(b));
+        body.appendChild(g);
+        return mcCore(els, q);
+    },
+    mcpic(q, body) {
+        const g = el('div', 'pgrid');
+        const els = q.opts.map((o, i) => { const b = el('button', 'pcard', `<span class="l">${L[i]}</span>${PICS[q.pics](o.p)}${o.t ? `<span class="cap">${o.t}</span>` : ''}`); g.appendChild(b); return b; });
+        body.appendChild(g);
+        return mcCore(els, q);
+    },
+    mcside(q, body) {
+        const side = el('div', 'scene');
+        side.innerHTML = `<svg viewBox="0 0 250 330" width="250" height="330"></svg>`;
+        const col = el('div', 'col'); col.style.flex = '1';
+        col.appendChild(el('div', 'quote', q.quote));
+        const g = el('div', 'opts');
+        const els = textOpts(q); els.forEach(b => g.appendChild(b));
+        col.appendChild(g); body.append(side, col);
+        body.style.justifyContent = 'flex-start';
+        const S = SIDES[q.side](side.querySelector('svg'));
+        return mcCore(els, q, { done: () => S.done() });
+    },
+    watch(q, body) {
+        const sc = el('div', 'scene');
+        sc.innerHTML = `<svg viewBox="0 0 620 330" width="614" height="327"></svg>`;
+        const col = el('div', 'col'); col.style.flex = '1';
+        const g = el('div', 'opts');
+        const els = textOpts(q); els.forEach(b => g.appendChild(b));
+        col.appendChild(g); body.append(sc, col);
+        const S = WATCH[q.scene](sc.querySelector('svg'));
+        S.loop();
+        return mcCore(els, q, { instr: 'Watch the water, choose an answer, then press <b>Check</b>.', done: () => { runId++; S.final(); } });
+    },
+    predict(q, body) {
+        body.classList.add('pred');
+        const sc = el('div', 'scene');
+        sc.innerHTML = `<svg viewBox="0 0 740 330" width="734" height="327"></svg>`;
+        const rp = el('button', 'replay', `${replayIcon}<span>Replay</span>`); sc.appendChild(rp);
+        const g = el('div', 'opts');
+        const els = textOpts(q); els.forEach(b => g.appendChild(b));
+        body.append(sc, g);
+        const S = SCENES[q.scene](sc.querySelector('svg'));
+        let solved = false;
+        const go = () => { runId++; S.run(solved); };
+        S.introDone = false;
+        rp.onclick = go;
+        go();
+        return mcCore(els, q, { instr: 'Watch, then choose what happens next and press <b>Check</b>.', done: () => { solved = true; runId++; S.run(true, S.introDone); } });
+    },
+    sort(q, body) {
+        const wrap = el('div', 'sort');
+        const mk = b => { const d = el('div', 'bin' + (b.pk ? ' pk' : ''), `<h3>${b.h}</h3><div class="area"></div>`); d.tabIndex = 0; return d; };
+        const b1 = mk(q.bins[0]), b2 = mk(q.bins[1]);
+        const pool = el('div', 'pool');
+        wrap.append(b1, pool, b2); body.appendChild(wrap);
+        const zPool = { el: pool, box: pool, cap: Infinity, pool: true };
+        const zones = [{ el: b1, box: b1.querySelector('.area'), cap: Infinity, key: q.bins[0].k }, { el: b2, box: b2.querySelector('.area'), cap: Infinity, key: q.bins[1].k }];
+        const D = dnd(zPool, zones, () => refresh());
+        shuffle(q.items).forEach(([t, k, h]) => { const tl = D.tile(t); tl.classList.add('sm'); tl.k = k; tl.h = h; pool.appendChild(tl); });
+        return {
+            instr: 'Drag each card into a group (or tap a card, then a group), then press <b>Check</b>.',
+            ready: () => !pool.querySelector('.tile'),
+            check() {
+                let wrong = [];
+                zones.forEach(z => z.box.querySelectorAll('.tile').forEach(t => {
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (t.k === z.key) t.classList.add('right'); else { t.classList.add('wrong'); wrong.push(t.h); }
+                }));
+                return wrong.length ? { ok: false, hint: (wrong.length > 1 ? `${wrong.length} cards need moving. ` : '') + wrong[0] } : { ok: true };
+            }
+        };
+    },
+    label(q, body) {
+        const W = 800, H = 330;
+        const wrap = el('div', 'bwrap');
+        wrap.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><g class="fxb"></g>${q.scene}<g class="fx"></g></svg>`;
+        const side = el('div', 'bside', `<div class="dlbl">${q.side}</div>`);
+        const pool = el('div', 'pool'); side.appendChild(pool);
+        body.append(wrap, side);
+        const zones = q.slots.map(s => {
+            const d = el('div', 'slot'); d.style.left = s.x + 'px'; d.style.top = s.y + 'px'; d.tabIndex = 0; d.setAttribute('aria-label', 'Label space');
+            wrap.appendChild(d);
+            return { el: d, box: d, cap: 1, ans: s.ans, why: s.why, onPut: () => d.classList.add('filled'), onTake: () => d.classList.remove('filled') };
+        });
+        const zPool = { el: pool, box: pool, cap: Infinity, pool: true };
+        const D = dnd(zPool, zones, () => { zones.forEach(z => z.el.classList.remove('wrong')); refresh(); });
+        shuffle(q.tiles).forEach(t => pool.appendChild(D.tile(t)));
+        return {
+            instr: 'Drag a label onto each space (or tap a label, then a space), then press <b>Check</b>.',
+            ready: () => zones.every(z => z.box.querySelector('.tile')),
+            check: () => slotCheck(zones, (t, z) => t.textContent === z.ans, (t, z) => z.why, 'labels'),
+            done() { if (q.behind) q.behind(wrap.querySelector('.fxb')); if (q.front) q.front(wrap.querySelector('.fx')); }
+        };
+    },
+    cloze(q, body) {
+        const wrap = el('div', 'cloze');
+        const para = el('div', 'ctext');
+        const zones = [];
+        q.text.split(/(\{[^}]+\})/).forEach(part => {
+            if (!part) return;
+            if (part[0] === '{') {
+                const ans = part.slice(1, -1), s = el('span', 'cslot'); s.tabIndex = 0; s.setAttribute('aria-label', 'Gap');
+                para.appendChild(s);
+                zones.push({ el: s, box: s, cap: 1, ans, onPut: () => s.classList.add('filled'), onTake: () => s.classList.remove('filled') });
+            } else para.appendChild(document.createTextNode(part));
+        });
+        const pool = el('div', 'pool cpool');
+        wrap.append(para, pool); body.appendChild(wrap);
+        const zPool = { el: pool, box: pool, cap: Infinity, pool: true };
+        const D = dnd(zPool, zones, () => { zones.forEach(z => z.el.classList.remove('wrong')); refresh(); });
+        shuffle(q.tiles).forEach(t => pool.appendChild(D.tile(t)));
+        return {
+            instr: 'Drag a word into each gap (or tap a word, then a gap), then press <b>Check</b>.',
+            ready: () => zones.every(z => z.box.querySelector('.tile')),
+            check: () => slotCheck(zones, (t, z) => t.textContent === z.ans, (t, z) => q.why[z.ans], 'words')
+        };
+    },
+    order(q, body) {
+        const wrap = el('div', 'order');
+        const pool = el('div', 'pool col1');
+        const list = el('div', 'olist');
+        const zones = q.items.map((_, i) => {
+            const row = el('div', 'orow', `<span class="onum">${i + 1}</span>`), drop = el('div', 'odrop');
+            row.appendChild(drop); row.tabIndex = 0; row.setAttribute('aria-label', 'Step ' + (i + 1)); list.appendChild(row);
+            return { el: row, box: drop, cap: 1, idx: i, onPut: () => row.classList.add('filled'), onTake: () => row.classList.remove('filled') };
+        });
+        wrap.append(pool, list); body.appendChild(wrap);
+        const zPool = { el: pool, box: pool, cap: Infinity, pool: true };
+        const D = dnd(zPool, zones, () => { zones.forEach(z => z.el.classList.remove('wrong')); refresh(); });
+        let order = shuffle(q.items.map((t, i) => i));
+        if (order.every((v, i) => v === i)) order.reverse();
+        order.forEach(i => { const tl = D.tile(q.items[i]); tl.classList.add('sm'); tl.k = i; pool.appendChild(tl); });
+        return {
+            instr: 'Drag each step into place (or tap a step, then a number), then press <b>Check</b>.',
+            ready: () => zones.every(z => z.box.querySelector('.tile')),
+            check: () => slotCheck(zones, (t, z) => t.k === z.idx, (t, z) => q.hints[z.idx], 'steps')
+        };
+    }
+};
+
+/* ---------- drag and drop (drag, or tap a tile then tap a target) ---------- */
+function dnd(pool, zones, onChange) {
+    let sel = null;
+    const all = () => [pool, ...zones];
+    const zoneOf = t => all().find(z => z.box.contains(t));
+    const armAll = on => zones.forEach(z => z.el.classList.toggle('armed', on && !z.locked));
+    const deselect = () => { if (sel) sel.classList.remove('sel'); sel = null; armAll(false); };
+    function moveTo(t, z) {
+        const from = zoneOf(t);
+        t.style.transform = ''; t.classList.remove('wrong');
+        z.box.appendChild(t);
+        if (from && from !== z && from.onTake) from.onTake(t);
+        if (z.onPut) z.onPut(t);
+        deselect(); onChange();
+    }
+    function put(t, z) {
+        const from = zoneOf(t);
+        if (z.locked || from === z) { t.style.transform = ''; return; }
+        if (z.cap === 1) {
+            const ex = z.box.querySelector('.tile');
+            if (ex) { if (ex.classList.contains('right')) { t.style.transform = ''; return; } moveTo(ex, pool); }
+        }
+        moveTo(t, z);
+    }
+    const hit = (x, y) => all().find(z => { const r = z.el.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; });
+    all().forEach(z => {
+        const act = () => { if (sel && !z.locked) put(sel, z); };
+        z.el.addEventListener('click', act);
+        z.el.addEventListener('keydown', e => { if (e.target === z.el && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); act(); } });
+    });
+    function tile(text) {
+        const t = el('span', 'tile', text);
+        t.tabIndex = 0; t.setAttribute('role', 'button');
+        const tap = () => {
+            if (t.classList.contains('right')) return;
+            t.style.transform = '';
+            const z = zoneOf(t);
+            if (z !== pool) { put(t, pool); return; }
+            if (sel === t) { deselect(); return; }
+            deselect(); sel = t; t.classList.add('sel'); armAll(true);
+        };
+        t.addEventListener('click', e => e.stopPropagation());
+        t.addEventListener('pointerdown', e => {
+            if (t.classList.contains('right') || e.button > 0) return;
+            e.preventDefault(); e.stopPropagation(); t.setPointerCapture(e.pointerId);
+            const sx = e.clientX, sy = e.clientY; let moved = false;
+            const move = ev => {
+                const dx = ev.clientX - sx, dy = ev.clientY - sy;
+                if (!moved && Math.hypot(dx, dy) > 6) { moved = true; t.classList.add('drag'); }
+                if (!moved) return;
+                t.style.transform = `translate(${dx / scaleK}px, ${dy / scaleK}px)`;
+                const h = hit(ev.clientX, ev.clientY);
+                all().forEach(z => z.el.classList.toggle('hover', z === h));
+            };
+            const up = ev => {
+                t.removeEventListener('pointermove', move); t.removeEventListener('pointerup', up); t.removeEventListener('pointercancel', up);
+                t.classList.remove('drag'); all().forEach(z => z.el.classList.remove('hover'));
+                if (!moved) { tap(); return; }
+                const h = hit(ev.clientX, ev.clientY);
+                if (h) put(t, h); else t.style.transform = '';
+            };
+            t.addEventListener('pointermove', move); t.addEventListener('pointerup', up); t.addEventListener('pointercancel', up);
+        });
+        t.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); tap(); } });
+        return t;
+    }
+    return { tile };
+}
+
+/* =========================================================
+   WATCH SCENE: tide coming in at a beach
+   ========================================================= */
+const WATCH = {
+    beach(svg) {
+        const sy = x => 300 - .3 * x, LO = 250, HI = 162, xi = lv => (300 - lv) / .3;
+        const nx = .287, ny = .958, ROT = -16.7;
+        svg.innerHTML = `<polygon points="0,300 620,114 620,330 0,330" fill="${SD}"/>
+            <polygon class="wat" fill="${WT}"/><line class="wl" x1="0" stroke="${NV}" stroke-width="3"/>
+            <line x1="0" y1="300" x2="620" y2="114" stroke="${NV}" stroke-width="4"/>
+            <g class="ref"></g><g class="dry"></g>
+            <text class="spd sea" x="16" style="fill:${NV}">Sea</text>
+            <text class="spd" x="596" y="${sy(596) + 46}" text-anchor="end">Sand</text>
+            <text class="spd" x="22" y="40">Time</text><text class="clk" x="22" y="76"></text>`;
+        const wat = svg.querySelector('.wat'), wl = svg.querySelector('.wl'), sea = svg.querySelector('.sea'), dry = svg.querySelector('.dry'), clk = svg.querySelector('.clk'), ref = svg.querySelector('.ref');
+        const fmt = h => { let hh = Math.floor(h), mm = Math.round((h - hh) * 6) * 10; if (mm === 60) { hh++; mm = 0; } const ap = hh >= 12 ? 'pm' : 'am', h12 = ((hh + 11) % 12) + 1; return `${h12}:${String(mm).padStart(2, '0')} ${ap}`; };
+        const set = lv => {
+            const x = xi(lv);
+            wat.setAttribute('points', `0,${lv.toFixed(1)} ${x.toFixed(1)},${lv.toFixed(1)} 0,300`);
+            wl.setAttribute('y1', lv); wl.setAttribute('y2', lv); wl.setAttribute('x2', x);
+            sea.setAttribute('y', lv + 34);
+            const x1 = x + 8, x2 = 612, o = -22, p1 = [x1, sy(x1) + o], p2 = [x2, sy(x2) + o], mx = (p1[0] + p2[0]) / 2, my = (p1[1] + p2[1]) / 2;
+            const tick = p => `<line x1="${(p[0] - nx * 9).toFixed(1)}" y1="${(p[1] - ny * 9).toFixed(1)}" x2="${(p[0] + nx * 9).toFixed(1)}" y2="${(p[1] + ny * 9).toFixed(1)}"/>`;
+            dry.innerHTML = `<g stroke="${PK}" stroke-width="4" stroke-linecap="round"><line x1="${p1[0].toFixed(1)}" y1="${p1[1].toFixed(1)}" x2="${p2[0]}" y2="${p2[1].toFixed(1)}"/>${tick(p1)}${tick(p2)}</g>
+                <text class="phl" x="${(mx - nx * 14).toFixed(1)}" y="${(my - ny * 14).toFixed(1)}" text-anchor="middle" transform="rotate(${ROT} ${(mx - nx * 14).toFixed(1)} ${(my - ny * 14).toFixed(1)})">Dry beach</text>`;
+            clk.textContent = fmt(9 + 6 * (LO - lv) / (LO - HI));
+        };
+        set(LO);
+        return {
+            async loop() {
+                const id = runId;
+                while (id === runId) {
+                    ref.innerHTML = ''; set(LO);
+                    await wait(900);
+                    await play(4200, k => set(LO + (HI - LO) * easeInOut(k)));
+                    await wait(1600);
+                }
+            },
+            final() {
+                set(HI);
+                ref.innerHTML = `<line x1="0" y1="${LO}" x2="${xi(LO)}" y2="${LO}" stroke="${NV}" stroke-width="3" stroke-dasharray="9 7"/>
+                    <text class="lbn" x="12" y="${LO - 10}">Low tide (9:00 am)</text><text class="lbn" x="190" y="${HI - 10}">High tide (3:00 pm)</text>`;
+            }
+        };
+    }
+};
+
+/* =========================================================
+   SIDE SCENE: a year of spring tides
+   ========================================================= */
+const SIDES = {
+    year(svg) {
+        const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const ry = m => 54 + m * 19, X0 = 60, X1 = 236;
+        let rows = `<rect x="6" y="${ry(8) - 10}" width="238" height="57" fill="${TN}"/>`;
+        MON.forEach((m, i) => rows += `<text class="mlbl" x="14" y="${ry(i) + 6}">${m}</text><line x1="${X0}" x2="${X1}" y1="${ry(i)}" y2="${ry(i)}" stroke="#dfe2ea" stroke-width="2"/>`);
+        svg.innerHTML = `<text class="spd" x="125" y="30" text-anchor="middle">One year</text>${rows}<g class="dts"></g>
+            <rect x="14" y="282" width="16" height="16" fill="${TN}" stroke="${NV}" stroke-width="1.5"/><text class="leg" x="38" y="296" style="font-size:16px">Spring in Australia</text>
+            <g class="lg2" opacity="0"><circle cx="22" cy="315" r="6.5" fill="${PK}"/><text class="leg" x="38" y="321" style="font-size:16px;fill:${PK}">Spring tide</text></g>`;
+        const dts = svg.querySelector('.dts'), lg2 = svg.querySelector('.lg2');
+        return {
+            done() {
+                const pts = [];
+                for (let t = 8; t < 365; t += 14.765) { const m = Math.min(11, Math.floor(t / 30.42)), f = (t - m * 30.42) / 30.42; pts.push([X0 + f * (X1 - X0), ry(m)]); }
+                let n = 0;
+                play(2200, k => {
+                    lg2.setAttribute('opacity', Math.min(1, k * 4));
+                    const want = Math.round(k * pts.length);
+                    while (n < want) { dts.insertAdjacentHTML('beforeend', `<circle cx="${pts[n][0].toFixed(1)}" cy="${pts[n][1]}" r="6.5" fill="${PK}"/>`); n++; }
+                }, () => document.body.contains(svg));
+            }
+        };
+    }
+};
+
+/* =========================================================
+   ANIMATED SCENES (predict)
+   Each scene: run(full, skipIntro)
+   ========================================================= */
+const SCENES = {
+    spin(svg) {
+        const C = { x: 172, y: 160 }, ER = 60, RX = 100, RY = 74, M = { x: 382, y: 160 };
+        const GX0 = 478, GX1 = 718, GY0 = 70, GY1 = 240, HP = [GY1 - 22, GY0 + 24];
+        const thAt = h => Math.PI / 2 - 2 * Math.PI * h / 24;
+        const lev = th => RX * RY / Math.hypot(RY * Math.cos(th), RX * Math.sin(th));
+        const gx = h => GX0 + (GX1 - GX0) * h / 24, gy = h => HP[0] - (lev(thAt(h)) - RY) / (RX - RY) * (HP[0] - HP[1]);
+        let ticks = '';
+        [0, 6, 12, 18, 24].forEach(h => ticks += `<line x1="${gx(h)}" x2="${gx(h)}" y1="${GY1}" y2="${GY1 + 8}" stroke="${NV}" stroke-width="3"/><text class="gax" x="${gx(h)}" y="${GY1 + 28}" text-anchor="middle" style="font-size:17px">${h}</text>`);
+        svg.innerHTML = `<ellipse cx="${C.x}" cy="${C.y}" rx="${RX}" ry="${RY}" fill="${WT}" stroke="${NV}" stroke-width="3"/>
+            <g class="rotg"><circle cx="${C.x}" cy="${C.y}" r="${ER}" fill="${NV}"/><g fill="#343b72"><ellipse cx="${C.x - 20}" cy="${C.y - 26}" rx="18" ry="12"/><ellipse cx="${C.x + 22}" cy="${C.y + 18}" rx="14" ry="20"/><ellipse cx="${C.x - 28}" cy="${C.y + 28}" rx="9" ry="7"/></g></g>
+            <text class="elbl" x="${C.x}" y="${C.y + 6}" text-anchor="middle">Earth</text>
+            <line class="dep" stroke="${PK}" stroke-width="7" stroke-linecap="round"/><circle class="town" r="9" fill="${PK}" stroke="#fff" stroke-width="3"/>
+            <text class="oname tl" text-anchor="middle" style="fill:${PK}">Town</text>
+            <g transform="translate(${M.x} ${M.y})">${moonGrey(24, true)}</g>
+            <text class="leg" x="${C.x}" y="306" text-anchor="middle">Earth spins once each day</text>
+            <text class="gax" x="${GX0 - 8}" y="${GY0 - 18}" style="font-size:17px">Water level</text>
+            <line x1="${GX0}" y1="${GY0}" x2="${GX0}" y2="${GY1}" stroke="${NV}" stroke-width="3" stroke-linecap="round"/><line x1="${GX0}" y1="${GY1}" x2="${GX1}" y2="${GY1}" stroke="${NV}" stroke-width="3" stroke-linecap="round"/>${ticks}
+            <text class="gax" x="${(GX0 + GX1) / 2}" y="${GY1 + 54}" text-anchor="middle" style="font-size:17px">Hours</text>
+            <text class="gax" x="${GX0 - 8}" y="${HP[1] + 6}" text-anchor="end">High</text><text class="gax" x="${GX0 - 8}" y="${HP[0] + 6}" text-anchor="end">Low</text>
+            <polyline class="cv" fill="none" stroke="${PK}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/><g class="mk"></g>`;
+        const rotg = svg.querySelector('.rotg'), dep = svg.querySelector('.dep'), town = svg.querySelector('.town'), tl = svg.querySelector('.tl'), cv = svg.querySelector('.cv'), mk = svg.querySelector('.mk');
+        const marked = {};
+        const mark = h => {
+            if (marked[h]) return; marked[h] = true;
+            mk.insertAdjacentHTML('beforeend', `<circle cx="${gx(h)}" cy="${gy(h)}" r="8" fill="${PK}" stroke="#fff" stroke-width="3"/><text class="phl" x="${gx(h)}" y="${gy(h) - 16}" text-anchor="middle" style="font-size:18px">High tide</text>`);
+        };
+        const set = h => {
+            const th = thAt(h), L = lev(th), c = Math.cos(th), s = Math.sin(th);
+            rotg.setAttribute('transform', `rotate(${(-360 * h / 24).toFixed(2)} ${C.x} ${C.y})`);
+            const tx = C.x + ER * c, ty = C.y + ER * s;
+            town.setAttribute('cx', tx.toFixed(1)); town.setAttribute('cy', ty.toFixed(1));
+            dep.setAttribute('x1', tx.toFixed(1)); dep.setAttribute('y1', ty.toFixed(1)); dep.setAttribute('x2', (C.x + (L - 3) * c).toFixed(1)); dep.setAttribute('y2', (C.y + (L - 3) * s).toFixed(1));
+            tl.setAttribute('x', (C.x + (L + 26) * c).toFixed(1)); tl.setAttribute('y', (C.y + (L + 26) * s + 7).toFixed(1));
+            let pts = '';
+            for (let u = 0; u < h; u += .2) pts += `${gx(u).toFixed(1)},${gy(u).toFixed(1)} `;
+            cv.setAttribute('points', pts + `${gx(h).toFixed(1)},${gy(h).toFixed(1)}`);
+            if (h >= 18) mark(18);
+        };
+        return {
+            async run(full, skipIntro) {
+                if (!skipIntro) {
+                    this.introDone = false;
+                    mk.innerHTML = ''; delete marked[6]; delete marked[18]; set(0);
+                    await wait(600);
+                    await phase(0, 6, 2400, set);
+                    mark(6);
+                    this.introDone = true;
+                }
+                if (!full) return;
+                await wait(skipIntro ? 100 : 700);
+                await phase(6, 24, 6000, set);
+            }
+        };
+    },
+    range(svg) {
+        const E = { x: 382, y: 165 }, OR = 118, R0 = 60, LM = 26, LS = 12, GX = 108, GC = 172;
+        const ap = -2.35, P = { x: E.x + OR * Math.cos(ap), y: E.y + OR * Math.sin(ap) }, tang = Math.atan2(-Math.cos(ap), Math.sin(ap));
+        svg.innerHTML = `${sunRight(770, 165, 96)}<text class="oname" x="704" y="172" text-anchor="middle">Sun</text>
+            <circle cx="${E.x}" cy="${E.y}" r="${OR}" fill="none" stroke="${GR}" stroke-width="3" stroke-dasharray="8 8"/>
+            ${arrowSVG(P.x, P.y, tang, 24, { c: '#9a9a9a', sw: 4, hl: 14, hw: 9 })}
+            <ellipse class="oc" cx="${E.x}" cy="${E.y}" rx="${R0}" ry="${R0}" fill="${WT}" stroke="${NV}" stroke-width="3"/>
+            <g transform="translate(${E.x} ${E.y})">${earthSVG(40)}</g>
+            <g class="mn">${moonLit(16)}</g><text class="phl ph" text-anchor="middle"></text>
+            <text class="spd" x="${GX}" y="44" text-anchor="middle">At the beach</text>
+            <g class="gauge"></g><text class="stt" x="${GX}" y="312" text-anchor="middle"></text>`;
+        const oc = svg.querySelector('.oc'), mn = svg.querySelector('.mn'), ph = svg.querySelector('.ph'), gauge = svg.querySelector('.gauge'), stt = svg.querySelector('.stt');
+        const NAMES = [[0, 'New Moon'], [-Math.PI / 2, 'First quarter'], [-Math.PI, 'Full Moon']];
+        const draw = (phi, k = 1) => {
+            const vx = LM * Math.cos(2 * phi) + LS, vy = LM * Math.sin(2 * phi), A = Math.hypot(vx, vy) * k, psi = Math.atan2(vy, vx) / 2;
+            oc.setAttribute('rx', (R0 + .55 * A).toFixed(1)); oc.setAttribute('ry', (R0 - .45 * A).toFixed(1));
+            oc.setAttribute('transform', `rotate(${(psi * 180 / Math.PI).toFixed(2)} ${E.x} ${E.y})`);
+            const mx = E.x + OR * Math.cos(phi), my = E.y + OR * Math.sin(phi);
+            mn.setAttribute('transform', `translate(${mx.toFixed(1)} ${my.toFixed(1)})`);
+            const nm = NAMES.find(n => Math.abs(n[0] - phi) < .1);
+            ph.textContent = nm ? nm[1] : ''; ph.setAttribute('x', mx.toFixed(1)); ph.setAttribute('y', (my + 40).toFixed(1));
+            const rng = A * 3.1, top = GC - rng / 2, bot = GC + rng / 2;
+            gauge.innerHTML = `<rect x="22" y="${top.toFixed(1)}" width="172" height="${rng.toFixed(1)}" fill="${WT}"/>
+                <line x1="22" x2="194" y1="${top.toFixed(1)}" y2="${top.toFixed(1)}" stroke="${NV}" stroke-width="3"/><line x1="22" x2="194" y1="${bot.toFixed(1)}" y2="${bot.toFixed(1)}" stroke="${NV}" stroke-width="3"/>
+                <text class="lbn" x="24" y="${(top - 9).toFixed(1)}">High tide</text><text class="lbn" x="24" y="${(bot + 24).toFixed(1)}">Low tide</text>
+                ${arrowSVG(160, GC, -Math.PI / 2, rng / 2 - 2, { sw: 5, hl: 12, hw: 8 })}${arrowSVG(160, GC, Math.PI / 2, rng / 2 - 2, { sw: 5, hl: 12, hw: 8 })}`;
+            stt.textContent = A >= 32 ? 'Spring tide' : A <= 16 ? 'Neap tide' : '';
+        };
+        return {
+            async run(full, skipIntro) {
+                if (!skipIntro) {
+                    this.introDone = false;
+                    draw(0, 0);
+                    await wait(500);
+                    await play(1200, k => draw(0, easeOut(k)));
+                    this.introDone = true;
+                }
+                if (!full) return;
+                await wait(skipIntro ? 100 : 700);
+                await phase(0, -Math.PI / 2, 3000, p => draw(p), easeInOut);
+                await wait(1400);
+                await phase(-Math.PI / 2, -Math.PI, 3000, p => draw(p), easeInOut);
+            }
+        };
+    }
+};
+
+/* ---------- scale to window ---------- */
+function fit() {
+    const st = $('#stage');
+    scaleK = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    st.style.transform = `scale(${scaleK})`;
+    st.style.margin = `${(720 * scaleK - 720) / 2}px ${(1280 * scaleK - 1280) / 2}px`;
+}
+window.addEventListener('resize', fit);
+fit();
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { fit(); render(); });
+</script>
+</body>
+</html>
