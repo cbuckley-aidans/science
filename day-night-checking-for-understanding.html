@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day and Night: Checking for Understanding</title>
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="%231b1f45"/><path d="M15 31 L27 43 L49 19" fill="none" stroke="%23ea008a" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><rect x="12" y="52" width="40" height="5" rx="2.5" fill="%23fff" opacity=".25"/><rect x="12" y="52" width="26" height="5" rx="2.5" fill="%23fff"/></svg>'>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --navy: #1b1f45;
+        --pink: #ea008a;
+        --mid-grey: #9a9a9a;
+        --light-grey: #e8e8e8;
+        --blank: #f0f3f6;
+        --tint: #e9ecf5;
+        --sun: #ffc93c;
+        --cond: 'Barlow Condensed', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        --ease: cubic-bezier(.2,.8,.2,1);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #eaeaea; color: var(--navy);
+        display: flex; align-items: center; justify-content: center; overflow: hidden; -webkit-user-select: none; user-select: none; }
+    .stage { width: 1280px; height: 720px; background: #fff; border-top: 6px solid var(--navy); position: relative; padding: 36px 64px 0; flex-shrink: 0; overflow: hidden; transform-origin: center; }
+    .top { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 4px solid var(--navy); padding-bottom: 12px; }
+    .sheet-title { font-family: var(--cond); font-size: 44px; font-weight: 900; text-transform: uppercase; letter-spacing: .01em; margin: 0; line-height: 1; }
+    .sheet-title span { color: var(--pink); }
+    .counter { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; color: var(--mid-grey); text-transform: uppercase; }
+    .counter b { color: var(--navy); }
+    .content { position: absolute; left: 64px; right: 64px; top: 124px; bottom: 108px; }
+    .caption { position: absolute; left: 64px; right: 64px; bottom: 28px; min-height: 60px; display: flex; align-items: center; gap: 16px; font-size: 25px; font-weight: 500; line-height: 1.32; }
+    .caption::before { content: ''; width: 10px; height: 10px; background: var(--pink); flex-shrink: 0; }
+    .caption .txt { flex: 1; }
+    .caption b { color: var(--pink); font-weight: 800; }
+    .caption b.no { color: var(--navy); }
+    .caption .in { animation: capIn .45s var(--ease); display: block; }
+    @keyframes capIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .progress { position: absolute; left: 0; bottom: 0; height: 6px; background: var(--pink); width: 0; transition: width .6s var(--ease); }
+
+    .next { font-family: var(--cond); font-size: 26px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; background: var(--pink); color: #fff;
+        border: none; border-radius: 8px; padding: 12px 30px; cursor: pointer; flex-shrink: 0; }
+    .next[hidden] { display: none; }
+    .next:disabled { background: #c3c6d0; cursor: default; }
+    button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--pink); outline-offset: 3px; }
+    .next:focus-visible { outline-color: var(--navy); }
+    .pop-in { animation: capIn .45s var(--ease); }
+    @keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+
+    /* question frame */
+    .q { display: flex; flex-direction: column; height: 100%; }
+    .qhead { display: flex; align-items: center; gap: 18px; }
+    .qtitle { font-size: 40px; font-weight: 800; line-height: 1.15; }
+    .tchip { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--pink); border: 3px solid var(--pink); border-radius: 6px; padding: 3px 12px 2px; }
+    .tags { margin-left: auto; display: flex; gap: 8px; }
+    .sctag { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--navy); box-shadow: inset 0 0 0 3px var(--navy); border-radius: 6px; padding: 6px 12px 5px; line-height: 1; }
+    .prompt { font-size: 28px; font-weight: 600; margin-top: 6px; line-height: 1.3; }
+    .body { flex: 1; min-height: 0; margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 30px; }
+    .center { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+    .dlbl { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mid-grey); }
+
+    /* svg classes */
+    svg { overflow: visible; display: block; }
+    .oname { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; fill: var(--navy); }
+    .flbl { font-family: var(--cond); font-size: 24px; font-weight: 800; fill: var(--navy); }
+    .spd { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; fill: var(--mid-grey); }
+    .leg { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 600; fill: var(--mid-grey); }
+    .ax { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 600; fill: var(--navy); }
+    .gnd { stroke: #c9ccd6; stroke-width: 4; }
+
+    /* multiple choice */
+    .opts { display: grid; gap: 10px; }
+    .col .opt { font-size: 23px; padding: 9px 18px; }
+    .opts.g2 { grid-template-columns: 1fr 1fr; gap: 18px; width: 100%; }
+    .opt { display: flex; align-items: center; gap: 16px; border: 3px solid var(--navy); border-radius: 8px; background: #fff; padding: 12px 20px;
+        font-family: inherit; font-size: 25px; font-weight: 600; color: var(--navy); text-align: left; line-height: 1.25; cursor: pointer;
+        transition: background-color .2s, border-color .2s, color .2s, opacity .2s; }
+    .opts.g2 .opt { min-height: 104px; font-size: 30px; font-weight: 700; padding: 16px 24px; }
+    .opt .l { flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background: var(--navy); color: #fff; font-family: var(--cond); font-size: 24px; font-weight: 900;
+        display: flex; align-items: center; justify-content: center; transition: background-color .2s, color .2s; }
+    .opt:hover:not(:disabled) { background: #f6f7fb; }
+    .opt.sel { background: var(--tint); }
+    .opt.sel .l { background: var(--pink); }
+    .opt.right, .opt.right:hover { background: var(--pink); border-color: var(--pink); color: #fff; opacity: 1; }
+    .opt.right .l { background: #fff; color: var(--pink); }
+    .opt.wrong { border-style: dashed; opacity: .5; animation: shake .4s; cursor: default; }
+    .opt:disabled { cursor: default; }
+    .gly { flex-shrink: 0; }
+    .gd { fill: #b5b9c6; } .go { fill: var(--navy); } .gs { fill: none; stroke: var(--navy); stroke-width: 3; }
+    .gn { fill: var(--navy); } .gy { fill: var(--sun); } .gb { fill: none; stroke: var(--navy); stroke-width: 2; }
+    .opt.right .gd { fill: rgba(255,255,255,.6); } .opt.right .go { fill: #fff; } .opt.right .gs { stroke: #fff; } .opt.right .gb { stroke: #fff; }
+    .pred .opts { width: 380px; }
+    .pred .opt { min-height: 76px; font-size: 25px; font-weight: 700; padding: 10px 18px; }
+
+    /* picture choices */
+    .pgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; width: 100%; }
+    .pgrid.g22 { grid-template-columns: 1fr 1fr; gap: 14px; width: 600px; }
+    .pcard { position: relative; border: 3px solid var(--navy); border-radius: 8px; background: #fff; padding: 16px 4px 12px; cursor: pointer;
+        display: flex; flex-direction: column; align-items: center; gap: 8px; font-family: inherit; color: var(--navy); transition: background-color .2s, border-color .2s, opacity .2s; }
+    .pgrid.g22 .pcard { padding: 10px 8px 6px; }
+    .pcard .l { position: absolute; left: 10px; top: 10px; width: 38px; height: 38px; border-radius: 50%; background: var(--navy); color: #fff; font-family: var(--cond); font-size: 23px; font-weight: 900;
+        display: flex; align-items: center; justify-content: center; transition: background-color .2s; z-index: 1; }
+    .pcard:hover:not(:disabled) { background: #f6f7fb; }
+    .pcard.sel { background: var(--tint); }
+    .pcard.sel .l { background: var(--pink); }
+    .pcard.right, .pcard.right:hover { border-color: var(--pink); background: #fff; box-shadow: 0 0 0 5px rgba(234,0,138,.18); opacity: 1; }
+    .pcard.right .l { background: var(--pink); }
+    .pcard.wrong { border-style: dashed; opacity: .45; animation: shake .4s; cursor: default; }
+    .pcard:disabled { cursor: default; }
+    .pcard svg { overflow: hidden; }
+    .pgrid:not(.g22) .pcard { padding-top: 56px; }
+
+    /* quote */
+    .quote { border-left: 8px solid var(--pink); padding: 4px 0 4px 20px; font-size: 25px; font-weight: 600; font-style: italic; line-height: 1.3; margin-bottom: 14px; }
+    .col { display: flex; flex-direction: column; }
+
+    /* scenes */
+    .scene { position: relative; border: 3px solid var(--navy); border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #fff; }
+    .scene > svg { overflow: hidden; }
+    .replay { position: absolute; right: 12px; top: 12px; display: flex; align-items: center; gap: 6px; font-family: var(--cond); font-size: 19px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+        background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 6px; padding: 5px 12px 4px 9px; cursor: pointer; }
+    .replay svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+    .replay:hover { background: var(--blank); }
+
+    /* hotspots */
+    .hs { position: absolute; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%; border: 3px solid #fff; background: var(--navy); color: #fff;
+        font-family: var(--cond); font-size: 24px; font-weight: 900; cursor: pointer; box-shadow: 0 0 0 3px var(--navy); display: flex; align-items: center; justify-content: center; padding: 0;
+        transition: background-color .2s, box-shadow .2s, opacity .2s; }
+    .hs:hover:not(:disabled) { background: #3a3f6e; }
+    .hs.sel, .hs.sel:hover { background: var(--pink); box-shadow: 0 0 0 3px var(--pink); }
+    .hs.right, .hs.right:hover { background: var(--pink); box-shadow: 0 0 0 3px var(--pink), 0 0 0 10px rgba(234,0,138,.25); opacity: 1; }
+    .hs.wrong { border-style: dashed; opacity: .4; animation: shake .4s; cursor: default; }
+    .hs:disabled { cursor: default; }
+
+    /* drag tiles */
+    .tile { font-family: inherit; font-size: 24px; font-weight: 700; color: var(--navy); background: #fff; border: 3px solid var(--navy); border-radius: 8px; padding: 6px 16px; line-height: 1.25;
+        cursor: grab; touch-action: none; position: relative; z-index: 2; transition: transform .3s var(--ease), box-shadow .2s, border-color .2s; box-shadow: 0 4px 0 #c3c6d0; white-space: nowrap; text-align: center; }
+    .tile.sm { font-size: 22px; padding: 6px 12px; white-space: normal; }
+    .tile.sel { border-color: var(--pink); box-shadow: 0 0 0 4px rgba(234,0,138,.22); }
+    .tile.drag { transition: none; cursor: grabbing; z-index: 30; box-shadow: 0 14px 30px rgba(27,31,69,.25); border-color: var(--pink); }
+    .tile.right { background: var(--pink); color: #fff; border-color: var(--pink); box-shadow: none; cursor: default; }
+    .tile.wrong { border-style: dashed; background: var(--tint); box-shadow: none; animation: shake .4s; }
+
+    /* sort */
+    .sort { display: grid; grid-template-columns: 1fr 380px 1fr; grid-template-rows: minmax(0, 1fr); gap: 18px; width: 100%; height: 100%; }
+    .sort .tile.sm { font-size: 21px; padding: 4px 12px; }
+    .sort .pool { gap: 8px; padding: 10px; }
+    .bin { border: 3px solid var(--navy); border-radius: 8px; display: flex; flex-direction: column; overflow: visible; transition: box-shadow .2s; }
+    .bin.pk { border-color: var(--pink); }
+    .bin h3 { margin: 0; padding: 8px 16px 7px; font-family: var(--cond); font-size: 28px; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; color: #fff; background: var(--navy); }
+    .bin.pk h3 { background: var(--pink); }
+    .bin .sub { font-size: 18px; font-weight: 600; color: var(--mid-grey); padding: 8px 16px 0; }
+    .bin .area { flex: 1; padding: 12px 14px; display: flex; flex-wrap: wrap; gap: 10px; align-content: flex-start; justify-content: center; border-radius: 0 0 6px 6px; transition: background-color .2s; }
+    .bin.hover .area, .bin.armed:hover .area { background: rgba(234,0,138,.06); }
+    .bin.armed { box-shadow: 0 0 0 4px rgba(234,0,138,.15); cursor: pointer; }
+    .pool { background: var(--blank); border-radius: 8px; padding: 14px; display: flex; flex-wrap: wrap; gap: 10px; align-content: center; justify-content: center; transition: background-color .2s; }
+    .pool.hover { background: #e3e7ee; }
+    .pool.col1 { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 8px; }
+
+    /* drop zones */
+    .dz { border: 3px dashed #c3c6d0; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: border-color .2s, background-color .2s; }
+    .dz.hover, .dz.armed:hover { border-color: var(--pink); background: rgba(234,0,138,.06); }
+    .dz.armed { border-color: #e7a3c9; cursor: pointer; }
+    .dz.filled { border-color: transparent; background: none; }
+    .dz.wrong { animation: shake .4s; }
+    .dz .tile { box-shadow: none; padding: 5px 14px; font-size: 23px; }
+    .slot { position: absolute; width: 200px; height: 50px; background: #fff; }
+    .bwrap { position: relative; width: 806px; height: 336px; border: 3px solid var(--navy); border-radius: 8px; flex-shrink: 0; overflow: hidden; }
+    .bwrap > svg { position: absolute; left: 0; top: 0; overflow: hidden; }
+    .bside { width: 300px; display: flex; flex-direction: column; gap: 10px; height: 336px; }
+    .bside .pool { flex: 1; }
+
+    /* cloze */
+    .cloze { font-size: 30px; font-weight: 600; line-height: 2.3; max-width: 1100px; }
+    .cslot { display: inline-flex; width: 160px; height: 52px; vertical-align: middle; margin: 0 4px; line-height: 1; }
+    .cslot .tile { font-size: 23px; padding: 4px 12px; }
+    .cpool { flex: 0 0 auto; min-height: 78px; width: 100%; }
+
+    /* order */
+    .ranks { width: 330px; display: flex; flex-direction: column; gap: 8px; }
+    .rk { display: flex; align-items: center; gap: 12px; }
+    .rk .rn { width: 38px; height: 38px; border-radius: 50%; background: var(--navy); color: #fff; font-family: var(--cond); font-size: 22px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .rslot { flex: 1; height: 52px; }
+    .rlab { font-family: var(--cond); font-size: 18px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--mid-grey); padding-left: 50px; }
+    .opool { width: 250px; align-self: stretch; }
+
+    /* end */
+    .scorecard { border: 3px solid var(--pink); border-radius: 8px; padding: 30px 60px; text-align: center; }
+    .scorecard .big { font-family: var(--cond); font-size: 120px; font-weight: 900; color: var(--pink); line-height: 1; }
+    .scorecard .dlbl { margin-top: 8px; }
+    .dots { display: flex; gap: 8px; justify-content: center; margin-top: 22px; }
+    .dots span { width: 34px; height: 34px; border-radius: 6px; border: 3px solid var(--navy); font-family: var(--cond); font-size: 17px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+    .dots span.y { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .again { margin-top: 26px; font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+        background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 8px; padding: 8px 22px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+    <div class="top">
+        <h1 class="sheet-title">Checking <span>day and night</span></h1>
+        <div class="counter" id="counter"></div>
+    </div>
+    <div class="content" id="content"></div>
+    <div class="caption"><div class="txt" id="cap"></div><button class="next" id="next" hidden>Check</button></div>
+    <div class="progress" id="progress"></div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const content = $('#content'), cap = $('#cap'), btn = $('#next'), counter = $('#counter'), progress = $('#progress');
+const PK = '#ea008a', NV = '#1b1f45', GR = '#c9ccd6', DT = '#b5b9c6', LT = '#f0f3f6', SUN = '#ffc93c', SUNS = '#e5a400', DAYF = '#f8e6b0';
+const D2R = Math.PI / 180, OCEAN = '#cfe0f3', LAND = '#a8cf9c';
+let scaleK = 1;
+function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
+function say(html) { cap.innerHTML = `<span class="in">${html}</span>`; }
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+function mix(a, b, t) { const p = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)), A = p(a), B = p(b); return '#' + A.map((v, i) => Math.round(v + (B[i] - v) * t).toString(16).padStart(2, '0')).join(''); }
+
+/* ---------- animation helpers ---------- */
+let runId = 0;
+const easeOut = t => 1 - (1 - t) * (1 - t), easeInOut = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+function play(dur, step, guard) {
+    const id = runId, ok = guard || (() => id === runId);
+    return new Promise(res => {
+        const st = performance.now();
+        const f = n => { if (!ok()) return; const t = Math.min(1, (n - st) / dur); step(t); if (t < 1) requestAnimationFrame(f); else res(); };
+        requestAnimationFrame(f);
+    });
+}
+function wait(ms) { const id = runId; return new Promise(r => setTimeout(() => { if (id === runId) r(); }, ms)); }
+
+/* ---------- drawing helpers ---------- */
+const DIR = { r: 0, l: Math.PI, u: -Math.PI / 2, d: Math.PI / 2 };
+const f1 = v => v.toFixed(1);
+function arrowSVG(x, y, ang, len, o = {}) {
+    const c = o.c || PK, sw = o.sw || 8, hw = o.hw || 13, hl = Math.min(o.hl || 22, len);
+    if (len < 1) return '';
+    const ux = Math.cos(ang), uy = Math.sin(ang), ex = x + ux * len, ey = y + uy * len, bx = ex - ux * hl, by = ey - uy * hl, px = -uy * hw, py = ux * hw;
+    let s = len > hl ? `<line x1="${f1(x)}" y1="${f1(y)}" x2="${f1(bx)}" y2="${f1(by)}" stroke="${c}" stroke-width="${sw}"/>` : '';
+    s += `<polygon points="${f1(ex)},${f1(ey)} ${f1(bx + px)},${f1(by + py)} ${f1(bx - px)},${f1(by - py)}" fill="${c}" stroke="${c}" stroke-width="1.5" stroke-linejoin="round"/>`;
+    return s;
+}
+function headAt(x, y, ang, c = NV, hl = 18, hw = 11) {
+    const ux = Math.cos(ang), uy = Math.sin(ang), bx = x - ux * hl, by = y - uy * hl, px = -uy * hw, py = ux * hw;
+    return `<polygon points="${f1(x)},${f1(y)} ${f1(bx + px)},${f1(by + py)} ${f1(bx - px)},${f1(by - py)}" fill="${c}" stroke="${c}" stroke-width="1.5" stroke-linejoin="round"/>`;
+}
+/* anticlockwise arc (on screen) from a0 to a1 degrees, a1 < a0, arrowhead at a1 */
+function arcArrow(cx, cy, r, a0, a1, c = NV, sw = 4) {
+    if (a0 - a1 < 1) return '';
+    const P = a => [cx + r * Math.cos(a * D2R), cy + r * Math.sin(a * D2R)];
+    const hl = 18, a1b = Math.min(a0, a1 + hl / r / D2R * .8);
+    const [x0, y0] = P(a0), [xb, yb] = P(a1b), [x1, y1] = P(a1), t = a1 * D2R;
+    const large = (a0 - a1b) > 180 ? 1 : 0;
+    return `<path d="M${f1(x0)} ${f1(y0)} A${r} ${r} 0 ${large} 0 ${f1(xb)} ${f1(yb)}" fill="none" stroke="${c}" stroke-width="${sw}" stroke-linecap="round"/>` + headAt(x1, y1, Math.atan2(-Math.cos(t), Math.sin(t)), c, hl, sw + 7);
+}
+function growArrow(g, x, y, ang, len, o = {}, dur = 450) {
+    const tok = g._tok = (g._tok || 0) + 1;
+    return play(dur, k => { g.innerHTML = arrowSVG(x, y, ang, len * easeOut(k), o); }, () => g._tok === tok && document.body.contains(g));
+}
+function clearArrow(g) { g._tok = (g._tok || 0) + 1; g.innerHTML = ''; }
+const sunDisc = (cx, cy, r) => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${SUN}" stroke="${SUNS}" stroke-width="3"/>`;
+const rays = (x, ys, len, ang) => ys.map(y => arrowSVG(x, y, ang, len, { c: SUNS, sw: 4, hw: 9, hl: 15 })).join('');
+const replayIcon = `<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v5h5"/></svg>`;
+
+/* top-down Earth, seen from above the North Pole. Sun is on the left. */
+const landsAt = R => { const k = R / 120; return LANDS.map(([x, y, rx, ry, r]) => `<ellipse cx="${f1(x * k)}" cy="${f1(y * k)}" rx="${f1(rx * k)}" ry="${f1(ry * k)}" transform="rotate(${r} ${f1(x * k)} ${f1(y * k)})"/>`).join(''); };
+const LANDS = [[-55, -58, 30, 18, -25], [50, -60, 22, 30, 20], [72, 28, 26, 16, 40], [-18, 72, 34, 18, -10], [-80, 18, 16, 24, 15], [22, -4, 15, 10, 0]];
+function topEarth(cx, cy, R, o = {}) {
+    const k = R / 120, op = o.hidden ? 0 : 1;
+    const land = LANDS.map(([x, y, rx, ry, r]) => `<ellipse cx="${f1(x * k)}" cy="${f1(y * k)}" rx="${f1(rx * k)}" ry="${f1(ry * k)}" transform="rotate(${r} ${f1(x * k)} ${f1(y * k)})"/>`).join('');
+    const half = sw => `M${cx} ${cy - R} A${R} ${R} 0 0 ${sw} ${cx} ${cy + R}Z`;
+    return `<circle cx="${cx}" cy="${cy}" r="${R}" fill="${OCEAN}"/>
+        <g transform="translate(${cx} ${cy})"><g class="land" fill="${LAND}">${land}</g></g>
+        <path class="dayo" d="${half(0)}" fill="${SUN}" fill-opacity=".3" opacity="${op}"/>
+        <path class="nighto" d="${half(1)}" fill="${NV}" fill-opacity=".88" opacity="${op}"/>
+        <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${NV}" stroke-width="4"/>
+        <circle cx="${cx}" cy="${cy}" r="5" fill="${NV}" stroke="#fff" stroke-width="2"/>`;
+}
+
+/* option glyphs */
+function glyph(k) {
+    const D = x => `<circle class="gd" cx="${x}" cy="20" r="3.6"/>`;
+    let s = '';
+    const hz = y => `<rect class="go" x="2" y="${y}" width="84" height="3" rx="1.5"/>`;
+    if (k === 'sunrise' || k === 'sunset') {
+        s = hz(29) + `<path class="go" d="M24 29 A15 15 0 0 1 54 29Z"/>`;
+        s += k === 'sunrise' ? `<path class="gs" d="M72 25 V7 M65 14 L72 7 L79 14" stroke-linecap="round" stroke-linejoin="round"/>` : `<path class="gs" d="M72 7 V25 M65 18 L72 25 L79 18" stroke-linecap="round" stroke-linejoin="round"/>`;
+    }
+    else if (k === 'night') { s = `<path class="go" d="M44 4 A16 16 0 1 0 60 26 A12 12 0 1 1 44 4Z"/><circle class="gd" cx="70" cy="9" r="2.8"/><circle class="gd" cx="78" cy="24" r="2.2"/><circle class="gd" cx="20" cy="12" r="2.4"/><circle class="gd" cx="14" cy="28" r="2"/>`; }
+    else if (k === 'noon') { s = hz(33) + `<circle class="go" cx="44" cy="15" r="8"/>`; [0, 1, 2, 3, 4, 5, 6, 7].forEach(i => { const a = i * Math.PI / 4; s += `<line class="gs" x1="${f1(44 + 12 * Math.cos(a))}" y1="${f1(15 + 12 * Math.sin(a))}" x2="${f1(44 + 16 * Math.cos(a))}" y2="${f1(15 + 16 * Math.sin(a))}" stroke-linecap="round" style="stroke-width:2.5"/>`; }); }
+    else if (k.startsWith('bar')) {
+        const d = +k.slice(3), x = 4, w = 80, dw = w * d / 24, x0 = x + (w - dw) / 2;
+        s = `<rect class="gn" x="${x}" y="11" width="${w}" height="18" rx="3"/>` + (dw ? `<rect class="gy" x="${f1(x0)}" y="11" width="${f1(dw)}" height="18"/>` : '') + `<rect class="gb" x="${x}" y="11" width="${w}" height="18" rx="3"/>`;
+    }
+    return `<svg class="gly" viewBox="0 0 88 40" width="74" height="34">${s}</svg>`;
+}
+const EFFECT = { sunrise: 'Sunrise', sunset: 'Sunset', night: 'Stays dark', noon: 'Midday' };
+
+/* ---------- small pictures ---------- */
+function dnPic(v) {
+    const cx = 174, cy = 85, R = 56;
+    const half = (a, b, sw) => `M${a[0]} ${a[1]} A${R} ${R} 0 0 ${sw} ${b[0]} ${b[1]}Z`;
+    const T = [cx, cy - R], B = [cx, cy + R], Lp = [cx - R, cy], Rp = [cx + R, cy];
+    let night = '';
+    if (v === 'ok') night = half(T, B, 1);
+    if (v === 'away') night = half(T, B, 0);
+    if (v === 'top') night = half(Lp, Rp, 0);
+    const s = `${sunDisc(-16, 85, 58)}${rays(50, [55, 115], 52, 0)}
+        <circle cx="${cx}" cy="${cy}" r="${R}" fill="${OCEAN}"/><g transform="translate(${cx} ${cy})" fill="${LAND}">${landsAt(R)}</g><circle cx="${cx}" cy="${cy}" r="${R}" fill="${SUN}" fill-opacity=".3"/>${night ? `<path d="${night}" fill="${NV}" fill-opacity=".9"/>` : ''}
+        <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${NV}" stroke-width="4"/>`;
+    return `<svg viewBox="0 0 250 170" width="250" height="170">${s}</svg>`;
+}
+const BNE_DAY = [13.6, 13.0, 12.2, 11.4, 10.8, 10.4, 10.6, 11.2, 11.9, 12.7, 13.5, 13.9];
+const HOB_DAY = [14.9, 13.7, 12.3, 10.9, 9.7, 9.1, 9.4, 10.4, 11.8, 13.3, 14.6, 15.3];
+const SIN_DAY = [12.2, 12.1, 12.1, 12.1, 12.1, 12.2, 12.2, 12.1, 12.1, 12.1, 12.1, 12.2];
+const BNE_MAX = [30.2, 29.9, 28.9, 27.1, 24.6, 22.1, 21.8, 23.1, 25.7, 27.2, 28.5, 29.4];
+const MON = 'JFMAMJJASOND';
+function tempMini(v) {
+    let d = BNE_MAX;
+    if (v === 'inv') d = BNE_MAX.map(t => 52 - t);
+    if (v === 'flat') d = BNE_MAX.map((t, i) => 26 + (i % 2 ? .25 : -.25));
+    if (v === 'up') d = BNE_MAX.map((t, i) => 20.5 + i * .85);
+    const x0 = 98, x1 = 256, y0 = 16, y1 = 100, X = i => x0 + i * (x1 - x0) / 11, Y = t => y1 - (t - 18) / 16 * (y1 - y0);
+    let s = `<line x1="${x0 - 8}" y1="${y1}" x2="${x1 + 6}" y2="${y1}" stroke="${GR}" stroke-width="2"/><line x1="${x0 - 8}" y1="${y0 - 4}" x2="${x0 - 8}" y2="${y1}" stroke="${GR}" stroke-width="2"/>`;
+    s += [20, 30].map(t => `<line x1="${x0 - 8}" x2="${x1 + 6}" y1="${f1(Y(t))}" y2="${f1(Y(t))}" stroke="${LT}" stroke-width="2"/><text class="ax" x="${x0 - 14}" y="${f1(Y(t) + 5)}" text-anchor="end" style="font-size:14px">${t}°C</text>`).join('');
+    s += [[0, 'Jan'], [5, 'Jun'], [11, 'Dec']].map(([i, m]) => `<text class="ax" x="${f1(X(i))}" y="120" text-anchor="middle" style="font-size:14px">${m}</text>`).join('');
+    s += `<polyline points="${d.map((t, i) => f1(X(i)) + ',' + f1(Y(t))).join(' ')}" fill="none" stroke="${NV}" stroke-width="3.5" stroke-linejoin="round"/>`;
+    s += d.map((t, i) => `<circle cx="${f1(X(i))}" cy="${f1(Y(t))}" r="3.5" fill="${NV}"/>`).join('');
+    return `<svg viewBox="0 0 270 126" width="270" height="126">${s}</svg>`;
+}
+
+/* =========================================================
+   QUESTIONS
+   ========================================================= */
+const QS = [
+    { kind: 'mc', title: 'Morning light', sc: 'SC11', prompt: 'What causes sunrise to happen each morning?',
+      opts: [
+        { t: 'The Sun moves around Earth and reaches our side.', hint: 'The Sun only appears to move across the sky. It is Earth that is moving.' },
+        { t: 'Earth rotates, turning our location into the Sun\u2019s light.', hint: '' },
+        { t: 'Clouds move away and let the sunlight through.', hint: 'The Sun still rises on cloudy days. Sunrise is caused by Earth\u2019s movement.' },
+        { t: 'The Moon moves out of the way of the Sun.', hint: 'The Moon does not block the Sun each night. Think about how Earth moves.' }],
+      answer: 1, msg: 'As Earth rotates, your location turns out of Earth\u2019s shadow and into the Sun\u2019s light. That is sunrise.' },
+
+    { kind: 'predict', scene: 'spin', title: 'Turning towards the Sun', sc: 'SC11', prompt: 'Your location is in darkness and Earth keeps rotating. What happens next?',
+      opts: [
+        { g: 'sunset', hint: 'Sunset happens when a place turns out of the sunlight. You are turning into it.' },
+        { g: 'sunrise', hint: '' },
+        { g: 'night', hint: 'Earth keeps rotating, so you can\u2019t stay on the dark side forever.' },
+        { g: 'noon', hint: 'Midday comes later, when you face the Sun directly. What happens first?' }],
+      answer: 1, msg: 'Earth\u2019s rotation carries you into the sunlight, and the Sun appears over the eastern horizon.' },
+
+    { kind: 'hotspot', title: 'Find the sunrise', sc: 'SC11', prompt: 'Earth rotates in the direction of the arrow. Which location is having sunrise?',
+      arc: true,
+      spots: [
+        { a: 180, hint: 'A faces the Sun directly, so it is the middle of the day there.' },
+        { a: -90, hint: '' },
+        { a: 0, hint: 'C faces directly away from the Sun, so it is the middle of the night there.' },
+        { a: 90, hint: 'Follow the arrow. D is turning out of the sunlight, so it is having sunset.' }],
+      answer: 1, msg: 'Location B is turning out of the darkness and into the sunlight, so it is having sunrise.' },
+
+    { kind: 'mcpic', title: 'Day and night diagram', sc: 'SC12', prompt: 'Which diagram correctly shows day and night on Earth?',
+      opts: [
+        { p: 'away', hint: 'The lit half must face the Sun. Here the side facing the Sun is dark.' },
+        { p: 'ok', hint: '' },
+        { p: 'top', hint: 'Sunlight comes from the left, so the lit half should face left, towards the Sun.' },
+        { p: 'all', hint: 'The Sun can only light the side of Earth that faces it, so half is always in darkness.' }],
+      answer: 1, msg: 'The half of Earth facing the Sun has day. The half facing away is in darkness and has night.' },
+
+    { kind: 'hotspot', multi: true, hidden: true, title: 'Where is it daytime?', sc: 'SC12', prompt: 'The shading has been removed. Tap every location that is having daytime.',
+      spots: [
+        { a: 205, ok: true },
+        { a: -45, hint: 'B faces away from the Sun, so it is night there.' },
+        { a: 15, hint: 'C faces away from the Sun, so it is night there.' },
+        { a: 70, hint: 'D is just past the edge of the half facing the Sun, so it is night there.' },
+        { a: 100, ok: true },
+        { a: 150, ok: true }],
+      missHint: 'Good so far, but you have missed some. Every location on the half facing the Sun has daytime.',
+      msg: 'Only the half of Earth facing the Sun is lit. Every location on that half is having daytime.' },
+
+    { kind: 'cloze', title: 'Day and night summary', sc: 'SC12', prompt: 'Drag the correct word into each gap.',
+      text: 'Earth spins on its {0} and makes one full turn every {1}. At any moment, {2} of Earth faces the Sun and has day. As Earth spins, the Sun appears to rise in the {3} and set in the {4}.',
+      answers: ['axis', '24 hours', 'half', 'east', 'west'],
+      tiles: ['axis', '24 hours', 'half', 'east', 'west', 'orbit', '365 days', 'all'],
+      hints: ['Earth spins around an imaginary line through the North and South Poles.', 'One full spin of Earth gives one day and one night.', 'The Sun can only light up the side of Earth that faces it.', 'Earth spins from west to east, so the Sun first appears on the eastern horizon.', 'The Sun sets on the opposite side of the sky to where it rose.'],
+      msg: 'Earth\u2019s rotation on its axis gives us day, night, sunrise and sunset.' },
+
+    { kind: 'sort', small: true, title: 'Spin or orbit?', sc: 'SC12', prompt: 'Sort each event by the movement of Earth that causes it.',
+      bins: [{ h: 'Rotation', sub: 'Spinning on its axis, once a day', key: 'r' }, { h: 'Revolution', sub: 'Orbiting the Sun, once a year', key: 'v' }],
+      items: [
+        ['Day and night', 'r', 'Day and night happen as Earth spins on its axis once every 24 hours.'],
+        ['Sunrise and sunset', 'r', 'Sunrise and sunset happen as Earth spins places into and out of the sunlight.'],
+        ['The Sun crossing the sky', 'r', 'The Sun only appears to move across the sky because Earth is spinning.'],
+        ['Stars crossing the night sky', 'r', 'Stars appear to move across the sky each night because Earth is spinning.'],
+        ['The seasons', 'v', 'The seasons change as Earth travels around the Sun with its tilted axis.'],
+        ['One year passing', 'v', 'A year is the time it takes Earth to travel once around the Sun.'],
+        ['Longer days in summer', 'v', 'Daylight hours change across the year as Earth orbits the Sun with its tilted axis.']],
+      msg: 'Rotation gives us day and night. Revolution, together with Earth\u2019s tilt, gives us seasons and changing daylight hours.' },
+
+    { kind: 'label', scene: 'sunpath', title: 'The Sun\u2019s path', sc: ['SC11', 'SC14'], prompt: 'The Sun\u2019s path across Brisbane\u2019s sky in summer and in winter. Label the diagram.',
+      slots: [{ id: 'w', x: 45, y: 268 }, { id: 'e', x: 555, y: 268 }, { id: 's', x: 575, y: 30 }, { id: 'wi', x: 300, y: 188 }],
+      answer: { e: 'East', w: 'West', s: 'Summer', wi: 'Winter' },
+      tiles: ['East', 'West', 'Summer', 'Winter', 'North', 'South'],
+      hint(id, t) {
+          const side = id === 'e' || id === 'w';
+          if (side && (t === 'East' || t === 'West')) return 'Follow the arrows. The Sun rises in the east, where its path begins.';
+          if (side) return 'Sunrise and sunset happen on the east and west sides of the sky.';
+          if (t === 'Summer' || t === 'Winter') return 'In summer the Sun climbs higher and stays up for longer, so its path is longer.';
+          return 'These boxes label the two paths. Which path belongs to which season?';
+      },
+      msg: 'The Sun rises in the east and sets in the west. In summer its path is higher and longer, so the day lasts longer.' },
+
+    { kind: 'chartmc', chart: 'lines', w: 700, ow: 400, title: 'Three cities', sc: 'SC13', prompt: 'Hobart is the furthest of these cities from the equator. Which line shows Hobart?',
+      opts: [
+        { t: '<span class="l">A</span><span>Line A</span>', hint: 'Line A changes through the year, but not by the most. Look for the biggest change.' },
+        { t: '<span class="l">B</span><span>Line B</span>', hint: '' },
+        { t: '<span class="l">C</span><span>Line C</span>', hint: 'Line C hardly changes all year. That pattern belongs to a city on the equator.' }],
+      answer: 1, msg: 'Places further from the equator have a bigger difference between summer and winter daylight hours.' },
+
+    { kind: 'order', title: 'Biggest difference', sc: 'SC13', prompt: 'Order the places from the smallest to the biggest yearly change in daylight hours.',
+      answer: ['Singapore', 'Darwin', 'Brisbane', 'Hobart', 'Mawson Station'],
+      hints: { Singapore: 'Singapore is almost on the equator, so its daylight hours hardly change.', 'Mawson Station': 'Mawson Station is the furthest from the equator, so its daylight hours change the most.' },
+      hint: 'Check the globe. The further a place is from the equator, the bigger the difference.',
+      msg: 'The further a place is from the equator, the bigger the difference between its summer and winter daylight hours.' },
+
+    { kind: 'predict', scene: 'station', title: 'Polar winter', sc: 'SC13', prompt: 'It is June. Predict the Antarctic station\u2019s daylight in one full rotation.',
+      opts: [
+        { g: 'bar15', t: 'About 15 h daylight', hint: 'Trace the station\u2019s whole path around the axis. Does any of it reach the lit half?' },
+        { g: 'bar0', t: '24 h of darkness', hint: '' },
+        { g: 'bar24', t: '24 h of daylight', hint: 'Look at the station\u2019s path. Is any of it on the side facing the Sun?' },
+        { g: 'bar12', t: '12 h day, 12 h night', hint: 'Only places on the equator get about 12 hours of daylight all year.' }],
+      answer: 1, msg: 'In June the South Pole is tilted away from the Sun. The station never turns into the sunlight, so it stays dark all day.' },
+
+    { kind: 'predict', scene: 'brisbane', title: 'Summer days', sc: 'SC14', prompt: 'In June, Brisbane gets about 10 hours of daylight. Predict its daylight in December.',
+      opts: [
+        { g: 'bar7', t: 'Fewer than 10 hours', hint: 'In December the southern half of Earth tilts towards the Sun. Does Brisbane spend more or less time in the light?' },
+        { g: 'bar10', t: 'Still about 10 hours', hint: 'Earth\u2019s tilt points the same way all year, but Earth is on the other side of the Sun. That changes how much light the south gets.' },
+        { g: 'bar14', t: 'More than 10 hours', hint: '' },
+        { g: 'bar24', t: '24 hours of daylight', hint: 'Only places very close to the South Pole get 24 hours of daylight in December.' }],
+      answer: 2, msg: 'In December the southern half of Earth is tilted towards the Sun. More of Brisbane\u2019s path is in sunlight, so its days are longer.' },
+
+    { kind: 'mcside', side: 'orbit', title: 'Ella\u2019s claim', sc: 'SC14', prompt: 'Ella is explaining why summer days are longer. Is she right?',
+      quote: '\u201cOur summer days are longer because Earth is closer to the Sun in summer.\u201d',
+      opts: [
+        { t: 'Yes. Earth is much closer to the Sun in our summer.', hint: 'Earth\u2019s distance from the Sun barely changes. When Australia has summer, the northern half of Earth has winter.' },
+        { t: 'Yes. Earth spins more slowly in summer.', hint: 'Earth always takes about 24 hours to spin once, in every season.' },
+        { t: 'No. The Sun gives out more light in summer.', hint: 'The Sun gives out about the same amount of light all year. Think about Earth\u2019s tilt.' },
+        { t: 'No. Our half of Earth tilts towards the Sun, so we spend more of each spin in sunlight.', hint: '' }],
+      answer: 3, msg: 'In our summer, the southern half of Earth tilts towards the Sun, so each place spends more of its spin in sunlight.' },
+
+    { kind: 'chartpic', title: 'Matching temperature', sc: 'SC15', prompt: 'Which graph best shows Brisbane\u2019s average maximum temperature through the year?',
+      opts: [
+        { v: 'inv', hint: 'This graph is hottest in June, when Brisbane has the fewest daylight hours.' },
+        { v: 'match', hint: '' },
+        { v: 'up', hint: 'This graph keeps rising all year. Brisbane cools down again as its days get shorter.' },
+        { v: 'flat', hint: 'This graph stays the same all year, but Brisbane is much warmer in summer than in winter.' }],
+      answer: 1, msg: 'Brisbane is warmest when its days are longest and coolest when its days are shortest.' },
+
+    { kind: 'chartmc', chart: 'scatter', w: 640, ow: 470, title: 'Spot the pattern', sc: 'SC15', prompt: 'Each dot is one month in Brisbane. What relationship does the graph show?',
+      opts: [
+        { t: 'As daylight hours increase, temperature increases.', hint: '' },
+        { t: 'As daylight hours increase, temperature decreases.', hint: 'The dots rise from the bottom left to the top right. What happens to temperature as you move right?' },
+        { t: 'Daylight hours and temperature are not related.', hint: 'The dots make a clear pattern that rises to the right, so the two are related.' },
+        { t: 'Higher temperatures cause longer days.', hint: 'Day length is set by Earth\u2019s tilt and rotation. The daylight warms the land, not the other way around.' }],
+      answer: 0, msg: 'Months with more daylight hours are warmer. As daylight hours increase, temperature increases.' },
+
+    { kind: 'cloze', title: 'Why longer days are warmer', sc: 'SC15', prompt: 'Drag the correct word into each gap.',
+      text: 'In summer, Brisbane has {0} daylight hours. The Sun has {1} time to heat the land and air, and there is {2} time at night for them to cool down. So summer temperatures are {3}.',
+      answers: ['more', 'more', 'less', 'higher'],
+      tiles: ['more', 'more', 'less', 'fewer', 'higher', 'lower'],
+      hints: ['In summer our half of Earth tilts towards the Sun, so the days are long.', 'Longer days mean the Sun shines on the land for longer.', 'A longer day leaves a shorter night.', 'More heating and less cooling means it gets warmer.'],
+      msg: 'More daylight means more time to heat up and less time to cool down, so longer days are warmer.' }
+];
+const TOTAL = QS.length;
+const CHIP = { mc: 'Multiple choice', mcpic: 'Multiple choice', mcside: 'Multiple choice', sort: 'Drag and drop', predict: 'Predict', hotspot: 'Tap the diagram', cloze: 'Fill the gaps', label: 'Label the diagram', order: 'Put in order', chartmc: 'Read the graph', chartpic: 'Match the graph' };
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+/* ---------- flow ---------- */
+let qi = 0, firstTry = [], tries = 0, mode = 'check', cur = null;
+function render() {
+    runId++;
+    content.innerHTML = ''; tries = 0; mode = 'check';
+    const q = QS[qi];
+    counter.innerHTML = `Question <b>${qi + 1}</b> / ${TOTAL}`;
+    progress.style.width = (qi / TOTAL * 100) + '%';
+    const wrap = el('div', 'q');
+    const tags = [].concat(q.sc).map(s => `<div class="sctag">${s}</div>`).join('');
+    wrap.appendChild(el('div', 'qhead', `<div class="qtitle">${q.title}</div><div class="tchip">${CHIP[q.kind]}</div><div class="tags">${tags}</div>`));
+    wrap.appendChild(el('div', 'prompt', q.prompt));
+    const body = el('div', 'body'); wrap.appendChild(body); content.appendChild(wrap);
+    cur = KINDS[q.kind](q, body);
+    say(cur.instr);
+    btn.hidden = false; btn.textContent = 'Check';
+    refresh();
+}
+function refresh() { if (mode === 'check') btn.disabled = !cur.ready(); }
+function check() {
+    tries++;
+    const r = cur.check();
+    if (r.ok) {
+        if (tries === 1) firstTry[qi] = true;
+        say(`<b>Correct.</b> ${QS[qi].msg}`);
+        mode = 'next'; btn.disabled = false; btn.textContent = qi === TOTAL - 1 ? 'Finish' : 'Next';
+        btn.classList.remove('pop-in'); void btn.offsetWidth; btn.classList.add('pop-in');
+        if (cur.done) cur.done();
+    } else {
+        say(`<b class="no">Not quite.</b> ${r.hint}`);
+        refresh();
+    }
+}
+btn.onclick = () => {
+    if (btn.disabled) return;
+    if (mode === 'check') check();
+    else if (qi === TOTAL - 1) finish();
+    else { qi++; render(); }
+};
+function finish() {
+    runId++;
+    content.innerHTML = '';
+    btn.hidden = true;
+    counter.innerHTML = '<b>Complete</b>';
+    progress.style.width = '100%';
+    const n = firstTry.filter(Boolean).length;
+    say('Take a screenshot of this screen and paste it into Stile as evidence of your work.');
+    const c = el('div', 'center');
+    const dots = QS.map((_, i) => `<span class="${firstTry[i] ? 'y' : ''}">${i + 1}</span>`).join('');
+    const card = el('div', 'scorecard pop-in', `<div class="big">${n} / ${TOTAL}</div><div class="dlbl">Correct on the first try</div><div class="dots">${dots}</div>`);
+    const again = el('button', 'again', 'Start again');
+    again.onclick = () => { qi = 0; firstTry = []; render(); };
+    c.append(card, again); content.appendChild(c);
+}
+
+/* ---------- multiple choice core ---------- */
+function mcCore(els, q, extra = {}) {
+    let sel = null;
+    els.forEach((b, i) => b.onclick = () => {
+        if (mode !== 'check' || b.classList.contains('wrong')) return;
+        els.forEach(x => x.classList.remove('sel')); b.classList.add('sel'); sel = i; refresh();
+    });
+    return {
+        instr: extra.instr || 'Choose an answer, then press <b>Check</b>.',
+        ready: () => sel !== null,
+        check() {
+            const b = els[sel];
+            b.classList.remove('sel');
+            if (sel === q.answer) { b.classList.add('right'); els.forEach(x => x.disabled = true); return { ok: true }; }
+            b.classList.add('wrong'); b.disabled = true;
+            const h = (q.opts || q.spots)[sel].hint; sel = null; return { ok: false, hint: h };
+        },
+        done: extra.done
+    };
+}
+const L = 'ABCDEF';
+const KINDS = {
+    mc(q, body) {
+        const g = el('div', 'opts g2');
+        const els = q.opts.map((o, i) => { const b = el('button', 'opt', `<span class="l">${L[i]}</span><span>${o.t}</span>`); g.appendChild(b); return b; });
+        body.appendChild(g);
+        return mcCore(els, q);
+    },
+    mcpic(q, body) {
+        const g = el('div', 'pgrid');
+        const els = q.opts.map((o, i) => { const b = el('button', 'pcard', `<span class="l">${L[i]}</span>${dnPic(o.p)}`); g.appendChild(b); return b; });
+        body.appendChild(g);
+        return mcCore(els, q);
+    },
+    mcside(q, body) {
+        const side = el('div', 'scene');
+        const col = el('div', 'col'); col.style.flex = '1';
+        col.appendChild(el('div', 'quote', q.quote));
+        const g = el('div', 'opts');
+        const els = q.opts.map((o, i) => { const b = el('button', 'opt', `<span class="l">${L[i]}</span><span>${o.t}</span>`); g.appendChild(b); return b; });
+        col.appendChild(g); body.append(side, col);
+        body.style.justifyContent = 'flex-start';
+        const S = SIDES[q.side](side);
+        return mcCore(els, q, { done: S.done });
+    },
+    predict(q, body) {
+        body.classList.add('pred');
+        const sc = el('div', 'scene');
+        sc.innerHTML = `<svg viewBox="0 0 740 330" width="734" height="327"></svg>`;
+        const rp = el('button', 'replay', `${replayIcon}<span>Replay</span>`); sc.appendChild(rp);
+        const g = el('div', 'opts');
+        const els = q.opts.map(o => { const b = el('button', 'opt', `${glyph(o.g)}<span>${o.t || EFFECT[o.g]}</span>`); g.appendChild(b); return b; });
+        body.append(sc, g);
+        const S = SCENES[q.scene](sc.querySelector('svg'));
+        let solved = false;
+        const go = () => { runId++; S.run(solved); };
+        S.introDone = false;
+        rp.onclick = go;
+        go();
+        return mcCore(els, q, { instr: 'Watch, then choose what happens next and press <b>Check</b>.', done: () => { solved = true; runId++; S.run(true, S.introDone); } });
+    },
+    hotspot(q, body) {
+        const sc = el('div', 'scene');
+        sc.innerHTML = `<svg viewBox="0 0 740 330" width="740" height="330"></svg>`;
+        body.appendChild(sc);
+        const S = topScene(sc.querySelector('svg'), q);
+        const els = q.spots.map((p, i) => { const b = el('button', 'hs', L[i]); const [x, y] = S.pos(p.a); b.style.left = x + 'px'; b.style.top = y + 'px'; b.setAttribute('aria-label', 'Location ' + L[i]); sc.appendChild(b); return b; });
+        if (!q.multi) return mcCore(els, q, { instr: 'Tap a location, then press <b>Check</b>.', done: S.done });
+        const sel = new Set();
+        els.forEach((b, i) => b.onclick = () => {
+            if (mode !== 'check' || b.disabled) return;
+            b.classList.toggle('sel'); b.classList.contains('sel') ? sel.add(i) : sel.delete(i); refresh();
+        });
+        return {
+            instr: 'Tap every location in daytime, then press <b>Check</b>.',
+            ready: () => sel.size > 0,
+            check() {
+                let bad = 0, hint = null;
+                sel.forEach(i => {
+                    const b = els[i]; b.classList.remove('sel');
+                    if (q.spots[i].ok) b.classList.add('right');
+                    else { bad++; b.classList.add('wrong'); b.disabled = true; if (!hint) hint = q.spots[i].hint; }
+                });
+                sel.clear();
+                if (bad) return { ok: false, hint: (bad > 1 ? `${bad} of your choices are in darkness. ` : '') + hint };
+                if (q.spots.some((s, i) => s.ok && !els[i].classList.contains('right'))) return { ok: false, hint: q.missHint };
+                els.forEach(b => b.disabled = true);
+                return { ok: true };
+            },
+            done: S.done
+        };
+    },
+    sort(q, body) {
+        const wrap = el('div', 'sort');
+        const mk = (cls, h, sub) => { const b = el('div', 'bin ' + cls, `<h3>${h}</h3><div class="sub">${sub}</div><div class="area"></div>`); b.tabIndex = 0; return b; };
+        const [b1, b2] = q.bins;
+        const bc = mk('', b1.h, b1.sub), bn = mk('pk', b2.h, b2.sub);
+        const pool = el('div', 'pool');
+        wrap.append(bc, pool, bn); body.appendChild(wrap);
+        const zPool = { el: pool, box: pool, cap: Infinity, pool: true };
+        const zones = [{ el: bc, box: bc.querySelector('.area'), cap: Infinity, key: b1.key }, { el: bn, box: bn.querySelector('.area'), cap: Infinity, key: b2.key }];
+        const D = dnd(zPool, zones, () => refresh());
+        shuffle(q.items).forEach(([t, k, h]) => { const tl = D.tile(t); if (q.small) tl.classList.add('sm'); tl.k = k; tl.h = h; pool.appendChild(tl); });
+        return {
+            instr: 'Drag each tile into a group (or tap a tile, then a group), then press <b>Check</b>.',
+            ready: () => !pool.querySelector('.tile'),
+            check() {
+                let wrong = [];
+                zones.forEach(z => z.box.querySelectorAll('.tile').forEach(t => {
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (t.k === z.key) t.classList.add('right'); else { t.classList.add('wrong'); wrong.push(t.h); }
+                }));
+                return wrong.length ? { ok: false, hint: (wrong.length > 1 ? `${wrong.length} tiles need moving. ` : '') + wrong[0] } : { ok: true };
+            }
+        };
+    },
+    cloze(q, body) {
+        body.style.flexDirection = 'column'; body.style.gap = '22px';
+        const para = el('div', 'cloze', q.text.replace(/\{(\d)\}/g, (m, n) => `<span class="cslot dz" data-n="${n}"></span>`));
+        const pool = el('div', 'pool cpool');
+        body.append(para, pool);
+        const zones = [...para.querySelectorAll('.cslot')].map(s => { s.tabIndex = 0; s.setAttribute('aria-label', 'Gap ' + (+s.dataset.n + 1)); return { el: s, box: s, cap: 1, n: +s.dataset.n, onPut: () => s.classList.add('filled'), onTake: () => s.classList.remove('filled') }; });
+        const D = dnd({ el: pool, box: pool, cap: Infinity, pool: true }, zones, () => { zones.forEach(z => z.el.classList.remove('wrong')); refresh(); });
+        shuffle(q.tiles).forEach(t => pool.appendChild(D.tile(t)));
+        return {
+            instr: 'Drag a word into each gap (or tap a word, then a gap), then press <b>Check</b>.',
+            ready: () => zones.every(z => z.box.querySelector('.tile')),
+            check() {
+                let bad = 0, hint = null;
+                zones.forEach(z => {
+                    const t = z.box.querySelector('.tile'); if (!t || z.locked) return;
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (t.textContent === q.answers[z.n]) { t.classList.add('right'); z.locked = true; }
+                    else { bad++; t.classList.add('wrong'); z.el.classList.add('wrong'); if (!hint) hint = q.hints[z.n]; }
+                });
+                return bad ? { ok: false, hint: (bad > 1 ? `${bad} gaps need changing. ` : '') + hint } : { ok: true };
+            }
+        };
+    },
+    label(q, body) {
+        const wrap = el('div', 'bwrap');
+        wrap.innerHTML = `<svg viewBox="0 0 800 330" width="800" height="330"></svg>`;
+        const side = el('div', 'bside', '<div class="dlbl">Labels</div>');
+        const pool = el('div', 'pool'); side.appendChild(pool);
+        body.append(wrap, side);
+        const S = LABELS[q.scene](wrap.querySelector('svg'));
+        const zones = q.slots.map(sl => {
+            const s = el('div', 'slot dz'); s.style.left = sl.x + 'px'; s.style.top = sl.y + 'px'; s.tabIndex = 0; s.setAttribute('aria-label', 'Label box');
+            wrap.appendChild(s);
+            return { el: s, box: s, cap: 1, id: sl.id, onPut: () => s.classList.add('filled'), onTake: () => s.classList.remove('filled') };
+        });
+        const D = dnd({ el: pool, box: pool, cap: Infinity, pool: true }, zones, () => { zones.forEach(z => z.el.classList.remove('wrong')); refresh(); });
+        shuffle(q.tiles).forEach(t => pool.appendChild(D.tile(t)));
+        S.intro();
+        return {
+            instr: 'Drag a label onto each box (or tap a label, then a box), then press <b>Check</b>.',
+            ready: () => zones.every(z => z.box.querySelector('.tile')),
+            check() {
+                let bad = 0, hint = null;
+                zones.forEach(z => {
+                    const t = z.box.querySelector('.tile'); if (z.locked) return;
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (q.answer[z.id] === t.textContent) { t.classList.add('right'); z.locked = true; }
+                    else { bad++; t.classList.add('wrong'); z.el.classList.add('wrong'); if (!hint) hint = q.hint(z.id, t.textContent); }
+                });
+                return bad ? { ok: false, hint: (bad > 1 ? `${bad} labels need changing. ` : '') + hint } : { ok: true };
+            },
+            done: S.done
+        };
+    },
+    order(q, body) {
+        const sc = el('div', 'scene');
+        sc.innerHTML = `<svg viewBox="0 0 330 330" width="330" height="330"></svg>`;
+        globe(sc.querySelector('svg'));
+        const mid = el('div', 'ranks');
+        mid.appendChild(el('div', 'rlab', 'Smallest change'));
+        const zones = q.answer.map((_, i) => {
+            const r = el('div', 'rk', `<span class="rn">${i + 1}</span>`); const s = el('div', 'dz rslot'); s.tabIndex = 0; s.setAttribute('aria-label', 'Position ' + (i + 1));
+            r.appendChild(s); mid.appendChild(r);
+            return { el: s, box: s, cap: 1, i, onPut: () => s.classList.add('filled'), onTake: () => s.classList.remove('filled') };
+        });
+        mid.appendChild(el('div', 'rlab', 'Biggest change'));
+        const pool = el('div', 'pool col1 opool');
+        body.append(sc, mid, pool);
+        const D = dnd({ el: pool, box: pool, cap: Infinity, pool: true }, zones, () => { zones.forEach(z => z.el.classList.remove('wrong')); refresh(); });
+        shuffle(q.answer).forEach(t => pool.appendChild(D.tile(t)));
+        return {
+            instr: 'Drag each place into a position (or tap a place, then a position), then press <b>Check</b>.',
+            ready: () => zones.every(z => z.box.querySelector('.tile')),
+            check() {
+                let bad = 0, hint = null;
+                zones.forEach(z => {
+                    const t = z.box.querySelector('.tile'); if (z.locked) return;
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (q.answer[z.i] === t.textContent) { t.classList.add('right'); z.locked = true; }
+                    else { bad++; t.classList.add('wrong'); z.el.classList.add('wrong'); if (!hint) hint = q.hints[t.textContent] || q.hint; }
+                });
+                return bad ? { ok: false, hint: (bad > 1 ? `${bad} places need moving. ` : '') + hint } : { ok: true };
+            }
+        };
+    },
+    chartmc(q, body) {
+        const sc = el('div', 'scene');
+        sc.innerHTML = `<svg viewBox="0 0 ${q.w} 330" width="${q.w}" height="330"></svg>`;
+        const col = el('div', 'col'); col.style.width = q.ow + 'px';
+        const g = el('div', 'opts');
+        const els = q.opts.map((o, i) => { const b = el('button', 'opt', o.t.startsWith('<span') ? o.t : `<span class="l">${L[i]}</span><span>${o.t}</span>`); g.appendChild(b); return b; });
+        col.appendChild(g); body.append(sc, col);
+        const S = CHARTS[q.chart](sc.querySelector('svg'), q.w);
+        return mcCore(els, q, { done: S.done });
+    },
+    chartpic(q, body) {
+        const sc = el('div', 'scene');
+        sc.innerHTML = `<svg viewBox="0 0 480 330" width="480" height="330"></svg>`;
+        const g = el('div', 'pgrid g22');
+        const els = q.opts.map((o, i) => { const b = el('button', 'pcard', `<span class="l">${L[i]}</span>${tempMini(o.v)}`); g.appendChild(b); return b; });
+        body.append(sc, g);
+        CHARTS.daylight(sc.querySelector('svg'));
+        return mcCore(els, q);
+    }
+};
+
+/* ---------- drag and drop (drag, or tap a tile then tap a target) ---------- */
+function dnd(pool, zones, onChange) {
+    let sel = null;
+    const all = () => [pool, ...zones];
+    const zoneOf = t => all().find(z => z.box.contains(t));
+    const armAll = on => zones.forEach(z => z.el.classList.toggle('armed', on && !z.locked));
+    const deselect = () => { if (sel) sel.classList.remove('sel'); sel = null; armAll(false); };
+    function moveTo(t, z) {
+        const from = zoneOf(t);
+        t.style.transform = ''; t.classList.remove('wrong');
+        z.box.appendChild(t);
+        if (from && from !== z && from.onTake) from.onTake(t);
+        if (z.onPut) z.onPut(t);
+        deselect(); onChange();
+    }
+    function put(t, z) {
+        const from = zoneOf(t);
+        if (z.locked || from === z) { t.style.transform = ''; return; }
+        if (z.cap === 1) {
+            const ex = z.box.querySelector('.tile');
+            if (ex) { if (ex.classList.contains('right')) { t.style.transform = ''; return; } moveTo(ex, pool); }
+        }
+        moveTo(t, z);
+    }
+    const hit = (x, y) => all().find(z => { const r = z.el.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; });
+    all().forEach(z => {
+        const act = () => { if (sel && !z.locked) put(sel, z); };
+        z.el.addEventListener('click', act);
+        z.el.addEventListener('keydown', e => { if (e.target === z.el && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); act(); } });
+    });
+    function tile(text) {
+        const t = el('span', 'tile', text);
+        t.tabIndex = 0; t.setAttribute('role', 'button');
+        const tap = () => {
+            if (t.classList.contains('right')) return;
+            t.style.transform = '';
+            const z = zoneOf(t);
+            if (z !== pool) { put(t, pool); return; }
+            if (sel === t) { deselect(); return; }
+            deselect(); sel = t; t.classList.add('sel'); armAll(true);
+        };
+        t.addEventListener('click', e => e.stopPropagation());
+        t.addEventListener('pointerdown', e => {
+            if (t.classList.contains('right') || e.button > 0) return;
+            e.preventDefault(); e.stopPropagation(); t.setPointerCapture(e.pointerId);
+            const sx = e.clientX, sy = e.clientY; let moved = false;
+            const move = ev => {
+                const dx = ev.clientX - sx, dy = ev.clientY - sy;
+                if (!moved && Math.hypot(dx, dy) > 6) { moved = true; t.classList.add('drag'); }
+                if (!moved) return;
+                t.style.transform = `translate(${dx / scaleK}px, ${dy / scaleK}px)`;
+                const h = hit(ev.clientX, ev.clientY);
+                all().forEach(z => z.el.classList.toggle('hover', z === h));
+            };
+            const up = ev => {
+                t.removeEventListener('pointermove', move); t.removeEventListener('pointerup', up); t.removeEventListener('pointercancel', up);
+                t.classList.remove('drag'); all().forEach(z => z.el.classList.remove('hover'));
+                if (!moved) { tap(); return; }
+                const h = hit(ev.clientX, ev.clientY);
+                if (h) put(t, h); else t.style.transform = '';
+            };
+            t.addEventListener('pointermove', move); t.addEventListener('pointerup', up); t.addEventListener('pointercancel', up);
+        });
+        t.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); tap(); } });
+        return t;
+    }
+    return { tile };
+}
+
+/* =========================================================
+   TOP-DOWN EARTH (hotspot questions)
+   ========================================================= */
+function topScene(svg, o) {
+    const cx = 440, cy = 165, R = 125;
+    svg.innerHTML = `${sunDisc(-60, cy, 120)}${rays(76, [cy - 65, cy, cy + 65], 200, 0)}<text class="spd" x="16" y="30">Sunlight</text>
+        ${topEarth(cx, cy, R, { hidden: o.hidden })}
+        ${o.arc ? arcArrow(cx, cy, R + 28, -16, -74) + `<text class="leg" x="${cx + 118}" y="${cy - R - 2}">Rotation</text>` : ''}
+        <g class="lbl" opacity="0"><text class="flbl" x="${cx - 62}" y="${cy + 8}" text-anchor="middle">Day</text><text class="flbl" x="${cx + 62}" y="${cy + 8}" text-anchor="middle" fill="#fff" style="fill:#fff">Night</text></g>
+        <g class="fx"></g><text class="leg" x="16" y="318">Seen from above the North Pole</text>`;
+    const pos = a => [+(cx + R * Math.cos(a * D2R)).toFixed(1), +(cy + R * Math.sin(a * D2R)).toFixed(1)];
+    const fx = svg.querySelector('.fx'), lbl = svg.querySelector('.lbl');
+    return {
+        pos,
+        done() {
+            if (o.hidden) {
+                const dy = svg.querySelector('.dayo'), nt = svg.querySelector('.nighto');
+                play(900, k => { const e = easeInOut(k); dy.setAttribute('opacity', e); nt.setAttribute('opacity', e); lbl.setAttribute('opacity', e); });
+            } else {
+                play(700, k => { fx.innerHTML = arcArrow(cx, cy, R + 24, -100, -100 - 42 * easeOut(k), PK, 6); }).then(() => {
+                    fx.insertAdjacentHTML('beforeend', `<text class="flbl" x="${cx - 112}" y="36" text-anchor="end" style="font-size:20px;fill:${PK}">Turning into sunlight</text>`);
+                });
+            }
+        }
+    };
+}
+
+/* =========================================================
+   ANIMATED SCENES (predict)
+   ========================================================= */
+const SCENES = {
+    spin(svg) {
+        const cx = 420, cy = 160, R = 118, PR = R + 30, VX = 600, VY = 128, VW = 128, VH = 100, HZ = VY + VH - 24, A0 = 5;
+        let stars = ''; [[18, 18], [44, 34], [70, 14], [96, 30], [112, 12], [30, 56], [86, 54]].forEach(([x, y]) => stars += `<circle cx="${VX + x}" cy="${VY + y}" r="1.8" fill="#fff"/>`);
+        svg.innerHTML = `${sunDisc(-60, cy, 120)}${rays(76, [cy - 65, cy, cy + 65], 180, 0)}<text class="spd" x="16" y="30">Sunlight</text>
+            ${topEarth(cx, cy, R)}${arcArrow(cx, cy, R + 24, 118, 62)}<text class="leg" x="${cx + 78}" y="${cy + R + 36}">Rotation</text>
+            <g class="pin"><circle class="pc" r="11" fill="${PK}" stroke="#fff" stroke-width="3"/></g><text class="flbl pt" text-anchor="middle" style="font-size:22px;fill:${PK}">You</text>
+            <defs><clipPath id="vclip"><rect x="${VX}" y="${VY}" width="${VW}" height="${VH}" rx="6"/></clipPath></defs>
+            <text class="spd" x="${VX + VW / 2}" y="${VY - 12}" text-anchor="middle" style="font-size:18px">View east</text>
+            <g clip-path="url(#vclip)"><rect class="sky" x="${VX}" y="${VY}" width="${VW}" height="${VH}"/><g class="stars">${stars}</g>
+            <circle class="vs" cx="${VX + VW / 2}" r="15" fill="${SUN}" stroke="${SUNS}" stroke-width="3"/><rect class="vg" x="${VX}" y="${HZ}" width="${VW}" height="24"/>
+            <text class="spd" x="${VX + VW / 2}" y="${HZ + 19}" text-anchor="middle" style="font-size:16px;fill:#fff">E</text></g>
+            <rect x="${VX}" y="${VY}" width="${VW}" height="${VH}" rx="6" fill="none" stroke="${NV}" stroke-width="3"/>
+            <text class="flbl vst" x="${VX + VW / 2}" y="${VY + VH + 30}" text-anchor="middle"></text>
+            <text class="leg" x="16" y="318">Seen from above the North Pole</text>`;
+        const pin = svg.querySelector('.pin'), pt = svg.querySelector('.pt'), land = svg.querySelector('.land'), sky = svg.querySelector('.sky'), st = svg.querySelector('.stars'), vs = svg.querySelector('.vs'), vg = svg.querySelector('.vg'), vst = svg.querySelector('.vst');
+        const setA = a => {
+            const r = a * D2R;
+            pin.setAttribute('transform', `translate(${f1(cx + R * Math.cos(r))} ${f1(cy + R * Math.sin(r))})`);
+            pt.setAttribute('x', f1(cx + PR * Math.cos(r))); pt.setAttribute('y', f1(cy + PR * Math.sin(r) + 8));
+            land.setAttribute('transform', `rotate(${f1(a - A0)})`);
+            const e = -(a + 90), f = clamp((e + 6) / 22);
+            sky.setAttribute('fill', mix(NV, '#dfe6f5', f)); vg.setAttribute('fill', mix('#33386a', '#9a9fb5', f)); st.setAttribute('opacity', 1 - f);
+            vs.setAttribute('cy', f1(HZ - Math.min(e, 55) * .9));
+            vst.textContent = e < -2 ? 'Night' : e < 12 ? 'Sunrise' : 'Morning';
+        };
+        return {
+            async run(full, skipIntro) {
+                if (!skipIntro) {
+                    this.introDone = false;
+                    setA(A0);
+                    await wait(500);
+                    await play(2600, k => setA(A0 - 75 * easeInOut(k)));
+                    this.introDone = true;
+                }
+                if (!full) return;
+                await wait(skipIntro ? 100 : 500);
+                await play(3000, k => setA(-70 - 90 * easeInOut(k)));
+            }
+        };
+    },
+    station(svg) { return tiltScene(svg, { lat: -75, name: 'Research station', rows: [{ label: 'June', side: -1 }] }); },
+    brisbane(svg) { return tiltScene(svg, { lat: -27.5, name: 'Brisbane', rows: [{ label: 'June', side: -1 }, { label: 'December', side: 1 }], introSpin: true }); }
+};
+
+/* Side view of tilted Earth. Axis stays fixed; the Sun is on the left in June and on the right in December. */
+function tiltScene(svg, o) {
+    const cx = 400, cy = 132, R = 98, T = 23.44 * D2R, V = -0.3, cV = Math.cos(V), sV = Math.sin(V);
+    const ax = -Math.sin(T), ay = Math.cos(T), ux = ay, uy = -ax, phi = o.lat * D2R;
+    const P = (ph, th) => {
+        const sp = Math.sin(ph), cp = Math.cos(ph), x = R * (sp * ax + cp * Math.cos(th) * ux), y = R * (sp * ay + cp * Math.cos(th) * uy), z = -R * cp * Math.sin(th);
+        return { x, sx: cx + x, sy: cy - (y * cV - z * sV), vis: y * sV + z * cV > 0 };
+    };
+    const curve = ph => {
+        let f = '', b = '', pv = null;
+        for (let i = 0; i <= 144; i++) {
+            const p = P(ph, i / 144 * 2 * Math.PI), q = `${f1(p.sx)} ${f1(p.sy)}`;
+            if (p.vis) f += (pv === true ? 'L' : 'M') + q; else b += (pv === false ? 'L' : 'M') + q;
+            pv = p.vis;
+        }
+        return { f, b };
+    };
+    const eq = curve(0), pl = curve(phi);
+    const half = sw => `M${cx} ${cy - R} A${R} ${R} 0 0 ${sw} ${cx} ${cy + R}Z`;
+    const AL = 1.15 * R, Nx = cx + AL * ax, Ny = cy - AL * ay * cV, Sx = cx - AL * ax, Sy = cy + AL * ay * cV;
+    const BX = 160, BW = 340, BH = 20, rowY = [248, 276].slice(0, o.rows.length);
+    svg.innerHTML = `<g class="sunL">${sunDisc(48, cy, 56)}${rays(118, [cy - 50, cy, cy + 50], 172, 0)}</g>
+        <g class="sunR" opacity="0">${sunDisc(752, cy, 56)}${rays(682, [cy - 50, cy, cy + 50], 172, Math.PI)}</g>
+        <g class="shL"><path d="${half(0)}" fill="${DAYF}"/><path d="${half(1)}" fill="${NV}"/></g>
+        <g class="shR" opacity="0"><path d="${half(0)}" fill="${NV}"/><path d="${half(1)}" fill="${DAYF}"/></g>
+        <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${NV}" stroke-width="4"/>
+        <path d="${eq.b}" fill="none" stroke="#9a9a9a" stroke-width="2" stroke-dasharray="4 6" opacity=".6"/>
+        <line x1="${f1(Nx)}" y1="${f1(Ny)}" x2="${f1(Sx)}" y2="${f1(Sy)}" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+        <line x1="${f1(Nx)}" y1="${f1(Ny)}" x2="${f1(Sx)}" y2="${f1(Sy)}" stroke="${NV}" stroke-width="3" stroke-dasharray="9 6"/>
+        <path d="${eq.f}" fill="none" stroke="#9a9a9a" stroke-width="2.5"/>
+        <g class="pth"><path d="${pl.b}" fill="none" stroke="${PK}" stroke-width="3" stroke-dasharray="5 6" opacity=".6"/><path d="${pl.f}" fill="none" stroke="${PK}" stroke-width="4"/></g>
+        <text class="spd" x="${f1(Nx - 6)}" y="${f1(Ny - 10)}" text-anchor="middle" style="fill:${NV}">N</text>
+        <text class="spd" x="${f1(Sx + 16)}" y="${f1(Sy + 6)}" text-anchor="start" style="fill:${NV}">S</text>
+        <text class="leg" x="${f1(P(0, 0).sx + 6)}" y="${f1(P(0, 0).sy + 26)}" style="paint-order:stroke;stroke:#fff;stroke-width:5px">Equator</text>
+        <g class="dot"><circle r="10" fill="${PK}" stroke="#fff" stroke-width="3"/></g>
+        <text class="sea" x="16" y="38" style="font-family:var(--cond);font-size:34px;font-weight:900;text-transform:uppercase;fill:${NV}">June</text>
+        <circle cx="24" cy="62" r="7" fill="${PK}"/><text class="leg" x="38" y="68" style="fill:${NV}">${o.name}</text>
+        <rect x="${BX}" y="306" width="16" height="16" rx="3" fill="${SUN}" stroke="${SUNS}"/><text class="leg" x="${BX + 24}" y="320">Daylight</text>
+        <rect x="${BX + 116}" y="306" width="16" height="16" rx="3" fill="${NV}"/><text class="leg" x="${BX + 140}" y="320">Night</text>
+        ${o.rows.map((r, i) => `<text class="spd rl${i}" x="${BX - 12}" y="${rowY[i] + 17}" text-anchor="end" style="font-size:20px">${r.label}</text><g class="bar${i}"></g><text class="flbl rd${i}" x="${BX + BW + 12}" y="${rowY[i] + 18}" style="font-size:21px"></text>`).join('')}`;
+    const dot = svg.querySelector('.dot'), pth = svg.querySelector('.pth'), sea = svg.querySelector('.sea');
+    const sunL = svg.querySelector('.sunL'), sunR = svg.querySelector('.sunR'), shL = svg.querySelector('.shL'), shR = svg.querySelector('.shR');
+    const N = 720;
+    const data = o.rows.map(r => { const th0 = r.side < 0 ? 0 : Math.PI, arr = []; for (let i = 0; i < N; i++) arr.push(P(phi, th0 + (i + .5) / N * 2 * Math.PI).x * r.side > 0); return { th0, arr }; });
+    const setDot = th => { const p = P(phi, th); dot.setAttribute('transform', `translate(${f1(p.sx)} ${f1(p.sy)})`); dot.setAttribute('opacity', p.vis ? 1 : .45); };
+    const bar = (i, k) => {
+        const d = data[i], n = Math.floor(k * N), y = rowY[i];
+        let s = `<rect x="${BX}" y="${y}" width="${BW}" height="${BH}" rx="3" fill="#fff" stroke="${GR}" stroke-width="2"/>`, lit = 0;
+        for (let a = 0; a < n;) { let b = a; while (b < n && d.arr[b] === d.arr[a]) b++; s += `<rect x="${f1(BX + a / N * BW)}" y="${y}" width="${f1((b - a) / N * BW + .4)}" height="${BH}" fill="${d.arr[a] ? SUN : NV}"/>`; if (d.arr[a]) lit += b - a; a = b; }
+        svg.querySelector('.bar' + i).innerHTML = s;
+        const h = lit / N * 24;
+        svg.querySelector('.rd' + i).textContent = k === 0 ? '' : k < 1 ? `${Math.round(h)} h daylight` : (h < .5 ? '0 h daylight' : `About ${Math.round(h)} h daylight`);
+    };
+    const setSun = k => { sunL.setAttribute('opacity', 1 - k); shL.setAttribute('opacity', 1 - k); sunR.setAttribute('opacity', k); shR.setAttribute('opacity', k); };
+    const spin = i => play(5200, k => { setDot(data[i].th0 + k * 2 * Math.PI); bar(i, k); });
+    const reset = () => {
+        setSun(0); sea.textContent = 'June'; setDot(data[0].th0);
+        o.rows.forEach((_, i) => bar(i, 0));
+        if (o.rows[1]) svg.querySelector('.rl1').setAttribute('opacity', .35);
+        pth.setAttribute('opacity', o.introSpin ? 1 : 0); dot.style.display = o.introSpin ? '' : 'none';
+    };
+    return {
+        async run(full, skipIntro) {
+            if (!skipIntro) {
+                this.introDone = false;
+                reset();
+                await wait(500);
+                if (o.introSpin) await spin(0);
+                else { await play(900, k => pth.setAttribute('opacity', easeOut(k))); dot.style.display = ''; }
+                this.introDone = true;
+            }
+            if (!full) return;
+            dot.style.display = ''; pth.setAttribute('opacity', 1);
+            await wait(skipIntro ? 100 : 500);
+            if (o.rows[1]) {
+                await play(1500, k => { setSun(easeInOut(k)); if (k > .5) sea.textContent = 'December'; });
+                svg.querySelector('.rl1').setAttribute('opacity', 1);
+                await wait(300);
+                await spin(1);
+            } else await spin(0);
+        }
+    };
+}
+
+/* =========================================================
+   SIDE PANELS, LABEL SCENES, CHARTS
+   ========================================================= */
+const SIDES = {
+    orbit(side) {
+        const W = 380, H = 330, sx = 190, sy = 150, T = 23.44 * D2R;
+        const earth = (x, lit) => {
+            const r = 32, half = sw => `M${x} ${sy - r} A${r} ${r} 0 0 ${sw} ${x} ${sy + r}Z`, L = 44;
+            const nx = x + Math.sin(T) * L, ny = sy - Math.cos(T) * L, s2x = x - Math.sin(T) * L, s2y = sy + Math.cos(T) * L;
+            const ex = Math.cos(T) * r, ey = Math.sin(T) * r;
+            return `<circle cx="${x}" cy="${sy}" r="${r}" fill="${DAYF}"/><path d="${half(lit === 'r' ? 0 : 1)}" fill="${NV}"/><circle cx="${x}" cy="${sy}" r="${r}" fill="none" stroke="${NV}" stroke-width="3"/>
+                <line x1="${f1(x - ex)}" y1="${f1(sy - ey)}" x2="${f1(x + ex)}" y2="${f1(sy + ey)}" stroke="#9a9a9a" stroke-width="2"/>
+                <line x1="${f1(nx)}" y1="${f1(ny)}" x2="${f1(s2x)}" y2="${f1(s2y)}" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
+                <line x1="${f1(nx)}" y1="${f1(ny)}" x2="${f1(s2x)}" y2="${f1(s2y)}" stroke="${NV}" stroke-width="3" stroke-dasharray="7 5"/>
+                <text class="spd" x="${f1(nx + 4)}" y="${f1(ny - 6)}" text-anchor="middle" style="font-size:17px;fill:${NV}">N</text>
+                <text class="spd" x="${f1(s2x - 4)}" y="${f1(s2y + 18)}" text-anchor="middle" style="font-size:17px;fill:${NV}">S</text>`;
+        };
+        side.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
+            <ellipse cx="${sx}" cy="${sy}" rx="112" ry="40" fill="none" stroke="${GR}" stroke-width="3" stroke-dasharray="6 7"/>
+            ${sunDisc(sx, sy, 36)}<text class="spd" x="${sx}" y="${sy + 64}" text-anchor="middle" style="font-size:18px">Sun</text>
+            ${earth(78, 'r')}${earth(302, 'l')}
+            <text class="spd" x="78" y="236" text-anchor="middle" style="fill:${NV}">June</text><text class="spd" x="302" y="236" text-anchor="middle" style="fill:${NV}">December</text>
+            <g class="fx"></g>
+            <text class="leg" x="${W / 2}" y="40" text-anchor="middle">Earth\u2019s orbit, not to scale</text></svg>`;
+        const fx = side.querySelector('.fx');
+        return {
+            done() {
+                play(700, k => {
+                    const e = easeOut(k);
+                    fx.innerHTML = `<g opacity="${e}"><circle cx="${f1(302 - Math.sin(T) * 34)}" cy="${f1(sy + Math.cos(T) * 34)}" r="11" fill="none" stroke="${PK}" stroke-width="4"/>
+                        <text class="flbl" x="${W / 2}" y="270" text-anchor="middle" style="font-size:20px;fill:${PK}">In December, the south tilts</text>
+                        <text class="flbl" x="${W / 2}" y="292" text-anchor="middle" style="font-size:20px;fill:${PK}">towards the Sun</text></g>`;
+                });
+            }
+        };
+    }
+};
+
+const LABELS = {
+    sunpath(svg) {
+        const HY = 250, PS = [[720, HY], [400, -120], [80, HY]], PW = [[590, HY], [400, 70], [210, HY]];
+        const Q = (p, t) => { const u = 1 - t; return [u * u * p[0][0] + 2 * u * t * p[1][0] + t * t * p[2][0], u * u * p[0][1] + 2 * u * t * p[1][1] + t * t * p[2][1]]; };
+        const dQ = (p, t) => [2 * (1 - t) * (p[1][0] - p[0][0]) + 2 * t * (p[2][0] - p[1][0]), 2 * (1 - t) * (p[1][1] - p[0][1]) + 2 * t * (p[2][1] - p[1][1])];
+        const d = p => `M${p[0][0]} ${p[0][1]} Q${p[1][0]} ${p[1][1]} ${p[2][0]} ${p[2][1]}`;
+        const heads = p => [.72, 1].map(t => { const [x, y] = Q(p, t), [dx, dy] = dQ(p, t), a = Math.atan2(dy, dx); return headAt(x + Math.cos(a) * (t < 1 ? 10 : 0), y + Math.sin(a) * (t < 1 ? 10 : 0), a, NV, 20, 12); }).join('');
+        const [lx, ly] = Q(PS, .14);
+        svg.innerHTML = `<rect x="0" y="${HY}" width="800" height="${330 - HY}" fill="#eef0f5"/><line class="gnd" x1="0" x2="800" y1="${HY}" y2="${HY}"/>
+            <path d="${d(PS)}" fill="none" stroke="${GR}" stroke-width="3" stroke-dasharray="6 7"/><path d="${d(PW)}" fill="none" stroke="${GR}" stroke-width="3" stroke-dasharray="6 7"/>
+            <path class="ps" d="${d(PS)}" fill="none" stroke="${NV}" stroke-width="4"/><path class="pw" d="${d(PW)}" fill="none" stroke="${NV}" stroke-width="4"/>
+            <g class="hd" opacity="0">${heads(PS)}${heads(PW)}</g>
+            <line x1="${lx + 14}" y1="80" x2="${f1(lx + 3)}" y2="${f1(ly - 6)}" stroke="${GR}" stroke-width="3"/>
+            <line x1="400" y1="${HY}" x2="400" y2="${HY + 14}" stroke="${NV}" stroke-width="3"/><text class="spd" x="400" y="${HY + 42}" text-anchor="middle" style="fill:${NV}">North</text>
+            <text class="spd" x="16" y="32">Facing north</text>
+            <circle class="s1" r="20" fill="${SUN}" stroke="${SUNS}" stroke-width="3"/><circle class="s2" r="17" fill="${SUN}" stroke="${SUNS}" stroke-width="3"/>`;
+        const ps = svg.querySelector('.ps'), pw = svg.querySelector('.pw'), s1 = svg.querySelector('.s1'), s2 = svg.querySelector('.s2'), hd = svg.querySelector('.hd');
+        const lS = ps.getTotalLength(), lW = pw.getTotalLength();
+        ps.style.strokeDasharray = lS; pw.style.strokeDasharray = lW;
+        const at = (c, p, t) => { const [x, y] = Q(p, t); c.setAttribute('cx', f1(x)); c.setAttribute('cy', f1(y)); };
+        return {
+            async intro() {
+                ps.style.strokeDashoffset = lS; pw.style.strokeDashoffset = lW; at(s1, PS, 0); at(s2, PW, 0);
+                await wait(400);
+                const go = (c, p, path, len, dur) => play(dur, k => { at(c, p, k); path.style.strokeDashoffset = len * (1 - k); });
+                await Promise.all([go(s1, PS, ps, lS, 3400), go(s2, PW, pw, lW, 2500)]);
+                await play(500, k => { hd.setAttribute('opacity', k); s1.setAttribute('opacity', 1 - k); s2.setAttribute('opacity', 1 - k); });
+                at(s1, PS, .5); at(s2, PW, .5);
+                await play(500, k => { s1.setAttribute('opacity', k); s2.setAttribute('opacity', k); });
+            },
+            done() {}
+        };
+    }
+};
+
+function globe(svg) {
+    const cx = 165, cy = 150, R = 136;
+    const P = [['Singapore', 1.3], ['Darwin', -12.5], ['Brisbane', -27.5], ['Hobart', -42.9], ['Mawson Station', -67.6]];
+    let s = `<circle cx="${cx}" cy="${cy}" r="${R}" fill="${LT}" stroke="${NV}" stroke-width="4"/>
+        <ellipse cx="${cx}" cy="${cy}" rx="${R}" ry="12" fill="none" stroke="${PK}" stroke-width="3"/><text class="spd" x="${cx - R + 6}" y="${cy - 18}" style="font-size:17px;fill:${PK}">Equator</text>`;
+    P.forEach(([n, lat], i) => {
+        const y = cy - R * Math.sin(lat * D2R), rx = R * Math.cos(lat * D2R), ry = 12 * Math.cos(lat * D2R);
+        if (i) s += `<ellipse cx="${cx}" cy="${f1(y)}" rx="${f1(rx)}" ry="${f1(ry)}" fill="none" stroke="${GR}" stroke-width="2"/>`;
+        const dx = cx - 40, dy = y + ry * .9;
+        s += `<circle cx="${dx}" cy="${f1(dy)}" r="7" fill="${NV}" stroke="#fff" stroke-width="2"/><text class="ax" x="${dx + 14}" y="${f1(dy + 6)}" style="font-size:17px;font-weight:700;paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round">${n}</text>`;
+    });
+    s += `<text class="leg" x="${cx}" y="318" text-anchor="middle">Not to scale</text>`;
+    svg.innerHTML = s;
+}
+
+const CHARTS = {
+    lines(svg, W) {
+        const x0 = 80, x1 = 560, y0 = 26, y1 = 270, X = i => x0 + i * (x1 - x0) / 11, Y = h => y1 - (h - 8) / 8 * (y1 - y0);
+        let s = '';
+        [8, 10, 12, 14, 16].forEach(h => s += `<line x1="${x0 - 10}" x2="${x1 + 10}" y1="${f1(Y(h))}" y2="${f1(Y(h))}" stroke="${h === 8 ? GR : LT}" stroke-width="2"/><text class="ax" x="${x0 - 18}" y="${f1(Y(h) + 6)}" text-anchor="end">${h}</text>`);
+        [...MON].forEach((m, i) => s += `<text class="ax" x="${f1(X(i))}" y="${y1 + 26}" text-anchor="middle">${m}</text>`);
+        s += `<text class="leg" transform="translate(24 ${(y0 + y1) / 2}) rotate(-90)" text-anchor="middle">Daylight hours</text><text class="leg" x="${(x0 + x1) / 2}" y="322" text-anchor="middle">Month</text>`;
+        const SER = [['A', 'Brisbane', BNE_DAY], ['B', 'Hobart', HOB_DAY], ['C', 'Singapore', SIN_DAY]];
+        const STY = { A: `stroke="${NV}"`, B: `stroke="${NV}" stroke-dasharray="12 8"`, C: `stroke="#8a8fa6"` };
+        s += `<defs><clipPath id="lclip"><rect class="lcr" x="0" y="0" width="0" height="330"/></clipPath></defs>`;
+        SER.forEach(([k, n, d]) => {
+            s += `<polyline clip-path="url(#lclip)" points="${d.map((h, i) => f1(X(i)) + ',' + f1(Y(h))).join(' ')}" fill="none" ${STY[k]} stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>`;
+            s += `<g class="bd"><circle cx="${x1 + 30}" cy="${f1(Y(d[11]))}" r="15" fill="${NV}"/><text x="${x1 + 30}" y="${f1(Y(d[11]) + 7)}" text-anchor="middle" style="font-family:var(--cond);font-size:20px;font-weight:900;fill:#fff">${k}</text></g>`;
+            s += `<text class="nm leg" x="${x1 + 52}" y="${f1(Y(d[11]) + 6)}" opacity="0" style="fill:${NV}">${n}</text>`;
+        });
+        svg.innerHTML = s;
+        const lcr = svg.querySelector('.lcr');
+        play(1600, k => lcr.setAttribute('width', f1((x1 + 10) * easeInOut(k))));
+        return { done() { const nm = [...svg.querySelectorAll('.nm')]; play(500, k => nm.forEach(n => n.setAttribute('opacity', k))); } };
+    },
+    scatter(svg, W) {
+        const x0 = 90, x1 = 610, y0 = 24, y1 = 266, X = h => x0 + (h - 10) / 4.2 * (x1 - x0), Y = t => y1 - (t - 20) / 12 * (y1 - y0);
+        let s = '';
+        [20, 24, 28, 32].forEach(t => s += `<line x1="${x0 - 10}" x2="${x1}" y1="${f1(Y(t))}" y2="${f1(Y(t))}" stroke="${t === 20 ? GR : LT}" stroke-width="2"/><text class="ax" x="${x0 - 18}" y="${f1(Y(t) + 6)}" text-anchor="end">${t}</text>`);
+        [10, 11, 12, 13, 14].forEach(h => s += `<line x1="${f1(X(h))}" x2="${f1(X(h))}" y1="${y0}" y2="${y1 + 6}" stroke="${h === 10 ? GR : LT}" stroke-width="2"/><text class="ax" x="${f1(X(h))}" y="${y1 + 28}" text-anchor="middle">${h}</text>`);
+        s += `<text class="leg" transform="translate(26 ${(y0 + y1) / 2}) rotate(-90)" text-anchor="middle">Max temperature (\u00b0C)</text><text class="leg" x="${(x0 + x1) / 2}" y="322" text-anchor="middle">Daylight hours</text>`;
+        s += `<g class="tl"></g>`;
+        BNE_DAY.forEach((h, i) => s += `<circle class="pt" cx="${f1(X(h))}" cy="${f1(Y(BNE_MAX[i]))}" r="8" fill="${NV}" stroke="#fff" stroke-width="2" opacity="0"/>`);
+        s += `<text class="ax" x="${f1(X(10.4))}" y="${f1(Y(22.1) + 30)}" text-anchor="middle">Jun</text><text class="ax" x="${f1(X(13.9))}" y="${f1(Y(29.4) + 30)}" text-anchor="middle">Dec</text>`;
+        svg.innerHTML = s;
+        const pts = [...svg.querySelectorAll('.pt')];
+        play(1200, k => pts.forEach((p, i) => p.setAttribute('opacity', clamp(k * 12 - i * .8))));
+        const n = 12, mx = BNE_DAY.reduce((a, b) => a + b) / n, my = BNE_MAX.reduce((a, b) => a + b) / n;
+        const m = BNE_DAY.reduce((a, h, i) => a + (h - mx) * (BNE_MAX[i] - my), 0) / BNE_DAY.reduce((a, h) => a + (h - mx) ** 2, 0), c = my - m * mx;
+        const tl = svg.querySelector('.tl');
+        return {
+            done() {
+                const ax = X(10.2), ay = Y(m * 10.2 + c), bx = X(14.1), by = Y(m * 14.1 + c), ang = Math.atan2(by - ay, bx - ax), len = Math.hypot(bx - ax, by - ay);
+                growArrow(tl, ax, ay, ang, len, { c: PK, sw: 5, hw: 11, hl: 18 }, 800);
+            }
+        };
+    },
+    daylight(svg) {
+        const x0 = 76, x1 = 460, y0 = 56, y1 = 272, bw = 22, step = (x1 - x0) / 12, Y = h => y1 - h / 14 * (y1 - y0);
+        let s = `<text class="spd" x="20" y="34" style="fill:${NV}">Brisbane daylight hours</text>`;
+        [0, 4, 8, 12].forEach(h => s += `<line x1="${x0 - 6}" x2="${x1}" y1="${f1(Y(h))}" y2="${f1(Y(h))}" stroke="${h ? LT : GR}" stroke-width="2"/><text class="ax" x="${x0 - 14}" y="${f1(Y(h) + 6)}" text-anchor="end">${h}</text>`);
+        BNE_DAY.forEach((h, i) => {
+            const x = x0 + step * i + (step - bw) / 2;
+            s += `<rect class="br" x="${f1(x)}" y="${f1(Y(h))}" width="${bw}" height="${f1(y1 - Y(h))}" fill="${SUN}" stroke="${SUNS}" stroke-width="2"/>`;
+            s += `<text class="ax" x="${f1(x + bw / 2)}" y="${y1 + 26}" text-anchor="middle">${MON[i]}</text>`;
+        });
+        s += `<text class="leg" x="${(x0 + x1) / 2}" y="322" text-anchor="middle">Month</text><text class="leg" transform="translate(24 ${(y0 + y1) / 2}) rotate(-90)" text-anchor="middle">Hours</text>`;
+        svg.innerHTML = s;
+        const brs = [...svg.querySelectorAll('.br')];
+        brs.forEach(b => { b._y = +b.getAttribute('y'); b._h = +b.getAttribute('height'); });
+        play(1200, k => brs.forEach((b, i) => { const e = easeOut(clamp(k * 1.6 - i * .05)); b.setAttribute('y', f1(y1 - b._h * e)); b.setAttribute('height', f1(b._h * e)); }));
+    }
+};
+
+/* ---------- scale to window ---------- */
+function fit() {
+    const st = $('#stage');
+    scaleK = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    st.style.transform = `scale(${scaleK})`;
+    st.style.margin = `${(720 * scaleK - 720) / 2}px ${(1280 * scaleK - 1280) / 2}px`;
+}
+window.addEventListener('resize', fit);
+fit();
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { fit(); render(); });
+</script>
+</body>
+</html>
