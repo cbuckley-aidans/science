@@ -181,6 +181,12 @@
     .jotwrap { display: flex; flex-direction: column; gap: 22px; width: 1060px; }
     .starter { font-size: 26px; color: var(--mid-grey); font-weight: 600; border-bottom: 3px dashed #c3c6d0; padding-bottom: 10px; margin-top: 18px; }
 
+    /* work */
+    .wk-mv { transition: transform 2.4s cubic-bezier(.25,.6,.35,1); }
+    .go .wk-mv { transform: translateX(var(--d)); }
+    .wk-late { opacity: 0; transition: opacity .5s 1.4s; }
+    .go .wk-late { opacity: 1; }
+
     /* advantages */
     .apanels { display: flex; gap: 24px; }
     .apanel { width: 368px; border: 3px solid var(--navy); border-radius: 8px; padding: 12px 18px 14px; cursor: pointer; }
@@ -629,10 +635,6 @@
         #print .ui-hlc { mix-blend-mode: multiply; }
     }
 
-    @media (prefers-reduced-motion: reduce) {
-        .rev { transition: none !important; }
-        .caption.in { animation: none !important; }
-    }
 </style>
 </head>
 <body>
@@ -1047,6 +1049,48 @@ const scenes = [
         A.forEach((e, i) => at(6400 + i * 400, () => show(e)));
         beatAt(11000, 'To reduce friction, we use <b>lubricants</b> such as oil, or add wheels and ball bearings.');
         B.forEach((e, i) => at(11400 + i * 400, () => show(e)));
+    }
+},
+{
+    title: 'What is <span>work</span>?',
+    sc: 'SC7, SC8',
+    dur: 25500,
+    run() {
+        const c = el('div', 'center');
+        const d = el('div', 'defn rev hide', '<div class="dlbl">Definition</div><div class="txt">In science, <b>work</b> is done when a <b>force</b> makes an object <b>move</b>. Doing work transfers energy.</div>');
+        d.style.marginBottom = '20px';
+        const w = el('div', 'apanels');
+        const pA = svgBox(320, 160, `
+            <line class="gnd" x1="10" y1="108" x2="310" y2="108"/>
+            <rect class="ghost" x="50" y="44" width="80" height="64" rx="4"/>
+            <g class="wk-mv" style="--d:140px"><rect class="solid" x="50" y="44" width="80" height="64" rx="4"/>${tx(90, 83, 'Box', 'mid wh')}${arrow(2, 76, 46, 76, 'fa', 9)}</g>
+            <g class="wk-late">${arrow(50, 126, 190, 126, 'fg', 7)}${tx(120, 150, 'Distance moved', 'mid gr sm')}</g>`);
+        const fig = `<circle cx="178" cy="66" r="11" style="fill:var(--pink)"/><path class="lnp" style="stroke-width:6" d="M174 78 L156 108 M156 108 L128 140 M156 108 L176 140 M170 86 L226 90"/>`;
+        const pB = svgBox(320, 160, `
+            <line class="gnd" x1="10" y1="140" x2="310" y2="140"/>
+            <rect class="solid" x="228" y="18" width="34" height="122"/>
+            ${fig}${arrow(150, 34, 220, 34, 'fa', 8)}${tx(150, 24, 'Force', 'pk sm')}
+            ${tx(80, 66, 'Distance', 'mid gr sm')}${tx(80, 92, '0 m', 'mid lg')}`);
+        const pC = svgBox(320, 160, `
+            <line class="gnd" x1="10" y1="72" x2="310" y2="72"/>${tx(10, 16, 'Sliding', 'gr sm')}
+            <g class="wk-mv" style="--d:70px"><rect class="solid" x="24" y="38" width="58" height="34" rx="3"/>${arrow(0, 55, 20, 55, 'fa ti', 7)}</g>
+            <g class="wk-late">${heat(44, 70)}${heat(58, 70)}${heat(72, 70)}</g>
+            <line class="gnd" x1="10" y1="150" x2="310" y2="150"/>${tx(10, 100, 'On wheels', 'gr sm')}
+            <g class="wk-mv" style="--d:200px"><rect class="solid" x="24" y="106" width="58" height="30" rx="3"/><circle cx="37" cy="142" r="7" fill="#fff" stroke="#1b1f45" stroke-width="3"/><circle cx="69" cy="142" r="7" fill="#fff" stroke="#1b1f45" stroke-width="3"/>${arrow(0, 121, 20, 121, 'fa ti', 7)}</g>`);
+        const mk = (svg, head, text) => { const p = el('div', 'apanel rev hide', `<div class="dlbl">${head}</div>`); p.appendChild(svg); p.appendChild(el('div', 'ptext', text)); replayable(p); w.appendChild(p); return p; };
+        const A = mk(pA, 'Work done', 'The force moves the box, so <b>work is done</b>');
+        const B = mk(pB, 'No work done', 'The wall does not move, so <b>no work is done</b>');
+        const C = mk(pC, 'Reducing friction', 'Less energy is wasted as heat, so work is <b>more efficient</b>');
+        c.append(d, w); content.appendChild(c);
+        beatAt(0, 'In science, <b>work</b> has a special meaning. Work is done when a <b>force</b> makes an object <b>move</b>.');
+        at(400, () => show(d));
+        beatAt(5000, 'Pushing a box across the floor is work. The force moves the box a distance.');
+        at(5400, () => show(A)); at(6200, () => A.classList.add('go'));
+        beatAt(10500, 'Pushing on a wall that does not move is <b>not</b> work, even if it makes you tired.');
+        at(10900, () => show(B));
+        beatAt(15000, 'Friction wastes some energy as <b>heat</b>. Reducing friction means more of our effort goes into <b>useful work</b>.');
+        at(15400, () => show(C)); at(16200, () => C.classList.add('go'));
+        beatAt(21000, "Simple machines also help us do work more <b>easily</b>. Let's find out how.");
     }
 },
 {
@@ -2098,7 +2142,6 @@ ftDraw();
 /* ---------- zoom, lock and spotlight ---------- */
 const zoomer = $('#zoomer'), spotEl = $('#spot'), zoomBtn = $('#zoombtn'), lockBtn = $('#lockbtn'), spotBtn = $('#spotbtn');
 const ZW = 1280, ZH = 714;
-const reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const mouse = { x: ZW / 2, y: ZH / 2 };
 const Z = { on: false, locked: false, level: 2, z: 1, x: ZW / 2, y: ZH / 2, lx: 0, ly: 0 };
@@ -2115,7 +2158,7 @@ function applySpot() {
 }
 function zoomFrame(n) {
     const dt = zlast ? Math.min(64, n - zlast) : 16; zlast = n;
-    const a = reduceMotion ? 1 : 1 - Math.exp(-dt / 90), b = reduceMotion ? 1 : 1 - Math.exp(-dt / 45);
+    const a = 1 - Math.exp(-dt / 90), b = 1 - Math.exp(-dt / 45);
     const tz = Z.on ? Z.level : 1, tx = Z.locked ? Z.lx : mouse.x, ty = Z.locked ? Z.ly : mouse.y;
     Z.z += (tz - Z.z) * a; Z.x += (tx - Z.x) * a; Z.y += (ty - Z.y) * a;
     const zDone = Math.abs(tz - Z.z) < 0.0008 && Math.abs(tx - Z.x) < 0.08 && Math.abs(ty - Z.y) < 0.08;
