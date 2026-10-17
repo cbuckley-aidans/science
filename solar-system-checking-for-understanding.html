@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solar System: Checking for Understanding</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,600&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --navy: #1b1f45;
+        --pink: #ea008a;
+        --mid-grey: #9a9a9a;
+        --light-grey: #e8e8e8;
+        --blank: #f0f3f6;
+        --tint: #e9ecf5;
+        --cond: 'Barlow Condensed', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        --ease: cubic-bezier(.2,.8,.2,1);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #eaeaea; color: var(--navy);
+        display: flex; align-items: center; justify-content: center; overflow: hidden; -webkit-user-select: none; user-select: none; }
+    .stage { width: 1280px; height: 720px; background: #fff; border-top: 6px solid var(--navy); position: relative; padding: 36px 64px 0; flex-shrink: 0; overflow: hidden; transform-origin: center; }
+    .top { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 4px solid var(--navy); padding-bottom: 12px; }
+    .sheet-title { font-family: var(--cond); font-size: 44px; font-weight: 900; text-transform: uppercase; letter-spacing: .01em; margin: 0; line-height: 1; }
+    .sheet-title span { color: var(--pink); }
+    .counter { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; color: var(--mid-grey); text-transform: uppercase; }
+    .counter b { color: var(--navy); }
+    .content { position: absolute; left: 64px; right: 64px; top: 124px; bottom: 108px; }
+    .caption { position: absolute; left: 64px; right: 64px; bottom: 28px; min-height: 60px; display: flex; align-items: center; gap: 16px; font-size: 25px; font-weight: 500; line-height: 1.32; }
+    .caption::before { content: ''; width: 10px; height: 10px; background: var(--pink); flex-shrink: 0; }
+    .caption .txt { flex: 1; }
+    .caption b { color: var(--pink); font-weight: 800; }
+    .caption b.no { color: var(--navy); }
+    .caption .in { animation: capIn .45s var(--ease); display: block; }
+    @keyframes capIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .progress { position: absolute; left: 0; bottom: 0; height: 6px; background: var(--pink); width: 0; transition: width .6s var(--ease); }
+
+    .next { font-family: var(--cond); font-size: 26px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; background: var(--pink); color: #fff;
+        border: none; border-radius: 8px; padding: 12px 30px; cursor: pointer; flex-shrink: 0; }
+    .next[hidden] { display: none; }
+    .next:disabled { background: #c3c6d0; cursor: default; }
+    button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--pink); outline-offset: 3px; }
+    .next:focus-visible { outline-color: var(--navy); }
+    .pop-in { animation: capIn .45s var(--ease); }
+    @keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+
+    /* question frame */
+    .q { display: flex; flex-direction: column; height: 100%; }
+    .qhead { display: flex; align-items: center; gap: 18px; }
+    .qtitle { font-size: 40px; font-weight: 800; line-height: 1.15; }
+    .tchip { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--pink); border: 3px solid var(--pink); border-radius: 6px; padding: 3px 12px 2px; }
+    .sctag { margin-left: auto; font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--navy); box-shadow: inset 0 0 0 3px var(--navy); border-radius: 6px; padding: 6px 12px 5px; line-height: 1; }
+    .prompt { font-size: 28px; font-weight: 600; margin-top: 6px; line-height: 1.3; }
+    .body { flex: 1; min-height: 0; margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 30px; }
+    .body.stack { flex-direction: column; gap: 14px; }
+    .center { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+    .dlbl { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mid-grey); }
+
+    /* svg classes */
+    svg { overflow: visible; display: block; }
+    .obj { fill: var(--blank); stroke: var(--navy); stroke-width: 4; }
+    .oname { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; fill: var(--navy); }
+    .flbl { font-family: var(--cond); font-size: 24px; font-weight: 800; fill: var(--navy); }
+    .spd { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; fill: var(--mid-grey); }
+    .leg { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 600; fill: var(--mid-grey); }
+    .tiny { font-family: var(--cond); font-size: 17px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; fill: var(--navy); }
+    .hand { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-style: italic; font-weight: 600; font-size: 25px; fill: var(--navy); }
+
+    /* multiple choice */
+    .opts { display: grid; gap: 10px; }
+    .col .opt { font-size: 23px; padding: 9px 18px; }
+    .opts.g2 { grid-template-columns: 1fr 1fr; gap: 18px; width: 100%; }
+    .opt { display: flex; align-items: center; gap: 16px; border: 3px solid var(--navy); border-radius: 8px; background: #fff; padding: 12px 20px;
+        font-family: inherit; font-size: 25px; font-weight: 600; color: var(--navy); text-align: left; line-height: 1.25; cursor: pointer;
+        transition: background-color .2s, border-color .2s, color .2s, opacity .2s; }
+    .opts.g2 .opt { min-height: 104px; font-size: 30px; font-weight: 700; padding: 16px 24px; }
+    .opt .l { flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background: var(--navy); color: #fff; font-family: var(--cond); font-size: 24px; font-weight: 900;
+        display: flex; align-items: center; justify-content: center; transition: background-color .2s, color .2s; }
+    .opt:hover:not(:disabled) { background: #f6f7fb; }
+    .opt.sel { background: var(--tint); }
+    .opt.sel .l { background: var(--pink); }
+    .opt.right, .opt.right:hover { background: var(--pink); border-color: var(--pink); color: #fff; opacity: 1; }
+    .opt.right .l { background: #fff; color: var(--pink); }
+    .opt.wrong { border-style: dashed; opacity: .5; animation: shake .4s; cursor: default; }
+    .opt:disabled { cursor: default; }
+    .gly { flex-shrink: 0; }
+    .gd { fill: #b5b9c6; } .go { fill: var(--navy); } .gs { fill: none; stroke: var(--navy); stroke-width: 3; } .gsf { fill: var(--navy); }
+    .opt.right .gd { fill: rgba(255,255,255,.6); } .opt.right .go { fill: #fff; } .opt.right .gs { stroke: #fff; } .opt.right .gsf { fill: #fff; }
+    .pred .opts, .scol .opts { width: 440px; }
+    .pred .opt { min-height: 72px; font-size: 22px; font-weight: 700; padding: 8px 16px; }
+    .scol .opt { min-height: 66px; font-size: 22px; font-weight: 600; padding: 8px 16px; }
+
+    /* picture choices */
+    .pgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; width: 100%; }
+    .pcard { position: relative; border: 3px solid var(--navy); border-radius: 8px; background: #fff; padding: 16px 4px 12px; cursor: pointer;
+        display: flex; flex-direction: column; align-items: center; gap: 8px; font-family: inherit; color: var(--navy); transition: background-color .2s, border-color .2s, opacity .2s; }
+    .pcard .l { position: absolute; left: 10px; top: 10px; width: 38px; height: 38px; border-radius: 50%; background: var(--navy); color: #fff; font-family: var(--cond); font-size: 23px; font-weight: 900;
+        display: flex; align-items: center; justify-content: center; transition: background-color .2s; }
+    .pcard .cap { font-size: 22px; font-weight: 700; line-height: 1.2; text-align: center; }
+    .pcard:hover:not(:disabled) { background: #f6f7fb; }
+    .pcard.sel { background: var(--tint); }
+    .pcard.sel .l { background: var(--pink); }
+    .pcard.right, .pcard.right:hover { border-color: var(--pink); background: #fff; box-shadow: 0 0 0 5px rgba(234,0,138,.18); opacity: 1; }
+    .pcard.right .l { background: var(--pink); }
+    .pcard.wrong { border-style: dashed; opacity: .45; animation: shake .4s; cursor: default; }
+    .pcard:disabled { cursor: default; }
+
+    /* quote */
+    .quote { border-left: 8px solid var(--pink); padding: 4px 0 4px 20px; font-size: 25px; font-weight: 600; font-style: italic; line-height: 1.3; margin-bottom: 14px; }
+    .quote b { font-style: normal; font-weight: 800; color: var(--pink); }
+    .col { display: flex; flex-direction: column; }
+
+    /* scenes */
+    .scene { position: relative; border: 3px solid var(--navy); border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #fff; }
+    .scene > svg { overflow: hidden; }
+    .replay { position: absolute; right: 12px; top: 12px; display: flex; align-items: center; gap: 6px; font-family: var(--cond); font-size: 19px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+        background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 6px; padding: 5px 12px 4px 9px; cursor: pointer; z-index: 3; }
+    .replay svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+    .replay:hover { background: var(--blank); }
+
+    /* drag tiles */
+    .tile { font-family: inherit; font-size: 24px; font-weight: 700; color: var(--navy); background: #fff; border: 3px solid var(--navy); border-radius: 8px; padding: 6px 16px; line-height: 1.25;
+        cursor: grab; touch-action: none; position: relative; z-index: 2; transition: transform .3s var(--ease), box-shadow .2s, border-color .2s; box-shadow: 0 4px 0 #c3c6d0; white-space: nowrap; text-align: center; }
+    .tile.sm { font-size: 21px; padding: 5px 12px; white-space: normal; }
+    .tile.sel { border-color: var(--pink); box-shadow: 0 0 0 4px rgba(234,0,138,.22); }
+    .tile.drag { transition: none; cursor: grabbing; z-index: 30; box-shadow: 0 14px 30px rgba(27,31,69,.25); border-color: var(--pink); }
+    .tile.right { background: var(--pink); color: #fff; border-color: var(--pink); box-shadow: none; cursor: default; }
+    .tile.wrong { border-style: dashed; background: var(--tint); box-shadow: none; animation: shake .4s; }
+    .tile.card { width: 244px; white-space: normal; font-size: 18px; font-weight: 600; line-height: 1.22; padding: 8px 10px 10px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .tile.card svg { pointer-events: none; }
+    .tile.card.right { background: #fff; color: var(--navy); border-color: var(--pink); box-shadow: 0 0 0 4px rgba(234,0,138,.18); }
+
+    /* drop slots */
+    .dslot { width: 200px; height: 50px; border: 3px dashed #c3c6d0; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        transition: border-color .2s, background-color .2s; font-family: var(--cond); font-size: 22px; font-weight: 800; color: #c3c6d0; }
+    .dslot.hover, .dslot.armed:hover { border-color: var(--pink); background: rgba(234,0,138,.06); }
+    .dslot.armed { border-color: #e7a3c9; cursor: pointer; }
+    .dslot.filled { border-color: transparent; background: none; }
+    .dslot.wrong { animation: shake .4s; }
+    .dslot .tile { box-shadow: none; }
+    .dslot.ab { position: absolute; }
+    .dslot.ab .tile, .dslot.mw .tile { font-size: 21px; padding: 4px 10px; }
+    .dslot.cz { display: inline-flex; vertical-align: middle; width: 156px; height: 48px; margin: 0 4px; }
+    .dslot.cz .tile { font-size: 22px; padding: 3px 12px; }
+    .dslot.cz.filled { width: auto; }
+    .dslot.big { width: 260px; height: 174px; font-size: 64px; font-weight: 900; }
+
+    /* sort */
+    .sort { display: grid; grid-template-columns: 1fr 400px 1fr; gap: 18px; width: 100%; height: 100%; }
+    .sort3 { display: flex; flex-direction: column; gap: 14px; width: 100%; height: 100%; }
+    .sort3 .bins { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; min-height: 0; }
+    .bin { border: 3px solid var(--navy); border-radius: 8px; display: flex; flex-direction: column; overflow: visible; transition: box-shadow .2s; }
+    .bin.pk { border-color: var(--pink); }
+    .bin h3 { margin: 0; padding: 8px 16px 7px; font-family: var(--cond); font-size: 28px; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; color: #fff; background: var(--navy); }
+    .bin.pk h3 { background: var(--pink); }
+    .sort3 .bin h3 { font-size: 24px; white-space: nowrap; }
+    .bin.ol h3 { background: #fff; color: var(--navy); border-bottom: 3px solid var(--navy); }
+    .bin .sub { font-size: 18px; font-weight: 600; color: var(--mid-grey); padding: 8px 16px 0; }
+    .bin .area { flex: 1; padding: 12px 14px; display: flex; flex-wrap: wrap; gap: 10px; align-content: flex-start; justify-content: center; border-radius: 0 0 6px 6px; transition: background-color .2s; }
+    .bin.hover .area, .bin.armed:hover .area { background: rgba(234,0,138,.06); }
+    .bin.armed { box-shadow: 0 0 0 4px rgba(234,0,138,.15); cursor: pointer; }
+    .pool { background: var(--blank); border-radius: 8px; padding: 14px; display: flex; flex-wrap: wrap; gap: 10px; align-content: center; justify-content: center; transition: background-color .2s; }
+    .pool.hover { background: #e3e7ee; }
+    .pool.col1 { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 7px; }
+    .pool.col1 .tile.sm, .sort .bin .tile.sm { font-size: 19px; padding: 4px 10px; }
+    .pool.row { width: 100%; min-height: 76px; }
+
+    /* planet order track */
+    .track { position: relative; width: 1152px; height: 214px; flex-shrink: 0; }
+    .track > svg { position: absolute; left: 0; top: 0; }
+
+    /* mnemonic */
+    .mn { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; width: 100%; }
+    .mcol { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .mcol .pn { font-family: var(--cond); font-size: 19px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--mid-grey); }
+    .mcol .ini { font-family: var(--cond); font-size: 54px; font-weight: 900; color: var(--pink); line-height: 1; margin-bottom: 6px; }
+    .mcol .dslot { width: 136px; height: 52px; }
+
+    /* sequence */
+    .seqrow { display: flex; align-items: center; gap: 8px; }
+    .chev { width: 22px; height: 30px; flex-shrink: 0; }
+
+    /* cloze */
+    .cloze { font-size: 25px; font-weight: 600; line-height: 2.25; flex: 1; }
+    .bside { width: 320px; display: flex; flex-direction: column; gap: 10px; align-self: stretch; }
+    .bside .pool { flex: 1; align-content: center; }
+
+    /* scale table */
+    .stab { display: grid; grid-template-columns: 170px 240px 220px; border: 3px solid var(--navy); border-radius: 8px; overflow: hidden; }
+    .stab > div { display: flex; align-items: center; padding: 0 16px; height: 54px; border-top: 2px solid var(--light-grey); font-size: 23px; font-weight: 600; }
+    .stab > .th { height: 40px; border-top: none; background: var(--navy); color: #fff; font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+    .stab > .th { white-space: nowrap; font-size: 18px; }
+    .stab > .pnm { font-weight: 800; }
+    .stab .dslot { width: 168px; height: 44px; }
+    .stab .dslot .tile { font-size: 21px; padding: 2px 12px; }
+
+    /* calculate */
+    .steps { flex: 1; display: flex; flex-direction: column; gap: 16px; }
+    .step { border-left: 8px solid var(--navy); padding: 4px 0 4px 18px; }
+    .step .slbl { font-size: 23px; font-weight: 600; line-height: 1.3; }
+    .step .srow { display: flex; align-items: center; gap: 12px; margin-top: 8px; font-size: 24px; font-weight: 700; }
+    .num { font-family: inherit; font-size: 30px; font-weight: 800; color: var(--navy); width: 170px; height: 54px; border: 3px solid var(--navy); border-radius: 8px; text-align: center;
+        -webkit-user-select: text; user-select: text; transition: border-color .2s, background-color .2s, color .2s; }
+    .num:focus { outline: none; border-color: var(--pink); box-shadow: 0 0 0 4px rgba(234,0,138,.18); }
+    .num.right { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .num.wrong { border-style: dashed; background: var(--tint); animation: shake .4s; }
+    .unit { font-size: 22px; font-weight: 700; color: var(--mid-grey); }
+
+    /* end */
+    .scorecard { border: 3px solid var(--pink); border-radius: 8px; padding: 30px 60px; text-align: center; }
+    .scorecard .big { font-family: var(--cond); font-size: 120px; font-weight: 900; color: var(--pink); line-height: 1; }
+    .scorecard .dlbl { margin-top: 8px; }
+    .dots { display: flex; gap: 8px; justify-content: center; margin-top: 22px; }
+    .dots span { width: 34px; height: 34px; border-radius: 6px; border: 3px solid var(--navy); font-family: var(--cond); font-size: 17px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+    .dots span.y { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .again { margin-top: 26px; font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+        background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 8px; padding: 8px 22px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+    <div class="top">
+        <h1 class="sheet-title">Checking <span>the Solar System</span></h1>
+        <div class="counter" id="counter"></div>
+    </div>
+    <div class="content" id="content"></div>
+    <div class="caption"><div class="txt" id="cap"></div><button class="next" id="next" hidden>Check</button></div>
+    <div class="progress" id="progress"></div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const content = $('#content'), cap = $('#cap'), btn = $('#next'), counter = $('#counter'), progress = $('#progress');
+const PK = '#ea008a', NV = '#1b1f45', GR = '#c9ccd6', DT = '#b5b9c6', LT = '#f0f3f6', MG = '#9a9a9a';
+let scaleK = 1;
+function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
+function say(html) { cap.innerHTML = `<span class="in">${html}</span>`; }
+
+/* ---------- animation helpers ---------- */
+let runId = 0;
+const easeOut = t => 1 - (1 - t) * (1 - t), easeInOut = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+function play(dur, step, guard) {
+    const id = runId, ok = guard || (() => id === runId);
+    return new Promise(res => {
+        const st = performance.now();
+        const f = n => { if (!ok()) return; const t = Math.min(1, (n - st) / dur); step(t); if (t < 1) requestAnimationFrame(f); else res(); };
+        requestAnimationFrame(f);
+    });
+}
+function wait(ms) { const id = runId; return new Promise(r => setTimeout(() => { if (id === runId) r(); }, ms)); }
+/* runs fn(dt) every frame until the run changes */
+function loop(fn) {
+    const id = runId; let last = performance.now();
+    const f = n => { if (id !== runId) return; const dt = Math.min(50, n - last); last = n; fn(dt); requestAnimationFrame(f); };
+    requestAnimationFrame(f);
+}
+function rng(seed) { let s = seed; return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; }
+const lerp = (a, b, k) => a + (b - a) * k;
+const fx = v => v.toFixed(1);
+
+/* ---------- drawing helpers ---------- */
+const DIR = { r: 0, l: Math.PI, u: -Math.PI / 2, d: Math.PI / 2 };
+function arrowSVG(x, y, ang, len, o = {}) {
+    const c = o.c || PK, sw = o.sw || 8, hw = o.hw || 13, hl = Math.min(o.hl || 22, len);
+    if (len < 1) return '';
+    const ux = Math.cos(ang), uy = Math.sin(ang), ex = x + ux * len, ey = y + uy * len, bx = ex - ux * hl, by = ey - uy * hl, px = -uy * hw, py = ux * hw;
+    let s = len > hl ? `<line x1="${fx(x)}" y1="${fx(y)}" x2="${fx(bx)}" y2="${fx(by)}" stroke="${c}" stroke-width="${sw}"/>` : '';
+    s += `<polygon points="${fx(ex)},${fx(ey)} ${fx(bx + px)},${fx(by + py)} ${fx(bx - px)},${fx(by - py)}" fill="${c}" stroke="${c}" stroke-width="1.5" stroke-linejoin="round"/>`;
+    if (o.label) {
+        const fs = o.fs || 24, est = o.label.length * fs * .48, full = o.full || len, op = o.lop === undefined ? 1 : o.lop, lc = o.lc ? ` style="font-size:${fs}px;fill:${o.lc}"` : ` style="font-size:${fs}px"`;
+        let tx, ty, an;
+        if (Math.abs(ux) > .9) {
+            ty = y + (o.below ? (o.dy || 34) : -16);
+            if (est <= full - 6) { tx = x + ux * full / 2; an = 'middle'; } else { tx = x + ux * 4; an = ux > 0 ? 'start' : 'end'; }
+        } else if (Math.abs(uy) > .9) { tx = x + (o.left ? -18 : 18); ty = y + uy * full / 2 + 8; an = o.left ? 'end' : 'start'; }
+        else { tx = x + ux * full / 2 + (o.left ? -20 : 20); ty = y + uy * full / 2 + 8; an = o.left ? 'end' : 'start'; }
+        s += `<text class="flbl" x="${fx(tx)}" y="${fx(ty)}" text-anchor="${an}" opacity="${op}"${lc}>${o.label}</text>`;
+    }
+    return s;
+}
+function growArrow(g, x, y, ang, len, o = {}, dur = 450) {
+    const tok = g._tok = (g._tok || 0) + 1;
+    return play(dur, k => { g.innerHTML = arrowSVG(x, y, ang, len * easeOut(k), { ...o, full: len, lop: k }); }, () => g._tok === tok && document.body.contains(g));
+}
+function clearArrow(g) { g._tok = (g._tok || 0) + 1; g.innerHTML = ''; }
+const legend = (x, y, txt = 'Dots show where it was every quarter of a second') => `<circle cx="${x}" cy="${y - 6}" r="6" fill="${DT}"/><text class="leg" x="${x + 14}" y="${y}">${txt}</text>`;
+const replayIcon = `<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v5h5"/></svg>`;
+const chevron = `<svg class="chev" viewBox="0 0 22 30"><path d="M5 4 L17 15 L5 26" fill="none" stroke="${GR}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+/* planets: same flat style, Saturn has a ring */
+const PLANETS = [
+    { n: 'Mercury', r: 7, d: 58 }, { n: 'Venus', r: 12, d: 108 }, { n: 'Earth', r: 12.5, d: 150 }, { n: 'Mars', r: 9, d: 228 },
+    { n: 'Jupiter', r: 34, d: 778 }, { n: 'Saturn', r: 29, d: 1430 }, { n: 'Uranus', r: 19, d: 2870 }, { n: 'Neptune', r: 18, d: 4500 }];
+function planetSVG(name, r) {
+    const ring = name === 'Saturn' ? `<ellipse rx="${fx(r * 1.75)}" ry="${fx(r * .42)}" fill="none" stroke="${NV}" stroke-width="3" transform="rotate(-14)"/>` : '';
+    const fill = name === 'Earth' ? NV : LT;
+    return `<circle r="${r}" fill="${fill}" stroke="${NV}" stroke-width="${r < 9 ? 2.5 : 3}"/>${ring}`;
+}
+function sunEdge(cx, cy, r, label = true) {
+    return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${PK}"/>${label ? `<text class="oname" x="${cx + r - 14}" y="${cy + 7}" text-anchor="end" style="fill:#fff">Sun</text>` : ''}`;
+}
+function asteroidPath(s = 1) {
+    const pts = [[-14, -4], [-8, -12], [3, -13], [12, -7], [15, 3], [8, 11], [-4, 12], [-13, 6]];
+    return `<polygon points="${pts.map(p => fx(p[0] * s) + ',' + fx(p[1] * s)).join(' ')}" fill="#d7dae2" stroke="${NV}" stroke-width="3" stroke-linejoin="round"/><circle cx="${-3 * s}" cy="${-2 * s}" r="${2.6 * s}" fill="${DT}"/><circle cx="${5 * s}" cy="${4 * s}" r="${2 * s}" fill="${DT}"/>`;
+}
+function mkTrail(layer, pos, every = 250) {
+    let next = 0;
+    const dot = p => layer.insertAdjacentHTML('beforeend', `<circle cx="${fx(p.x)}" cy="${fx(p.y)}" r="5" fill="${DT}"/>`);
+    return {
+        reset() { layer.innerHTML = ''; next = 0; },
+        upto(T) { while (next <= T + .5) { dot(pos(next)); next += every; } },
+        dot
+    };
+}
+
+/* option glyphs: Earth is an outline, the Moon is solid */
+function glyph(k) {
+    const head = (x, y, ang) => { const c = Math.cos(ang), s = Math.sin(ang), p = (a, b) => `${fx(x + a * c - b * s)},${fx(y + a * s + b * c)}`; return `<polygon class="gsf" points="${p(0, 0)} ${p(-9, -6)} ${p(-9, 6)}"/>`; };
+    let s = '';
+    if (k === 'orbit') s = `<circle class="gs" cx="44" cy="20" r="7"/><circle class="gs" cx="44" cy="20" r="17" style="stroke-width:2;stroke-dasharray:3 4"/><circle class="go" cx="44" cy="3" r="5"/>${head(30, 9, Math.PI * .78)}`;
+    if (k === 'fall') s = `<circle class="gs" cx="72" cy="20" r="9"/><circle class="go" cx="14" cy="20" r="5"/><line class="gs" x1="24" y1="20" x2="52" y2="20"/>${head(60, 20, 0)}`;
+    if (k === 'tangent') s = `<circle class="gs" cx="58" cy="30" r="7"/><path class="gs" d="M74 26 A17 17 0 0 0 58 13" style="stroke-width:2;stroke-dasharray:3 4"/><circle class="go" cx="58" cy="13" r="5"/><line class="gs" x1="48" y1="13" x2="16" y2="13"/>${head(8, 13, Math.PI)}`;
+    if (k === 'away') s = `<circle class="gs" cx="16" cy="20" r="9"/><circle class="go" cx="36" cy="20" r="5"/><line class="gs" x1="46" y1="20" x2="72" y2="20"/>${head(80, 20, 0)}`;
+    return `<svg class="gly" viewBox="0 0 88 40" width="74" height="34">${s}</svg>`;
+}
+const EFFECT = { orbit: 'Keeps orbiting Earth', fall: 'Falls into Earth', tangent: 'Moves straight on in the direction it was going', away: 'Moves straight out, away from Earth' };
+
+/* ---------- pictures ---------- */
+function orbPic(dir) {
+    const S = { x: 20, y: 85 }, R = 140, E = { x: 160, y: 85 };
+    let arc = '';
+    const a0 = -0.6, a1 = 0.6;
+    arc = `<path d="M${fx(S.x + R * Math.cos(a0))} ${fx(S.y + R * Math.sin(a0))} A${R} ${R} 0 0 1 ${fx(S.x + R * Math.cos(a1))} ${fx(S.y + R * Math.sin(a1))}" fill="none" stroke="${GR}" stroke-width="3" stroke-dasharray="6 7"/>`;
+    const ca = -0.5, cx = S.x + R * Math.cos(ca), cy = S.y + R * Math.sin(ca), tang = ca - Math.PI / 2;
+    const p = (a, b) => `${fx(cx + a * Math.cos(tang) - b * Math.sin(tang))},${fx(cy + a * Math.sin(tang) + b * Math.cos(tang))}`;
+    arc += `<polygon points="${p(8, 0)} ${p(-6, -8)} ${p(-6, 8)}" fill="${GR}"/>`;
+    let a = '';
+    const o = { sw: 6, hl: 17, hw: 11, label: 'Gravity', fs: 21 };
+    if (dir === 'in') a = arrowSVG(E.x - 17, E.y, Math.PI, 62, o);
+    if (dir === 'out') a = arrowSVG(E.x + 17, E.y, 0, 66, o);
+    if (dir === 'fwd') a = arrowSVG(E.x, E.y - 17, -Math.PI / 2, 58, { ...o, left: true });
+    if (dir === 'back') a = arrowSVG(E.x, E.y + 17, Math.PI / 2, 58, { ...o, left: true });
+    return `<svg viewBox="0 0 250 170" width="250" height="170"><circle cx="${S.x}" cy="${S.y}" r="36" fill="${PK}"/><text class="tiny" x="${S.x}" y="${S.y + 6}" text-anchor="middle" style="fill:#fff">Sun</text>
+        ${arc}<circle cx="${E.x}" cy="${E.y}" r="15" fill="${NV}"/><text class="tiny" x="${E.x + 22}" y="${E.y + 46}" text-anchor="start">Earth</text>${a}</svg>`;
+}
+
+/* formation stage thumbnails */
+function thumb(k) {
+    const R = rng(k === 'cloud' ? 7 : k === 'disc' ? 11 : 19);
+    let s = '';
+    if (k === 'cloud') { for (let i = 0; i < 70; i++) { const u = Math.sqrt(R()), a = R() * 6.283; s += `<circle cx="${fx(80 + 62 * u * Math.cos(a) + R() * 8)}" cy="${fx(36 + 26 * u * Math.sin(a))}" r="2" fill="${MG}"/>`; } }
+    if (k === 'disc' || k === 'sun') {
+        for (let i = 0; i < 70; i++) { const r = 10 + 56 * Math.sqrt(R()), a = R() * 6.283; if (k === 'sun' && r < 18) continue; s += `<circle cx="${fx(80 + r * Math.cos(a))}" cy="${fx(36 + r * .3 * Math.sin(a))}" r="2" fill="${MG}"/>`; }
+        if (k === 'disc') s += `<path d="M120 52 A44 14 0 0 1 40 50" fill="none" stroke="${NV}" stroke-width="2.5"/><polygon points="38,46 44,54 35,55" fill="${NV}"/>`;
+        if (k === 'sun') s += `<circle cx="80" cy="36" r="11" fill="${PK}"/>`;
+    }
+    if (k === 'planets') {
+        [24, 40, 58].forEach((r, i) => { s += `<ellipse cx="80" cy="36" rx="${r}" ry="${fx(r * .3)}" fill="none" stroke="${GR}" stroke-width="2" stroke-dasharray="3 4"/>`; const a = [0.6, 2.4, 4.4][i]; s += `<circle cx="${fx(80 + r * Math.cos(a))}" cy="${fx(36 + r * .3 * Math.sin(a))}" r="${[3, 5, 4][i]}" fill="${NV}"/>`; });
+        s += `<circle cx="80" cy="36" r="11" fill="${PK}"/>`;
+    }
+    return `<svg viewBox="0 0 160 72" width="150" height="68">${s}</svg>`;
+}
+
+/* =========================================================
+   QUESTIONS
+   ========================================================= */
+const QS = [
+    { kind: 'order', title: 'Planet parade', sc: 'SC1', prompt: 'Drag each planet into place, starting with the one closest to the Sun.',
+      hints: { Mercury: 'Mercury is the planet closest to the Sun.', Venus: 'Venus is the second planet, between Mercury and Earth.', Earth: 'Earth is the third planet from the Sun.',
+        Mars: 'Two planets start with M. Mars is the fourth planet, just past Earth.', Jupiter: 'Jupiter is the fifth planet, the first one past Mars.', Saturn: 'Saturn is the sixth planet, just past Jupiter.',
+        Uranus: 'Uranus is the seventh planet, between Saturn and Neptune.', Neptune: 'Neptune is the eighth planet and the furthest from the Sun.' },
+      msg: 'My Very Eager Mother Just Served Us Noodles: Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune.' },
+
+    { kind: 'seq', title: 'How it formed', sc: 'SC2', prompt: 'Put the stages of the Solar System\u2019s formation in order.',
+      cards: [
+        ['cloud', 'A huge cloud of dust and gas floats in space', 'Everything started as a huge cloud of dust and gas.'],
+        ['disc', 'Gravity collapses the cloud into a spinning disc', 'The cloud had to collapse and flatten into a disc before anything else formed.'],
+        ['sun', 'Gravity pulls material to the centre to form the Sun', 'Most of the material was pulled to the centre of the disc, forming the Sun.'],
+        ['planets', 'Clumps grow into planets, moons and asteroids', 'Planets formed last, from the leftover material in the disc.']],
+      msg: 'Gravity drove every stage, from collapsing the cloud to building the Sun and planets.' },
+
+    { kind: 'scene', scene: 'formation', chip: 'Watch and predict', title: 'Growing clumps', sc: 'SC2', prompt: 'Watch the Solar System form. As a clump gets bigger, what happens to its gravity?',
+      opts: [
+        { t: 'It gets stronger', hint: '' },
+        { t: 'It gets weaker', hint: 'More material means more mass, and more mass means more gravity.' },
+        { t: 'It stays the same', hint: 'Gravity depends on mass. As a clump gains material, its mass grows.' },
+        { t: 'It disappears', hint: 'Everything with mass has gravity. It never switches off.' }],
+      answer: 0, msg: 'More mass means stronger gravity, so bigger clumps pulled in even more material and grew into planets.' },
+
+    { kind: 'cloze', title: 'Gravity builds', sc: 'SC2', prompt: 'Drag words into the gaps to explain how gravity built the Solar System.',
+      text: 'Gravity pulled dust and gas towards the {centre} of the spinning disc, where it formed the {Sun}. Leftover material began to clump together. As each clump grew, its gravity became {stronger}, so it attracted {more} material. Over time, the clumps became the {planets} and moons.',
+      extra: ['edge', 'Moon', 'weaker', 'less', 'stars'],
+      hints: { edge: 'Gravity pulls material inwards, towards the middle of the disc.', Moon: 'The huge object in the middle of the Solar System is the Sun.', weaker: 'A bigger clump has more mass, so its gravity is stronger.',
+        less: 'Stronger gravity pulls in more material, not less.', stars: 'Our Solar System has only one star. The clumps became planets and moons.' },
+      msg: 'Gravity pulled material to the centre to form the Sun, then built planets from growing clumps.' },
+
+    { kind: 'mcpic', title: 'Which way?', sc: 'SC3', prompt: 'Earth is orbiting the Sun. Which diagram shows the Sun\u2019s gravity acting on Earth?',
+      opts: [
+        { p: 'out', hint: 'Gravity is a pull. The Sun pulls Earth towards it, not away from it.' },
+        { p: 'fwd', hint: 'This arrow points along Earth\u2019s path. The Sun\u2019s gravity pulls towards the Sun.' },
+        { p: 'in', hint: '' },
+        { p: 'back', hint: 'Gravity doesn\u2019t push against Earth\u2019s motion. It pulls towards the centre of the Sun.' }],
+      answer: 2, msg: 'Gravity pulls Earth towards the centre of the Sun. This pull bends Earth\u2019s path into an orbit.' },
+
+    { kind: 'predict', scene: 'gravOff', title: 'Gravity switched off', sc: 'SC3', prompt: 'If Earth\u2019s gravity suddenly switched off, what would the Moon do?',
+      opts: [
+        { g: 'orbit', hint: 'Without gravity, nothing pulls the Moon around the curve.' },
+        { g: 'fall', hint: 'Falling needs a pull towards Earth. With gravity switched off, there is no pull.' },
+        { g: 'tangent', hint: '' },
+        { g: 'away', hint: 'Nothing pushes the Moon away from Earth. It just keeps the motion it already had.' }],
+      answer: 2, msg: 'With no force pulling it, the Moon moves in a straight line. Gravity is what bends its path into an orbit.' },
+
+    { kind: 'mcside', side: 'moonSide', title: 'Mia\u2019s claim', sc: 'SC3', prompt: 'Mia is explaining why the Moon stays in orbit. Is she right?',
+      quote: '\u201cThe Moon doesn\u2019t fall into Earth because there is no gravity in space.\u201d',
+      opts: [
+        { t: 'Yes. Gravity stops working once you leave Earth\u2019s air.', hint: 'Gravity reaches far into space. It is what keeps the Moon near Earth at all.' },
+        { t: 'Yes. The Moon is too far away to feel any force.', hint: 'Gravity gets weaker with distance, but it never switches off. Earth still pulls on the Moon.' },
+        { t: 'No. Gravity pulls the Moon towards Earth while it moves sideways, so it keeps falling around Earth.', hint: '' },
+        { t: 'No. Air pushes up on the Moon and holds it in place.', hint: 'There is almost no air in space. Air can\u2019t hold the Moon up.' }],
+      answer: 2, msg: 'Gravity pulls the Moon towards Earth. Its sideways motion means it falls around Earth instead of into it.' },
+
+    { kind: 'sort', layout: 'top', small: true, title: 'Satellite or not?', sc: 'SC4', prompt: 'Sort each object into the correct group.',
+      bins: [{ k: 'n', h: 'Natural satellite', sub: 'Orbits a larger object. Not made by people.' }, { k: 'a', h: 'Artificial satellite', sub: 'Orbits a larger object. Made by people.', cls: 'pk' }, { k: 'x', h: 'Not a satellite', sub: 'Does not orbit a larger object.', cls: 'ol' }],
+      items: [
+        ['The Moon', 'n', 'The Moon orbits Earth and formed naturally, so it is a natural satellite.'],
+        ['Titan, a moon of Saturn', 'n', 'Titan orbits Saturn and was not made by people.'],
+        ['Phobos, a moon of Mars', 'n', 'Phobos orbits Mars and formed naturally.'],
+        ['International Space Station', 'a', 'People built the International Space Station, and it orbits Earth.'],
+        ['GPS satellite', 'a', 'GPS satellites are built by people and orbit Earth.'],
+        ['Hubble Space Telescope', 'a', 'Hubble was built by people and orbits Earth.'],
+        ['Rocket on the launch pad', 'x', 'A rocket sitting on the ground is not orbiting anything.'],
+        ['Passenger plane', 'x', 'A plane flies through the air, but it doesn\u2019t orbit Earth.'],
+        ['Weather balloon', 'x', 'A weather balloon floats up through the air. It doesn\u2019t orbit Earth.']],
+      msg: 'Natural and artificial satellites both orbit a larger object. Only artificial satellites are made by people.' },
+
+    { kind: 'scene', scene: 'asteroid', title: 'Passing by', sc: 'SC4', prompt: 'An asteroid flies past Earth. Is it a satellite of Earth?', replay: false,
+      opts: [
+        { t: 'Yes. It is natural, so it is a natural satellite.', hint: 'Being natural isn\u2019t enough. A satellite must orbit the larger object.' },
+        { t: 'Yes. Earth\u2019s gravity bent its path a little.', hint: 'Gravity pulled on it, but it didn\u2019t go around Earth. It flew past and kept going.' },
+        { t: 'No. It doesn\u2019t orbit Earth, so it isn\u2019t Earth\u2019s satellite.', hint: '' },
+        { t: 'No. Only objects made by people are satellites.', hint: 'The Moon is a natural satellite. Satellites can be natural or artificial.' }],
+      answer: 2, msg: 'A satellite must orbit a larger object. The Moon orbits Earth, but the asteroid only passes by.' },
+
+    { kind: 'table', title: 'Scale distances', sc: 'SC5', prompt: 'Scale: 1 cm = 10 million km. Drag the correct model distance to each planet.',
+      rows: [['Mercury', '58 million km', '5.8 cm'], ['Venus', '108 million km', '10.8 cm'], ['Earth', '150 million km', '15 cm'], ['Mars', '228 million km', '22.8 cm']],
+      extra: [['58 cm', 'Check your place value. 58 million \u00f7 10 million is less than 10.'], ['1.08 cm', 'You divided by 100 million. Divide by 10 million instead.'], ['2.28 cm', 'You divided by 100 million. Divide by 10 million instead.']],
+      msg: 'Divide each real distance by 10 million km to find its model distance. Now they fit on a ruler.' },
+
+    { kind: 'calc', side: 'saturnSide', title: 'Earth to Saturn', sc: 'SC5', prompt: 'Using 1 cm = 10 million km, how far apart are Earth and Saturn in the model?',
+      fields: [
+        { label: 'Step 1: Find the real distance between Earth and Saturn.', unit: 'million km', ans: 1280, tol: 0.5,
+          hint: v => Math.abs(v - 1580) < 1 ? 'You added. Subtract Earth\u2019s distance from Saturn\u2019s distance.' : Math.abs(v - 1.28e9) < 1e7 ? 'The box is already in millions. Type the number of millions only.' : 'Subtract: 1,430 million km minus 150 million km.' },
+        { label: 'Step 2: Divide by the scale to find the model distance.', unit: 'cm', ans: 128, tol: 0.05,
+          hint: v => Math.abs(v - 12.8) < .01 ? '1,280 million \u00f7 10 million = 128. Check your place value.' : Math.abs(v - 143) < .5 ? '143 cm is Saturn\u2019s distance from the Sun. Use the gap between Earth and Saturn.' : Math.abs(v - 1280) < .5 ? 'Now divide by 10, because each centimetre stands for 10 million km.' : 'Divide the real distance (in millions of km) by 10.' }],
+      msg: '1,430 million minus 150 million is 1,280 million km. Divided by 10 million km, that is 128 cm.' },
+
+    { kind: 'mcside', side: 'jupiterSide', title: 'Scale sizes', sc: 'SC5', prompt: 'How wide would Jupiter be in this scale model?',
+      quote: 'Scale: <b>1 cm = 10,000 km</b>. Jupiter is <b>143,000 km</b> wide.',
+      opts: [
+        { t: '1.43 cm', hint: 'Count the zeros. 143,000 \u00f7 10,000 is bigger than 10.' },
+        { t: '14.3 cm', hint: '' },
+        { t: '143 cm', hint: 'That is 143,000 \u00f7 1,000. Divide by 10,000 instead.' },
+        { t: '1,430 cm', hint: 'That is 143,000 \u00f7 100. Divide by 10,000 instead.' }],
+      answer: 1, msg: '143,000 \u00f7 10,000 = 14.3 cm. At the same scale, Earth would be only 1.27 cm wide.' },
+
+    { kind: 'scene', scene: 'poster', title: 'Poster problems', sc: 'SC6', prompt: 'This is a common Solar System poster. What is its biggest limitation?',
+      opts: [
+        { t: 'The planets are in the wrong order.', hint: 'Check with your mnemonic. The order on this poster is correct.' },
+        { t: 'The planets are far too big compared to the gaps between them.', hint: '' },
+        { t: 'It shows Jupiter as the largest planet.', hint: 'Jupiter really is the largest planet, so that part is accurate.' },
+        { t: 'The Sun is on the left side.', hint: 'Which side the Sun is on doesn\u2019t matter. Look at the sizes and the gaps.' }],
+      answer: 1, msg: 'With real gaps, the planets shrink to specks. Posters squash the distances so we can see the planets.' },
+
+    { kind: 'sort', small: true, title: 'Desk model', sc: 'SC6', prompt: 'A class made a Solar System model using balls on a desk. Sort each feature.',
+      bins: [{ k: 's', h: 'Strength', sub: 'Something the model shows well' }, { k: 'l', h: 'Limitation', sub: 'Something the model gets wrong', cls: 'pk' }],
+      items: [
+        ['The planets are in the correct order', 's', 'Matching the real order helps us learn it, so this is a strength.'],
+        ['Jupiter is bigger than Earth', 's', 'Jupiter really is bigger than Earth, so this part is accurate.'],
+        ['The whole model fits in the room', 's', 'Seeing everything at once helps us understand it, so this is a strength.'],
+        ['The planets are close together', 'l', 'Real planets are separated by huge gaps, so this is a limitation.'],
+        ['The orbits are perfect circles', 'l', 'Real orbits are slightly oval (elliptical), so this is a limitation.'],
+        ['The model is flat on the desk', 'l', 'The real Solar System is 3D, so this is a limitation.'],
+        ['The planets don\u2019t move', 'l', 'Real planets are always moving around the Sun, so this is a limitation.']],
+      msg: 'Every model has limitations, but models still help us picture things too big to see at once.' },
+
+    { kind: 'scene', scene: 'race', chip: 'Watch and choose', title: 'Orbit race', sc: 'SC7', prompt: 'Watch one Earth year. On which planet would a 12-year-old be the oldest?',
+      opts: [
+        { t: 'Mercury', hint: '' },
+        { t: 'Venus', hint: 'Venus orbits faster than Earth, but another planet orbits even faster.' },
+        { t: 'Earth', hint: 'Some planets orbit faster than Earth. More orbits means more birthdays.' },
+        { t: 'Mars', hint: 'Mars orbits more slowly than Earth, so fewer Mars years fit into her life.' }],
+      answer: 0, msg: 'Mercury has the shortest year, so it fits the most years into the same time.' },
+
+    { kind: 'mcside', side: 'samSide', title: 'Sam\u2019s working', sc: 'SC7', prompt: 'Sam worked out his age on Venus. What went wrong?',
+      quote: 'One Venus year is <b>225 Earth days</b>. One Earth year is <b>365 days</b>.',
+      opts: [
+        { t: 'He swapped the numbers. It should be 12 \u00d7 365 \u00f7 225.', hint: '' },
+        { t: 'He should have added instead of multiplying.', hint: 'Multiplying by 365 turns his age into days. That part of the method is right.' },
+        { t: 'Nothing. He is 7.4 years old on Venus.', hint: 'Venus orbits faster than Earth, so he should have had more Venus birthdays, not fewer.' },
+        { t: 'He should have divided by 12 at the end.', hint: '12 is his age in Earth years. He needs to turn it into days first.' }],
+      answer: 0, msg: '12 \u00d7 365 gives his age in days. Dividing by 225 gives 19.5, so he is about 19 years and 6 months old on Venus.' },
+
+    { kind: 'calc', side: 'marsSide', title: 'Age on Mars', sc: 'SC7', prompt: 'Hana is 13 years old on Earth. How old is she on Mars?',
+      fields: [
+        { label: 'Step 1: Calculate 13 \u00d7 365 \u00f7 687. Round to 1 decimal place.', unit: 'Mars years', ans: 6.9, tol: 0.051,
+          hint: v => Math.abs(v - 24.5) < .2 ? 'You swapped the numbers. Multiply by 365, then divide by 687.' : Math.abs(v - 4745) < 1 ? '13 \u00d7 365 = 4,745 days. Now divide by 687.' : 'Multiply 13 by 365, then divide by 687.' },
+        { label: 'Step 2: The whole number part is her age in years.', unit: 'years', ans: 6, tol: 0,
+          hint: () => 'Use only the whole number part of your answer from Step 1.' },
+        { label: 'Step 3: Multiply the decimal part by 12, then round to a whole number.', unit: 'months', ans: 11, tol: 0,
+          hint: v => v === 10 ? '0.9 \u00d7 12 = 10.8, which rounds up to 11.' : v === 9 ? 'Don\u2019t just copy the decimal. Multiply 0.9 by 12.' : 'Multiply the decimal part (0.9) by 12, then round to the nearest month.' }],
+      msg: '13 \u00d7 365 \u00f7 687 = 6.9, and 0.9 \u00d7 12 = 10.8. Hana is about 6 years and 11 months old on Mars.' }
+];
+const TOTAL = QS.length;
+const CHIP = { mc: 'Multiple choice', mcpic: 'Multiple choice', mcside: 'Multiple choice', sort: 'Drag and drop', order: 'Drag and drop', mnemo: 'Drag and drop', seq: 'Sequence', cloze: 'Fill the gaps',
+    table: 'Drag and drop', calc: 'Calculate', predict: 'Predict', scene: 'Watch and choose' };
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+/* ---------- flow ---------- */
+let qi = 0, firstTry = [], tries = 0, mode = 'check', cur = null;
+function render() {
+    runId++;
+    content.innerHTML = ''; tries = 0; mode = 'check';
+    const q = QS[qi];
+    counter.innerHTML = `Question <b>${qi + 1}</b> / ${TOTAL}`;
+    progress.style.width = (qi / TOTAL * 100) + '%';
+    const wrap = el('div', 'q');
+    wrap.appendChild(el('div', 'qhead', `<div class="qtitle">${q.title}</div><div class="tchip">${q.chip || CHIP[q.kind]}</div><div class="sctag">${q.sc}</div>`));
+    wrap.appendChild(el('div', 'prompt', q.prompt));
+    const body = el('div', 'body'); wrap.appendChild(body); content.appendChild(wrap);
+    cur = KINDS[q.kind](q, body);
+    say(cur.instr);
+    btn.hidden = false; btn.textContent = 'Check';
+    refresh();
+}
+function refresh() { if (mode === 'check') btn.disabled = !cur.ready(); }
+function check() {
+    tries++;
+    const r = cur.check();
+    if (r.ok) {
+        if (tries === 1) firstTry[qi] = true;
+        say(`<b>Correct.</b> ${r.msg || QS[qi].msg}`);
+        mode = 'next'; btn.disabled = false; btn.textContent = qi === TOTAL - 1 ? 'Finish' : 'Next';
+        btn.classList.remove('pop-in'); void btn.offsetWidth; btn.classList.add('pop-in');
+        if (cur.done) cur.done();
+    } else {
+        say(`<b class="no">Not quite.</b> ${r.hint}`);
+        refresh();
+    }
+}
+btn.onclick = () => {
+    if (btn.disabled) return;
+    if (mode === 'check') check();
+    else if (qi === TOTAL - 1) finish();
+    else { qi++; render(); }
+};
+function finish() {
+    runId++;
+    content.innerHTML = '';
+    btn.hidden = true;
+    counter.innerHTML = '<b>Complete</b>';
+    progress.style.width = '100%';
+    const n = firstTry.filter(Boolean).length;
+    say('Take a screenshot of this screen and paste it into Stile as evidence of your work.');
+    const c = el('div', 'center');
+    const dots = QS.map((_, i) => `<span class="${firstTry[i] ? 'y' : ''}">${i + 1}</span>`).join('');
+    const card = el('div', 'scorecard pop-in', `<div class="big">${n} / ${TOTAL}</div><div class="dlbl">Correct on the first try</div><div class="dots">${dots}</div>`);
+    const again = el('button', 'again', 'Start again');
+    again.onclick = () => { qi = 0; firstTry = []; render(); };
+    c.append(card, again); content.appendChild(c);
+}
+
+/* ---------- multiple choice core ---------- */
+function mcCore(els, q, extra = {}) {
+    let sel = null;
+    els.forEach((b, i) => b.onclick = () => {
+        if (mode !== 'check' || b.classList.contains('wrong')) return;
+        els.forEach(x => x.classList.remove('sel')); b.classList.add('sel'); sel = i; refresh();
+    });
+    return {
+        instr: extra.instr || 'Choose an answer, then press <b>Check</b>.',
+        ready: () => sel !== null,
+        check() {
+            const b = els[sel];
+            b.classList.remove('sel');
+            if (sel === q.answer) { b.classList.add('right'); els.forEach(x => x.disabled = true); return { ok: true }; }
+            b.classList.add('wrong'); b.disabled = true;
+            const h = q.opts[sel].hint; sel = null; return { ok: false, hint: h };
+        },
+        done: extra.done
+    };
+}
+const L = 'ABCD';
+const textOpts = (q, g) => q.opts.map((o, i) => { const b = el('button', 'opt', `<span class="l">${L[i]}</span><span>${o.t}</span>`); g.appendChild(b); return b; });
+
+/* ---------- slot-based drag tasks ---------- */
+function slotTask(o) {
+    const zPool = { el: o.pool, box: o.pool, cap: Infinity, pool: true };
+    o.zones.forEach(z => {
+        z.cap = 1;
+        const p0 = z.onPut, t0 = z.onTake;
+        z.onPut = t => { z.el.classList.add('filled'); if (p0) p0(t); };
+        z.onTake = t => { z.el.classList.remove('filled'); if (t0) t0(t); };
+    });
+    const D = dnd(zPool, o.zones, () => { o.zones.forEach(z => z.el.classList.remove('wrong')); refresh(); });
+    shuffle(o.tiles).forEach(d => { const t = D.tile(d.text, d.html); t.k = d.k; if (d.cls) t.classList.add(...d.cls.split(' ')); o.pool.appendChild(t); });
+    return {
+        instr: o.instr || 'Drag each tile into place (or tap a tile, then a gap), then press <b>Check</b>.',
+        ready: () => o.zones.every(z => z.box.querySelector('.tile')),
+        check() {
+            let bad = 0, hint = null;
+            o.zones.forEach(z => {
+                const t = z.box.querySelector('.tile'); z.el.classList.remove('wrong');
+                if (!t || z.locked) return;
+                t.classList.remove('wrong'); void t.offsetWidth;
+                if (o.valid(z, t)) { t.classList.add('right'); z.locked = true; }
+                else { bad++; t.classList.add('wrong'); z.el.classList.add('wrong'); if (!hint) hint = o.hint(z, t); }
+            });
+            if (bad) return { ok: false, hint: (bad > 1 ? `${bad} ${o.unit || 'answers'} need changing. ` : '') + hint };
+            return { ok: true, msg: o.msg ? o.msg() : null };
+        },
+        done: o.done
+    };
+}
+
+const KINDS = {
+    mc(q, body) {
+        const g = el('div', 'opts g2'); body.appendChild(g);
+        return mcCore(textOpts(q, g), q);
+    },
+    mcpic(q, body) {
+        const g = el('div', 'pgrid');
+        const els = q.opts.map((o, i) => { const b = el('button', 'pcard', `<span class="l">${L[i]}</span>${orbPic(o.p)}`); g.appendChild(b); return b; });
+        body.appendChild(g);
+        return mcCore(els, q);
+    },
+    mcside(q, body) {
+        const side = el('div', 'scene');
+        const S = SIDES[q.side](side);
+        const col = el('div', 'col'); col.style.flex = '1';
+        if (q.quote) col.appendChild(el('div', 'quote', q.quote));
+        const g = el('div', 'opts');
+        const els = textOpts(q, g);
+        col.appendChild(g); body.append(side, col);
+        body.style.justifyContent = 'flex-start';
+        return mcCore(els, q, { done: S.done });
+    },
+    predict(q, body) {
+        body.classList.add('pred');
+        const sc = el('div', 'scene');
+        sc.innerHTML = `<svg viewBox="0 0 660 330" width="654" height="327"></svg>`;
+        const rp = el('button', 'replay', `${replayIcon}<span>Replay</span>`); sc.appendChild(rp);
+        const g = el('div', 'opts');
+        const els = q.opts.map(o => { const b = el('button', 'opt', `${glyph(o.g)}<span>${EFFECT[o.g]}</span>`); g.appendChild(b); return b; });
+        body.append(sc, g);
+        return sceneCore(q, sc, rp, els, 'Watch, then choose what happens next and press <b>Check</b>.');
+    },
+    scene(q, body) {
+        body.classList.add('scol');
+        const sc = el('div', 'scene');
+        sc.innerHTML = `<svg viewBox="0 0 660 330" width="654" height="327"></svg>`;
+        let rp = null;
+        if (q.replay !== false) { rp = el('button', 'replay', `${replayIcon}<span>Replay</span>`); sc.appendChild(rp); }
+        const g = el('div', 'opts');
+        const els = textOpts(q, g);
+        body.append(sc, g);
+        return sceneCore(q, sc, rp, els, 'Watch, then choose an answer and press <b>Check</b>.');
+    },
+    sort(q, body) {
+        const top = q.layout === 'top';
+        const wrap = el('div', top ? 'sort3' : 'sort');
+        const mk = b => { const e = el('div', 'bin ' + (b.cls || ''), `<h3>${b.h}</h3><div class="sub">${b.sub}</div><div class="area"></div>`); e.tabIndex = 0; return e; };
+        const binEls = q.bins.map(mk);
+        const pool = el('div', 'pool' + (top ? ' row' : (q.small ? ' col1' : '')));
+        if (top) { const row = el('div', 'bins'); row.append(...binEls); wrap.append(pool, row); }
+        else wrap.append(binEls[0], pool, binEls[1]);
+        body.appendChild(wrap);
+        const zPool = { el: pool, box: pool, cap: Infinity, pool: true };
+        const zones = q.bins.map((b, i) => ({ el: binEls[i], box: binEls[i].querySelector('.area'), cap: Infinity, key: b.k }));
+        const D = dnd(zPool, zones, () => refresh());
+        shuffle(q.items).forEach(([t, k, h]) => { const tl = D.tile(t); if (q.small) tl.classList.add('sm'); tl.k = k; tl.h = h; pool.appendChild(tl); });
+        return {
+            instr: 'Drag each tile into a group (or tap a tile, then a group), then press <b>Check</b>.',
+            ready: () => !pool.querySelector('.tile'),
+            check() {
+                let wrong = [];
+                zones.forEach(z => z.box.querySelectorAll('.tile').forEach(t => {
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (t.k === z.key) t.classList.add('right'); else { t.classList.add('wrong'); wrong.push(t.h); }
+                }));
+                return wrong.length ? { ok: false, hint: (wrong.length > 1 ? `${wrong.length} tiles need moving. ` : '') + wrong[0] } : { ok: true };
+            }
+        };
+    },
+    order(q, body) {
+        body.classList.add('stack');
+        const track = el('div', 'track');
+        const W = 120, G = 10, X0 = 106, SY = 128;
+        let svg = `<svg viewBox="0 0 1152 214" width="1152" height="214">${sunEdge(-58, 104, 140)}
+            <line x1="${X0}" x2="1150" y1="${SY + 25}" y2="${SY + 25}" stroke="${GR}" stroke-width="3" stroke-dasharray="6 7"/>`;
+        PLANETS.forEach((p, i) => { const x = X0 + i * (W + G) + W / 2; svg += `<text class="spd" x="${x}" y="206" text-anchor="middle" style="font-size:19px">${['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th'][i]}</text><g class="pl" transform="translate(${x} 62) scale(0)">${planetSVG(p.n, p.r)}</g>`; });
+        track.innerHTML = svg + '</svg>';
+        const zones = PLANETS.map((p, i) => {
+            const s = el('div', 'dslot ab'); s.style.left = (X0 + i * (W + G)) + 'px'; s.style.top = SY + 'px'; s.style.width = W + 'px'; s.tabIndex = 0;
+            s.setAttribute('aria-label', `Position ${i + 1}`); track.appendChild(s);
+            return { el: s, box: s, key: p.n };
+        });
+        const pool = el('div', 'pool row');
+        body.append(track, pool);
+        const pls = track.querySelectorAll('.pl');
+        return slotTask({ zones, pool, unit: 'planets', tiles: PLANETS.map(p => ({ text: p.n, k: p.n })),
+            valid: (z, t) => z.key === t.k, hint: (z, t) => q.hints[t.k],
+            done: () => pls.forEach((g, i) => { const x = X0 + i * (W + G) + W / 2; setTimeout(() => play(420, k => g.setAttribute('transform', `translate(${x} 62) scale(${fx(easeOut(k) * 1.15 - .15 * Math.sin(k * Math.PI))})`), () => document.body.contains(g)), i * 110); }) });
+    },
+    mnemo(q, body) {
+        body.classList.add('stack');
+        const grid = el('div', 'mn');
+        const zones = PLANETS.map(p => {
+            const c = el('div', 'mcol', `<div class="pn">${p.n}</div><div class="ini">${p.n[0]}</div>`);
+            const s = el('div', 'dslot mw'); s.tabIndex = 0; s.setAttribute('aria-label', `Word for ${p.n}`); c.appendChild(s); grid.appendChild(c);
+            return { el: s, box: s, key: p.n[0], planet: p.n };
+        });
+        const pool = el('div', 'pool row');
+        body.append(grid, pool);
+        return slotTask({ zones, pool, unit: 'words', tiles: q.words.map(w => ({ text: w, k: w })),
+            valid: (z, t) => t.k[0] === z.key,
+            hint: (z, t) => t.k[0] === 'P' ? 'No planet starts with P. Pluto is now classed as a dwarf planet.' : `\u201c${t.k}\u201d starts with ${t.k[0]}, but ${z.planet} starts with ${z.key}.`,
+            msg: () => `Your mnemonic is <b>${zones.map(z => z.box.querySelector('.tile').textContent).join(' ')}</b>. Any words work if the first letters match the planets in order.` });
+    },
+    seq(q, body) {
+        body.classList.add('stack');
+        const row = el('div', 'seqrow'), pool = el('div', 'pool row');
+        pool.style.minHeight = '196px';
+        const zones = q.cards.map((c, i) => {
+            if (i) row.insertAdjacentHTML('beforeend', chevron);
+            const s = el('div', 'dslot big', String(i + 1)); s.tabIndex = 0; s.setAttribute('aria-label', `Stage ${i + 1}`); row.appendChild(s);
+            return { el: s, box: s, key: c[0], fs: s.firstChild };
+        });
+        zones.forEach(z => { z.onPut = () => { if (z.fs) z.fs.textContent = ''; }; z.onTake = () => { if (z.fs) z.fs.textContent = String(zones.indexOf(z) + 1); }; });
+        body.append(row, pool);
+        const H = Object.fromEntries(q.cards.map(c => [c[0], c[2]]));
+        return slotTask({ zones, pool, unit: 'stages', tiles: q.cards.map(c => ({ html: `${thumb(c[0])}<span>${c[1]}</span>`, k: c[0], cls: 'card' })),
+            valid: (z, t) => z.key === t.k, hint: (z, t) => H[t.k] });
+    },
+    cloze(q, body) {
+        const txt = el('div', 'cloze');
+        const answers = [];
+        txt.innerHTML = q.text.replace(/\{(\w+)\}/g, (m, w) => { answers.push(w); return `<span class="dslot cz" tabindex="0" data-i="${answers.length - 1}"></span>`; });
+        const side = el('div', 'bside', '<div class="dlbl">Word bank</div>');
+        const pool = el('div', 'pool'); side.appendChild(pool);
+        body.append(txt, side);
+        const zones = [...txt.querySelectorAll('.cz')].map(s => ({ el: s, box: s, key: answers[+s.dataset.i] }));
+        return slotTask({ zones, pool, unit: 'words', tiles: [...answers, ...q.extra].map(w => ({ text: w, k: w })),
+            valid: (z, t) => z.key === t.k,
+            hint: (z, t) => q.hints[t.k] || `\u201c${t.k}\u201d belongs in a different gap. Read the sentence around this gap again.` });
+    },
+    table(q, body) {
+        const left = el('div', 'col'); left.style.gap = '12px';
+        const tab = el('div', 'stab', '<div class="th">Planet</div><div class="th">Real distance</div><div class="th">Model distance</div>');
+        const zones = q.rows.map(r => {
+            tab.insertAdjacentHTML('beforeend', `<div class="pnm">${r[0]}</div><div>${r[1]}</div>`);
+            const c = el('div'); const s = el('div', 'dslot'); s.tabIndex = 0; s.setAttribute('aria-label', `Model distance for ${r[0]}`); c.appendChild(s); tab.appendChild(c);
+            return { el: s, box: s, key: r[2], planet: r[0] };
+        });
+        const PX = 25.5, RX = 22, rul = el('div');
+        let s = `<svg viewBox="0 0 680 92" width="680" height="92"><rect x="${RX}" y="44" width="${PX * 25 + 12}" height="38" rx="4" fill="#fff" stroke="${NV}" stroke-width="3"/>`;
+        for (let i = 0; i <= 25; i++) { const x = RX + 6 + i * PX, h = i % 5 ? 10 : 18; s += `<line x1="${fx(x)}" x2="${fx(x)}" y1="44" y2="${44 + h}" stroke="${NV}" stroke-width="2"/>`; if (i % 5 === 0) s += `<text class="tiny" x="${fx(x - (i === 25 ? 4 : 0))}" y="78" text-anchor="${i === 25 ? 'end' : 'middle'}" style="font-size:15px">${i === 25 ? '25 cm' : i}</text>`; }
+        s += `<g transform="translate(${RX + 6} 30)">${sunEdge(0, 0, 9, false)}</g><g class="rp"></g></svg>`;
+        rul.innerHTML = s;
+        left.append(tab, rul);
+        const side = el('div', 'bside', '<div class="dlbl">Model distances</div>'); side.style.width = '300px'; side.style.alignSelf = 'center'; side.style.height = '300px';
+        const pool = el('div', 'pool'); side.appendChild(pool);
+        body.append(left, side);
+        const XH = Object.fromEntries(q.extra);
+        return slotTask({ zones, pool, unit: 'distances', tiles: [...q.rows.map(r => ({ text: r[2], k: r[2] })), ...q.extra.map(e => ({ text: e[0], k: e[0] }))],
+            valid: (z, t) => z.key === t.k,
+            hint: (z, t) => XH[t.k] || `${t.k} is the model distance for a different planet. Divide ${z.planet}\u2019s distance by 10 million km.`,
+            done: () => {
+                const g = rul.querySelector('.rp');
+                q.rows.forEach((r, i) => setTimeout(() => {
+                    const x = RX + 6 + parseFloat(r[2]) * PX, p = PLANETS.find(P => P.n === r[0]);
+                    const n = document.createElementNS('http://www.w3.org/2000/svg', 'g'); g.appendChild(n);
+                    play(500, k => { const e = easeOut(k); n.innerHTML = `<g transform="translate(${fx(x)} ${fx(-10 + 40 * e)})">${planetSVG(p.n, 8)}</g><text class="tiny" x="${fx(x)}" y="${fx(-14 + 26 * e)}" text-anchor="middle" opacity="${fx(e)}" style="font-size:14px">${p.n}</text>`; }, () => document.body.contains(n));
+                }, i * 260));
+            } });
+    },
+    calc(q, body) {
+        const side = el('div', 'scene');
+        const S = SIDES[q.side](side);
+        const steps = el('div', 'steps');
+        const ins = q.fields.map(f => {
+            const st = el('div', 'step', `<div class="slbl">${f.label}</div><div class="srow"><input class="num" type="text" inputmode="decimal" autocomplete="off" spellcheck="false"><span class="unit">${f.unit}</span></div>`);
+            steps.appendChild(st);
+            const i = st.querySelector('input');
+            i.addEventListener('input', () => { i.classList.remove('wrong'); refresh(); });
+            i.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); btn.click(); } });
+            return i;
+        });
+        body.append(side, steps);
+        body.style.justifyContent = 'flex-start';
+        const val = i => parseFloat(i.value.replace(/[,\s]/g, ''));
+        return {
+            instr: 'Type your answer in each box, then press <b>Check</b>.',
+            ready: () => ins.every(i => i.value.trim() !== ''),
+            check() {
+                let bad = 0, hint = null;
+                ins.forEach((i, n) => {
+                    if (i.readOnly) return;
+                    const f = q.fields[n], v = val(i);
+                    i.classList.remove('wrong'); void i.offsetWidth;
+                    if (!isNaN(v) && Math.abs(v - f.ans) <= f.tol + 1e-9) { i.classList.add('right'); i.readOnly = true; }
+                    else { bad++; i.classList.add('wrong'); if (!hint) hint = isNaN(v) ? 'Type a number in each box.' : f.hint(v); }
+                });
+                if (bad) return { ok: false, hint: (bad > 1 ? `${bad} answers need changing. ` : '') + hint };
+                return { ok: true };
+            },
+            done: S.done
+        };
+    }
+};
+function sceneCore(q, sc, rp, els, instr) {
+    const S = SCENES[q.scene](sc.querySelector('svg'));
+    let solved = false;
+    const go = () => { runId++; S.run(solved); };
+    S.introDone = false;
+    if (rp) rp.onclick = go;
+    go();
+    return mcCore(els, q, { instr, done: () => { solved = true; runId++; S.run(true, S.introDone); } });
+}
+
+/* ---------- drag and drop (drag, or tap a tile then tap a target) ---------- */
+function dnd(pool, zones, onChange) {
+    let sel = null;
+    const all = () => [pool, ...zones];
+    const zoneOf = t => all().find(z => z.box.contains(t));
+    const armAll = on => zones.forEach(z => z.el.classList.toggle('armed', on && !z.locked));
+    const deselect = () => { if (sel) sel.classList.remove('sel'); sel = null; armAll(false); };
+    function moveTo(t, z) {
+        const from = zoneOf(t);
+        t.style.transform = ''; t.classList.remove('wrong');
+        z.box.appendChild(t);
+        if (from && from !== z && from.onTake) from.onTake(t);
+        if (z.onPut) z.onPut(t);
+        deselect(); onChange();
+    }
+    function put(t, z) {
+        const from = zoneOf(t);
+        if (z.locked || from === z) { t.style.transform = ''; return; }
+        if (z.cap === 1) {
+            const ex = z.box.querySelector('.tile');
+            if (ex) { if (ex.classList.contains('right')) { t.style.transform = ''; return; } moveTo(ex, pool); }
+        }
+        moveTo(t, z);
+    }
+    const hit = (x, y) => all().find(z => { const r = z.el.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; });
+    all().forEach(z => {
+        const act = () => { if (sel && !z.locked) put(sel, z); };
+        z.el.addEventListener('click', act);
+        z.el.addEventListener('keydown', e => { if (e.target === z.el && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); act(); } });
+    });
+    function tile(text, html) {
+        const t = el('span', 'tile', html || text);
+        t.tabIndex = 0; t.setAttribute('role', 'button');
+        const tap = () => {
+            if (t.classList.contains('right')) return;
+            t.style.transform = '';
+            const z = zoneOf(t);
+            if (z !== pool) { put(t, pool); return; }
+            if (sel === t) { deselect(); return; }
+            deselect(); sel = t; t.classList.add('sel'); armAll(true);
+        };
+        t.addEventListener('click', e => e.stopPropagation());
+        t.addEventListener('pointerdown', e => {
+            if (t.classList.contains('right') || e.button > 0) return;
+            e.preventDefault(); e.stopPropagation(); t.setPointerCapture(e.pointerId);
+            const sx = e.clientX, sy = e.clientY; let moved = false;
+            const move = ev => {
+                const dx = ev.clientX - sx, dy = ev.clientY - sy;
+                if (!moved && Math.hypot(dx, dy) > 6) { moved = true; t.classList.add('drag'); }
+                if (!moved) return;
+                t.style.transform = `translate(${dx / scaleK}px, ${dy / scaleK}px)`;
+                const h = hit(ev.clientX, ev.clientY);
+                all().forEach(z => z.el.classList.toggle('hover', z === h));
+            };
+            const up = ev => {
+                t.removeEventListener('pointermove', move); t.removeEventListener('pointerup', up); t.removeEventListener('pointercancel', up);
+                t.classList.remove('drag'); all().forEach(z => z.el.classList.remove('hover'));
+                if (!moved) { tap(); return; }
+                const h = hit(ev.clientX, ev.clientY);
+                if (h) put(t, h); else t.style.transform = '';
+            };
+            t.addEventListener('pointermove', move); t.addEventListener('pointerup', up); t.addEventListener('pointercancel', up);
+        });
+        t.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); tap(); } });
+        return t;
+    }
+    return { tile };
+}
+
+/* =========================================================
+   ANIMATED SCENES  (run(full, skipIntro))
+   ========================================================= */
+const SCENES = {
+    formation(svg) {
+        const cx = 330, cy = 188, FL = .3, N = 170, R = rng(42);
+        const om = r => Math.min(.006, .0011 * Math.pow(110 / r, 1.5));
+        const CL = [{ r: 96, a: .6, f: 7 }, { r: 152, a: 2.7, f: 12 }, { r: 212, a: 4.3, f: 18 }, { r: 270, a: 1.5, f: 11 }];
+        const P = [];
+        for (let i = 0; i < N; i++) {
+            const r = 34 + 270 * Math.sqrt(R()), a = R() * 6.2832, u = Math.sqrt(R()), b = R() * 6.2832;
+            P.push({ r, a, x0: 330 + 290 * u * Math.cos(b) + (R() - .5) * 30, y0: 168 + 118 * u * Math.sin(b), ph: R() * 6 });
+        }
+        P.forEach(p => { if (p.r >= 72) { let best = 0; CL.forEach((c, i) => { if (Math.abs(c.r - p.r) < Math.abs(CL[best].r - p.r)) best = i; }); p.cl = best; } });
+        let parts = ''; P.forEach(() => parts += `<circle r="3.2" fill="${MG}"/>`);
+        svg.innerHTML = `<rect width="660" height="330" fill="#fff"/><g class="orb"></g><g class="pp">${parts}</g><circle class="sun" cx="${cx}" cy="${cy}" r="0" fill="${PK}"/>
+            <g class="cl">${CL.map(() => `<circle r="0" fill="${NV}"/>`).join('')}</g><text class="spd lab" x="22" y="40"></text>`;
+        const pe = [...svg.querySelectorAll('.pp circle')], ce = [...svg.querySelectorAll('.cl circle')], sun = svg.querySelector('.sun'), lab = svg.querySelector('.lab'), orb = svg.querySelector('.orb');
+        let T = 0, cK = 0, sK = 0, gK = 0, clR = 0;
+        const dpos = (r, a) => { const th = a + om(r) * T; return [cx + r * Math.cos(th), cy + FL * r * Math.sin(th)]; };
+        const draw = () => {
+            const cpos = CL.map(c => dpos(c.r, c.a));
+            P.forEach((p, i) => {
+                let [x, y] = dpos(p.r, p.a), o = 1;
+                if (cK < 1) { const e = easeInOut(cK); x = lerp(p.x0 + Math.sin(T * .0015 + p.ph) * 4, x, e); y = lerp(p.y0 + Math.cos(T * .0013 + p.ph) * 4, y, e); }
+                if (p.r < 72 && sK > 0) { x = lerp(x, cx, sK); y = lerp(y, cy, sK); o = 1 - sK; }
+                if (p.r >= 72 && gK > 0) { const [kx, ky] = cpos[p.cl]; x = lerp(x, kx, gK); y = lerp(y, ky, gK); o = 1 - Math.max(0, (gK - .55) / .45); }
+                pe[i].setAttribute('cx', fx(x)); pe[i].setAttribute('cy', fx(y)); pe[i].setAttribute('opacity', fx(o));
+            });
+            ce.forEach((c, i) => { c.setAttribute('cx', fx(cpos[i][0])); c.setAttribute('cy', fx(cpos[i][1])); c.setAttribute('r', fx(lerp(clR, CL[i].f, gK))); });
+        };
+        const ph = (dur, f) => { const T0 = T; return play(dur, k => { T = T0 + k * dur; f(k); draw(); }); };
+        const idle = () => loop(dt => { T += dt; draw(); });
+        return {
+            async run(full, skipIntro) {
+                if (!skipIntro) {
+                    this.introDone = false;
+                    T = 0; cK = 0; sK = 0; gK = 0; clR = 0; orb.innerHTML = ''; sun.setAttribute('r', 0);
+                    lab.textContent = 'A cloud of dust and gas'; draw();
+                    await ph(1400, () => {});
+                    lab.textContent = 'Gravity collapses it into a spinning disc';
+                    await ph(2400, k => cK = k);
+                    lab.textContent = 'The Sun forms at the centre';
+                    await ph(1500, k => { sK = k; sun.setAttribute('r', fx(26 * easeOut(k))); });
+                    lab.textContent = 'Clumps start to form in the disc';
+                    await ph(1000, k => clR = 4.5 * easeOut(k));
+                    this.introDone = true;
+                }
+                if (!full) { idle(); return; }
+                await ph(skipIntro ? 100 : 400, () => {});
+                lab.textContent = 'Clumps grow into planets';
+                await ph(2800, k => gK = easeInOut(k));
+                orb.innerHTML = CL.map(c => `<ellipse cx="${cx}" cy="${cy}" rx="${c.r}" ry="${fx(c.r * FL)}" fill="none" stroke="${GR}" stroke-width="2.5" stroke-dasharray="5 7"/>`).join('');
+                orb.setAttribute('opacity', 0);
+                await ph(500, k => orb.setAttribute('opacity', fx(k)));
+                idle();
+            }
+        };
+    },
+
+    gravOff(svg) {
+        const cx = 250, cy = 172, R = 110, per = 3200, I = 4800, v = R * 2 * Math.PI / per, mr = 15;
+        svg.innerHTML = `<circle cx="${cx}" cy="${cy}" r="42" fill="${NV}"/><text class="oname" x="${cx}" y="${cy + 7}" text-anchor="middle" style="fill:#fff">Earth</text>
+            <g class="tr"></g><g class="ag"></g><g class="mo"><circle r="${mr}" fill="#dde0e8" stroke="${NV}" stroke-width="3"/></g>
+            <text class="spd lab" x="20" y="38"></text>${legend(16, 318)}`;
+        const mo = svg.querySelector('.mo'), ag = svg.querySelector('.ag'), lab = svg.querySelector('.lab');
+        const pos = T => { if (T <= I) { const th = Math.PI / 2 - 2 * Math.PI * T / per; return { x: cx + R * Math.cos(th), y: cy + R * Math.sin(th) }; } return { x: cx - v * (T - I), y: cy - R }; };
+        const tr = mkTrail(svg.querySelector('.tr'), pos, 200);
+        const arrow = p => { const a = Math.atan2(cy - p.y, cx - p.x); ag.innerHTML = arrowSVG(p.x + Math.cos(a) * (mr + 3), p.y + Math.sin(a) * (mr + 3), a, 46, { label: 'Gravity', sw: 7, hl: 18, hw: 12, fs: 22 }); };
+        const set = T => { const p = pos(T); mo.setAttribute('transform', `translate(${fx(p.x)} ${fx(p.y)})`); tr.upto(T); return p; };
+        return {
+            async run(full, skipIntro) {
+                if (!skipIntro) {
+                    this.introDone = false;
+                    tr.reset(); ag.setAttribute('opacity', 1); lab.textContent = 'The Moon orbiting Earth'; lab.style.fill = '';
+                    await play(I, k => arrow(set(k * I)));
+                    this.introDone = true;
+                }
+                if (!full) return;
+                await wait(skipIntro ? 100 : 500);
+                lab.textContent = 'Gravity switched off'; lab.style.fill = PK;
+                await play(350, k => ag.setAttribute('opacity', fx(1 - k)));
+                await play(1400, k => set(I + 1400 * k));
+            }
+        };
+    },
+
+    asteroid(svg) {
+        const E = { x: 330, y: 214 }, MR = 84, per = 4200, CY = 4400, TR = 3600;
+        svg.innerHTML = `<circle class="mor" cx="${E.x}" cy="${E.y}" r="${MR}" fill="none" stroke="${GR}" stroke-width="2.5" stroke-dasharray="5 7"/>
+            <circle cx="${E.x}" cy="${E.y}" r="34" fill="${NV}"/><text class="tiny" x="${E.x}" y="${E.y + 6}" text-anchor="middle" style="fill:#fff">Earth</text>
+            <g class="tr"></g><g class="as">${asteroidPath(1.1)}</g><text class="tiny al" text-anchor="middle">Asteroid</text>
+            <g class="mo"><circle r="11" fill="#dde0e8" stroke="${NV}" stroke-width="3"/></g><text class="tiny ml" text-anchor="middle">Moon</text>
+            <g class="tags"></g>${legend(16, 318, 'Dots show the asteroid\u2019s path every 0.3 seconds')}`;
+        const as = svg.querySelector('.as'), al = svg.querySelector('.al'), mo = svg.querySelector('.mo'), ml = svg.querySelector('.ml'), tags = svg.querySelector('.tags'), mor = svg.querySelector('.mor');
+        const path = T => { const s = Math.min(1, T / TR), x = -30 + 720 * s; return { x, y: 34 + 46 * s + 30 * Math.exp(-Math.pow((x - 330) / 120, 2)) }; };
+        const tr = mkTrail(svg.querySelector('.tr'), path, 300);
+        let t = 0, prev = 0;
+        const moon = () => { const a = -2 * Math.PI * t / per + 1; const x = E.x + MR * Math.cos(a), y = E.y + MR * Math.sin(a); mo.setAttribute('transform', `translate(${fx(x)} ${fx(y)})`); ml.setAttribute('x', fx(x)); ml.setAttribute('y', fx(y - 18)); };
+        const ast = T => { const p = path(T); as.setAttribute('transform', `translate(${fx(p.x)} ${fx(p.y)}) rotate(${fx(T * .08)})`); al.setAttribute('x', fx(p.x)); al.setAttribute('y', fx(p.y - 24)); };
+        return {
+            run(full) {
+                this.introDone = true;
+                if (!full) {
+                    tags.innerHTML = ''; mor.setAttribute('stroke', GR); tr.reset(); prev = 0;
+                    loop(dt => { t += dt; const c = t % CY; if (c < prev) tr.reset(); prev = c; tr.upto(Math.min(c, TR)); ast(Math.min(c, TR)); moon(); });
+                    return;
+                }
+                tr.reset(); tr.upto(TR); ast(TR * .82); mor.setAttribute('stroke', PK);
+                tags.innerHTML = `<text class="flbl" x="24" y="${E.y + 8}" text-anchor="start" style="fill:${PK};font-size:22px">Moon: orbits Earth</text>
+                    <text class="flbl" x="500" y="122" text-anchor="middle" style="font-size:22px">Asteroid: only passes by</text>`;
+                tags.setAttribute('opacity', 0); play(400, k => tags.setAttribute('opacity', fx(k)));
+                loop(dt => { t += dt; moon(); });
+            }
+        };
+    },
+
+    poster(svg) {
+        const Y = 168, PR = [6, 11, 12, 8, 38, 30, 20, 19], PXs = [90, 134, 180, 224, 296, 400, 495, 572];
+        let s = `<rect width="660" height="330" fill="#fff"/><text class="spd ttl" x="22" y="38">The Solar System</text><circle class="sn" cx="-84" cy="${Y}" r="135" fill="${PK}"/>`;
+        PLANETS.forEach((p, i) => {
+            const below = i % 2 === 0, ly = below ? Y + PR[i] + (p.n === 'Saturn' ? 30 : 24) : Y - PR[i] - (p.n === 'Saturn' ? 22 : 12);
+            s += `<g class="pg" transform="translate(${PXs[i]} ${Y}) scale(0)"><g class="full">${planetSVG(p.n, PR[i])}</g><circle class="dot" r="${p.n === 'Earth' ? 3.5 : 3}" fill="${NV}" opacity="0"/></g>
+                <text class="tiny pl" x="${PXs[i]}" y="${ly}" text-anchor="middle" style="font-size:15px">${p.n}</text>`;
+        });
+        s += `<g class="ann"></g>`;
+        svg.innerHTML = s;
+        const pg = [...svg.querySelectorAll('.pg')], pl = [...svg.querySelectorAll('.pl')], sn = svg.querySelector('.sn'), ann = svg.querySelector('.ann'), ttl = svg.querySelector('.ttl');
+        const TX = PLANETS.map(p => 30 + 600 * p.d / 4500);
+        const put = (i, x, sc, e) => { pg[i].setAttribute('transform', `translate(${fx(x)} ${Y}) scale(${sc.toFixed(3)})`); pg[i].querySelector('.full').setAttribute('opacity', fx(1 - e)); pg[i].querySelector('.dot').setAttribute('opacity', fx(e)); pg[i].querySelector('.dot').setAttribute('r', fx((PLANETS[i].n === 'Earth' ? 3.5 : 3) / Math.max(sc, .001))); };
+        return {
+            async run(full, skipIntro) {
+                if (!skipIntro) {
+                    this.introDone = false;
+                    ann.innerHTML = ''; ttl.textContent = 'The Solar System'; sn.setAttribute('cx', -84); sn.setAttribute('r', 135);
+                    pl.forEach(t => t.setAttribute('opacity', 0)); pg.forEach((g, i) => put(i, PXs[i], 0, 0));
+                    await play(1300, k => pg.forEach((g, i) => { const kk = Math.max(0, Math.min(1, (k * 1.3 - i * .06) / .6)); put(i, PXs[i], easeOut(kk), 0); pl[i].setAttribute('opacity', fx(kk)); }));
+                    this.introDone = true;
+                }
+                if (!full) return;
+                await wait(skipIntro ? 100 : 600);
+                ttl.textContent = 'Same planets, real distances';
+                await play(2200, k => {
+                    const e = easeInOut(k);
+                    sn.setAttribute('cx', fx(lerp(-84, 22, e))); sn.setAttribute('r', fx(lerp(135, 6, e)));
+                    pg.forEach((g, i) => { const small = 1 / PR[i]; put(i, lerp(PXs[i], TX[i], e), lerp(1, small * 3, e), Math.min(1, e * 1.4)); });
+                    pl.forEach(t => t.setAttribute('opacity', fx(1 - Math.min(1, e * 2))));
+                });
+                ann.innerHTML = `<line x1="${fx(TX[0])}" x2="${fx(TX[3])}" y1="${Y + 22}" y2="${Y + 22}" stroke="${PK}" stroke-width="3"/>
+                    <text class="tiny" x="${fx(TX[0] - 4)}" y="${Y + 46}" style="font-size:15px;fill:${PK}">Mercury to Mars</text>
+                    ${[4, 5, 6, 7].map(i => `<text class="tiny" x="${fx(TX[i])}" y="${Y - 16}" text-anchor="${i === 7 ? 'end' : 'middle'}" style="font-size:15px">${PLANETS[i].n}</text>`).join('')}
+                    <text class="leg" x="330" y="300" text-anchor="middle">At true size, every planet would be too small to see.</text>`;
+                ann.setAttribute('opacity', 0);
+                await play(450, k => ann.setAttribute('opacity', fx(k)));
+            }
+        };
+    },
+
+    race(svg) {
+        const S = { x: 178, y: 172 }, RR = [32, 56, 82, 112], PER = [964, 2466, 4000, 7529], PRs = [6, 9, 9, 7.5], AGE = [49.8, 19.5, 12.0, 6.4];
+        const names = ['Mercury', 'Venus', 'Earth', 'Mars'];
+        let s = `<text class="tiny" x="16" y="28" style="fill:${MG}">Not to scale</text>`;
+        RR.forEach(r => s += `<circle cx="${S.x}" cy="${S.y}" r="${r}" fill="none" stroke="${GR}" stroke-width="2.5" stroke-dasharray="5 7"/>`);
+        s += `<circle cx="${S.x}" cy="${S.y}" r="20" fill="${PK}"/>`;
+        names.forEach((n, i) => s += `<g class="rp">${planetSVG(n, PRs[i])}</g><text class="tiny rl" style="font-size:15px">${n}</text>`);
+        s += `<line x1="352" x2="352" y1="40" y2="300" stroke="${NV}" stroke-width="3"/><text class="spd hd" x="372" y="74">Orbits completed</text>`;
+        names.forEach((n, i) => { const y = 124 + i * 50; s += `<g transform="translate(386 ${y - 9})">${planetSVG(n, 8)}</g><text class="flbl" x="406" y="${y}">${n}</text><text class="flbl val" x="640" y="${y + 2}" text-anchor="end" style="font-size:38px;fill:${PK}">0.0</text>`; });
+        s += `<text class="leg tm" x="372" y="312"></text>`;
+        svg.innerHTML = s;
+        const rp = [...svg.querySelectorAll('.rp')], rl = [...svg.querySelectorAll('.rl')], val = [...svg.querySelectorAll('.val')], hd = svg.querySelector('.hd'), tm = svg.querySelector('.tm');
+        let T = 0;
+        const place = () => RR.forEach((r, i) => {
+            const a = -2 * Math.PI * T / PER[i], x = S.x + r * Math.cos(a), y = S.y + r * Math.sin(a);
+            rp[i].setAttribute('transform', `translate(${fx(x)} ${fx(y)})`);
+            const d = r + PRs[i] + 6, lx = S.x + d * Math.cos(a), ly = S.y + d * Math.sin(a);
+            rl[i].setAttribute('x', fx(lx)); rl[i].setAttribute('y', fx(ly + 5 + Math.sin(a) * 6)); rl[i].setAttribute('text-anchor', Math.cos(a) > .3 ? 'start' : Math.cos(a) < -.3 ? 'end' : 'middle');
+        });
+        return {
+            async run(full, skipIntro) {
+                if (!skipIntro) {
+                    this.introDone = false;
+                    T = 0; hd.textContent = 'Orbits completed'; val.forEach(v => v.style.fill = PK);
+                    await play(4000, k => { T = 4000 * k; place(); val.forEach((v, i) => v.textContent = (T / PER[i]).toFixed(1)); tm.textContent = `Time passed: ${(T / 4000).toFixed(1)} Earth years`; });
+                    this.introDone = true;
+                }
+                if (!full) return;
+                await wait(skipIntro ? 100 : 500);
+                hd.textContent = 'At 12 Earth years';
+                const from = PER.map(p => 4000 / p);
+                loop(dt => { T += dt * .5; place(); });
+                await play(2400, k => { const e = easeInOut(k); val.forEach((v, i) => v.textContent = lerp(from[i], AGE[i], e).toFixed(1)); tm.textContent = `Time passed: ${lerp(1, 12, e).toFixed(0)} Earth years`; });
+                await play(400, k => val.forEach((v, i) => { if (i) v.style.fill = k > .5 ? MG : PK; }));
+            }
+        };
+    }
+};
+
+/* =========================================================
+   SIDE PANELS  (mcside / calc)
+   ========================================================= */
+const SIDES = {
+    moonSide(side) {
+        const E = { x: 125, y: 238 }, R = 132, M = { x: 125, y: 106 };
+        const a0 = -Math.PI * .82, a1 = -Math.PI * .18;
+        side.innerHTML = `<svg viewBox="0 0 250 330" width="250" height="330">
+            <path d="M${fx(E.x + R * Math.cos(a0))} ${fx(E.y + R * Math.sin(a0))} A${R} ${R} 0 0 1 ${fx(E.x + R * Math.cos(a1))} ${fx(E.y + R * Math.sin(a1))}" fill="none" stroke="${GR}" stroke-width="3" stroke-dasharray="6 7"/>
+            <circle cx="${E.x}" cy="${E.y}" r="36" fill="${NV}"/><text class="tiny" x="${E.x}" y="${E.y + 6}" text-anchor="middle" style="fill:#fff">Earth</text>
+            ${arrowSVG(M.x - 17, M.y, Math.PI, 72, { c: NV, sw: 6, hl: 17, hw: 11, label: 'Moving', fs: 21 })}
+            <circle cx="${M.x}" cy="${M.y}" r="14" fill="#dde0e8" stroke="${NV}" stroke-width="3"/><text class="tiny" x="${M.x + 22}" y="${M.y - 14}">Moon</text><g class="ga"></g></svg>`;
+        return { done: () => growArrow(side.querySelector('.ga'), M.x, M.y + 17, DIR.d, 62, { label: 'Gravity', fs: 22 }) };
+    },
+    jupiterSide(side) {
+        const C = { x: 125, y: 146 }, JR = 107;
+        side.innerHTML = `<svg viewBox="0 0 250 330" width="250" height="330">
+            <text class="q1" x="${C.x}" y="${C.y + 30}" text-anchor="middle" style="font-family:var(--cond);font-size:96px;font-weight:900;fill:${GR}">?</text>
+            <g class="jp"></g><circle cx="34" cy="296" r="9.5" fill="${NV}"/><text class="tiny" x="54" y="292">Earth</text><text class="leg" x="54" y="314" style="font-size:16px">1.27 cm</text>
+            <text class="leg" x="236" y="314" text-anchor="end" style="font-size:16px">True size</text></svg>`;
+        const jp = side.querySelector('.jp'), q1 = side.querySelector('.q1');
+        return { done: () => play(900, k => {
+            const e = easeOut(k); q1.setAttribute('opacity', fx(1 - Math.min(1, k * 3)));
+            jp.innerHTML = `<circle cx="${C.x}" cy="${C.y}" r="${fx(JR * e)}" fill="${LT}" stroke="${NV}" stroke-width="3"/>
+                <g opacity="${fx(e)}"><line x1="${C.x - 92}" x2="${C.x + 92}" y1="${C.y - 46}" y2="${C.y - 46}" stroke="${GR}" stroke-width="5"/><line x1="${C.x - 104}" x2="${C.x + 104}" y1="${C.y + 30}" y2="${C.y + 30}" stroke="${GR}" stroke-width="5"/>
+                <text class="tiny" x="${C.x}" y="${C.y - 4}" text-anchor="middle">Jupiter</text><text class="flbl" x="${C.x}" y="${C.y + 20}" text-anchor="middle" style="fill:${PK}">14.3 cm</text></g>`;
+        }, () => document.body.contains(jp)) };
+    },
+    samSide(side) {
+        let lines = ''; for (let y = 64; y < 330; y += 50) lines += `<line x1="0" x2="250" y1="${y + 12}" y2="${y + 12}" stroke="#e3e7ee" stroke-width="2"/>`;
+        side.innerHTML = `<svg viewBox="0 0 250 330" width="250" height="330"><line x1="40" x2="40" y1="0" y2="330" stroke="#f6c3df" stroke-width="2"/>${lines}
+            <text class="tiny" x="52" y="40" style="fill:${MG}">Sam\u2019s working</text>
+            <text class="hand" x="52" y="114">12 \u00d7 <tspan class="sw">225 \u00f7 365</tspan></text>
+            <text class="hand" x="52" y="164">= 7.4 years</text>
+            <g class="fix"></g></svg>`;
+        const fix = side.querySelector('.fix'), sw = side.querySelector('.sw');
+        return { done: () => {
+            const b = sw.getBBox();
+            fix.innerHTML = `<ellipse cx="${fx(b.x + b.width / 2)}" cy="${fx(b.y + b.height / 2 + 1)}" rx="${fx(b.width / 2 + 12)}" ry="${fx(b.height / 2 + 6)}" fill="none" stroke="${PK}" stroke-width="3.5"/>
+                <line x1="48" x2="${fx(b.x + b.width + 6)}" y1="156" y2="156" stroke="${PK}" stroke-width="3"/>
+                <text class="hand" x="52" y="214" style="fill:${PK}">12 \u00d7 365 \u00f7 225</text><text class="hand" x="52" y="264" style="fill:${PK}">= 19.5 years</text>`;
+            fix.setAttribute('opacity', 0); play(450, k => fix.setAttribute('opacity', fx(k)), () => document.body.contains(fix));
+        } };
+    },
+    saturnSide(side) {
+        const k = .29, X = d => 26 + d * k, Y = 196, xe = X(150), xs = X(1430);
+        side.innerHTML = `<svg viewBox="0 0 480 327" width="480" height="327">
+            <text class="flbl" x="24" y="44" style="font-size:22px">Scale: 1 cm = 10 million km</text>
+            <line x1="26" x2="${xs}" y1="${Y}" y2="${Y}" stroke="${GR}" stroke-width="3" stroke-dasharray="6 7"/>
+            <circle cx="26" cy="${Y}" r="14" fill="${PK}"/>
+            <g transform="translate(${xe} ${Y})">${planetSVG('Earth', 9)}</g><text class="tiny" x="${xe}" y="${Y - 20}" text-anchor="middle">Earth</text>
+            <g transform="translate(${xs} ${Y})">${planetSVG('Saturn', 11)}</g><text class="tiny" x="${xs + 18}" y="${Y - 22}" text-anchor="end">Saturn</text>
+            <path d="M26 ${Y + 30} v8 H${xe} v-8" fill="none" stroke="${NV}" stroke-width="2.5"/><text class="leg" x="22" y="${Y + 62}" style="font-size:17px">Sun to Earth: 150 million km</text>
+            <path d="M26 ${Y + 82} v8 H${xs} v-8" fill="none" stroke="${NV}" stroke-width="2.5"/><text class="leg" x="${(26 + xs) / 2}" y="${Y + 114}" text-anchor="middle" style="font-size:17px">Sun to Saturn: 1,430 million km</text>
+            <path class="gq" d="M${xe} ${Y - 46} v-8 H${xs} v8" fill="none" stroke="${GR}" stroke-width="2.5" stroke-dasharray="5 6"/><text class="flbl gq" x="${(xe + xs) / 2}" y="${Y - 64}" text-anchor="middle" style="fill:${MG}">?</text>
+            <g class="br"></g></svg>`;
+        const br = side.querySelector('.br');
+        return { done: () => {
+            side.querySelectorAll('.gq').forEach(e => e.remove());
+            play(700, t => { const e = easeOut(t), x2 = lerp(xe, xs, e);
+                br.innerHTML = `<path d="M${xe} ${Y - 46} v-8 H${fx(x2)} v8" fill="none" stroke="${PK}" stroke-width="3.5"/><text class="flbl" x="${(xe + xs) / 2}" y="${Y - 64}" text-anchor="middle" opacity="${fx(e)}" style="fill:${PK};font-size:22px">1,280 million km = 128 cm</text>`;
+            }, () => document.body.contains(br));
+        } };
+    },
+    marsSide(side) {
+        const S = { x: 180, y: 236 };
+        side.innerHTML = `<svg viewBox="0 0 360 327" width="360" height="327">
+            <text class="flbl" x="22" y="42" style="font-size:22px">1 Earth year = 365 days</text>
+            <text class="flbl" x="22" y="74" style="font-size:22px">1 Mars year = 687 Earth days</text>
+            <text class="flbl" x="22" y="106" style="font-size:22px">Hana\u2019s age = 13 Earth years</text>
+            <g class="res"></g>
+            <circle cx="${S.x}" cy="${S.y}" r="44" fill="none" stroke="${GR}" stroke-width="2.5" stroke-dasharray="5 7"/>
+            <circle cx="${S.x}" cy="${S.y}" r="72" fill="none" stroke="${GR}" stroke-width="2.5" stroke-dasharray="5 7"/>
+            <circle cx="${S.x}" cy="${S.y}" r="13" fill="${PK}"/>
+            <g transform="translate(${S.x + 31} ${S.y - 31})">${planetSVG('Earth', 7)}</g><text class="tiny" x="${S.x + 42}" y="${S.y - 34}" style="font-size:15px">Earth</text>
+            <g transform="translate(${S.x - 51} ${S.y + 51})">${planetSVG('Mars', 6)}</g><text class="tiny" x="${S.x - 62}" y="${S.y + 74}" text-anchor="end" style="font-size:15px">Mars</text>
+            <text class="tiny" x="344" y="318" text-anchor="end" style="fill:${MG};font-size:14px">Not to scale</text></svg>`;
+        const res = side.querySelector('.res');
+        return { done: () => {
+            res.innerHTML = `<rect x="16" y="120" width="328" height="40" rx="6" fill="${PK}"/><text class="flbl" x="180" y="148" text-anchor="middle" style="fill:#fff;font-size:23px">About 6 years and 11 months</text>`;
+            res.setAttribute('opacity', 0); play(450, k => res.setAttribute('opacity', fx(k)), () => document.body.contains(res));
+        } };
+    }
+};
+
+/* ---------- scale to window ---------- */
+function fit() {
+    const st = $('#stage');
+    scaleK = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    st.style.transform = `scale(${scaleK})`;
+    st.style.margin = `${(720 * scaleK - 720) / 2}px ${(1280 * scaleK - 1280) / 2}px`;
+}
+window.addEventListener('resize', fit);
+fit();
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { fit(); render(); });
+</script>
+</body>
+</html>
