@@ -359,6 +359,13 @@
     .bin .dtile svg { width: 76px; height: 76px; }
     .asort.a3 { grid-template-columns: auto repeat(3, 78px); }
     .asort.a3 svg { width: 78px; height: 78px; }
+    .wld { font-size: 24px; padding: 8px 16px; }
+    .wld .mini { width: 46px; height: 46px; }
+    .slot .wld { font-size: 15px; }
+    .slot .wld .mini { width: 30px; height: 30px; }
+    .tile small { display: block; font-size: .72em; font-weight: 700; color: var(--mid-grey); line-height: 1.15; }
+    .tile.right small { color: #fff; }
+    .ai small { display: block; text-align: center; color: var(--mid-grey); }
     /* coming soon decks */
     .deck.soon { cursor: not-allowed; }
     .deck.soon::before { background: var(--light-grey); border-color: var(--light-grey); }
@@ -453,7 +460,7 @@
       - Force arrows start on the object, point in the direction of the force, and their
         length shows the size of the force (the same rules students are taught).
    ===================================================================================== */
-const FILE_VERSION = '2.1';
+const FILE_VERSION = '2.2';
 const $ = s => document.querySelector(s);
 const stage = $('#stage'), content = $('#content'), cap = $('#cap'), btns = $('#btns'), counter = $('#counter'), progress = $('#progress'), sndBtn = $('#snd');
 const NV = '#1b1f45', PK = '#ea008a', LT = '#f0f3f6', GR = '#c9ccd6', TN = '#e9ecf5';
@@ -916,6 +923,142 @@ function multiF(R, L, name, k) {
     return V(540, 240, s);
 }
 
+/* ---------- LG4: gravity, mass and weight ---------- */
+/* worlds for tiles (40 x 40) */
+const WORLD = {
+    jupiter: { name: 'Jupiter', g: 24.8, svg: (() => { const band = (y, c, w) => { const h = Math.sqrt(18 * 18 - (y - 20) ** 2) - 1.5; return `<line x1="${f1(20 - h)}" y1="${y}" x2="${f1(20 + h)}" y2="${y}" stroke="${c}" stroke-width="${w}" stroke-linecap="round"/>`; };
+        return `<circle cx="20" cy="20" r="18" fill="${TN}" stroke="${NV}" stroke-width="2.5"/>${band(12, NV, 2.5)}${band(19, PK, 3.5)}${band(28, NV, 2.5)}<ellipse cx="26" cy="23.5" rx="3.6" ry="2.2" fill="${PK}"/>`; })() },
+    earth: { name: 'Earth', g: 9.8, svg: `<circle cx="20" cy="20" r="18" fill="#fff" stroke="${NV}" stroke-width="2.5"/><path d="M10 12 Q16 7 21 11 Q19 17 13 19 Q8 17 10 12 Z" fill="${NV}"/><path d="M24 22 Q31 20 31 27 Q27 33 23 30 Q21 25 24 22 Z" fill="${NV}"/>` },
+    mars: { name: 'Mars', g: 3.8, svg: `<circle cx="20" cy="20" r="18" fill="${PK}" stroke="${NV}" stroke-width="2.5"/><circle cx="14" cy="15" r="3" fill="${NV}" opacity=".3"/><circle cx="25" cy="26" r="4" fill="${NV}" opacity=".3"/><circle cx="27" cy="13" r="2" fill="${NV}" opacity=".3"/>` },
+    moon: { name: 'The Moon', g: 1.6, svg: `<circle cx="20" cy="20" r="18" fill="${LT}" stroke="${NV}" stroke-width="2.5"/><g fill="none" stroke="${GR}" stroke-width="2"><circle cx="13" cy="15" r="4"/><circle cx="25" cy="24" r="5"/><circle cx="15" cy="28" r="2.5"/></g>` }
+};
+const worldSVG = (k, cls = 'mini') => `<svg class="${cls}" viewBox="0 0 40 40">${WORLD[k].svg}</svg>`;
+const worldTile = k => `${worldSVG(k)}<span>${WORLD[k].name}<small>${WORLD[k].g}\u00a0m/s²</small></span>`;
+
+/* Earth seen from space with a person standing on it. phi is the angle of the person from the bottom of the globe (negative = left) */
+function earthScene(cx, cy, R, sc, phi) {
+    const cid = uid('ec'), p = phi * DEG, fx = cx + R * Math.sin(p), fy = cy + R * Math.cos(p);
+    let s = `<defs><clipPath id="${cid}"><circle cx="${cx}" cy="${cy}" r="${R}"/></clipPath></defs><circle cx="${cx}" cy="${cy}" r="${R}" fill="${TN}"/>`;
+    s += `<g clip-path="url(#${cid})"><ellipse cx="${f1(cx - R * .3)}" cy="${f1(cy - R * .35)}" rx="${f1(R * .32)}" ry="${f1(R * .22)}" fill="${GR}" opacity=".7"/><ellipse cx="${f1(cx + R * .4)}" cy="${f1(cy + R * .02)}" rx="${f1(R * .2)}" ry="${f1(R * .3)}" fill="${GR}" opacity=".7"/><ellipse cx="${cx}" cy="${cy + R}" rx="${f1(R * .85)}" ry="${f1(R * .4)}" fill="#fff"/></g>`;
+    s += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${NV}" stroke-width="4"/>`;
+    return s + `<g transform="translate(${f1(fx)} ${f1(fy)}) rotate(${f1(180 - phi)})">${fig(0, 0, 'stand', false, sc)}</g>`;
+}
+/* tap the diagram: which way does gravity pull an apple dropped in Antarctica */
+function downHS() {
+    const cx = 260, cy = 176, ax = 260, ay = 352;
+    let s = earthScene(cx, cy, 128, .7, -40) + tx(cx, cy - 20, 'Earth', { c: 'oname' }) + th(cx, cy + 66, 'Antarctica', { c: 'tiny', fill: NV }) + iApple(ax, ay, .85);
+    [[0, -70, 'Up'], [68, 0, 'Right'], [0, 68, 'Down'], [-68, 0, 'Left']].forEach(([dx, dy, lab], k) => {
+        const x = ax + dx, y = ay + dy;
+        s += hsDot(k, x, y, lab) + th(x + (dy ? 26 : 0), y + (dy ? 6 : 40), lab, { c: 'tiny', a: dy ? 'start' : 'middle', fill: NV });
+    });
+    return `<svg class="vis hsv" viewBox="0 0 520 460" preserveAspectRatio="xMidYMid meet">${s}</svg>`;
+}
+function downBack() {
+    const cx = 270, cy = 120, ax = 270, ay = 262;
+    let s = earthScene(cx, cy, 100, .55, -40);
+    s += `<line x1="${ax}" y1="${ay - 74}" x2="${cx}" y2="${cy}" stroke="${NV}" stroke-width="2.5" stroke-dasharray="5 6"/><circle cx="${cx}" cy="${cy}" r="6" fill="${NV}"/>` + th(cx + 14, cy + 6, 'Centre', { c: 'tiny', a: 'start', fill: NV });
+    s += iApple(ax, ay, .75) + farrow(ax, ay - 13, 'u', 58, 'Gravity');
+    return V(540, 290, s);
+}
+/* a dropped ball with a dot every 0.1 s: the gaps grow as it speeds up */
+function fallTrail() {
+    const y0 = 30, ys = [0, .1, .2, .3, .4, .5].map(t => y0 + 931 * t * t);
+    let s = `<rect x="40" y="280" width="250" height="10" fill="url(#pGround)"/><line x1="40" y1="280" x2="290" y2="280" stroke="${NV}" stroke-width="4"/>`;
+    s += `<rect x="114" y="14" width="32" height="258" rx="3" fill="${LT}"/>` + ys.map(y => `<circle cx="130" cy="${f1(y)}" r="5" fill="${NV}"/>`).join('');
+    s += `<circle cx="200" cy="${y0}" r="15" fill="none" stroke="${GR}" stroke-width="3" stroke-dasharray="4 5"/><circle cx="200" cy="${f1(ys[5])}" r="15" fill="${PK}"/>`;
+    s += tx(102, y0 + 6, '0 s', { c: 'lbg', a: 'end' }) + tx(102, ys[5] + 6, '0.5 s', { c: 'lbg', a: 'end' }) + tx(226, y0 + 6, 'Released', { c: 'lbg', a: 'start' }) + tx(392, 150, 'A dot every', { c: 'lbg', a: 'end' }) + tx(392, 172, '0.1 s', { c: 'lbg', a: 'end' });
+    return V(400, 296, s);
+}
+/* a feather falling at a steady speed. arrows adds the balanced forces */
+const featherSVG = () => `<g transform="rotate(-10)"><path d="M-52 6 Q-6 -30 56 -6 Q6 20 -52 6 Z" fill="${PK}"/>${[-30, -10, 10, 30].map(x => `<line x1="${x}" y1="${f1(4 - x * .11)}" x2="${x + 12}" y2="${f1(-14 - x * .1)}" stroke="#fff" stroke-width="2" opacity=".7"/>`).join('')}<path d="M-64 8 L58 -6" stroke="${NV}" stroke-width="3" stroke-linecap="round"/></g>`;
+function featherTrail(arrows) {
+    let s = `<rect x="124" y="14" width="32" height="232" rx="3" fill="${LT}"/>` + [0, 1, 2, 3, 4, 5].map(i => `<circle cx="140" cy="${30 + i * 40}" r="5" fill="${NV}"/>`).join('');
+    s += `<g transform="translate(320 138)">${featherSVG()}</g>`;
+    if (arrows) s += farrow(320, 116, 'u', 72, 'Air resistance') + farrow(320, 150, 'd', 72, 'Gravity');
+    s += tx(530, 252, 'A dot every 0.2 s', { c: 'lbg', a: 'end' });
+    return V(540, 262, s);
+}
+/* skydiver seen side on, belly down. dn is gravity, up is air resistance (arrow lengths in px) */
+const sky = (dn, up) => V(220, 150, `<g transform="translate(110 75) rotate(-90) scale(.62) translate(0 62)">${fig(0, 0, 'stand', false, 1)}</g>` +
+    (dn ? farrow(110, 85, 'd', dn, '', { sw: 6, hl: 15, hw: 10 }) : '') + (up ? farrow(110, 65, 'u', up, '', { c: NV, sw: 6, hl: 15, hw: 10 }) : ''));
+/* same mass, different sizes */
+function planetX() {
+    const pl = (x, cy, r, lab) => `<circle cx="${x}" cy="${cy}" r="${r}" fill="${TN}" stroke="${NV}" stroke-width="4"/>` + fig(x, cy - r, 'stand', false, .32) +
+        `<line x1="${x}" y1="${cy}" x2="${x}" y2="${cy - r}" stroke="${NV}" stroke-width="2.5" stroke-dasharray="5 5"/><circle cx="${x}" cy="${cy}" r="5" fill="${NV}"/>` +
+        th(x + 10, cy - r / 2 + 5, 'To centre', { c: 'tiny', a: 'start', fill: NV }) + tx(x, 248, lab);
+    return V(540, 256, pl(170, 140, 92, 'Earth') + pl(400, 186, 46, 'Planet X') + tx(290, 32, 'Same mass', { c: 'lbg' }));
+}
+/* a force meter holding a mass */
+function forceMeter(reading, mlab) {
+    let s = ceiling(200, 340, 26) + `<line x1="270" y1="26" x2="270" y2="44" stroke="${NV}" stroke-width="4"/>`;
+    s += `<rect x="226" y="44" width="88" height="124" rx="10" fill="#fff" stroke="${NV}" stroke-width="4"/><rect x="238" y="56" width="64" height="34" rx="5" fill="${NV}"/>` + tx(270, 80, reading, { c: 'bd', fill: '#fff' });
+    for (let i = 0; i <= 6; i++) s += `<line x1="242" x2="${i % 3 ? 256 : 264}" y1="${102 + i * 9}" y2="${102 + i * 9}" stroke="${GR}" stroke-width="2.5"/>`;
+    s += `<polygon points="248,129 270,123 270,135" fill="${PK}"/><line x1="270" y1="168" x2="270" y2="196" stroke="${NV}" stroke-width="4"/>`;
+    s += `<rect class="obj" x="234" y="196" width="72" height="50" rx="5"/>` + tx(270, 228, mlab, { c: 'oname' });
+    s += tx(330, 110, 'Force meter', { c: 'lbg', a: 'start' }) + tx(20, 250, 'Mystery planet', { c: 'lbg', a: 'start' });
+    return V(540, 258, s);
+}
+/* drop model, used by the Predict cards in LG4. Each object is drawn with its base at (0, 0) */
+const DROP = { RY: 66, GY: 214, XA: 150, XB: 390 };
+const DOBJ = {
+    heavy: `<circle cy="-19" r="18" fill="${NV}" stroke="${NV}" stroke-width="3"/><text class="sm" y="-14" text-anchor="middle" style="fill:#fff">5 kg</text>`,
+    light: `<circle cy="-19" r="18" fill="#fff" stroke="${NV}" stroke-width="3"/><text class="sm" y="-14" text-anchor="middle" style="fill:${NV}">1 kg</text>`,
+    crumple: (() => { const p = []; for (let i = 0; i < 10; i++) { const a = i * 36 * DEG, r = i % 2 ? 12 : 17; p.push(f1(Math.cos(a) * r) + ',' + f1(-17 + Math.sin(a) * r)); }
+        return `<polygon points="${p.join(' ')}" fill="#fff" stroke="${NV}" stroke-width="3" stroke-linejoin="round"/><path d="M-8 -23 L2 -15 L-4 -7 M4 -27 L8 -17" fill="none" stroke="${GR}" stroke-width="2" stroke-linecap="round"/>`; })(),
+    sheet: `<rect x="-36" y="-7" width="72" height="5" rx="1.5" fill="#fff" stroke="${NV}" stroke-width="2.5" transform="rotate(-6)"/>`,
+    ball: `<circle cy="-17" r="16" fill="${PK}"/>`
+};
+/* o: a and b are DOBJ keys, la and lb their labels, ta and tb landing times in seconds, ka and kb 'acc' (speeds up) or 'drift' (soon reaches a steady speed) */
+function dropSVG(o) {
+    const { RY, GY, XA, XB } = DROP;
+    let s = '';
+    if (o.split) s += `<rect x="20" y="${GY}" width="250" height="14" fill="url(#pGround)"/><rect x="270" y="${GY}" width="250" height="14" fill="${LT}"/>` +
+        [[318, 5], [372, 3.5], [452, 6]].map(([x, r]) => `<ellipse cx="${x}" cy="${GY + 7}" rx="${r * 2}" ry="${r}" fill="none" stroke="${GR}" stroke-width="2"/>`).join('') +
+        `<line x1="270" y1="20" x2="270" y2="${GY}" stroke="${GR}" stroke-width="2.5" stroke-dasharray="6 6"/>`;
+    else s += `<rect x="20" y="${GY}" width="500" height="14" fill="url(#pGround)"/>`;
+    s += `<line x1="20" y1="${GY}" x2="520" y2="${GY}" stroke="${NV}" stroke-width="4"/><line x1="${XA - 70}" y1="${RY}" x2="${XB + 70}" y2="${RY}" stroke="${GR}" stroke-width="2" stroke-dasharray="3 6"/>`;
+    s += `<g class="ta"></g><g class="tb"></g><g class="oa"><g transform="translate(${XA} ${RY})">${DOBJ[o.a]}</g></g><g class="ob"><g transform="translate(${XB} ${RY})">${DOBJ[o.b]}</g></g>`;
+    s += tx(XA, GY + 36, o.la) + tx(XB, GY + 36, o.lb) + (o.world ? tx(20, 28, o.world, { c: 'lbg', a: 'start' }) : '') + tx(520, 28, 'A dot every 0.2 s', { c: 'lbg', a: 'end' });
+    s += `<g class="q" opacity="0">${badge(270, 40, '?', { bg: PK, r: 16 })}</g><g class="res" opacity="0">${th(270, 46, o.res, { c: 'qm', fill: PK })}</g>`;
+    return `<svg class="vis" viewBox="0 0 540 258" preserveAspectRatio="xMidYMid meet" data-h="${GY - RY}" data-ry="${RY}" data-xa="${XA - 52}" data-xb="${XB + 52}" data-ta="${o.ta}" data-tb="${o.tb}" data-ka="${o.ka || 'acc'}" data-kb="${o.kb || 'acc'}">${s}</svg>`;
+}
+/* the front shows the set-up only. The fall plays on the answer side */
+SCENE.drop = function (svg) {
+    const d = svg.dataset, H = +d.h, RY = +d.ry, q = svg.querySelector('.q'), res = svg.querySelector('.res');
+    const obj = ['a', 'b'].map(k => ({ g: svg.querySelector('.o' + k), tr: svg.querySelector('.t' + k), x: +d['x' + k], T: +d['t' + k], kind: d['k' + k], nd: 0 }));
+    const drift = t => t - .3 * (1 - Math.exp(-t / .3));
+    const yAt = (o, t) => { t = Math.min(t, o.T); return o.kind === 'drift' ? H * drift(t) / drift(o.T) : H * (t / o.T) ** 2; };
+    const place = (o, y) => o.g.setAttribute('transform', `translate(0 ${f1(y)})`);
+    const reset = () => obj.forEach(o => { o.tr.innerHTML = ''; o.nd = 0; place(o, 0); });
+    let tok = 0;
+    reset();
+    return {
+        async intro() {
+            ++tok; reset(); res.setAttribute('opacity', 0); q.setAttribute('opacity', 1);
+            A(q, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 400, delay: 250 });
+        },
+        outcome() {
+            const my = ++tok, Tm = Math.max(...obj.map(o => o.T));
+            reset(); q.setAttribute('opacity', 0); res.setAttribute('opacity', 0);
+            return new Promise(ok => {
+                const st = performance.now();
+                const f = n => {
+                    if (my !== tok || !document.body.contains(svg)) return;
+                    const t = Math.min(Tm, (n - st) / 1000);
+                    obj.forEach(o => {
+                        const lim = Math.min(t, o.T);
+                        while (o.nd <= lim + 1e-6) { o.tr.insertAdjacentHTML('beforeend', `<circle cx="${o.x}" cy="${f1(RY - 10 + yAt(o, o.nd))}" r="4" fill="${PK}"/>`); o.nd = +(o.nd + .2).toFixed(2); }
+                        place(o, yAt(o, t));
+                    });
+                    if (t < Tm) requestAnimationFrame(f);
+                    else { res.setAttribute('opacity', 1); A(res, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 400 }); ok(); }
+                };
+                requestAnimationFrame(f);
+            });
+        }
+    };
+};
+
 /* =========================================================
    CURRICULUM
    soon: true shows the deck as Coming soon on the home screen.
@@ -925,7 +1068,7 @@ const LGS = [
     { id: 'LG1', short: 'Contact and non\u2011contact forces', text: 'To investigate common types of contact and non-contact forces', sc: ['SC1', 'SC2'] },
     { id: 'LG2', short: 'Balanced and unbalanced forces', text: 'To investigate balanced and unbalanced forces acting on objects', sc: ['SC3', 'SC4', 'SC5', 'SC6'] },
     { id: 'LG3', short: 'Friction and simple machines', text: 'To investigate common forces and simple machines', sc: ['SC7', 'SC8', 'SC9', 'SC10', 'SC11', 'SC12', 'SC13', 'SC14'] },
-    { id: 'LG4', short: 'Gravity, mass and weight', text: 'To investigate changes to an object due to gravitational force', sc: ['SC15', 'SC16', 'SC17'], soon: true }
+    { id: 'LG4', short: 'Gravity, mass and weight', text: 'To investigate changes to an object due to gravitational force', sc: ['SC15', 'SC16', 'SC17'] }
 ];
 const SCT = {
     SC1: 'I can define what forces are',
@@ -1130,8 +1273,48 @@ const CARDS = [
         text: 'A box has 15\u00a0N pushing right and 9\u00a0N pushing left. The net force is [] to the []. If another 6\u00a0N pushes left, the net force becomes [] and the forces are [].',
         answers: ['6 N', 'right', '0 N', 'balanced'], bank: ['6 N', 'right', '0 N', 'balanced', '24 N', 'left', 'unbalanced'],
         instr: 'Drag or tap an answer into each gap, then press <b>Check</b>.',
-        ansHTML: '<p class="actext">The net force is <b>6\u00a0N</b> to the <b>right</b>. With another 6\u00a0N pushing left, the net force becomes <b>0\u00a0N</b> and the forces are <b>balanced</b>.</p>' })
+        ansHTML: '<p class="actext">The net force is <b>6\u00a0N</b> to the <b>right</b>. With another 6\u00a0N pushing left, the net force becomes <b>0\u00a0N</b> and the forces are <b>balanced</b>.</p>' }),
 
+    /* LG4 */
+    C('sc15-what-gravity-is', 'SC15', 'What gravity is', 'Which statement best describes gravity?', ['An attractive force between any two objects that have mass', 'A force that only acts on objects that are falling', 'A push from the air above an object', 'A force that only exists on Earth'], 'Every object with mass pulls on every other object with mass. Gravity is a non-contact force, so it acts across a gap, even across space.'),
+    C('sc15-speeding-up-as-it-falls', 'SC15', 'Speeding up as it falls', 'A dot marks the ball every 0.1 s as it falls. What do the growing gaps tell you?', ['Gravity is unbalanced, so the ball keeps speeding up', 'The forces are balanced, so the ball falls at a steady speed', 'The ball gets heavier as it falls', 'Air resistance pushes the ball downwards'], 'Nothing balances the pull of gravity, so the net force is downwards. An unbalanced force changes motion, so the ball speeds up and travels further in each 0.1 s.', { vis: fallTrail() }),
+    C('sc15-two-seconds-of-falling', 'SC15', 'Two seconds of falling', 'On Earth, a falling object speeds up by 9.8 m/s every second. Ignoring air resistance, how fast is a dropped stone falling after 2 s?', ['19.6 m/s', '9.8 m/s', '4.9 m/s', '39.2 m/s'], 'The stone gains 9.8 m/s every second: 9.8 m/s after 1 s, then 9.8 + 9.8 = 19.6 m/s after 2 s.', { calc: true }),
+    C('sc15-predict-heavy-and-light', 'SC15', 'Predict: heavy and light', 'Two balls are the same size, but one has five times the mass. They are dropped together. What happens?', ['They land at the same time', 'The 5 kg ball lands first', 'The 1 kg ball lands first', 'The 5 kg ball falls at a steady speed'], 'Gravity pulls harder on the 5 kg ball, but it also has five times the mass to speed up. Air resistance is tiny for both, so both speed up by 9.8 m/s every second and land together.', { scene: 'drop', vis: dropSVG({ a: 'heavy', b: 'light', la: '5 kg ball', lb: '1 kg ball', ta: 1.3, tb: 1.3, world: 'On Earth', res: 'Land together' }) }),
+    C('sc15-predict-flat-and-crumpled', 'SC15', 'Predict: flat and crumpled', 'Two identical sheets of paper are dropped together. One has been crumpled into a ball. What happens?', ['The crumpled sheet lands first', 'The flat sheet lands first', 'They land at the same time', 'The flat sheet floats and never lands'], 'Both sheets have the same mass, so gravity pulls on them equally. The flat sheet has a much bigger surface area, so it meets more air resistance and falls more slowly.', { scene: 'drop', vis: dropSVG({ a: 'crumple', b: 'sheet', la: 'Crumpled sheet', lb: 'Flat sheet', ta: 1.4, tb: 3.6, kb: 'drift', world: 'On Earth', res: 'Crumpled sheet first' }) }),
+    C('sc15-a-drifting-feather', 'SC15', 'A drifting feather', 'The dots show a feather falling at a slow, steady speed. What can you say about the forces on it?', ['Air resistance is as big as gravity, so the forces are balanced', 'Gravity has stopped acting on the feather', 'Gravity is much bigger than air resistance', 'Air resistance is bigger than gravity, so it keeps slowing down'], 'A steady speed means the forces are balanced. The feather is light but wide, so it meets enough air resistance to match the small pull of gravity.', { vis: featherTrail(false), backVis: featherTrail(true) }),
+    C('sc15-just-after-jumping', 'SC15', 'Just after jumping', 'A skydiver has just jumped and is speeding up. Arrow length shows the size of each force. Which diagram matches?', [sky(60, 18), sky(40, 40), sky(20, 56), sky(0, 44)], 'Gravity is bigger than air resistance, so the net force is downwards and she speeds up. As she falls faster, air resistance grows until it balances gravity.', { pic: true }),
+
+    C('sc16-mass-on-the-moon', 'SC16', 'Mass on the Moon', 'An astronaut has a mass of 60 kg on Earth. What is her mass on the Moon?', ['60 kg', '10 kg', '0 kg', '98 N'], 'Mass is the amount of matter in an object. She is made of the same matter on the Moon, so her mass stays 60 kg. Only her weight changes.'),
+    C('sc16-bathroom-scales-on-the-moon', 'SC16', 'Bathroom scales on the Moon', 'Bathroom scales measure how hard you push down on them, then show it in kilograms. What would they show for a 60 kg astronaut on the Moon?', ['About 10 kg, because her weight is smaller', '60 kg, because her mass has not changed', '0 kg, because there is no gravity on the Moon', 'More than 60 kg, because the Moon pulls harder'], 'Scales really measure weight, which is a force. On the Moon her weight is about one sixth of her Earth weight, so the scales read about 10 kg, even though her mass is still 60 kg.'),
+    C('sc16-weighing-the-cat', 'SC16', 'Weighing the cat', 'A cat has a mass of 4 kg. What is its weight on Earth, where gravity is 9.8 m/s²?', ['39.2 N', '4 kg', '39.2 kg', '13.8 N'], 'weight = mass × gravity = 4 kg × 9.8 m/s² = 39.2 N. Weight is a force, so it is measured in newtons.', { calc: true }),
+    C('sc16-i-weigh-45-kg', 'SC16', 'I weigh 45 kg', 'Mia says, “I weigh 45 kg.” How would a scientist correct her?', ['Your mass is 45 kg. Your weight is about 441 N.', 'Your weight is 45 kg. Your mass is about 441 N.', 'Your mass and your weight are both 45 kg.', 'Nothing, because mass and weight mean the same thing.'], '45 kg is a mass, the amount of matter in her body. Weight is the force of gravity on that mass: 45 kg × 9.8 m/s² = 441 N.'),
+    C('sc16-which-is-a-weight', 'SC16', 'Which is a weight', 'Which of these measurements could be a person’s weight?', ['450 N', '45 kg', '9.8 m/s²', '160 cm'], 'Weight is a force, so it is measured in newtons (N). Kilograms measure mass, m/s² measures gravity and centimetres measure length.'),
+    C('sc16-a-weightless-satellite', 'SC16', 'A weightless satellite', 'Far out in space, a 500 kg satellite has almost no weight. Could an astronaut easily shove it to get it moving fast?', ['No, it still has 500 kg of mass, so it is hard to speed up', 'Yes, with no weight it needs almost no push', 'Yes, because objects have no mass in space', 'No, because gravity pulls it backwards'], 'Weight depends on gravity, but mass does not. The satellite still has 500 kg of matter, and more mass means a bigger force is needed to change its motion, just like a full shopping trolley.'),
+
+    C('sc17-weighing-in-on-jupiter', 'SC17', 'Weighing in on Jupiter', 'A student has a mass of 40 kg. Gravity on Jupiter is 24.8 m/s². What would she weigh on Jupiter?', ['992 N', '392 N', '40 kg', '64.8 N'], 'weight = 40 kg × 24.8 m/s² = 992 N. That is about 2.5 times her weight on Earth (392 N), but her mass is still 40 kg.', { calc: true }),
+    C('sc17-bouncing-on-the-moon', 'SC17', 'Bouncing on the Moon', 'Astronauts on the Moon move in big, slow bounces. Why?', ['Weaker gravity pulls them back down more slowly', 'They have less mass on the Moon', 'There is no gravity on the Moon', 'Their spacesuits push them upwards'], 'The Moon’s gravity is about one sixth of Earth’s. Each push off the ground sends them higher, and gravity takes longer to bring them back down.'),
+    C('sc17-what-sets-a-planets-gravity', 'SC17', 'What sets a planet’s gravity', 'Which two things decide how strong gravity is at a planet’s surface?', ['Its mass and its size', 'Its temperature and its colour', 'Its distance from the Sun and its number of moons', 'Its age and the gases in its air'], 'More mass means a stronger pull. A bigger planet puts its surface further from its centre, and gravity gets weaker with distance. That is why giant Uranus has weaker surface gravity than Earth.'),
+    C('sc17-a-smaller-planet', 'SC17', 'A smaller planet', 'Planet X has the same mass as Earth but is only half as wide. How would gravity at its surface compare with Earth’s?', ['Stronger, because its surface is closer to its centre', 'Weaker, because it is a smaller planet', 'The same, because it has the same mass', 'Zero, because small planets have no gravity'], 'Gravity gets weaker with distance. Planet X packs the same mass into a smaller ball, so standing on its surface puts you closer to its centre and the pull is stronger.', { vis: planetX() }),
+    C('sc17-mystery-planet', 'SC17', 'Mystery planet', 'A probe hangs a 2 kg mass from a force meter on a mystery planet. The meter reads 7.4 N. Which planet is it?', ['Mercury, with gravity of 3.7 m/s²', 'Mars, with gravity of 3.8 m/s²', 'Venus, with gravity of 8.9 m/s²', 'Earth, with gravity of 9.8 m/s²'], 'Test each planet with weight = mass × gravity. On Mercury: 2 kg × 3.7 m/s² = 7.4 N, a match. On Mars the same mass would weigh 7.6 N.', { calc: true, vis: forceMeter('7.4 N', '2 kg') }),
+    C('sc17-predict-earth-and-moon', 'SC17', 'Predict: Earth and Moon', 'The same ball is dropped from the same height on Earth and on the Moon. What happens?', ['It lands later on the Moon, because it speeds up more slowly', 'It lands at the same time in both places', 'It lands later on Earth, because air slows it down', 'It floats on the Moon, because there is no gravity'], 'The Moon’s gravity is 1.6 m/s², much weaker than Earth’s 9.8 m/s². The ball still speeds up on the Moon, just more slowly, so it takes longer to land.', { scene: 'drop', vis: dropSVG({ a: 'ball', b: 'ball', la: 'On Earth', lb: 'On the Moon', ta: 1.2, tb: 3, split: true, res: 'Later on the Moon' }) }),
+
+    /* LG4 interactive cards */
+    C('sc15-tap-the-pull', 'SC15', 'Tap the pull', 'Someone in Antarctica lets go of an apple. Which way does gravity pull it? Tap a direction.', [], 'Gravity pulls objects towards the centre of the Earth. In Antarctica that is up the page, so “down” always means towards Earth’s centre, wherever you stand.', { kind: 'hotspot',
+        hsSVG: downHS(), correct: [0], instr: 'Tap one of the four directions on the diagram.', ansHTML: '<div class="ans">Up the page, towards the centre of the Earth</div>', backVis: downBack() }),
+    C('sc15-explain-the-fall', 'SC15', 'Explain the fall', 'Complete the explanation of why a dropped ball falls.', [], 'Once you let go, nothing balances gravity. The unbalanced force pulls the ball towards the centre of the Earth, so it keeps speeding up until it lands.', { kind: 'cloze',
+        text: 'When you let go of a ball, nothing holds it up, so the forces on it are []. Gravity pulls it towards the [] of the Earth, and the ball [] as it falls.',
+        answers: ['unbalanced', 'centre', 'speeds up'], bank: ['unbalanced', 'centre', 'speeds up', 'balanced', 'surface', 'slows down'],
+        instr: 'Drag or tap a word into each gap, then press <b>Check</b>.',
+        ansHTML: '<p class="actext">When you let go of a ball, nothing holds it up, so the forces on it are <b>unbalanced</b>. Gravity pulls it towards the <b>centre</b> of the Earth, and the ball <b>speeds up</b> as it falls.</p>' }),
+    C('sc16-sort-mass-and-weight', 'SC16', 'Sort mass and weight', 'Does each statement describe mass or weight? Sort them.', [], 'Mass is the amount of matter in an object and stays the same everywhere. Weight is the force of gravity on that mass, so it changes from place to place.', { kind: 'sort',
+        bins: [['Mass', 'Amount of matter'], ['Weight', 'Force of gravity']], tileCls: 'stile', poolCls: 'pool2',
+        items: [['Measured in kilograms', 0], ['The same on every planet', 0], ['Not a force', 0], ['Measured with a balance', 0], ['Measured in newtons', 1], ['Less on the Moon', 1], ['Almost zero in deep space', 1], ['Measured with a force meter', 1]].map(([t, k]) => [sTile(t), k]),
+        instr: 'Drag each statement into a group, or tap a statement then a group. Press <b>Check</b>.',
+        ansHTML: '<p class="actext"><b>Mass:</b> kilograms, the same on every planet, not a force, measured with a balance.<br><b>Weight:</b> newtons, less on the Moon, almost zero in deep space, measured with a force meter.</p>' }),
+    C('sc17-order-the-drops', 'SC17', 'Order the drops', 'A ball is dropped from the same height on each world, ignoring air. Put them in order from first to land to last.', [], 'Stronger gravity makes the ball speed up faster, so it lands sooner. Jupiter has the strongest gravity of these worlds and the Moon has the weakest.', { kind: 'order',
+        seq: ['jupiter', 'earth', 'mars', 'moon'], tile: worldTile, tileCls: 'wld', poolCls: 'pool4', cols: 4, ordTop: 'Lands first<i></i>Lands last',
+        instr: 'Drag each world into a box, or tap a world to place it. Press <b>Check</b>.',
+        ansHTML: ansRow(['jupiter', 'earth', 'mars', 'moon'].map(k => aItem(worldSVG(k, ''), `${WORLD[k].name}<small>${WORLD[k].g}\u00a0m/s²</small>`)).join('')) })
 ];
 const scNum = s => +s.slice(2);
 const nb = t => t.replace(/(\d) (N|kg|m|s)\b/g, '$1\u00a0$2').replace(/ = /g, '\u00a0= ').replace(/ − /g, '\u00a0−\u00a0');
@@ -1253,6 +1436,29 @@ const RELEASED_IDS = [
     'sc13-a-car-jack',
     'sc13-a-rowing-oar',
     'sc13-force-or-speed',
+    'sc15-what-gravity-is',
+    'sc15-speeding-up-as-it-falls',
+    'sc15-two-seconds-of-falling',
+    'sc15-predict-heavy-and-light',
+    'sc15-predict-flat-and-crumpled',
+    'sc15-a-drifting-feather',
+    'sc15-just-after-jumping',
+    'sc16-mass-on-the-moon',
+    'sc16-bathroom-scales-on-the-moon',
+    'sc16-weighing-the-cat',
+    'sc16-i-weigh-45-kg',
+    'sc16-which-is-a-weight',
+    'sc16-a-weightless-satellite',
+    'sc17-weighing-in-on-jupiter',
+    'sc17-bouncing-on-the-moon',
+    'sc17-what-sets-a-planets-gravity',
+    'sc17-a-smaller-planet',
+    'sc17-mystery-planet',
+    'sc17-predict-earth-and-moon',
+    'sc15-tap-the-pull',
+    'sc15-explain-the-fall',
+    'sc16-sort-mass-and-weight',
+    'sc17-order-the-drops',
 ];
 /* IDs of cards that have been deleted. Keep them here (and in RELEASED_IDS) so they are never reused. */
 const RETIRED_IDS = [
@@ -1396,7 +1602,7 @@ const KTYPE = { order: 'Put in order', sort: 'Sort', hotspot: 'Tap the diagram',
 const typeOf = c => c.type ? c.type : c.kind ? KTYPE[c.kind] : c.scene ? 'Predict' : c.pic ? 'Pick the picture' : c.calc ? 'Calculate' : c.vis ? 'Read the diagram' : 'Quick recall';
 const hasKZ = c => c.kind === 'order' || c.kind === 'sort' || c.kind === 'cloze';
 function frontHTML(c) {
-    const body = hasKZ(c) ? `<div class="fvis kz kz-${c.kind}"></div>` : c.vis ? `<div class="fvis">${c.vis}${c.scene ? `<button class="replay" aria-label="Replay">${REPLAY}<span>Replay</span></button>` : ''}</div>` : `<div class="ghost">${c.sc}</div>`;
+    const body = hasKZ(c) ? `<div class="fvis kz kz-${c.kind}"></div>` : c.vis ? `<div class="fvis">${c.vis}${c.scene && c.scene !== 'drop' ? `<button class="replay" aria-label="Replay">${REPLAY}<span>Replay</span></button>` : ''}</div>` : `<div class="ghost">${c.sc}</div>`;
     return `<div class="fmeta"><span class="sctag">${c.sc}</span><span class="tchip">${typeOf(c)}</span>${Buckles.isDone(c.id) ? `<span class="bkchip">${BK}Earned</span>` : ''}<span class="lgc">${c.lg}</span></div><div class="fq">${c.q}</div>${body}`;
 }
 function backHTML(c, ok) {
@@ -1455,13 +1661,13 @@ function deal() {
             return b;
         });
         S.optcol.appendChild(box);
-        say((c.scene ? 'Watch the model, then choose your prediction. Press <b>Replay</b> to watch again.' : 'Choose the best answer. You can also press <b>1</b> to <b>4</b> on the keyboard.') + (Buckles.isDone(c.id) ? ' You’ve already earned this buckle.' : ''));
+        say((c.scene === 'drop' ? 'Study the set-up, then choose your prediction. The drop plays on the answer card.' : c.scene ? 'Watch the model, then choose your prediction. Press <b>Replay</b> to watch again.' : 'Choose the best answer. You can also press <b>1</b> to <b>4</b> on the keyboard.') + (Buckles.isDone(c.id) ? ' You’ve already earned this buckle.' : ''));
     }
     if (c.scene) {
         const sv = front.querySelector('.fvis svg'), ctl = SCENE[c.scene](sv);
         S.sc = ctl;
         setTimeout(() => { if (S && S.cur === c) ctl.intro(); }, 760);
-        front.querySelector('.replay').onclick = () => ctl.intro();
+        const rp = front.querySelector('.replay'); if (rp) rp.onclick = () => ctl.intro();
     }
     setTimeout(() => { if (S && S.cur === c) S.locked = false; }, 450);
 }
