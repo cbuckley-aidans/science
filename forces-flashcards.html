@@ -103,6 +103,11 @@
     .scrow .box svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; opacity: 0; }
     .scrow.on .box { background: var(--pink); border-color: var(--pink); }
     .scrow.on .box svg { opacity: 1; }
+    .sclist.many { gap: 5px; }
+    .mtile svg.wide { width: 140px; height: 84px; }
+    .slot .mtile svg.wide { width: 116px; height: 70px; }
+    .ai.am svg.wide { width: 100px; height: 60px; }
+    .sclist.many .scrow { min-height: 48px; padding: 3px 14px; font-size: 16px; }
     .scrow:not(.on) { opacity: .5; border-style: dashed; }
     .scrow .code { font-family: var(--cond); font-size: 25px; font-weight: 900; }
     .scrow .n { font-family: var(--cond); font-size: 18px; font-weight: 800; color: var(--mid-grey); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
@@ -430,6 +435,7 @@
       Multiple choice:  C(id, sc, label, question, [4 options], explanation, { vis? , calc? , ordered?, ans? })
       Pick the picture: as above with { pic: true } and 4 SVG strings as options
       Predict:          as multiple choice with { scene: 'lab', vis: labSVG({...}) } (scene in SCENE)
+      Match:            as Put in order with { type: 'Match', slotLab: [...names in seq order] } (type renames the chip on any card)
       Put in order:     { kind: 'order', seq: [...keys in order], tile: key => html, cols, ordTop, slotLab?, instr, ansHTML }
       Sort:             { kind: 'sort', bins: [[title, hint], [title, hint]], items: [[html, 0 or 1], ...], tileCls?, poolCls?, instr, ansHTML }
       Fill the gaps:    { kind: 'cloze', text: 'Use [] for each gap', answers: [...], bank: [...answers plus spares], instr, ansHTML }
@@ -447,7 +453,7 @@
       - Force arrows start on the object, point in the direction of the force, and their
         length shows the size of the force (the same rules students are taught).
    ===================================================================================== */
-const FILE_VERSION = '2.0';
+const FILE_VERSION = '2.1';
 const $ = s => document.querySelector(s);
 const stage = $('#stage'), content = $('#content'), cap = $('#cap'), btns = $('#btns'), counter = $('#counter'), progress = $('#progress'), sndBtn = $('#snd');
 const NV = '#1b1f45', PK = '#ea008a', LT = '#f0f3f6', GR = '#c9ccd6', TN = '#e9ecf5';
@@ -768,6 +774,140 @@ const PATTERN = (() => { let s = ''; for (let r = 60; r < 900; r += 46) s += `<c
 const REPLAY = `<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v5h5"/></svg>`;
 const ansRow = items => `<div class="arow">${items}</div>`;
 
+/* ---------- LG3: friction and simple machines ---------- */
+POSE.sit = { f1: [26, 16], f2: [30, 10], hip: [0, -3], sh: [-3, -46], hd: [-4, -63], h: [16, -30] };
+const fl = (x, y, s, a = 'start', fs = 18) => `<text class="flbl halo" x="${f1(x)}" y="${f1(y)}" text-anchor="${a}" style="font-size:${fs}px">${s}</text>`;
+/* a ramp rising to the right from (x0, gy). o: cs crate size, fr crate position along the slope (0 to 1), len effort arrow length, lbl, arc radius */
+function rampAt(x0, gy, run, rise, o = {}) {
+    const a = Math.atan2(rise, run), c = Math.cos(a), s = Math.sin(a), cs = o.cs || 34, fr = o.fr ?? .3;
+    let r = `<polygon points="${f1(x0)},${gy} ${f1(x0 + run)},${gy} ${f1(x0 + run)},${f1(gy - rise)}" fill="${TN}" stroke="${NV}" stroke-width="${o.sw || 3}" stroke-linejoin="round"/>`;
+    if (o.arc) r += `<path d="M${f1(x0 + o.arc)} ${gy} A${o.arc} ${o.arc} 0 0 0 ${f1(x0 + o.arc * c)} ${f1(gy - o.arc * s)}" fill="none" stroke="${PK}" stroke-width="3"/>`;
+    const px = x0 + run * fr, py = gy - rise * fr;
+    r += `<g transform="translate(${f1(px)} ${f1(py)}) rotate(${f1(-a / DEG)})">${iCrate(-cs / 2, -cs, cs)}</g>`;
+    if (o.len) {
+        const sx = px + cs / 2 * (c - s), sy = py - cs / 2 * (s + c), ex = sx + o.len * c, ey = sy - o.len * s;
+        r += arr(sx, sy, ex, ey, PK, 6, 18, 11) + (o.lbl ? fl(ex + 8, ey - 6, o.lbl) : '');
+    }
+    return r;
+}
+const sameH = (x1, x2, y, lab) => `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${GR}" stroke-width="2.5" stroke-dasharray="6 6"/>` + (lab ? tx((x1 + x2) / 2, y - 9, lab, { c: 'lbg' }) : '');
+const rampPic = run => V(220, 150, sameH(14, 196, 44) + iGround(116, 10, 210) + rampAt(196 - run, 116, run, 72, { cs: 24, fr: .35 }));
+const rampTile = run => `<svg viewBox="0 0 100 100">${sameH(6, 92, 30) + iGround(82, 4, 96) + rampAt(92 - run, 82, run, 52, { cs: 15, fr: .35, sw: 2.5 })}</svg>`;
+/* gentle and steep ramps to the same height. lab adds effort arrows and the trade-off */
+function rampCompare(lab) {
+    let s = iGround(200, 10, 530) + sameH(250, 480, 100, 'Same height');
+    s += rampAt(20, 200, 230, 100, { fr: .3, len: lab ? 45 : 0, arc: lab ? 46 : 0 }) + rampAt(380, 200, 100, 100, { fr: .25, len: lab ? 95 : 0, arc: lab ? 34 : 0 });
+    if (lab) [[135, 'Small angle', 'Less effort', 'Longer distance'], [430, 'Large angle', 'More effort', 'Shorter distance']].forEach(([x, a, b, c]) => s += tx(x, 238, a) + tx(x, 262, b, { fill: PK }) + tx(x, 286, c, { c: 'lbg' }));
+    else s += tx(135, 238, 'Gentle ramp') + tx(430, 238, 'Steep ramp');
+    return V(540, lab ? 294 : 250, s);
+}
+function rampAB() {
+    let s = iGround(200, 10, 530) + sameH(140, 500, 100);
+    s += rampAt(40, 200, 100, 100, { fr: .25, len: 80, lbl: '200 N' }) + rampAt(260, 200, 240, 100, { fr: .3, len: 40, lbl: '100 N' });
+    return V(540, 250, s + tx(90, 238, 'Ramp A') + tx(380, 238, 'Ramp B'));
+}
+function rampEff() {
+    let s = iGround(210, 10, 530) + sameH(20, 500, 110) + tx(214, 101, 'Stage height', { c: 'lbg', a: 'start' });
+    s += iCrate(80, 150, 60) + farrow(110, 150, 'u', 120, '600 N') + rampAt(230, 210, 270, 100, { fr: .3, len: 40, lbl: '200 N' });
+    return V(540, 258, s + tx(118, 248, 'Lifting straight up') + tx(365, 248, 'Pushing up the ramp'));
+}
+/* lever: f, l, e are positions along the beam (0 to 1). eDir 'u' or 'd'. arms: true labels the arms, 'ab' marks them A and B */
+function leverSVG(o) {
+    const X = t => 50 + 440 * t, fx = X(o.f), lx = X(o.l), ex = X(o.e), BY = 130, GY = 215, opp = (lx - fx) * (ex - fx) < 0;
+    let s = `<rect x="30" y="${GY}" width="480" height="10" fill="url(#pGround)"/><line x1="30" y1="${GY}" x2="510" y2="${GY}" stroke="${NV}" stroke-width="4"/>`;
+    s += `<polygon points="${f1(fx)},${BY + 5} ${f1(fx - 30)},${GY} ${f1(fx + 30)},${GY}" fill="${TN}" stroke="${NV}" stroke-width="4" stroke-linejoin="round"/>`;
+    s += `<rect x="50" y="${BY - 5}" width="440" height="10" rx="3" fill="${NV}"/>` + iCrate(lx - 30, BY - 65, 60);
+    s += o.eDir === 'd' ? farrow(ex, BY + 5, 'd', 66, 'Effort') : farrow(ex, BY - 5, 'u', 66, 'Effort');
+    s += th(lx, BY - 76, 'Load') + th(fx + 38, GY - 14, 'Fulcrum', { a: 'start' });
+    if (o.arms) {
+        const ab = o.arms === 'ab', ye = opp ? 262 : 252, yr = opp ? 262 : 292;
+        const dim = (a, b, y, lab, c) => `<g stroke="${GR}" stroke-width="2" stroke-dasharray="3 5"><line x1="${f1(a)}" y1="${GY + 12}" x2="${f1(a)}" y2="${y}"/><line x1="${f1(b)}" y1="${GY + 12}" x2="${f1(b)}" y2="${y}"/></g>` +
+            `<g stroke="${c}" stroke-width="3" stroke-linecap="round"><line x1="${f1(a)}" y1="${y}" x2="${f1(b)}" y2="${y}"/><line x1="${f1(a)}" y1="${y - 9}" x2="${f1(a)}" y2="${y + 9}"/><line x1="${f1(b)}" y1="${y - 9}" x2="${f1(b)}" y2="${y + 9}"/></g>` +
+            (ab ? badge((a + b) / 2, y, lab, { bg: c }) : th((a + b) / 2, y - 12, lab, { fill: c }));
+        s += dim(fx, lx, yr, ab ? 'A' : 'Resistance arm', NV) + dim(fx, ex, ye, ab ? 'B' : 'Effort arm', ab ? NV : PK);
+    }
+    return V(540, o.arms ? (opp ? 284 : 312) : 240, s);
+}
+/* wheelbarrow, ground at y = 190: handles near (14, 96), load at (212, 36), wheel axle at (280, 150) */
+function barrowG() {
+    const sp = [0, 60, 120].map(a => { const c = Math.cos(a * DEG) * 30, s = Math.sin(a * DEG) * 30; return `<line x1="${f1(280 - c)}" y1="${f1(150 - s)}" x2="${f1(280 + c)}" y2="${f1(150 + s)}"/>`; }).join('');
+    return `<line x1="12" y1="96" x2="280" y2="150" stroke="${NV}" stroke-width="8" stroke-linecap="round"/><line x1="12" y1="96" x2="38" y2="101" stroke="${NV}" stroke-width="14" stroke-linecap="round"/>` +
+        `<line x1="134" y1="121" x2="122" y2="188" stroke="${NV}" stroke-width="7" stroke-linecap="round"/>` +
+        `<path d="M112 60 Q212 4 312 60 Z" fill="${TN}" stroke="${NV}" stroke-width="3" stroke-linejoin="round"/>` +
+        `<polygon points="95,58 330,58 298,120 128,120" fill="${PK}" stroke="${NV}" stroke-width="4" stroke-linejoin="round"/>` +
+        `<circle cx="280" cy="150" r="40" fill="${NV}"/><g stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".55">${sp}</g><circle cx="280" cy="150" r="7" fill="#fff"/>`;
+}
+const hsDot = (k, x, y, lab) => `<g class="hs" data-k="${k}" tabindex="0" role="button" aria-label="${lab}" transform="translate(${f1(x)} ${f1(y)})"><circle class="hpl" r="15" fill="none" stroke="${PK}" stroke-width="3"><animate attributeName="r" values="14;26" dur="1.6s" begin="${(k * .2).toFixed(1)}s" repeatCount="indefinite"/><animate attributeName="opacity" values=".9;0" dur="1.6s" begin="${(k * .2).toFixed(1)}s" repeatCount="indefinite"/></circle><circle class="hdot" r="15" fill="#fff" stroke="${NV}" stroke-width="3.5"/><path class="hok" d="M-6 0.5l4 4 8-9" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><path class="hno" d="M-5 -5l10 10M5 -5l-10 10" fill="none" stroke="${NV}" stroke-width="3" stroke-linecap="round"/></g>`;
+function barrowHS() {
+    let s = `<rect x="20" y="377" width="480" height="12" fill="url(#pGround)"/><line x1="20" y1="377" x2="500" y2="377" stroke="${NV}" stroke-width="4"/>`;
+    s += `<g transform="translate(40 130) scale(1.3)">${barrowG()}</g>`;
+    s += hsDot(0, 66, 257, 'Handles') + hsDot(1, 316, 222, 'Load in the tray') + hsDot(2, 404, 325, 'Wheel');
+    return `<svg class="vis hsv" viewBox="0 0 520 460" preserveAspectRatio="xMidYMid meet">${s}</svg>`;
+}
+function barrowLab() {
+    let s = `<rect x="60" y="230" width="420" height="10" fill="url(#pGround)"/><line x1="60" y1="230" x2="480" y2="230" stroke="${NV}" stroke-width="4"/>`;
+    s += `<g transform="translate(100 40)">${barrowG()}</g>`;
+    s += farrow(114, 132, 'u', 60, 'Effort', { lb: 1 }) + th(312, 60, 'Load');
+    s += `<circle cx="380" cy="190" r="10" fill="${PK}" stroke="#fff" stroke-width="3"/>` + th(430, 196, 'Fulcrum', { a: 'start' });
+    return V(540, 246, s);
+}
+/* everyday levers, drawn in a 220 x 130 space */
+const LEVPIC = {
+    seesaw: `<line x1="20" y1="118" x2="200" y2="118" stroke="${NV}" stroke-width="3"/><polygon points="110,74 92,118 128,118" fill="${TN}" stroke="${NV}" stroke-width="3" stroke-linejoin="round"/>${fig(34, 66, 'sit', false, .62)}${fig(186, 66, 'sit', true, .62)}<g stroke="${NV}" stroke-width="4" stroke-linecap="round"><line x1="46" y1="66" x2="46" y2="44"/><line x1="174" y1="66" x2="174" y2="44"/></g><rect x="14" y="66" width="192" height="8" rx="3" fill="${PK}"/>`,
+    barrow: `<line x1="16" y1="119" x2="204" y2="119" stroke="${NV}" stroke-width="3"/><g transform="translate(20 16) scale(.54)">${barrowG()}</g>`,
+    tweezers: `<g fill="none" stroke="${NV}" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"><polyline points="106,14 86,78 104,112"/><polyline points="114,14 134,78 116,112"/><path d="M106 14 Q110 4 114 14"/></g><g stroke="#fff" stroke-width="2" stroke-linecap="round"><line x1="94" y1="48" x2="91" y2="58"/><line x1="126" y1="48" x2="129" y2="58"/></g><circle cx="110" cy="118" r="6" fill="${PK}"/>`,
+    scissors: `<g stroke-linecap="round"><line x1="118" y1="66" x2="204" y2="30" stroke="${NV}" stroke-width="7"/><line x1="118" y1="66" x2="204" y2="102" stroke="${NV}" stroke-width="7"/><line x1="118" y1="66" x2="68" y2="87" stroke="${PK}" stroke-width="8"/><line x1="118" y1="66" x2="68" y2="45" stroke="${PK}" stroke-width="8"/></g><circle cx="52" cy="94" r="16" fill="#fff" stroke="${PK}" stroke-width="7"/><circle cx="52" cy="38" r="16" fill="#fff" stroke="${PK}" stroke-width="7"/><circle cx="118" cy="66" r="5" fill="#fff" stroke="${NV}" stroke-width="3"/>`,
+    rod: `<line x1="28" y1="122" x2="196" y2="18" stroke="${NV}" stroke-width="5" stroke-linecap="round"/><circle cx="58" cy="103" r="9" fill="${PK}"/><line x1="196" y1="18" x2="196" y2="94" stroke="${NV}" stroke-width="2"/><g transform="translate(196 106) rotate(90)"><ellipse rx="14" ry="7" fill="${PK}"/><polygon points="12,0 23,-7 23,7" fill="${PK}"/><circle cx="-7" cy="-1.5" r="1.8" fill="#fff"/></g>`
+};
+const levPic = (k, lab) => picLab(LEVPIC[k], lab);
+const wideT = inner => `<svg class="wide" viewBox="0 0 220 132">${inner}</svg>`;
+/* the six simple machines (100 x 100) */
+const MACH = {
+    lever: iGround(86, 4, 96) + `<polygon points="40,60 30,86 50,86" fill="${TN}" stroke="${NV}" stroke-width="3" stroke-linejoin="round"/><g transform="rotate(14 40 58)"><rect x="4" y="54" width="92" height="7" rx="2" fill="${NV}"/>${iCrate(8, 30, 24)}</g>`,
+    pulley: `<line x1="18" y1="8" x2="82" y2="8" stroke="${NV}" stroke-width="4" stroke-linecap="round"/><line x1="50" y1="8" x2="50" y2="22" stroke="${NV}" stroke-width="3"/><g stroke="${NV}" stroke-width="2.5"><line x1="36" y1="30" x2="36" y2="62"/><line x1="64" y1="30" x2="64" y2="84"/></g><circle cx="50" cy="30" r="14" fill="#fff" stroke="${NV}" stroke-width="4"/><circle cx="50" cy="30" r="3.5" fill="${NV}"/>${iCrate(24, 62, 24)}<rect x="58" y="82" width="12" height="9" rx="3" fill="${PK}"/>`,
+    wedge: `<rect x="12" y="58" width="76" height="30" rx="4" fill="${TN}" stroke="${NV}" stroke-width="3"/><path d="M50 74 L46 88" stroke="${NV}" stroke-width="2.5"/><polygon points="34,10 66,10 50,76" fill="${PK}" stroke="${NV}" stroke-width="3" stroke-linejoin="round"/>`,
+    screw: `<rect x="28" y="8" width="44" height="11" rx="3" fill="${NV}"/><rect x="40" y="19" width="20" height="60" fill="#fff" stroke="${NV}" stroke-width="3"/>${[24, 36, 48, 60, 72].map(y => `<line x1="36" y1="${y + 7}" x2="64" y2="${y - 1}" stroke="${PK}" stroke-width="4" stroke-linecap="round"/>`).join('')}<polygon points="40,79 60,79 50,95" fill="#fff" stroke="${NV}" stroke-width="3" stroke-linejoin="round"/>`,
+    incline: iGround(84, 4, 96) + rampAt(8, 84, 84, 52, { cs: 22, fr: .4 }),
+    wheel: `<rect x="22" y="44" width="56" height="12" fill="${PK}" stroke="${NV}" stroke-width="3"/><ellipse cx="22" cy="50" rx="11" ry="34" fill="#fff" stroke="${NV}" stroke-width="4"/><ellipse cx="78" cy="50" rx="11" ry="34" fill="#fff" stroke="${NV}" stroke-width="4"/><ellipse cx="78" cy="50" rx="3.5" ry="8" fill="${NV}"/>`
+};
+const MNAME = { lever: 'Lever', pulley: 'Pulley', wedge: 'Wedge', screw: 'Screw', incline: 'Inclined plane', wheel: 'Wheel and axle' };
+const machT = k => `<svg viewBox="0 0 100 100">${MACH[k]}</svg>`;
+const aItem = (svg, lab) => `<div class="ai am">${svg}${lab}</div>`;
+/* pulleys */
+const ceiling = (x1, x2, y) => `<rect x="${x1}" y="${y - 12}" width="${x2 - x1}" height="12" fill="url(#pGround)"/><line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${NV}" stroke-width="4"/>`;
+function pulley1(cx, pull, lbl) {
+    const L = cx - 24, R = cx + 24;
+    let s = `<line x1="${cx}" y1="30" x2="${cx}" y2="70" stroke="${NV}" stroke-width="4"/><g stroke="${NV}" stroke-width="3"><line x1="${L}" y1="70" x2="${L}" y2="160"/><line x1="${R}" y1="70" x2="${R}" y2="176"/></g>`;
+    s += `<circle cx="${cx}" cy="70" r="24" fill="#fff" stroke="${NV}" stroke-width="5"/><circle cx="${cx}" cy="70" r="5" fill="${NV}"/><path d="M${L} 70 A24 24 0 0 1 ${R} 70" fill="none" stroke="${NV}" stroke-width="3"/>`;
+    return s + iCrate(L - 30, 160, 60) + farrow(R, 176, 'd', pull * .6, lbl || pull + ' N');
+}
+function pulley2(cx, pull) {
+    const fX = cx + 20, mX = cx - 20;
+    let s = `<line x1="${fX}" y1="30" x2="${fX}" y2="66" stroke="${NV}" stroke-width="4"/><line x1="${mX}" y1="150" x2="${mX}" y2="180" stroke="${NV}" stroke-width="4"/>`;
+    s += `<circle cx="${fX}" cy="66" r="20" fill="#fff" stroke="${NV}" stroke-width="5"/><circle cx="${mX}" cy="150" r="20" fill="#fff" stroke="${NV}" stroke-width="5"/>`;
+    s += `<path d="M${cx - 40} 30 V150 A20 20 0 0 0 ${cx} 150 V66 A20 20 0 0 1 ${cx + 40} 66 V176" fill="none" stroke="${NV}" stroke-width="3"/>`;
+    s += `<circle cx="${fX}" cy="66" r="4.5" fill="${NV}"/><circle cx="${mX}" cy="150" r="4.5" fill="${NV}"/>`;
+    return s + iCrate(mX - 30, 180, 60) + farrow(cx + 40, 176, 'd', pull * .6, pull + ' N');
+}
+function singlePulley(lbl) {
+    let s = ceiling(150, 390, 30) + pulley1(270, 100, lbl);
+    s += arr(196, 214, 196, 160, GR, 4, 13, 8) + tx(186, 194, 'Load rises', { c: 'lbg', a: 'end' }) + tx(246, 246, '100 N load', { c: 'lbs' });
+    return `<svg class="vis" viewBox="90 14 360 242" preserveAspectRatio="xMidYMid meet">${s}</svg>`;
+}
+function pulleyPair() {
+    let s = ceiling(40, 500, 30) + pulley1(140, 100) + pulley2(380, 50);
+    s += tx(116, 242, '100 N load', { c: 'lbs' }) + tx(360, 262, '100 N load', { c: 'lbs' }) + tx(140, 292, 'Single pulley') + tx(380, 292, 'Two pulleys');
+    return V(540, 300, s);
+}
+/* net force: several arrows on each side of a box. R and L are lists of forces in newtons */
+function multiF(R, L, name, k) {
+    const mL = L.length ? Math.max(...L) * k : 0, mR = R.length ? Math.max(...R) * k : 0, cx = 270 + (mL - mR) / 2, cy = 120;
+    let s = `<rect class="obj" x="${f1(cx - 50)}" y="${cy - 50}" width="100" height="100" rx="6"/>` + tx(cx, cy + 7, name, { c: 'oname' });
+    const side = (fs, d, x) => fs.forEach((n, i) => { s += farrow(x, cy + (fs.length > 1 ? (i ? 24 : -24) : 0), d, n * k, n + ' N', { lb: i ? 1 : 0 }); });
+    side(R, 'r', cx + 50); side(L, 'l', cx - 50);
+    return V(540, 240, s);
+}
+
 /* =========================================================
    CURRICULUM
    soon: true shows the deck as Coming soon on the home screen.
@@ -776,7 +916,7 @@ const ansRow = items => `<div class="arow">${items}</div>`;
 const LGS = [
     { id: 'LG1', short: 'Contact and non\u2011contact forces', text: 'To investigate common types of contact and non-contact forces', sc: ['SC1', 'SC2'] },
     { id: 'LG2', short: 'Balanced and unbalanced forces', text: 'To investigate balanced and unbalanced forces acting on objects', sc: ['SC3', 'SC4', 'SC5', 'SC6'] },
-    { id: 'LG3', short: 'Friction and simple machines', text: 'To investigate common forces and simple machines', sc: ['SC7', 'SC8', 'SC9', 'SC10', 'SC11', 'SC12', 'SC13', 'SC14'], soon: true },
+    { id: 'LG3', short: 'Friction and simple machines', text: 'To investigate common forces and simple machines', sc: ['SC7', 'SC8', 'SC9', 'SC10', 'SC11', 'SC12', 'SC13', 'SC14'] },
     { id: 'LG4', short: 'Gravity, mass and weight', text: 'To investigate changes to an object due to gravitational force', sc: ['SC15', 'SC16', 'SC17'], soon: true }
 ];
 const SCT = {
@@ -880,7 +1020,114 @@ const CARDS = [
         text: 'Squeezing a stress ball changes its []. Kicking a rolling ball from the side changes its []. Pushing a still trolley changes its [].',
         answers: ['shape', 'direction', 'speed'], bank: ['shape', 'direction', 'speed', 'mass', 'colour'],
         instr: 'Drag or tap a word into each gap, then press <b>Check</b>.',
-        ansHTML: '<p class="actext">Squeezing a stress ball changes its <b>shape</b>. Kicking a rolling ball from the side changes its <b>direction</b>. Pushing a still trolley changes its <b>speed</b>.</p>' })
+        ansHTML: '<p class="actext">Squeezing a stress ball changes its <b>shape</b>. Kicking a rolling ball from the side changes its <b>direction</b>. Pushing a still trolley changes its <b>speed</b>.</p>' }),
+
+    /* LG3 */
+    C('sc7-what-friction-does', 'SC7', 'What friction does', 'What does friction do to a moving object?', ['It resists the object’s motion', 'It always speeds the object up', 'It pulls the object towards Earth', 'It only acts on objects in the air'], 'Friction is a contact force that resists motion. It is larger on rough and sticky surfaces.'),
+    C('sc7-a-helpful-effect', 'SC7', 'A helpful effect', 'Which of these is a beneficial effect of friction?', ['Your shoes grip the ground so you don’t slip', 'Moving parts in a machine wear out', 'A car engine uses extra fuel', 'A bike chain heats up as it turns'], 'Friction between your soles and the ground stops you slipping, so you can walk and run. The other options are unwanted effects.'),
+    C('sc7-an-unwanted-effect', 'SC7', 'An unwanted effect', 'Which of these is an unwanted effect of friction?', ['Machines waste energy as heat', 'Brakes slow a bike down', 'Tyres grip the road', 'A pencil leaves marks on paper'], 'Friction resists motion, so engines and machines work harder and waste energy as heat. The other options are friction being helpful.'),
+    C('sc7-oiling-a-bike-chain', 'SC7', 'Oiling a bike chain', 'Why do cyclists oil their bike chain?', ['To reduce unwanted friction between moving parts', 'To increase friction so the chain grips', 'To make the bike heavier', 'To stop gravity acting on the chain'], 'Oil helps the parts slide past each other. Less friction means less energy is wasted as heat and the parts wear out more slowly.'),
+    C('sc7-slipping-on-ice', 'SC7', 'Slipping on ice', 'Why is it easy to slip on an icy footpath?', ['There is very little friction between your shoes and the ice', 'Ice pulls your feet with a magnetic force', 'There is too much friction on ice', 'Gravity is weaker on ice'], 'Ice is very smooth, so there is little friction to grip your shoes. Here, more friction would be helpful.'),
+    C('sc7-rubbing-your-hands', 'SC7', 'Rubbing your hands', 'Rub your hands together quickly. Why do they feel warm?', ['Friction turns some energy into heat', 'Gravity pulls your hands together', 'Air resistance warms your skin', 'A magnetic force acts between them'], 'When surfaces rub together, friction turns some energy into heat. That is helpful on a cold day, but in machines it is wasted energy.'),
+
+    C('sc8-what-is-a-simple-machine', 'SC8', 'What is a simple machine?', 'What is a simple machine?', ['A basic device that changes the size or direction of a force', 'Any machine that runs on electricity', 'A device that creates its own energy', 'A machine with lots of moving parts'], 'A simple machine changes the size or direction of a force, making it easier to do work. It cannot create energy.'),
+    C('sc8-work-in-science', 'SC8', 'Work in science', 'In science, when is work done?', ['When a force moves an object over a distance', 'Whenever you think hard about a problem', 'When you push on a wall that does not move', 'Whenever an object is standing still'], 'Work is done when a force moves an object over a distance. Pushing on a wall that does not move does no work.'),
+    C('sc8-not-a-simple-machine', 'SC8', 'Not a simple machine', 'Which of these is not one of the six simple machines?', ['Spring', 'Wedge', 'Pulley', 'Screw'], 'The six simple machines are the lever, pulley, wedge, screw, inclined plane, and wheel and axle. A spring is not one of them.'),
+    C('sc8-what-a-screw-is', 'SC8', 'What a screw is', 'A screw is a special kind of which simple machine?', ['An inclined plane wrapped around a pole', 'A lever with two fulcrums', 'A pulley without a rope', 'A wheel with no axle'], 'Follow the thread of a screw and you are following a ramp that winds around the pole. A wedge is also made from inclined planes: two joined back to back.'),
+    C('sc8-the-load', 'SC8', 'The load', 'What is the load in a simple machine?', ['The object or resistance the machine moves', 'The force you apply to the machine', 'The point the machine turns on', 'The distance the machine moves'], 'The load is what the machine moves, lifts or overcomes. The effort force is the push or pull you apply to make it happen.'),
+
+    C('sc9-three-advantages', 'SC9', 'Three advantages', 'Which list shows advantages of simple machines?', ['Less effort, change of direction, more force', 'More effort, more friction, more mass', 'More energy, less mass, more speed', 'Less mass, less gravity, less distance'], 'Simple machines reduce the effort needed, can change the direction of a force, and can let a small effort move a much heavier load.'),
+    C('sc9-a-single-pulley', 'SC9', 'A single pulley', 'Pulling down on the rope lifts the crate. What advantage does this single pulley give?', ['It changes the direction of the force', 'It makes the crate lighter', 'It removes gravity from the crate', 'It halves the effort force needed'], 'You pull down to lift the load up, which is easier and safer than lifting it. A single pulley does not reduce the effort: 100 N lifts a 100 N load.', { vis: singlePulley() }),
+    C('sc9-not-an-advantage', 'SC9', 'Not an advantage', 'Which of these is not something a simple machine can do?', ['Make the load weigh less', 'Reduce the effort force needed', 'Change the direction of a force', 'Let a small force move a heavy load'], 'A simple machine cannot change the weight of the load. It changes how much effort is needed to move it, or the direction you apply the effort in.'),
+    C('sc9-wheels-instead-of-sliding', 'SC9', 'Wheels instead of sliding', 'Why is it easier to move a heavy box on a trolley than to slide it across the floor?', ['The wheels reduce friction with the ground', 'The trolley makes the box lighter', 'The wheels add an extra pushing force', 'Gravity does not act on the trolley'], 'A wheel only touches the ground at a small point, so there is much less friction than sliding. Less effort is needed to move the load.'),
+    C('sc9-building-the-pyramids', 'SC9', 'Building the pyramids', 'Ancient Egyptians moved blocks weighing up to 80 tonnes without modern technology. How did simple machines help?', ['They multiplied the force the workers applied', 'They made the blocks lighter', 'They removed friction completely', 'They created extra energy'], 'Ramps and levers multiplied the force that teams of workers applied, so they could move enormous blocks to build the Great Pyramid of Giza.'),
+
+    C('sc10-steeper-ramps', 'SC10', 'Steeper ramps', 'As a ramp gets steeper, what happens to the effort force needed to push a box up it?', ['It increases', 'It decreases', 'It stays the same', 'It drops to zero'], 'A larger angle of inclination needs more effort force. A smaller angle needs less effort, but the box travels further.'),
+    C('sc10-least-effort-ramp', 'SC10', 'Least effort ramp', 'Each ramp reaches the same height. Which ramp needs the least effort force to push the box up?', [rampPic(180), rampPic(120), rampPic(72), rampPic(36)], 'The gentlest ramp has the smallest angle of inclination, so it needs the least effort. The trade-off is that the box travels the longest distance.', { pic: true }),
+    C('sc10-the-trade-off', 'SC10', 'The trade-off', 'Both ramps reach the same height. What is the trade-off when you use the gentle ramp?', ['Less effort, but the box travels further', 'More effort, and the box travels further', 'Less effort, and the box travels less distance', 'More effort, but the box travels less distance'], 'A gentle ramp needs less effort force, but the box must travel a longer distance. A steep ramp is shorter but needs more effort.', { vis: rampCompare(false), backVis: rampCompare(true) }),
+    C('sc10-wheelchair-ramps', 'SC10', 'Wheelchair ramps', 'Why are wheelchair ramps built long with a gentle slope?', ['A small angle means less effort force is needed', 'A long ramp makes the wheelchair lighter', 'A steep ramp has no friction', 'A gentle slope removes gravity'], 'The smaller the angle of inclination, the less effort force is needed to roll up. The ramp is longer, but each push is easier.'),
+
+    C('sc11-the-efficiency-equation', 'SC11', 'The efficiency equation', 'Which equation calculates the efficiency of a simple machine?', ['Force without the machine ÷ force with the machine × 100', 'Force with the machine ÷ force without the machine × 100', 'Force without the machine − force with the machine', 'Force with the machine × distance moved'], 'efficiency = force without simple machine ÷ force with simple machine × 100. A more efficient machine needs less effort to do the same job.'),
+    C('sc11-efficiency-of-a-ramp', 'SC11', 'Efficiency of a ramp', 'Lifting the crate straight up takes 600 N. Pushing it up the ramp takes 200 N. What is the ramp’s efficiency?', ['300%', '33%', '30%', '400%'], 'efficiency = 600 N ÷ 200 N × 100 = 300%. The ramp needs only a third of the force, so it is a force multiplier.', { vis: rampEff(), calc: true }),
+    C('sc11-which-ramp-is-more-efficient', 'SC11', 'Which ramp is more efficient', 'Both ramps lift the same 400 N crate onto the stage. Which ramp is more efficient?', ['Ramp B, with an efficiency of 400%', 'Ramp A, with an efficiency of 200%', 'Ramp A, with an efficiency of 50%', 'Ramp B, with an efficiency of 25%'], 'Ramp A: 400 ÷ 200 × 100 = 200%. Ramp B: 400 ÷ 100 × 100 = 400%. The gentler ramp needs less effort, so it is more efficient.', { vis: rampAB(), calc: true }),
+    C('sc11-one-pulley-or-two', 'SC11', 'One pulley or two', 'Why is the two-pulley system more efficient than the single pulley?', ['The pulleys share the load, so less effort is needed', 'It changes the direction of the force twice', 'It makes the load lighter', 'Its longer rope removes all friction'], 'Two pulleys share the 100 N load, so only 50 N of effort is needed. A single pulley only changes the direction of the force.', { vis: pulleyPair() }),
+    C('sc11-efficiency-of-a-single-pulley', 'SC11', 'Efficiency of a single pulley', 'A single pulley lifts a 100 N load with a 100 N pull. What is its efficiency?', ['100%', '200%', '50%', '0%'], 'efficiency = 100 N ÷ 100 N × 100 = 100%. The effort is not reduced. A single pulley only changes the direction of the force.', { calc: true }),
+    C('sc11-friction-in-screws', 'SC11', 'Friction in screws', 'Screws and wedges trade effort force for distance. What can make them less efficient?', ['High friction, so extra effort is needed', 'Changing the direction of the force', 'Using them on soft materials', 'Turning them slowly'], 'Screws and wedges rub against the material they move into. High friction means more effort is wasted, so the machine is less efficient.'),
+
+    C('sc12-what-a-fulcrum-is', 'SC12', 'What a fulcrum is', 'What is the fulcrum of a lever?', ['The fixed point the lever turns on', 'The object the lever moves', 'The force you apply to the lever', 'The longest part of the lever'], 'Every lever is a bar that turns on a support called the fulcrum. The load and the effort act at other points along the bar.'),
+    C('sc12-find-the-effort-arm', 'SC12', 'Find the effort arm', 'Which bracket shows the effort arm of this lever?', ['B, from the fulcrum to where the effort is applied', 'A, from the fulcrum to the load', 'A and B together, the whole length of the lever', 'Neither, because the effort arm is the fulcrum'], 'The effort arm runs from the fulcrum to where the effort is applied. The resistance arm (A) runs from the fulcrum to the load.', { vis: leverSVG({ l: .1, f: .36, e: .9, eDir: 'd', arms: 'ab' }) }),
+    C('sc12-the-resistance-arm', 'SC12', 'The resistance arm', 'What is the resistance arm of a lever?', ['The distance from the fulcrum to the load', 'The distance from the fulcrum to the effort', 'The whole length of the lever', 'The height of the fulcrum'], 'The resistance arm (also called the load arm) runs from the fulcrum to the load. The effort arm runs from the fulcrum to where the effort is applied.'),
+    C('sc12-first-class-levers', 'SC12', 'First-class levers', 'In a first-class lever, such as a seesaw, where is the fulcrum?', ['Between the effort and the load', 'At one end, next to the load', 'At one end, next to the effort', 'On top of the load'], 'In a first-class lever the fulcrum sits between the effort and the load. Seesaws, scissors and pliers are first-class levers.'),
+    C('sc12-effort-in-the-middle', 'SC12', 'Effort in the middle', 'Which lever has the effort between the fulcrum and the load?', [levPic('tweezers', 'Tweezers'), levPic('seesaw', 'Seesaw'), levPic('barrow', 'Wheelbarrow'), levPic('scissors', 'Scissors')], 'Tweezers are a third-class lever. The fulcrum is at the joined end, you squeeze in the middle, and the load is at the tips.', { pic: true }),
+
+    C('sc13-force-multipliers', 'SC13', 'Force multipliers', 'What does a force multiplier do?', ['Lets a small effort force move a large load', 'Makes the load move faster than the effort', 'Makes the load lighter', 'Removes friction from the load'], 'A force multiplier makes a small force move a large load. The trade-off is that the effort must move a longer distance.'),
+    C('sc13-speed-multipliers', 'SC13', 'Speed multipliers', 'What does a speed multiplier do?', ['Makes the load move faster or further than the effort', 'Lets a small effort move a large load', 'Makes the load heavier', 'Stops the load from moving'], 'A speed multiplier makes an object move faster or further than the effort applied. The trade-off is that a larger effort force is needed.'),
+    C('sc13-a-long-effort-arm', 'SC13', 'A long effort arm', 'Is this lever a force multiplier or a speed multiplier?', ['A force multiplier, because the effort arm is longer', 'A speed multiplier, because the effort arm is longer', 'A speed multiplier, because the resistance arm is shorter', 'Neither, because levers only change direction'], 'The fulcrum is close to the load, so the effort arm is much longer than the resistance arm. A small effort can lift the heavy load.', { vis: leverSVG({ l: .1, f: .28, e: .9, eDir: 'd', arms: true }) }),
+    C('sc13-effort-near-the-fulcrum', 'SC13', 'Effort near the fulcrum', 'The effort is applied close to the fulcrum. What kind of multiplier is this lever?', ['A speed multiplier, because the load end moves further and faster', 'A force multiplier, because the effort arm is longer', 'A force multiplier, because the load is at the end', 'Neither, because the fulcrum is at the end'], 'The effort arm is short and the resistance arm is long. A small movement near the fulcrum makes the load end move further and faster, but more effort is needed.', { vis: leverSVG({ f: .05, e: .3, l: .9, eDir: 'u', arms: true }) }),
+    C('sc13-the-trade-off', 'SC13', 'The trade-off', 'A force multiplier lets you use a smaller effort force. What is the trade-off?', ['The effort must move a longer distance', 'The load becomes heavier', 'The load moves faster', 'There is none, so you save force and distance'], 'You cannot win both ways. A force multiplier needs less force but a longer distance. A speed multiplier needs more force but moves the load further and faster.'),
+    C('sc13-levers-can-be-both', 'SC13', 'Levers can be both', 'Why can a lever be either a force multiplier or a speed multiplier?', ['It depends on where the fulcrum, load and effort are', 'It depends on what the lever is made of', 'It depends only on how heavy the load is', 'Levers change type the more they are used'], 'Moving the fulcrum changes the lengths of the effort arm and resistance arm. A longer effort arm multiplies force. A shorter effort arm multiplies speed.'),
+
+    C('sc14-what-net-force-is', 'SC14', 'What net force is', 'What is net force?', ['The overall force on an object once all forces are combined', 'The biggest force acting on an object', 'The force of gravity on an object', 'The force needed to stop an object'], 'Net force is the overall force acting on an object after all the forces are combined. It tells you whether the forces are balanced.'),
+    C('sc14-two-people-pushing', 'SC14', 'Two people pushing', 'Two people push a crate to the right with 120 N and 90 N. What is the net force?', ['210 N to the right', '30 N to the right', '120 N to the right', '210 N to the left'], 'Forces in the same direction are added together: 120 N + 90 N = 210 N to the right.', { vis: multiF([120, 90], [], 'Crate', 1.3), calc: true }),
+    C('sc14-opposite-forces', 'SC14', 'Opposite forces', 'What is the net force on the box?', ['20 N to the right', '70 N to the right', '20 N to the left', '45 N to the right'], 'Forces in opposite directions are subtracted: 45 N − 25 N = 20 N, in the direction of the bigger force.', { vis: fdiag([{ d: 'r', n: 45 }, { d: 'l', n: 25 }], { w: 540, h: 230, size: 100, k: 2.6, name: 'Box' }), calc: true }),
+    C('sc14-equal-and-opposite', 'SC14', 'Equal and opposite', 'The box is still. What is the net force, and what will the box do?', ['0 N, so the box stays still', '70 N, so the box moves right', '35 N, so the box moves left', '0 N, so the box speeds up'], 'Equal and opposite forces balance out: 35 N − 35 N = 0 N. With no net force, a still box stays still.', { vis: fdiag([{ d: 'r', n: 35 }, { d: 'l', n: 35 }], { w: 540, h: 230, size: 100, k: 3, name: 'Box' }), calc: true }),
+    C('sc14-tug-of-war', 'SC14', 'Tug of war', 'The left team pulls with 250 N and the right team pulls with 320 N. What is the net force on the rope?', ['70 N to the right', '570 N to the right', '70 N to the left', '0 N'], 'The forces are in opposite directions, so subtract: 320 N − 250 N = 70 N to the right. The rope moves towards the right team.', { vis: tugSmall(250, 320), calc: true }),
+    C('sc14-three-forces', 'SC14', 'Three forces', 'Three forces act on the box. What is the net force?', ['30 N to the right', '90 N to the right', '30 N to the left', '10 N to the right'], 'First add the forces acting right: 40 N + 20 N = 60 N. Then subtract the force acting left: 60 N − 30 N = 30 N to the right.', { vis: multiF([40, 20], [30], 'Box', 3.2), calc: true }),
+
+    /* LG3 interactive cards */
+    C('sc7-sort-the-effects', 'SC7', 'Sort the effects', 'Is friction helping or causing a problem? Sort each example.', [], 'Friction helps us grip, stop and write. It also wastes energy as heat and wears parts down.', { kind: 'sort',
+        bins: [['Beneficial', 'Friction helps us'], ['Unwanted', 'Friction causes problems']], tileCls: 'stile', poolCls: 'pool2',
+        items: [['Shoes gripping the ground', 0], ['Brakes stopping a bike', 0], ['Striking a match', 0], ['Pencil marking paper', 0], ['Engine parts wearing out', 1], ['Machines heating up', 1], ['Shoe soles wearing thin', 1], ['Cars using extra fuel', 1]].map(([t, k]) => [sTile(t), k]),
+        instr: 'Drag each example into a group, or tap an example then a group. Press <b>Check</b>.',
+        ansHTML: '<p class="actext"><b>Beneficial:</b> shoes gripping, brakes stopping a bike, striking a match, pencil marking paper.<br><b>Unwanted:</b> parts wearing out, machines heating up, soles wearing thin, extra fuel.</p>' }),
+    C('sc8-define-a-simple-machine', 'SC8', 'Define a simple machine', 'Complete the definition.', [], 'Simple machines change the size or direction of a force. Work is done when a force moves an object over a distance.', { kind: 'cloze',
+        text: 'A simple machine is a basic device that changes the [] or [] of a force. This makes it easier to do [].',
+        answers: ['size', 'direction', 'work'], bank: ['size', 'direction', 'work', 'colour', 'mass', 'heat'],
+        instr: 'Drag or tap a word into each gap, then press <b>Check</b>.',
+        ansHTML: '<p class="actext">A simple machine is a basic device that changes the <b>size</b> or <b>direction</b> of a force. This makes it easier to do <b>work</b>.</p>' }),
+    C('sc8-name-the-six-machines', 'SC8', 'Name the six machines', 'Match each picture to its simple machine.', [], 'These are the six simple machines. Every complex machine, from a bike to a crane, is built from them.', { kind: 'order', type: 'Match',
+        seq: ['lever', 'pulley', 'wedge', 'screw', 'incline', 'wheel'], tile: machT, tileCls: 'mtile', poolCls: 'pool3', cols: 3,
+        slotLab: ['Lever', 'Pulley', 'Wedge', 'Screw', 'Inclined plane', 'Wheel and axle'], ordTop: 'Drag each picture onto its name<i></i>',
+        instr: 'Drag each picture onto the matching name, then press <b>Check</b>.',
+        ansHTML: ansRow(['lever', 'pulley', 'wedge', 'screw', 'incline', 'wheel'].map(k => aItem(machT(k), MNAME[k])).join('')) }),
+    C('sc9-the-distance-trade-off', 'SC9', 'The distance trade-off', 'Complete the sentences about the distance trade-off.', [], 'Simple machines do not give you something for nothing. Using less force means the force must act over a greater distance.', { kind: 'cloze',
+        text: 'Simple machines let you use [] force to move a load, but the force must act over a [] distance. This is called the distance [].',
+        answers: ['less', 'greater', 'trade-off'], bank: ['less', 'greater', 'trade-off', 'more', 'shorter', 'multiplier'],
+        instr: 'Drag or tap a word into each gap, then press <b>Check</b>.',
+        ansHTML: '<p class="actext">Simple machines let you use <b>less</b> force to move a load, but the force must act over a <b>greater</b> distance. This is called the distance <b>trade-off</b>.</p>' }),
+    C('sc10-order-the-ramps', 'SC10', 'Order the ramps', 'Each ramp reaches the same height. Put them in order from least effort to most effort.', [], 'As the angle of inclination gets larger, more effort force is needed. The gentlest ramp needs the least effort but is the longest.', { kind: 'order',
+        seq: ['a', 'b', 'c', 'd'], tile: k => rampTile({ a: 84, b: 54, c: 30, d: 14 }[k]), tileCls: 'mtile', poolCls: 'pool4', cols: 4,
+        ordTop: 'Least effort<i></i>Most effort',
+        instr: 'Drag each ramp into a box, or tap a ramp to place it. Press <b>Check</b>.',
+        ansHTML: ansRow([84, 54, 30, 14].map((r, i) => aItem(rampTile(r), ['Least effort', '', '', 'Most effort'][i])).join('')) }),
+    C('sc10-describe-the-relationship', 'SC10', 'Describe the relationship', 'Complete the description of how angle affects effort.', [], 'Steep ramps have a large angle and need more effort. Gentle ramps need less effort, but the load travels further.', { kind: 'cloze',
+        text: 'The steeper the ramp, the [] the angle of inclination and the [] effort force is needed. A gentle ramp needs [] effort, but the load travels a [] distance.',
+        answers: ['larger', 'more', 'less', 'longer'], bank: ['larger', 'more', 'less', 'longer', 'smaller', 'shorter'],
+        instr: 'Drag or tap a word into each gap, then press <b>Check</b>.',
+        ansHTML: '<p class="actext">The steeper the ramp, the <b>larger</b> the angle of inclination and the <b>more</b> effort force is needed. A gentle ramp needs <b>less</b> effort, but the load travels a <b>longer</b> distance.</p>' }),
+    C('sc11-the-right-machine', 'SC11', 'The right machine', 'Each simple machine is most efficient for certain jobs. Complete the sentences.', [], 'Wedges cut and split, screws fasten, and several pulleys share a heavy load. Choosing the right machine makes a job easier.', { kind: 'cloze',
+        text: 'A [] is most efficient for cutting or splitting. A [] is most efficient for fastening things together. Several [] sharing a load are most efficient for lifting heavy loads straight up.',
+        answers: ['wedge', 'screw', 'pulleys'], bank: ['wedge', 'screw', 'pulleys', 'wheels', 'levers'],
+        instr: 'Drag or tap a word into each gap, then press <b>Check</b>.',
+        ansHTML: '<p class="actext">A <b>wedge</b> is most efficient for cutting or splitting. A <b>screw</b> is most efficient for fastening things together. Several <b>pulleys</b> sharing a load are most efficient for lifting heavy loads straight up.</p>' }),
+    C('sc12-tap-the-fulcrum', 'SC12', 'Tap the fulcrum', 'A wheelbarrow is a lever. Tap the fulcrum.', [], 'The wheel is the fulcrum. The load sits between the wheel and the handles, where you apply the effort, so a wheelbarrow is a second-class lever.', { kind: 'hotspot',
+        hsSVG: barrowHS(), correct: [2], instr: 'Tap one of the three points on the wheelbarrow.', ansHTML: '<div class="ans">The wheel</div>', backVis: barrowLab() }),
+    C('sc12-classify-the-levers', 'SC12', 'Classify the levers', 'Match each lever to its class.', [], 'First class: the fulcrum is in the middle. Second class: the load is in the middle. Third class: the effort is in the middle.', { kind: 'order', type: 'Match',
+        seq: ['seesaw', 'barrow', 'tweezers'], tile: k => wideT(LEVPIC[k]), tileCls: 'mtile', poolCls: 'pool3', cols: 3,
+        slotLab: ['First class', 'Second class', 'Third class'], ordTop: 'Drag each lever onto its class<i></i>',
+        instr: 'Drag each lever onto its class, then press <b>Check</b>.',
+        ansHTML: ansRow([['seesaw', 'Seesaw: first'], ['barrow', 'Wheelbarrow: second'], ['tweezers', 'Tweezers: third']].map(([k, t]) => aItem(wideT(LEVPIC[k]), t)).join('')) }),
+    C('sc13-sort-the-multipliers', 'SC13', 'Sort the multipliers', 'Sort each machine into force multiplier or speed multiplier.', [], 'Force multipliers let a small effort move a heavy load. Speed multipliers make the load move faster or further than the effort.', { kind: 'sort',
+        bins: [['Force multiplier', 'Small effort, large load'], ['Speed multiplier', 'Load moves faster or further']], tileCls: 'stile', poolCls: 'pool2',
+        items: [['Ramp', 0], ['Axe', 0], ['Screw', 0], ['Wheelbarrow', 0], ['Pulley system', 0], ['Fishing rod', 1], ['Bicycle wheels', 1], ['Hockey stick', 1]].map(([t, k]) => [sTile(t), k]),
+        instr: 'Drag each machine into a group, or tap a machine then a group. Press <b>Check</b>.',
+        ansHTML: '<p class="actext"><b>Force multipliers:</b> ramp, axe, screw, wheelbarrow, pulley system.<br><b>Speed multipliers:</b> fishing rod, bicycle wheels, hockey stick.</p>' }),
+    C('sc14-calculate-and-balance', 'SC14', 'Calculate and balance', 'Calculate the net force, then complete the sentences.', [], '15 N − 9 N = 6 N to the right. Adding 6 N to the left makes the forces equal and opposite, so the net force is 0 N.', { kind: 'cloze',
+        text: 'A box has 15\u00a0N pushing right and 9\u00a0N pushing left. The net force is [] to the []. If another 6\u00a0N pushes left, the net force becomes [] and the forces are [].',
+        answers: ['6 N', 'right', '0 N', 'balanced'], bank: ['6 N', 'right', '0 N', 'balanced', '24 N', 'left', 'unbalanced'],
+        instr: 'Drag or tap an answer into each gap, then press <b>Check</b>.',
+        ansHTML: '<p class="actext">The net force is <b>6\u00a0N</b> to the <b>right</b>. With another 6\u00a0N pushing left, the net force becomes <b>0\u00a0N</b> and the forces are <b>balanced</b>.</p>' })
+
 ];
 const scNum = s => +s.slice(2);
 const nb = t => t.replace(/(\d) (N|kg|m|s)\b/g, '$1\u00a0$2').replace(/ = /g, '\u00a0= ').replace(/ − /g, '\u00a0−\u00a0');
@@ -939,6 +1186,60 @@ const RELEASED_IDS = [
     'sc5-predict-a-bigger-push-back',
     'sc5-sort-the-motion',
     'sc6-effects-of-forces',
+    'sc7-what-friction-does',
+    'sc7-a-helpful-effect',
+    'sc7-an-unwanted-effect',
+    'sc7-oiling-a-bike-chain',
+    'sc7-slipping-on-ice',
+    'sc7-rubbing-your-hands',
+    'sc8-what-is-a-simple-machine',
+    'sc8-work-in-science',
+    'sc8-not-a-simple-machine',
+    'sc8-what-a-screw-is',
+    'sc8-the-load',
+    'sc9-three-advantages',
+    'sc9-a-single-pulley',
+    'sc9-not-an-advantage',
+    'sc9-wheels-instead-of-sliding',
+    'sc9-building-the-pyramids',
+    'sc10-steeper-ramps',
+    'sc10-least-effort-ramp',
+    'sc10-the-trade-off',
+    'sc10-wheelchair-ramps',
+    'sc11-the-efficiency-equation',
+    'sc11-efficiency-of-a-ramp',
+    'sc11-which-ramp-is-more-efficient',
+    'sc11-one-pulley-or-two',
+    'sc11-efficiency-of-a-single-pulley',
+    'sc11-friction-in-screws',
+    'sc12-what-a-fulcrum-is',
+    'sc12-find-the-effort-arm',
+    'sc12-the-resistance-arm',
+    'sc12-first-class-levers',
+    'sc12-effort-in-the-middle',
+    'sc13-force-multipliers',
+    'sc13-speed-multipliers',
+    'sc13-a-long-effort-arm',
+    'sc13-effort-near-the-fulcrum',
+    'sc13-the-trade-off',
+    'sc13-levers-can-be-both',
+    'sc14-what-net-force-is',
+    'sc14-two-people-pushing',
+    'sc14-opposite-forces',
+    'sc14-equal-and-opposite',
+    'sc14-tug-of-war',
+    'sc14-three-forces',
+    'sc7-sort-the-effects',
+    'sc8-define-a-simple-machine',
+    'sc8-name-the-six-machines',
+    'sc9-the-distance-trade-off',
+    'sc10-order-the-ramps',
+    'sc10-describe-the-relationship',
+    'sc11-the-right-machine',
+    'sc12-tap-the-fulcrum',
+    'sc12-classify-the-levers',
+    'sc13-sort-the-multipliers',
+    'sc14-calculate-and-balance',
 ];
 /* IDs of cards that have been deleted. Keep them here (and in RELEASED_IDS) so they are never reused. */
 const RETIRED_IDS = [];
@@ -1033,7 +1334,7 @@ function deckScreen(lg) {
     const right = el('div', 'sccol');
     const head = el('div', 'sch', '<span>Success criteria</span>');
     const allBtn = el('button', '', 'Select all'); head.appendChild(allBtn);
-    const list = el('div', 'sclist');
+    const list = el('div', 'sclist' + (lg.sc.length > 6 ? ' many' : ''));
     const rows = lg.sc.map(sc => {
         const n = CARDS.filter(c => c.sc === sc).length;
         const r = el('button', 'scrow on', `<span class="box">${TICK}</span><span class="code">${sc}</span><span>${SCT[sc]}</span><span class="n">${n} cards</span><span class="bk">${BK}${earnedIn(CARDS.filter(c => c.sc === sc))}/${n}</span>`);
@@ -1069,7 +1370,7 @@ function stackUpdate() {
     S.cw.querySelectorAll('.stk').forEach(s => { const k = +s.dataset.k; s.style.opacity = k <= left ? 1 : 0; });
 }
 const KTYPE = { order: 'Put in order', sort: 'Sort', hotspot: 'Tap the diagram', cloze: 'Fill the gaps' };
-const typeOf = c => c.kind ? KTYPE[c.kind] : c.scene ? 'Predict' : c.pic ? 'Pick the picture' : c.calc ? 'Calculate' : c.vis ? 'Read the diagram' : 'Quick recall';
+const typeOf = c => c.type ? c.type : c.kind ? KTYPE[c.kind] : c.scene ? 'Predict' : c.pic ? 'Pick the picture' : c.calc ? 'Calculate' : c.vis ? 'Read the diagram' : 'Quick recall';
 const hasKZ = c => c.kind === 'order' || c.kind === 'sort' || c.kind === 'cloze';
 function frontHTML(c) {
     const body = hasKZ(c) ? `<div class="fvis kz kz-${c.kind}"></div>` : c.vis ? `<div class="fvis">${c.vis}${c.scene ? `<button class="replay" aria-label="Replay">${REPLAY}<span>Replay</span></button>` : ''}</div>` : `<div class="ghost">${c.sc}</div>`;
