@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Moon Phases: Checking for Understanding</title>
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="%231b1f45"/><path d="M15 31 L27 43 L49 19" fill="none" stroke="%23ea008a" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><rect x="12" y="52" width="40" height="5" rx="2.5" fill="%23fff" opacity=".25"/><rect x="12" y="52" width="26" height="5" rx="2.5" fill="%23fff"/></svg>'>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
     :root {
@@ -53,18 +54,19 @@
     .sctag { margin-left: auto; font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--navy); box-shadow: inset 0 0 0 3px var(--navy); border-radius: 6px; padding: 6px 12px 5px; line-height: 1; }
     .prompt { font-size: 28px; font-weight: 600; margin-top: 6px; line-height: 1.3; }
     .body { flex: 1; min-height: 0; margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 30px; }
-    .body.stack { flex-direction: column; gap: 24px; }
     .center { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
     .dlbl { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mid-grey); }
 
     /* svg classes */
     svg { overflow: visible; display: block; }
     .oname { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; fill: var(--navy); }
-    .olbl { font-family: var(--cond); font-size: 15px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; fill: var(--navy); }
     .flbl { font-family: var(--cond); font-size: 24px; font-weight: 800; fill: var(--navy); }
     .spd { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; fill: var(--mid-grey); }
     .leg { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 600; fill: var(--mid-grey); }
-    .skyt { font-family: var(--cond); font-size: 18px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; fill: #b9bddb; }
+    .nlbl { font-family: var(--cond); font-size: 19px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; fill: #fff; }
+    .nsm { font-size: 17px; }
+    .halo { paint-order: stroke; stroke: #fff; stroke-width: 6px; stroke-linejoin: round; }
+    .iq { font-family: var(--cond); font-size: 96px; font-weight: 900; fill: #fff; }
 
     /* multiple choice */
     .opts { display: grid; gap: 10px; }
@@ -74,6 +76,7 @@
         font-family: inherit; font-size: 25px; font-weight: 600; color: var(--navy); text-align: left; line-height: 1.25; cursor: pointer;
         transition: background-color .2s, border-color .2s, color .2s, opacity .2s; }
     .opts.g2 .opt { min-height: 104px; font-size: 30px; font-weight: 700; padding: 16px 24px; }
+    .opts.big .opt, .col .opts.big .opt { font-size: 29px; font-weight: 700; padding: 14px 20px; min-height: 70px; }
     .opt .l { flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background: var(--navy); color: #fff; font-family: var(--cond); font-size: 24px; font-weight: 900;
         display: flex; align-items: center; justify-content: center; transition: background-color .2s, color .2s; }
     .opt:hover:not(:disabled) { background: #f6f7fb; }
@@ -83,14 +86,18 @@
     .opt.right .l { background: #fff; color: var(--pink); }
     .opt.wrong { border-style: dashed; opacity: .5; animation: shake .4s; cursor: default; }
     .opt:disabled { cursor: default; }
+    .gly { flex-shrink: 0; }
+    .gs { fill: none; stroke: var(--navy); stroke-width: 3; }
+    .opt.right .gs { stroke: #fff; }
+    .pred .opts { width: 380px; }
+    .pred .opt { min-height: 76px; font-size: 25px; font-weight: 700; padding: 10px 18px; }
 
     /* picture choices */
     .pgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; width: 100%; }
-    .pgrid.g22 { grid-template-columns: 1fr 1fr; gap: 14px; width: 500px; flex-shrink: 0; }
+    .pgrid.g22 { grid-template-columns: 1fr 1fr; gap: 14px; width: 500px; }
     .pcard { position: relative; border: 3px solid var(--navy); border-radius: 8px; background: #fff; padding: 16px 4px 12px; cursor: pointer;
         display: flex; flex-direction: column; align-items: center; gap: 8px; font-family: inherit; color: var(--navy); transition: background-color .2s, border-color .2s, opacity .2s; }
-    .pgrid.g22 .pcard { padding: 14px 8px 12px; }
-    .pcard svg { overflow: hidden; }
+    .pgrid.g22 .pcard { padding: 10px 8px 8px; }
     .pcard .l { position: absolute; left: 10px; top: 10px; width: 38px; height: 38px; border-radius: 50%; background: var(--navy); color: #fff; font-family: var(--cond); font-size: 23px; font-weight: 900;
         display: flex; align-items: center; justify-content: center; transition: background-color .2s; }
     .pcard .cap { font-size: 22px; font-weight: 700; line-height: 1.2; text-align: center; }
@@ -104,106 +111,79 @@
 
     /* quote */
     .quote { border-left: 8px solid var(--pink); padding: 4px 0 4px 20px; font-size: 25px; font-weight: 600; font-style: italic; line-height: 1.3; margin-bottom: 14px; }
-    .col { display: flex; flex-direction: column; justify-content: center; flex: 1; min-width: 0; }
+    .col { display: flex; flex-direction: column; }
 
     /* scenes */
     .scene { position: relative; border: 3px solid var(--navy); border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #fff; }
-    .scene.dark { background: var(--navy); }
     .scene > svg { overflow: hidden; }
-    .replay { position: absolute; right: 12px; top: 12px; display: flex; align-items: center; gap: 6px; font-family: var(--cond); font-size: 19px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
-        background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 6px; padding: 5px 12px 4px 9px; cursor: pointer; z-index: 3; }
+    .replay { position: absolute; left: 12px; top: 12px; display: flex; align-items: center; gap: 6px; font-family: var(--cond); font-size: 19px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+        background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 6px; padding: 5px 12px 4px 9px; cursor: pointer; }
     .replay svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
     .replay:hover { background: var(--blank); }
-    .card { width: 306px; border: 3px solid var(--navy); border-radius: 8px; overflow: hidden; flex-shrink: 0; }
-    .card .ccap { padding: 10px 14px 12px; font-size: 21px; font-weight: 700; line-height: 1.25; text-align: center; }
+
+    /* orbit positions */
+    .opos { cursor: pointer; }
+    .opos .ring { fill: #fff; stroke: #b9bdcb; stroke-width: 3; stroke-dasharray: 6 5; transition: fill .2s, stroke .2s; }
+    .opos:hover .ring { stroke: var(--pink); fill: #fdf0f7; }
+    .opos.sel .ring { stroke: var(--pink); stroke-dasharray: none; stroke-width: 4; fill: rgba(234,0,138,.16); }
+    .opos.wrong { opacity: .3; cursor: default; }
+    .opos.wrong .ring { stroke: var(--navy); fill: #fff; }
+    .opos.right .ring { stroke: none; fill: rgba(234,0,138,.18); }
+    .opos:focus { outline: none; }
+    .opos:focus-visible .ring { stroke: var(--pink); stroke-width: 5; }
 
     /* drag tiles */
     .tile { font-family: inherit; font-size: 24px; font-weight: 700; color: var(--navy); background: #fff; border: 3px solid var(--navy); border-radius: 8px; padding: 6px 16px; line-height: 1.25;
         cursor: grab; touch-action: none; position: relative; z-index: 2; transition: transform .3s var(--ease), box-shadow .2s, border-color .2s; box-shadow: 0 4px 0 #c3c6d0; white-space: nowrap; text-align: center; }
-    .tile.sm { font-size: 20px; padding: 4px 12px; white-space: normal; max-width: 100%; }
-    .tile.pic { padding: 6px; line-height: 0; border-radius: 10px; }
-    .tile.obj { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 12px 4px; font-family: var(--cond); font-size: 19px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
-    .tile svg { pointer-events: none; }
+    .tile.pic { padding: 6px; line-height: 0; }
+    .tile.mt { width: 128px; white-space: normal; font-size: 21px; line-height: 1.15; padding: 6px 8px; }
     .tile.sel { border-color: var(--pink); box-shadow: 0 0 0 4px rgba(234,0,138,.22); }
     .tile.drag { transition: none; cursor: grabbing; z-index: 30; box-shadow: 0 14px 30px rgba(27,31,69,.25); border-color: var(--pink); }
     .tile.right { background: var(--pink); color: #fff; border-color: var(--pink); box-shadow: none; cursor: default; }
-    .tile.pic.right, .tile.obj.right { background: #fff; color: var(--navy); box-shadow: 0 0 0 4px rgba(234,0,138,.25); }
     .tile.wrong { border-style: dashed; background: var(--tint); box-shadow: none; animation: shake .4s; }
 
     /* sort */
     .sort { display: grid; grid-template-columns: 1fr 360px 1fr; gap: 18px; width: 100%; height: 100%; }
-    .sort3 { display: flex; flex-direction: column; gap: 12px; width: 100%; align-self: stretch; }
-    .binrow { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
     .bin { border: 3px solid var(--navy); border-radius: 8px; display: flex; flex-direction: column; overflow: visible; transition: box-shadow .2s; }
     .bin.pk { border-color: var(--pink); }
-    .bin.gy { border-color: #6b6f8f; }
     .bin h3 { margin: 0; padding: 8px 16px 7px; font-family: var(--cond); font-size: 28px; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; color: #fff; background: var(--navy); }
     .bin.pk h3 { background: var(--pink); }
-    .bin.gy h3 { background: #6b6f8f; }
     .bin .sub { font-size: 18px; font-weight: 600; color: var(--mid-grey); padding: 8px 16px 0; }
-    .bin .area { flex: 1; padding: 10px 12px; display: flex; flex-wrap: wrap; gap: 10px; align-content: flex-start; justify-content: center; border-radius: 0 0 6px 6px; transition: background-color .2s; }
+    .bin .area { flex: 1; padding: 12px 14px; display: flex; flex-wrap: wrap; gap: 10px; align-content: flex-start; justify-content: center; border-radius: 0 0 6px 6px; transition: background-color .2s; }
     .bin.hover .area, .bin.armed:hover .area { background: rgba(234,0,138,.06); }
     .bin.armed { box-shadow: 0 0 0 4px rgba(234,0,138,.15); cursor: pointer; }
     .pool { background: var(--blank); border-radius: 8px; padding: 14px; display: flex; flex-wrap: wrap; gap: 10px; align-content: center; justify-content: center; transition: background-color .2s; }
     .pool.hover { background: #e3e7ee; }
 
     /* drop slots */
-    .slot { width: 200px; height: 50px; border: 3px dashed #c3c6d0; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: border-color .2s, background-color .2s; }
-    .slot.abs { position: absolute; z-index: 2; transition: border-color .2s, background-color .2s, opacity .4s; }
-    .slot.round { border-radius: 50%; }
-    .slot.hover, .slot.armed:hover { border-color: var(--pink); background: rgba(234,0,138,.06); }
-    .slot.armed { border-color: #e7a3c9; cursor: pointer; }
-    .slot.filled { border-color: transparent; background: none; }
-    .slot.wrong { animation: shake .4s; }
-    .slot .tile { box-shadow: none; padding: 5px 14px; font-size: 23px; }
-    .slot .tile.pic { padding: 6px; }
-    .slot .tile.obj { padding: 6px 12px 4px; font-size: 19px; }
-    .bside { width: 320px; display: flex; flex-direction: column; gap: 10px; height: 336px; flex-shrink: 0; }
-    .bside .pool { flex: 1; flex-direction: column; flex-wrap: nowrap; align-items: center; justify-content: center; gap: 8px; }
-    .bside .pool.wrap { flex-direction: row; flex-wrap: wrap; align-content: center; gap: 10px; }
-    .lrow { display: flex; align-items: center; gap: 12px; }
-    .lrow .ll { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; width: 96px; flex-shrink: 0; white-space: nowrap; }
-    .lrow .slot { flex: 1; width: auto; height: 52px; }
-    .lrow .slot .tile { font-size: 21px; padding: 5px 12px; }
-    .prow { display: flex; gap: 20px; }
-    .pcol { display: flex; flex-direction: column; gap: 10px; }
-
-    /* cloze */
-    .cloze { font-size: 30px; font-weight: 600; line-height: 2.15; max-width: 1100px; }
-    .slot.cs { display: inline-flex; vertical-align: middle; width: auto; min-width: 170px; height: 54px; margin: 0 6px; padding: 0 2px; }
-    .slot.cs.filled { min-width: 0; margin: 0 2px; padding: 0; }
-    .slot.cs .tile { font-size: 26px; padding: 4px 14px; }
-    .cpool { width: 100%; min-height: 76px; }
+    .dslot { border: 3px dashed #c3c6d0; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: border-color .2s, background-color .2s; flex-shrink: 0; }
+    .dslot.hover, .dslot.armed:hover { border-color: var(--pink); background: rgba(234,0,138,.06); }
+    .dslot.armed { border-color: #e7a3c9; cursor: pointer; }
+    .dslot.filled { border-color: transparent; background: none; }
+    .dslot .tile { box-shadow: none; }
 
     /* match */
-    .mgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px 16px; }
-    .mcard { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-    .mgrid .slot { width: 204px; height: 48px; }
-    .mgrid .slot .tile { font-size: 20px; padding: 4px 10px; }
-    .narrow { width: 250px; height: 372px; gap: 6px; }
-    .narrow .tile { font-size: 19px; padding: 3px 10px; }
-    .narrow .pool { gap: 5px; padding: 10px; }
+    .match { display: flex; gap: 30px; align-items: center; justify-content: center; width: 100%; }
+    .mgrid { display: grid; grid-template-columns: repeat(4, 140px); gap: 16px 24px; }
+    .mcell { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .mslot { width: 140px; height: 70px; }
+    .mpool { width: 318px; height: 340px; }
 
     /* order */
-    .orow { display: grid; grid-template-columns: repeat(8, 118px); gap: 14px; }
-    .ocell { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-    .onum { font-family: var(--cond); font-size: 22px; font-weight: 900; color: var(--mid-grey); }
-    .ofix { width: 118px; height: 118px; border: 3px solid var(--navy); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
-    .ofix span { font-family: var(--cond); font-size: 15px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
-    .slot.oslot { width: 118px; height: 118px; border-radius: 10px; }
-    .opool { width: 100%; min-height: 124px; flex-wrap: nowrap; gap: 14px; }
+    .order { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; }
+    .orow { display: flex; gap: 8px; align-items: flex-start; }
+    .ocell { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .onum { font-family: var(--cond); font-size: 20px; font-weight: 800; color: var(--mid-grey); line-height: 22px; }
+    .oslot { width: 108px; height: 104px; }
+    .oarr { margin-top: 68px; flex-shrink: 0; }
+    .opool { width: 820px; min-height: 118px; flex-wrap: nowrap; }
 
-    /* hotspots */
-    .hs { cursor: pointer; outline: none; }
-    .hs .ring { fill: none; stroke: transparent; stroke-width: 5; transition: stroke .2s; }
-    .hs:hover .ring { stroke: #c3c6d0; }
-    .hs:focus-visible .ring { stroke: #e7a3c9; }
-    .hs.sel .ring { stroke: var(--pink); }
-    .hs.right .ring { stroke: var(--pink); stroke-width: 7; }
-    .hs.wrong { cursor: default; }
-    .hs.wrong .ring { stroke: var(--navy); stroke-dasharray: 5 6; stroke-width: 3; }
-    .hs.wrong .hit { fill: rgba(255,255,255,.6); }
-    .hs.off { cursor: default; }
+    /* cloze */
+    .clz { display: flex; flex-direction: column; gap: 18px; width: 100%; align-items: center; }
+    .cloze { font-size: 26px; font-weight: 600; line-height: 1.95; max-width: 1080px; border-left: 8px solid var(--navy); padding-left: 24px; }
+    .blank { display: inline-flex; vertical-align: middle; width: 150px; height: 48px; margin: 0 4px; }
+    .blank .tile { font-size: 22px; padding: 4px 12px; }
+    .cpool { width: 1080px; min-height: 72px; }
 
     /* end */
     .scorecard { border: 3px solid var(--pink); border-radius: 8px; padding: 30px 60px; text-align: center; }
@@ -214,7 +194,6 @@
     .dots span.y { background: var(--pink); border-color: var(--pink); color: #fff; }
     .again { margin-top: 26px; font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
         background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 8px; padding: 8px 22px; cursor: pointer; }
-
 </style>
 </head>
 <body>
@@ -227,22 +206,20 @@
     <div class="caption"><div class="txt" id="cap"></div><button class="next" id="next" hidden>Check</button></div>
     <div class="progress" id="progress"></div>
 </div>
+
 <script>
 const $ = s => document.querySelector(s);
 const content = $('#content'), cap = $('#cap'), btn = $('#next'), counter = $('#counter'), progress = $('#progress');
-const PK = '#ea008a', NV = '#1b1f45', GR = '#c9ccd6', DT = '#b5b9c6', LT = '#f0f3f6';
-const DK = '#2f3460', SUN = '#f5b400', SUNL = '#fff1c2', EA = '#d4e2f5', RED = '#b4432d';
-const NS = 'http://www.w3.org/2000/svg';
+const PK = '#ea008a', NV = '#1b1f45', GR = '#c9ccd6', SUN = '#f5b400', NS = 'http://www.w3.org/2000/svg';
+const MOON = { lit: '#eef0f5', mare: '#d5d9e4', dark: '#30355f', darkMare: '#2b305a' };
+const NIGHT = { dark: '#3a4072', darkMare: '#363b6c', edge: '#6a70a0' };
 let scaleK = 1, uid = 0;
 function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
 function say(html) { cap.innerHTML = `<span class="in">${html}</span>`; }
-const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-const lerp = (a, b, t) => a + (b - a) * t, clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-function mix(a, b, t) { const p = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)), A = p(a), B = p(b); return '#' + A.map((v, i) => Math.round(v + (B[i] - v) * t).toString(16).padStart(2, '0')).join(''); }
 
 /* ---------- animation helpers ---------- */
 let runId = 0;
-const easeOut = t => 1 - (1 - t) * (1 - t), easeIn = t => t * t, easeInOut = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+const easeOut = t => 1 - (1 - t) * (1 - t), easeInOut = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
 function play(dur, step, guard) {
     const id = runId, ok = guard || (() => id === runId);
     return new Promise(res => {
@@ -251,11 +228,9 @@ function play(dur, step, guard) {
         requestAnimationFrame(f);
     });
 }
-const always = () => true;
 function wait(ms) { const id = runId; return new Promise(r => setTimeout(() => { if (id === runId) r(); }, ms)); }
 
 /* ---------- drawing helpers ---------- */
-const DIR = { r: 0, l: Math.PI, u: -Math.PI / 2, d: Math.PI / 2 };
 function arrowSVG(x, y, ang, len, o = {}) {
     const c = o.c || PK, sw = o.sw || 8, hw = o.hw || 13, hl = Math.min(o.hl || 22, len);
     if (len < 1) return '';
@@ -263,93 +238,290 @@ function arrowSVG(x, y, ang, len, o = {}) {
     const f = v => v.toFixed(1);
     let s = len > hl ? `<line x1="${f(x)}" y1="${f(y)}" x2="${f(bx)}" y2="${f(by)}" stroke="${c}" stroke-width="${sw}"/>` : '';
     s += `<polygon points="${f(ex)},${f(ey)} ${f(bx + px)},${f(by + py)} ${f(bx - px)},${f(by - py)}" fill="${c}" stroke="${c}" stroke-width="1.5" stroke-linejoin="round"/>`;
-    if (o.label) {
-        const fs = o.fs || 24, full = o.full || len, op = o.lop === undefined ? 1 : o.lop;
-        const tx = x + ux * full / 2, ty = y - 16;
-        s += `<text class="flbl" x="${f(tx)}" y="${f(ty)}" text-anchor="middle" opacity="${op}" style="font-size:${fs}px">${o.label}</text>`;
-    }
     return s;
-}
-function growArrow(g, x, y, ang, len, o = {}, dur = 450) {
-    const tok = g._tok = (g._tok || 0) + 1;
-    return play(dur, k => { g.innerHTML = arrowSVG(x, y, ang, len * easeOut(k), { ...o, full: len, lop: k }); }, () => g._tok === tok && document.body.contains(g));
 }
 const replayIcon = `<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v5h5"/></svg>`;
 
-/* Moon face as seen from Australia: p = 0 new, .25 first quarter, .5 full, .75 third quarter. Waxing light grows from the left. */
-function craters(r) { const c = (x, y, s) => `<circle cx="${(x * r).toFixed(1)}" cy="${(y * r).toFixed(1)}" r="${(s * r).toFixed(1)}" fill="${NV}" opacity=".07"/>`; return c(-.34, -.3, .22) + c(.3, .24, .28) + c(.14, -.52, .12) + c(-.26, .46, .14) + c(.55, -.15, .1); }
-function face(p, r, o = {}) {
-    const lit = o.lit || '#fff', dark = o.dark || DK, st = o.stroke || NV, sw = o.sw || Math.max(2, r * .05);
-    const q = ((p % 1) + 1) % 1, k = Math.cos(2 * Math.PI * q);
-    let s = `<circle r="${r}" fill="${dark}"/>`;
-    if (Math.abs(q - .5) < .005) s += `<circle r="${r}" fill="${lit}"/>`;
-    else if (q > .005 && q < .995) {
-        const wax = q < .5, cres = k > 0, rx = (Math.abs(k) * r).toFixed(2);
-        s += `<path d="M0 ${-r}A${r} ${r} 0 0 ${wax ? 0 : 1} 0 ${r}A${rx} ${r} 0 0 ${wax ? (cres ? 1 : 0) : (cres ? 0 : 1)} 0 ${-r}Z" fill="${lit}"/>`;
-    }
-    if (!o.plain) s += craters(r);
-    return s + `<circle r="${r}" fill="none" stroke="${st}" stroke-width="${sw}"/>`;
+/* Moon as seen from Australia (Southern Hemisphere).
+   p: 0 New, .25 First Quarter, .5 Full, .75 Third Quarter. Waxing is lit on the left. */
+function litPath(p, r) {
+    p = ((p % 1) + 1) % 1;
+    const c = Math.cos(2 * Math.PI * p);
+    if (c > .9995) return '';
+    const litLeft = p < .5, cres = c > 0, rx = Math.abs(c) * r;
+    const sL = litLeft ? 0 : 1, sT = (litLeft === cres) ? 1 : 0;
+    return `M0 ${-r} A${r} ${r} 0 0 ${sL} 0 ${r} A${rx.toFixed(2)} ${r} 0 0 ${sT} 0 ${-r}Z`;
 }
-function faceSVG(p, size, o = {}) { const r = size / 2 - (o.pad === undefined ? 3 : o.pad); return `<svg viewBox="${-size / 2} ${-size / 2} ${size} ${size}" width="${size}" height="${size}">${face(p, r, o)}</svg>`; }
-const SKYF = { dark: '#2c3160', stroke: '#50568a', lit: '#f6f6f1' };
+const MARIA = [[-.3, -.32, .24], [.18, -.4, .16], [.32, .02, .22], [-.12, .24, .16], [.1, .54, .11], [-.54, .16, .11], [-.04, -.04, .09]];
+const maria = r => MARIA.map(([x, y, s]) => `<circle cx="${(x * r).toFixed(1)}" cy="${(y * r).toFixed(1)}" r="${(s * r).toFixed(1)}"/>`).join('');
+function moonG(p, r, o = {}) {
+    const id = 'mg' + (++uid), d = litPath(p, r), C = o.night ? NIGHT : MOON, edge = o.night ? NIGHT.edge : NV;
+    return `<circle r="${r}" fill="${C.dark}"/><g fill="${C.darkMare}">${maria(r)}</g>` +
+        (d ? `<clipPath id="${id}"><path d="${d}"/></clipPath><path d="${d}" fill="${MOON.lit}"/><g clip-path="url(#${id})" fill="${MOON.mare}">${maria(r)}</g>` : '') +
+        `<circle r="${r}" fill="none" stroke="${edge}" stroke-width="${o.sw || Math.max(2, Math.min(3.5, r / 16)).toFixed(1)}"/>`;
+}
+function moonLive(g, r, o = {}) {
+    const id = 'ml' + (++uid), C = o.night ? NIGHT : MOON, edge = o.night ? NIGHT.edge : NV;
+    g.innerHTML = `<circle r="${r}" fill="${C.dark}"/><g fill="${C.darkMare}">${maria(r)}</g><clipPath id="${id}"><path class="cp"/></clipPath><path class="lp" fill="${MOON.lit}"/>
+        <g clip-path="url(#${id})" fill="${MOON.mare}">${maria(r)}</g><circle r="${r}" fill="none" stroke="${edge}" stroke-width="3"/>`;
+    const cp = g.querySelector('.cp'), lp = g.querySelector('.lp');
+    return p => { const d = litPath(p, r) || 'M0 0'; cp.setAttribute('d', d); lp.setAttribute('d', d); };
+}
+const moonSvg = (p, r, w) => `<svg viewBox="${-w / 2} ${-w / 2} ${w} ${w}" width="${w}" height="${w}">${moonG(p, r)}</svg>`;
+/* Moon seen from above: the half facing the Sun (left) is always lit */
+const topMoon = r => `<circle r="${r}" fill="${MOON.dark}"/><path d="M0 ${-r} A${r} ${r} 0 0 0 0 ${r}Z" fill="${MOON.lit}"/><circle r="${r}" fill="none" stroke="${NV}" stroke-width="2.5"/>`;
+const earth = (x, y, r) => `<g transform="translate(${x} ${y})"><circle r="${r}" fill="#2b3a70"/><path d="M0 ${-r} A${r} ${r} 0 0 0 0 ${r}Z" fill="#cfe1f6"/>
+    <path d="M-14 -16 q8 -6 14 2 q-2 8 -9 9 q-6 -3 -5 -11Z M-22 6 q6 -2 9 4 q-1 7 -7 9 q-4 -6 -2 -13Z" fill="#9fc0e6"/><circle r="${r}" fill="none" stroke="${NV}" stroke-width="3"/></g>`;
+function stars(w, h, n, seed) {
+    let x = seed, s = '';
+    const rnd = () => (x = (x * 9301 + 49297) % 233280) / 233280;
+    for (let i = 0; i < n; i++) s += `<circle cx="${(rnd() * w).toFixed(1)}" cy="${(rnd() * h).toFixed(1)}" r="${(.8 + rnd() * 1.4).toFixed(1)}" fill="#fff" opacity="${(.25 + rnd() * .5).toFixed(2)}"/>`;
+    return s;
+}
+function nightPanel(p, w, h, title, r) {
+    const cy = h / 2 + 6;
+    return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}"><rect width="${w}" height="${h}" fill="${NV}"/>${stars(w, h * .8, 28, 11)}
+        <text class="nlbl" x="${w / 2}" y="42" text-anchor="middle">${title}</text>
+        <g transform="translate(${w / 2} ${cy})">${moonG(p, r, { night: true })}</g>
+        <path d="M0 ${h - 32} Q${w * .22} ${h - 60} ${w * .45} ${h - 44} T${w} ${h - 48} V${h} H0Z" fill="#0f1230"/>
+        <text class="nlbl pn" x="${w / 2}" y="${h - 13}" text-anchor="middle" opacity="0"></text></svg>`;
+}
+/* line of sight from Earth plus the half of the Moon facing Earth */
+function lookSVG(ex, ey, er, mx, my, mr) {
+    const dx = ex - mx, dy = ey - my, d = Math.hypot(dx, dy), ux = dx / d, uy = dy / d, b = Math.atan2(uy, ux), r2 = mr + 5, f = v => v.toFixed(1);
+    const a1 = b - Math.PI / 2, a2 = b + Math.PI / 2;
+    return `<line x1="${f(ex - ux * (er + 4))}" y1="${f(ey - uy * (er + 4))}" x2="${f(mx + ux * (mr + 10))}" y2="${f(my + uy * (mr + 10))}" stroke="${PK}" stroke-width="3" stroke-dasharray="6 6"/>
+        <path d="M${f(mx + r2 * Math.cos(a1))} ${f(my + r2 * Math.sin(a1))} A${r2} ${r2} 0 0 1 ${f(mx + r2 * Math.cos(a2))} ${f(my + r2 * Math.sin(a2))}" fill="none" stroke="${PK}" stroke-width="5" stroke-linecap="round"/>`;
+}
+function halfPic(k) {
+    const r = 46;
+    const lit = { left: `M0 ${-r} A${r} ${r} 0 0 0 0 ${r}Z`, right: `M0 ${-r} A${r} ${r} 0 0 1 0 ${r}Z`, top: `M${-r} 0 A${r} ${r} 0 0 1 ${r} 0Z` }[k];
+    const body = k === 'all' ? `<circle r="${r}" fill="${MOON.lit}"/>` : `<circle r="${r}" fill="${MOON.dark}"/><path d="${lit}" fill="${MOON.lit}"/>`;
+    return `<svg viewBox="0 0 250 170" width="250" height="170"><path d="M0 30 A55 55 0 0 1 0 140Z" fill="${SUN}"/><text class="oname" x="7" y="92">Sun</text>
+        ${[55, 85, 115].map(y => arrowSVG(66, y, 0, 52, { c: SUN, sw: 5, hl: 14, hw: 9 })).join('')}
+        <g transform="translate(182 85)">${body}<circle r="${r}" fill="none" stroke="${NV}" stroke-width="3"/></g>
+        <text class="oname" x="182" y="160" text-anchor="middle">Moon</text></svg>`;
+}
 
-/* Seen from above: lit half faces the Sun (default: Sun on the left) */
-function tdMoon(r, ang = Math.PI) {
-    const rot = ((ang - Math.PI) * 180 / Math.PI).toFixed(1);
-    return `<g transform="rotate(${rot})"><circle r="${r}" fill="${DK}"/><path d="M0 ${-r}A${r} ${r} 0 0 0 0 ${r}Z" fill="#fff"/><circle r="${r}" fill="none" stroke="${NV}" stroke-width="${Math.max(2, r * .12).toFixed(1)}"/></g>`;
+/* ---------- orbit scene (seen from above) ---------- */
+function orbitScene(svg, o) {
+    const { W, H, ex, ey, R, mr } = o;
+    const pos = p => { const a = Math.PI - 2 * Math.PI * p; return { x: ex + R * Math.cos(a), y: ey + R * Math.sin(a), a }; };
+    let s = `<text class="spd" x="16" y="${H - 12}">Sunlight</text>`;
+    [-100, -50, 0, 50, 100].forEach(d => s += arrowSVG(16, ey + d, 0, 64, { c: SUN, sw: 6, hl: 16, hw: 10 }));
+    s += `<circle cx="${ex}" cy="${ey}" r="${R}" fill="none" stroke="#c3c6d0" stroke-width="3" stroke-dasharray="2 9" stroke-linecap="round"/>`;
+    [.0625, .3125, .5625, .8125].forEach(p => {
+        const P = pos(p), tx = Math.sin(P.a), ty = -Math.cos(P.a), nx = Math.cos(P.a), ny = Math.sin(P.a), f = v => v.toFixed(1);
+        s += `<polyline points="${f(P.x - tx * 5 + nx * 7)},${f(P.y - ty * 5 + ny * 7)} ${f(P.x + tx * 5)},${f(P.y + ty * 5)} ${f(P.x - tx * 5 - nx * 7)},${f(P.y - ty * 5 - ny * 7)}" fill="none" stroke="#9a9eb0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
+    });
+    s += earth(ex, ey, 30);
+    s += `<g class="gh"></g><g class="look" opacity="0"></g><text class="oname halo" x="${ex}" y="${ey + 54}" text-anchor="middle">Earth</text><g class="mo">${topMoon(mr)}</g>`;
+    s += `<g class="lg" opacity="0"><line x1="172" x2="194" y1="${H - 18}" y2="${H - 18}" stroke="${PK}" stroke-width="5" stroke-linecap="round"/><text class="leg" x="202" y="${H - 12}">Half facing Earth</text></g>`;
+    if (o.inset) {
+        const { x, w } = o.inset, cx = x + w / 2;
+        s += `<rect x="${x}" y="12" width="${w}" height="${H - 24}" rx="8" fill="${NV}"/><g transform="translate(${x} 12)">${stars(w, H - 40, 18, 5)}</g>
+            <text class="nlbl nsm" x="${cx}" y="42" text-anchor="middle">Seen from</text><text class="nlbl nsm" x="${cx}" y="62" text-anchor="middle">Australia</text>
+            <g class="im" transform="translate(${cx} ${ey + 4})" opacity="0"></g><text class="iq" x="${cx}" y="${ey + 36}" text-anchor="middle">?</text>
+            <text class="nlbl nsm inm" x="${cx}" y="${H - 32}" text-anchor="middle"></text>`;
+    }
+    svg.innerHTML = s;
+    const mo = svg.querySelector('.mo'), look = svg.querySelector('.look'), lg = svg.querySelector('.lg');
+    const imG = svg.querySelector('.im'), iq = svg.querySelector('.iq'), inm = svg.querySelector('.inm');
+    const im = imG ? moonLive(imG, 58, { night: true }) : null;
+    let cur = 0, live = false, lookOn = false;
+    return {
+        pos, imG, ghosts: svg.querySelector('.gh'),
+        setP(p) {
+            cur = p; const P = pos(p);
+            mo.setAttribute('transform', `translate(${P.x.toFixed(1)} ${P.y.toFixed(1)})`);
+            if (lookOn) look.innerHTML = lookSVG(ex, ey, 30, P.x, P.y, mr);
+            if (live && im) im(p);
+        },
+        look(on) { lookOn = on; look.setAttribute('opacity', on ? 1 : 0); lg.setAttribute('opacity', on ? 1 : 0); if (on) this.setP(cur); },
+        moonVis(v) { mo.setAttribute('opacity', v); },
+        inset(mode, p) {
+            if (!im) return;
+            live = mode === 'live';
+            if (mode === 'hidden') { imG.setAttribute('opacity', 0); iq.setAttribute('opacity', 1); return; }
+            iq.setAttribute('opacity', 0); im(mode === 'live' ? cur : p); imG.setAttribute('opacity', mode === 'fade' ? 0 : 1);
+        },
+        name(t) { if (inm) inm.textContent = t; }
+    };
 }
-function tdEarth(r, ang = Math.PI) {
-    const rot = ((ang - Math.PI) * 180 / Math.PI).toFixed(1);
-    return `<g transform="rotate(${rot})"><circle r="${r}" fill="${EA}"/><path d="M0 ${-r}A${r} ${r} 0 0 1 0 ${r}Z" fill="${DK}" opacity=".85"/><circle r="${r}" fill="none" stroke="${NV}" stroke-width="3"/></g>`;
-}
-function sunDisc(r) {
-    let rays = ''; for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6, c = Math.cos(a), s = Math.sin(a); rays += `<line x1="${(c * (r + 6)).toFixed(1)}" y1="${(s * (r + 6)).toFixed(1)}" x2="${(c * (r + 16)).toFixed(1)}" y2="${(s * (r + 16)).toFixed(1)}"/>`; }
-    return `<g stroke="${SUN}" stroke-width="5" stroke-linecap="round">${rays}</g><circle r="${r}" fill="${SUN}"/>`;
-}
-function person(x, y, s = 1) {
-    return `<g transform="translate(${x} ${y}) scale(${s})" stroke="${NV}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><polyline points="-7,0 0,-14 7,0"/><line x1="0" y1="-14" x2="0" y2="-27"/><polyline points="-8,-17 0,-24 10,-34"/><circle cx="0" cy="-34" r="5.5" fill="${NV}" stroke="none"/></g>`;
-}
-function stars(W, H, n, seed) {
-    let s = '', a = seed * 7919;
-    const r = () => (a = (a * 9301 + 49297) % 233280) / 233280;
-    for (let i = 0; i < n; i++) s += `<circle cx="${(r() * W).toFixed(1)}" cy="${(r() * H).toFixed(1)}" r="${(r() * 1.3 + .6).toFixed(1)}" fill="#fff" opacity="${(.2 + r() * .45).toFixed(2)}"/>`;
-    return s;
-}
-const mpos = (p, c) => { const t = Math.PI - 2 * Math.PI * p; return [c.cx + c.R * Math.cos(t), c.cy + c.R * Math.sin(t)]; };
-const moonAt = (p, c, r) => { const [x, y] = mpos(p, c); return `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)})">${tdMoon(r)}</g>`; };
-function chevron(x, y, dx, dy) {
-    const f = v => v.toFixed(1), px = -dy, py = dx;
-    return `<polyline points="${f(x - dx * 6 + px * 6)},${f(y - dy * 6 + py * 6)} ${f(x + dx * 6)},${f(y + dy * 6)} ${f(x - dx * 6 - px * 6)},${f(y - dy * 6 - py * 6)}" fill="none" stroke="${DT}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>`;
-}
-function sunArrows(x, ys, len, o = {}) {
-    return ys.map(y => arrowSVG(x, y, 0, len, { c: SUN, sw: o.sw || 7, hl: o.hl || 18, hw: o.hw || 12 })).join('') + (o.nolabel ? '' : `<text class="spd" x="${x}" y="${ys[0] - 18}" style="font-size:19px">Sunlight</text>`);
-}
-/* top-down orbit diagram: Sun to the left, Moon orbits anticlockwise (seen from above the North Pole) */
-function orbitBase(c) {
-    let s = sunArrows(c.sunX, c.sunYs, c.sunLen);
-    s += `<circle cx="${c.cx}" cy="${c.cy}" r="${c.R}" fill="none" stroke="${GR}" stroke-width="3" stroke-dasharray="2 9" stroke-linecap="round"/>`;
-    [.0625, .3125, .5625, .8125].forEach(p => { const t = Math.PI - 2 * Math.PI * p, x = c.cx + c.R * Math.cos(t), y = c.cy + c.R * Math.sin(t); s += chevron(x, y, Math.sin(t), -Math.cos(t)); });
-    s += `<g transform="translate(${c.cx} ${c.cy})">${tdEarth(c.er)}</g>`;
-    if (c.elabel !== false) s += `<text class="olbl" x="${c.cx}" y="${c.cy + c.er + 22}" text-anchor="middle" style="font-size:17px">Earth</text>`;
-    return s;
-}
-const seenAbove = (W, H) => `<text class="leg" x="${W - 12}" y="${H - 12}" text-anchor="end">Seen from above</text>`;
+
+/* =========================================================
+   PHASES (as seen from Australia)
+   ========================================================= */
+const PH = [
+    { k: 'new', n: 'New Moon', p: 0, a: 'a New Moon', d: 'A New Moon looks dark because its lit half faces away from Earth.' },
+    { k: 'wxc', n: 'Waxing Crescent', p: .125, a: 'a Waxing Crescent', d: 'A Waxing Crescent is a thin sliver lit on the left.' },
+    { k: 'fq', n: 'First Quarter', p: .25, a: 'a First Quarter Moon', d: 'A First Quarter Moon has its left half lit.' },
+    { k: 'wxg', n: 'Waxing Gibbous', p: .375, a: 'a Waxing Gibbous Moon', d: 'A Waxing Gibbous Moon is more than half lit, with the light on the left.' },
+    { k: 'full', n: 'Full Moon', p: .5, a: 'a Full Moon', d: 'A Full Moon has its whole face lit.' },
+    { k: 'wng', n: 'Waning Gibbous', p: .625, a: 'a Waning Gibbous Moon', d: 'A Waning Gibbous Moon is more than half lit, with the shadow on the left.' },
+    { k: 'tq', n: 'Third Quarter', p: .75, a: 'a Third Quarter Moon', d: 'A Third Quarter Moon has its right half lit.' },
+    { k: 'wnc', n: 'Waning Crescent', p: .875, a: 'a Waning Crescent', d: 'A Waning Crescent is a thin sliver lit on the right.' }];
+const P = k => PH.find(x => x.k === k);
+const ORDER_HINT = {
+    wxc: 'Straight after New Moon, a thin sliver of light appears on the left.',
+    fq: 'About a week after New Moon, the left half is lit.',
+    wxg: 'Just before Full Moon, the Moon is more than half lit, with the light on the left.',
+    full: 'Halfway through the cycle, the whole face is lit.',
+    wng: 'Just after Full Moon, shadow creeps in on the left.',
+    tq: 'About three weeks in, only the right half is lit.',
+    wnc: 'Just before the next New Moon, only a thin sliver on the right is left.' };
+
+/* =========================================================
+   QUESTIONS
+   ========================================================= */
+const claimSide = (() => {
+    const lk = lookSVG(120, 110, 30, 205, 252, 28);
+    return `<svg viewBox="0 0 300 330" width="300" height="330">
+        <rect x="120" y="80" width="180" height="60" fill="#e3e6ee"/><text class="leg" x="290" y="160" text-anchor="end">Earth\u2019s shadow</text>
+        <text class="spd" x="12" y="30">Sunlight</text>
+        ${arrowSVG(12, 50, 0, 120, { c: SUN, sw: 5, hl: 14, hw: 9 })}${arrowSVG(12, 110, 0, 62, { c: SUN, sw: 5, hl: 14, hw: 9 })}
+        ${arrowSVG(12, 190, 0, 110, { c: SUN, sw: 5, hl: 14, hw: 9 })}${arrowSVG(12, 252, 0, 140, { c: SUN, sw: 5, hl: 14, hw: 9 })}
+        ${earth(120, 110, 30)}<g class="rv" opacity="0">${lk}</g><g transform="translate(205 252)">${topMoon(28)}</g>
+        <text class="oname" x="205" y="308" text-anchor="middle">Moon</text></svg>`;
+})();
+const fadeIn = (node, dur = 450) => play(dur, k => node.setAttribute('opacity', k));
+const revealName = name => side => { const t = side.querySelector('.pn'); t.textContent = name; fadeIn(t); };
+
+const QS = [
+    { kind: 'mc', title: 'Moonlight', sc: 'SC17', prompt: 'Where does the light we see from the Moon come from?',
+      opts: [
+        { t: 'The Moon makes its own light', hint: 'The Moon is made of dark rock. It doesn\u2019t glow like a light bulb.' },
+        { t: 'It reflects light from the Sun', hint: '' },
+        { t: 'It reflects light from cities on Earth', hint: 'City lights are far too weak to light up the Moon. A much brighter light source is needed.' },
+        { t: 'It glows because it is hot', hint: 'The Moon is a cold, rocky object. It doesn\u2019t glow.' }],
+      answer: 1, msg: 'The Moon acts like a giant mirror. Moonlight is sunlight reflected off its surface.' },
+
+    { kind: 'mcpic', title: 'Which half is lit?', sc: 'SC17', prompt: 'Which picture correctly shows the part of the Moon lit by the Sun?',
+      opts: [
+        { svg: halfPic('right'), hint: 'Sunlight can only reach the side of the Moon facing the Sun.' },
+        { svg: halfPic('all'), hint: 'The Sun can only light one side of a ball at a time. The far side is in darkness.' },
+        { svg: halfPic('left'), hint: '' },
+        { svg: halfPic('top'), hint: 'The light is coming from the left, so the lit half must face left, towards the Sun.' }],
+      answer: 2, msg: 'The Sun always lights the half of the Moon facing it. The other half is in darkness.' },
+
+    { kind: 'mcside', title: 'Tonight\u2019s Moon', sc: 'SC16', prompt: 'You see this Moon from Brisbane tonight. Which phase is it?',
+      side: nightPanel(.125, 300, 330, 'Tonight', 90), reveal: revealName('Waxing Crescent'), big: true,
+      opts: [
+        { t: 'Waning Crescent', hint: 'A Waning Crescent is lit on the right. This sliver is on the left.' },
+        { t: 'First Quarter', hint: 'A First Quarter Moon has its whole left half lit. This is only a thin sliver.' },
+        { t: 'Waxing Crescent', hint: '' },
+        { t: 'Waxing Gibbous', hint: 'A gibbous Moon is more than half lit. This is much less than half.' }],
+      answer: 2, msg: 'A thin sliver lit on the left is a Waxing Crescent. The lit part is growing.' },
+
+    { kind: 'mcpic', title: 'Spot the phase', sc: 'SC16', prompt: 'Which picture shows a Third Quarter Moon, seen from Australia?',
+      opts: [
+        { svg: moonSvg(.625, 62, 150), hint: 'This Moon is more than half lit. A quarter Moon is exactly half lit.' },
+        { svg: moonSvg(.25, 62, 150), hint: 'This is a First Quarter Moon. In Australia, its left half is lit.' },
+        { svg: moonSvg(.75, 62, 150), hint: '' },
+        { svg: moonSvg(.875, 62, 150), hint: 'This is a crescent. A quarter Moon is exactly half lit.' }],
+      answer: 2, msg: 'A Third Quarter Moon has its right half lit. The light is shrinking towards New Moon.' },
+
+    { kind: 'mcside', title: 'Later in the month', sc: 'SC16', prompt: 'You see this Moon from Brisbane a few weeks later. Which phase is it?',
+      side: nightPanel(.625, 300, 330, 'Tonight', 90), reveal: revealName('Waning Gibbous'), big: true,
+      opts: [
+        { t: 'Waxing Gibbous', hint: 'A Waxing Gibbous Moon is lit on the left. Here the shadow is on the left.' },
+        { t: 'Full Moon', hint: 'A Full Moon is lit all the way across. Look closely at the left edge.' },
+        { t: 'Third Quarter', hint: 'A Third Quarter Moon is exactly half lit. This is more than half.' },
+        { t: 'Waning Gibbous', hint: '' }],
+      answer: 3, msg: 'More than half lit, with shadow creeping in on the left, is a Waning Gibbous.' },
+
+    { kind: 'match', title: 'Name every phase', sc: 'SC16', prompt: 'Drag the correct name under each Moon, as seen from Australia.',
+      msg: 'Waxing phases are lit on the left. Waning phases are lit on the right.' },
+
+    { kind: 'orbit', title: 'On the move', sc: 'SC16', prompt: 'Watch the Moon orbit. What will we see from Australia when it stops?',
+      from: 0, to: .25, key: 'fq',
+      opts: [
+        { p: .75, hint: 'The Moon has only travelled a quarter of the way since New Moon, so it is still waxing. Waxing Moons are lit on the left.' },
+        { p: .25, hint: '' },
+        { p: .5, hint: 'For a Full Moon, the Moon must be on the far side of Earth from the Sun. It has only gone a quarter of the way.' },
+        { p: .125, hint: 'A quarter of the way around, we see half of the lit side, not just a thin sliver.' }],
+      answer: 1, msg: 'A quarter of the way around, we see half of the lit side: a First Quarter Moon. Pink shows the half facing Earth.' },
+
+    { kind: 'orbit', title: 'In the middle', sc: 'SC16', prompt: 'The Moon stops between the Sun and Earth. Which phase do we see?',
+      from: .5, to: 1, key: 'new',
+      opts: [
+        { t: 'Full Moon', hint: 'A Full Moon happens when the Moon is on the far side of Earth, away from the Sun.' },
+        { t: 'First Quarter', hint: 'At First Quarter the Moon is beside Earth, a quarter of the way around. Here it is between the Sun and Earth.' },
+        { t: 'New Moon', hint: '' },
+        { t: 'Third Quarter', hint: 'At Third Quarter the Moon is three quarters of the way around. Here it is between the Sun and Earth.' }],
+      answer: 2, msg: 'The half facing Earth is the dark half, so we can\u2019t see the lit side. This is a New Moon.' },
+
+    { kind: 'orbit', title: 'Keep going', sc: 'SC16', prompt: 'Watch the Moon orbit. What will we see from Australia when it stops?',
+      from: .25, to: .625, key: 'wng',
+      opts: [
+        { p: .375, hint: 'The Moon has passed Full Moon, so it is now waning. Waning Moons are lit on the right in Australia.' },
+        { p: .5, hint: 'The Moon has moved past the far side of Earth, so we no longer see all of the lit side.' },
+        { p: .75, hint: 'The Moon hasn\u2019t reached three quarters of the way yet, so we still see more than half of the lit side.' },
+        { p: .625, hint: '' }],
+      answer: 3, msg: 'Just past Full Moon, we see most of the lit side, with shadow creeping in on the left. This is a Waning Gibbous.' },
+
+    { kind: 'tap', title: 'Find the Moon', sc: 'SC16', prompt: 'You see this Moon tonight. Tap where the Moon is in its orbit.',
+      key: 'tq', tip: 'A Third Quarter Moon is three quarters of the way around its orbit from New Moon.',
+      msg: 'Three quarters of the way around, we see half of the lit side. In Australia, it is lit on the right.' },
+
+    { kind: 'tap', title: 'Find it again', sc: 'SC16', prompt: 'You see this Moon tonight. Tap where the Moon is in its orbit.',
+      key: 'wxc', tip: 'A Waxing Crescent appears a few days after New Moon.',
+      msg: 'Just after New Moon, we only see a sliver of the lit side. In Australia, it is lit on the left.' },
+
+    { kind: 'predict', title: 'What comes next?', sc: 'SC17', prompt: 'The Moon went from New Moon to First Quarter. What happens over the next week?',
+      opts: [
+        { g: 'shrink', t: 'Lit part gets smaller', hint: 'The Moon is heading towards the far side of Earth, so we see more and more of its lit half.' },
+        { g: 'grow', t: 'Lit part gets bigger', hint: '' },
+        { g: 'same', t: 'Stays the same', hint: 'The Moon keeps orbiting, so our view of its lit half keeps changing.' },
+        { g: 'swap', t: 'Light jumps to the right', hint: 'While the Moon is waxing, the light stays on the left and grows across to the right.' }],
+      answer: 1, msg: 'As the Moon heads towards Full Moon, we see more of its lit half. The Moon is waxing.' },
+
+    { kind: 'sort', title: 'Waxing or waning?', sc: 'SC17', prompt: 'Sort each Moon, as seen from Australia. Is the lit part growing or shrinking?',
+      bins: [['Waxing', 'Lit part getting bigger'], ['Waning', 'Lit part getting smaller']],
+      items: [.08, .18, .25, .4, .6, .75, .84, .93].map(p => ({ html: `<svg viewBox="-34 -34 68 68" width="62" height="62">${moonG(p, 31)}</svg>`, k: p < .5 ? 'x' : 'n',
+        h: p < .5 ? 'A Moon lit on the left is waxing in Australia.' : 'A Moon lit on the right is waning in Australia.' })),
+      msg: 'In Australia, waxing Moons are lit on the left and waning Moons are lit on the right.' },
+
+    { kind: 'order', title: 'The monthly cycle', sc: 'SC17', prompt: 'Starting at New Moon, put the phases in order.',
+      msg: 'The lit part grows from the left to Full Moon, then shrinks until only a sliver on the right is left.' },
+
+    { kind: 'mcside', title: 'Priya\u2019s claim', sc: 'SC17', prompt: 'Priya is explaining Moon phases. Is she right?',
+      quote: '\u201cThe phases happen because Earth\u2019s shadow covers part of the Moon.\u201d',
+      side: claimSide, reveal: side => fadeIn(side.querySelector('.rv')),
+      opts: [
+        { t: 'Yes. Earth\u2019s shadow covers more of the Moon each night.', hint: 'Earth\u2019s shadow points away from the Sun. Most of the month, the Moon is nowhere near it.' },
+        { t: 'Yes. Clouds on Earth block part of the Moon.', hint: 'Clouds can hide the Moon for a night, but the phases follow the same pattern every month.' },
+        { t: 'No. The Moon makes less light at some times of the month.', hint: 'The Moon makes no light of its own. It only reflects sunlight.' },
+        { t: 'No. Half the Moon is always lit, and we see different amounts of that half as it orbits.', hint: '' }],
+      answer: 3, msg: 'Phases come from our changing view of the Moon\u2019s lit half as it orbits, not from Earth\u2019s shadow.' },
+
+    { kind: 'cloze', title: 'Explain the phases', sc: 'SC17', prompt: 'Drag the correct word into each gap.',
+      text: 'The Moon {0} light from the Sun. {1} of the Moon is always lit. As the Moon {2} Earth, we see different amounts of its lit half. When the lit part we see grows, the Moon is {3}. When it shrinks, the Moon is {4}.',
+      answers: ['reflects', 'Half', 'orbits', 'waxing', 'waning'],
+      words: ['reflects', 'makes', 'Half', 'All', 'orbits', 'faces', 'waxing', 'waning'],
+      hints: ['The Moon doesn\u2019t make its own light. Moonlight is sunlight bouncing off it.', 'Only the side facing the Sun can be lit. The other side is dark.',
+        'Phases change because the Moon travels around Earth.', 'Waxing means the lit part we see is growing.', 'Waning means the lit part we see is shrinking.'],
+      msg: 'Half the Moon is always lit. Its orbit changes how much of that half we can see from Earth.' }
+];
+const TOTAL = QS.length;
+const CHIP = { mc: 'Multiple choice', mcpic: 'Multiple choice', mcside: 'Multiple choice', match: 'Drag and drop', orbit: 'Watch and choose', tap: 'Place the Moon',
+    predict: 'Predict', sort: 'Drag and drop', order: 'Sequence', cloze: 'Fill the gaps' };
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
 /* ---------- flow ---------- */
 let qi = 0, firstTry = [], tries = 0, mode = 'check', cur = null;
-const CHIP = { mc: 'Multiple choice', sort: 'Drag and drop', cloze: 'Fill the gaps', match: 'Match up', order: 'Put in order', label: 'Label the diagram', hotspot: 'Click the diagram' };
 function render() {
     runId++;
     content.innerHTML = ''; tries = 0; mode = 'check';
     const q = QS[qi];
-    counter.innerHTML = `Question <b>${qi + 1}</b> / ${QS.length}`;
-    progress.style.width = (qi / QS.length * 100) + '%';
+    counter.innerHTML = `Question <b>${qi + 1}</b> / ${TOTAL}`;
+    progress.style.width = (qi / TOTAL * 100) + '%';
     const wrap = el('div', 'q');
-    wrap.appendChild(el('div', 'qhead', `<div class="qtitle">${q.title}</div><div class="tchip">${q.chip || CHIP[q.kind]}</div><div class="sctag">${q.sc}</div>`));
+    wrap.appendChild(el('div', 'qhead', `<div class="qtitle">${q.title}</div><div class="tchip">${CHIP[q.kind]}</div><div class="sctag">${q.sc}</div>`));
     wrap.appendChild(el('div', 'prompt', q.prompt));
     const body = el('div', 'body'); wrap.appendChild(body); content.appendChild(wrap);
     cur = KINDS[q.kind](q, body);
-    say(q.instr || cur.instr);
+    say(cur.instr);
     btn.hidden = false; btn.textContent = 'Check';
     refresh();
 }
@@ -360,7 +532,7 @@ function check() {
     if (r.ok) {
         if (tries === 1) firstTry[qi] = true;
         say(`<b>Correct.</b> ${QS[qi].msg}`);
-        mode = 'next'; btn.disabled = false; btn.textContent = qi === QS.length - 1 ? 'Finish' : 'Next';
+        mode = 'next'; btn.disabled = false; btn.textContent = qi === TOTAL - 1 ? 'Finish' : 'Next';
         btn.classList.remove('pop-in'); void btn.offsetWidth; btn.classList.add('pop-in');
         if (cur.done) cur.done();
     } else {
@@ -371,7 +543,7 @@ function check() {
 btn.onclick = () => {
     if (btn.disabled) return;
     if (mode === 'check') check();
-    else if (qi === QS.length - 1) finish();
+    else if (qi === TOTAL - 1) finish();
     else { qi++; render(); }
 };
 function finish() {
@@ -384,33 +556,21 @@ function finish() {
     say('Take a screenshot of this screen and paste it into Stile as evidence of your work.');
     const c = el('div', 'center');
     const dots = QS.map((_, i) => `<span class="${firstTry[i] ? 'y' : ''}">${i + 1}</span>`).join('');
-    const card = el('div', 'scorecard pop-in', `<div class="big">${n} / ${QS.length}</div><div class="dlbl">Correct on the first try</div><div class="dots">${dots}</div>`);
+    const card = el('div', 'scorecard pop-in', `<div class="big">${n} / ${TOTAL}</div><div class="dlbl">Correct on the first try</div><div class="dots">${dots}</div>`);
     const again = el('button', 'again', 'Start again');
     again.onclick = () => { qi = 0; firstTry = []; render(); };
     c.append(card, again); content.appendChild(c);
 }
 
-/* ---------- scenes ---------- */
-function mountScene(sp, parent) {
-    const sc = el('div', 'scene' + (sp.cls ? ' ' + sp.cls : ''));
-    sc.innerHTML = `<svg viewBox="0 0 ${sp.w} ${sp.h}" width="${sp.w}" height="${sp.h}">${sp.svg || ''}</svg>`;
-    parent.appendChild(sc);
-    const ctl = sp.anim ? (sp.anim(sc.querySelector('svg'), sc) || {}) : {};
-    ctl.el = sc;
-    if (ctl.run) {
-        if (!ctl.loop) { const rp = el('button', 'replay', `${replayIcon}<span>Replay</span>`); sc.appendChild(rp); rp.onclick = () => { runId++; ctl.run(); }; }
-        ctl.run();
-    }
-    return ctl;
-}
-
-/* ---------- multiple choice ---------- */
-const L = 'ABCD';
+/* ---------- multiple choice core ---------- */
 function mcCore(els, q, extra = {}) {
     let sel = null;
-    els.forEach((b, i) => b.onclick = () => {
-        if (mode !== 'check' || b.classList.contains('wrong')) return;
-        els.forEach(x => x.classList.remove('sel')); b.classList.add('sel'); sel = i; refresh();
+    els.forEach((b, i) => {
+        b.onclick = () => {
+            if (mode !== 'check' || b.classList.contains('wrong')) return;
+            els.forEach(x => x.classList.remove('sel')); b.classList.add('sel'); sel = i; refresh();
+        };
+        if (b.tagName.toLowerCase() !== 'button') b.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); b.onclick(); } });
     });
     return {
         instr: extra.instr || 'Choose an answer, then press <b>Check</b>.',
@@ -424,6 +584,207 @@ function mcCore(els, q, extra = {}) {
         },
         done: extra.done
     };
+}
+/* check helper for one-tile drop slots */
+function slotCheck(zones, hintFor, word) {
+    let bad = 0, hint = null;
+    zones.forEach(z => {
+        if (z.locked) return;
+        const t = z.box.querySelector('.tile'); if (!t) return;
+        t.classList.remove('wrong'); void t.offsetWidth;
+        if (t.k === z.key) { t.classList.add('right'); z.locked = true; z.el.classList.remove('armed'); }
+        else { bad++; t.classList.add('wrong'); if (!hint) hint = hintFor(z, t); }
+    });
+    return bad ? { ok: false, hint: (bad > 1 ? `${bad} ${word} need moving. ` : '') + hint } : { ok: true };
+}
+const slotZone = s => ({ el: s, box: s, cap: 1, onPut: () => s.classList.add('filled'), onTake: () => s.classList.remove('filled') });
+const L = 'ABCD';
+
+const KINDS = {
+    mc(q, body) {
+        const g = el('div', 'opts g2');
+        const els = q.opts.map((o, i) => { const b = el('button', 'opt', `<span class="l">${L[i]}</span><span>${o.t}</span>`); g.appendChild(b); return b; });
+        body.appendChild(g);
+        return mcCore(els, q);
+    },
+    mcpic(q, body) {
+        const g = el('div', 'pgrid');
+        const els = q.opts.map((o, i) => { const b = el('button', 'pcard', `<span class="l">${L[i]}</span>${o.svg}${o.t ? `<span class="cap">${o.t}</span>` : ''}`); g.appendChild(b); return b; });
+        body.appendChild(g);
+        return mcCore(els, q);
+    },
+    mcside(q, body) {
+        const side = el('div', 'scene', q.side);
+        const col = el('div', 'col'); col.style.flex = '1';
+        if (q.quote) col.appendChild(el('div', 'quote', q.quote));
+        const g = el('div', 'opts' + (q.big ? ' big' : ''));
+        const els = q.opts.map((o, i) => { const b = el('button', 'opt', `<span class="l">${L[i]}</span><span>${o.t}</span>`); g.appendChild(b); return b; });
+        col.appendChild(g); body.append(side, col);
+        body.style.justifyContent = 'flex-start';
+        return mcCore(els, q, { done: () => q.reveal && q.reveal(side) });
+    },
+    match(q, body) {
+        const wrap = el('div', 'match'), grid = el('div', 'mgrid'), pool = el('div', 'pool mpool');
+        wrap.append(grid, pool); body.appendChild(wrap);
+        const zones = shuffle(PH).map(ph => {
+            const cell = el('div', 'mcell', moonSvg(ph.p, 46, 100));
+            const s = el('div', 'dslot mslot'); s.tabIndex = 0; s.setAttribute('aria-label', 'Name box');
+            cell.appendChild(s); grid.appendChild(cell);
+            return { ...slotZone(s), key: ph.k };
+        });
+        const D = dnd({ el: pool, box: pool, cap: Infinity, pool: true }, zones, () => refresh());
+        shuffle(PH).forEach(ph => { const t = D.tile(ph.n); t.classList.add('mt'); t.k = ph.k; pool.appendChild(t); });
+        return {
+            instr: 'Drag a name under each Moon (or tap a name, then a box), then press <b>Check</b>.',
+            ready: () => zones.every(z => z.box.querySelector('.tile')),
+            check: () => slotCheck(zones, (z, t) => P(t.k).d, 'names')
+        };
+    },
+    orbit(q, body) {
+        const sc = el('div', 'scene');
+        sc.innerHTML = `<svg viewBox="0 0 600 330" width="600" height="330"></svg>`;
+        const rp = el('button', 'replay', `${replayIcon}<span>Replay</span>`); sc.appendChild(rp);
+        let g, els;
+        if (q.opts[0].p !== undefined) {
+            g = el('div', 'pgrid g22');
+            els = q.opts.map((o, i) => { const b = el('button', 'pcard', `<span class="l">${L[i]}</span>${moonSvg(o.p, 54, 124)}`); g.appendChild(b); return b; });
+        } else {
+            g = el('div', 'opts big'); g.style.width = '500px';
+            els = q.opts.map((o, i) => { const b = el('button', 'opt', `<span class="l">${L[i]}</span><span>${o.t}</span>`); g.appendChild(b); return b; });
+        }
+        body.append(sc, g);
+        const S = orbitScene(sc.querySelector('svg'), { W: 600, H: 330, ex: 250, ey: 160, R: 112, mr: 17, inset: { x: 410, w: 180 } });
+        let solved = false;
+        const reveal = () => { S.setP(q.to); S.look(true); S.inset('fade', q.to); S.name(P(q.key).n); fadeIn(S.imG); };
+        const go = async () => {
+            runId++;
+            S.look(false); S.inset('hidden'); S.name(''); S.setP(q.from);
+            await wait(500);
+            await play(2600, k => S.setP(q.from + (q.to - q.from) * easeInOut(k)));
+            if (solved) reveal();
+        };
+        rp.onclick = go;
+        go();
+        return mcCore(els, q, { instr: 'Watch the Moon, choose an answer, then press <b>Check</b>.', done: () => { solved = true; runId++; reveal(); } });
+    },
+    tap(q, body) {
+        const sc = el('div', 'scene');
+        sc.innerHTML = `<svg viewBox="0 0 620 330" width="620" height="330"></svg>`;
+        const night = el('div', 'scene', nightPanel(P(q.key).p, 280, 330, 'Tonight', 86));
+        body.append(sc, night);
+        const S = orbitScene(sc.querySelector('svg'), { W: 620, H: 330, ex: 340, ey: 160, R: 116, mr: 18 });
+        S.moonVis(0);
+        const els = PH.map((ph, i) => {
+            const pt = S.pos(ph.p), g = document.createElementNS(NS, 'g');
+            g.setAttribute('class', 'opos'); g.setAttribute('tabindex', '0'); g.setAttribute('role', 'button'); g.setAttribute('aria-label', `Orbit position ${i + 1}`);
+            g.setAttribute('transform', `translate(${pt.x.toFixed(1)} ${pt.y.toFixed(1)})`);
+            g.innerHTML = `<circle class="ring" r="24"/>`;
+            S.ghosts.appendChild(g); return g;
+        });
+        const qq = { answer: PH.findIndex(x => x.k === q.key), opts: PH.map(ph => ({ hint: `From there we would see ${ph.a}. ${q.tip}` })) };
+        return mcCore(els, qq, { instr: 'Tap a spot on the orbit, then press <b>Check</b>.', done: () => {
+            S.setP(P(q.key).p); S.look(true); fadeIn(night.querySelector('.pn')); night.querySelector('.pn').textContent = P(q.key).n;
+            play(400, k => S.moonVis(k));
+        } });
+    },
+    predict(q, body) {
+        body.classList.add('pred');
+        const sc = el('div', 'scene');
+        sc.innerHTML = `<svg viewBox="0 0 600 330" width="600" height="330"></svg>`;
+        const rp = el('button', 'replay', `${replayIcon}<span>Replay</span>`); sc.appendChild(rp);
+        const g = el('div', 'opts');
+        const els = q.opts.map(o => { const b = el('button', 'opt', `${glyph(o.g)}<span>${o.t}</span>`); g.appendChild(b); return b; });
+        body.append(sc, g);
+        const S = orbitScene(sc.querySelector('svg'), { W: 600, H: 330, ex: 250, ey: 160, R: 112, mr: 17, inset: { x: 410, w: 180 } });
+        let solved = false, introDone = false;
+        const run = async (full, skipIntro) => {
+            if (!skipIntro) {
+                introDone = false;
+                S.inset('live'); S.setP(0); S.look(true); S.name('New Moon');
+                await wait(900);
+                S.name('');
+                await play(3000, k => S.setP(.25 * easeInOut(k)));
+                S.name('First Quarter');
+                introDone = true;
+            }
+            if (!full) return;
+            await wait(skipIntro ? 150 : 700);
+            S.name('');
+            await play(3000, k => S.setP(.25 + .25 * easeInOut(k)));
+            S.name('Full Moon');
+        };
+        rp.onclick = () => { runId++; run(solved); };
+        run(false);
+        return mcCore(els, q, { instr: 'Watch, then choose what happens next and press <b>Check</b>.', done: () => { solved = true; const skip = introDone; runId++; run(true, skip); } });
+    },
+    sort(q, body) {
+        const wrap = el('div', 'sort');
+        const mk = (cls, h, sub) => { const b = el('div', 'bin ' + cls, `<h3>${h}</h3><div class="sub">${sub}</div><div class="area"></div>`); b.tabIndex = 0; return b; };
+        const bx = mk('', q.bins[0][0], q.bins[0][1]), bn = mk('pk', q.bins[1][0], q.bins[1][1]);
+        const pool = el('div', 'pool');
+        wrap.append(bx, pool, bn); body.appendChild(wrap);
+        const zones = [{ el: bx, box: bx.querySelector('.area'), cap: Infinity, key: 'x' }, { el: bn, box: bn.querySelector('.area'), cap: Infinity, key: 'n' }];
+        const D = dnd({ el: pool, box: pool, cap: Infinity, pool: true }, zones, () => refresh());
+        shuffle(q.items).forEach(it => { const t = D.tile(it.html); t.classList.add('pic'); t.k = it.k; t.h = it.h; pool.appendChild(t); });
+        return {
+            instr: 'Drag each Moon into a group (or tap a Moon, then a group), then press <b>Check</b>.',
+            ready: () => !pool.querySelector('.tile'),
+            check() {
+                const wrong = [];
+                zones.forEach(z => z.box.querySelectorAll('.tile').forEach(t => {
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (t.k === z.key) t.classList.add('right'); else { t.classList.add('wrong'); wrong.push(t.h); }
+                }));
+                return wrong.length ? { ok: false, hint: (wrong.length > 1 ? `${wrong.length} Moons need moving. ` : '') + wrong[0] } : { ok: true };
+            }
+        };
+    },
+    order(q, body) {
+        const wrap = el('div', 'order'), row = el('div', 'orow'), pool = el('div', 'pool opool');
+        const zones = PH.map((ph, i) => {
+            if (i) row.insertAdjacentHTML('beforeend', `<svg class="oarr" viewBox="0 0 20 20" width="20" height="20"><path d="M2 10 H16 M11 5 L16 10 L11 15" fill="none" stroke="${NV}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`);
+            const cell = el('div', 'ocell', `<div class="onum">${i + 1}</div>`);
+            const s = el('div', 'dslot oslot'); s.tabIndex = 0; s.setAttribute('aria-label', `Spot ${i + 1}`);
+            cell.appendChild(s); row.appendChild(cell);
+            return { ...slotZone(s), key: ph.k };
+        });
+        wrap.append(row, el('div', 'dlbl', 'One full cycle takes about a month'), pool);
+        body.appendChild(wrap);
+        const D = dnd({ el: pool, box: pool, cap: Infinity, pool: true }, zones, () => refresh());
+        const mk = ph => { const t = D.tile(moonSvg(ph.p, 34, 72)); t.classList.add('pic'); t.k = ph.k; return t; };
+        const first = mk(PH[0]); first.classList.add('right'); zones[0].box.appendChild(first); zones[0].locked = true; zones[0].el.classList.add('filled');
+        shuffle(PH.slice(1)).forEach(ph => pool.appendChild(mk(ph)));
+        return {
+            instr: 'Drag each Moon into a spot (or tap a Moon, then a spot), then press <b>Check</b>.',
+            ready: () => zones.every(z => z.box.querySelector('.tile')),
+            check: () => slotCheck(zones, z => ORDER_HINT[z.key], 'Moons')
+        };
+    },
+    cloze(q, body) {
+        const wrap = el('div', 'clz'), para = el('div', 'cloze'), pool = el('div', 'pool cpool');
+        para.innerHTML = q.text.replace(/\{(\d)\}/g, (_, i) => `<span class="dslot blank" data-i="${i}" tabindex="0" aria-label="Gap ${+i + 1}"></span>`);
+        wrap.append(para, pool); body.appendChild(wrap);
+        const zones = [...para.querySelectorAll('.blank')].map(s => { const i = +s.dataset.i; return { ...slotZone(s), key: q.answers[i], hint: q.hints[i] }; });
+        const D = dnd({ el: pool, box: pool, cap: Infinity, pool: true }, zones, () => refresh());
+        shuffle(q.words).forEach(w => { const t = D.tile(w); t.k = w; pool.appendChild(t); });
+        return {
+            instr: 'Drag a word into each gap (or tap a word, then a gap), then press <b>Check</b>.',
+            ready: () => zones.every(z => z.box.querySelector('.tile')),
+            check: () => slotCheck(zones, z => z.hint, 'words')
+        };
+    }
+};
+
+/* predict glyphs: three small Moons show the change */
+function glyph(k) {
+    const seq = { grow: [.1, .25, .4], shrink: [.4, .25, .1], same: [.25, .25, .25], swap: [.25, null, .75] }[k];
+    let s = '';
+    seq.forEach((p, i) => {
+        const x = 12 + i * 32;
+        if (p === null) s += `<path class="gs" d="M${x - 9} 20 H${x + 7} M${x + 2} 14 L${x + 8} 20 L${x + 2} 26" stroke-linecap="round" stroke-linejoin="round" style="stroke-width:2.6"/>`;
+        else s += `<g transform="translate(${x} 20)">${moonG(p, 11, { sw: 2 })}</g>`;
+    });
+    return `<svg class="gly" viewBox="0 0 88 40" width="74" height="34">${s}</svg>`;
 }
 
 /* ---------- drag and drop (drag, or tap a tile then tap a target) ---------- */
@@ -456,10 +817,9 @@ function dnd(pool, zones, onChange) {
         z.el.addEventListener('click', act);
         z.el.addEventListener('keydown', e => { if (e.target === z.el && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); act(); } });
     });
-    function tile(html, v) {
+    function tile(html) {
         const t = el('span', 'tile', html);
-        t.v = v === undefined ? html : v;
-        t.tabIndex = 0; t.setAttribute('role', 'button'); t.setAttribute('aria-label', String(t.v));
+        t.tabIndex = 0; t.setAttribute('role', 'button');
         const tap = () => {
             if (t.classList.contains('right')) return;
             t.style.transform = '';
@@ -495,177 +855,6 @@ function dnd(pool, zones, onChange) {
     }
     return { tile };
 }
-function mkZone(z, id, ans) {
-    return { el: z, box: z, cap: 1, id, ans: [].concat(ans), onPut() { z.classList.add('filled'); }, onTake() { z.classList.remove('filled'); } };
-}
-function slotCheck(q, zones) {
-    let bad = 0, hint = null;
-    zones.forEach(z => {
-        const t = z.box.querySelector('.tile'); z.el.classList.remove('wrong');
-        if (!t || t.classList.contains('right')) return;
-        t.classList.remove('wrong'); void t.offsetWidth;
-        if (z.ans.includes(t.v)) { t.classList.add('right'); z.locked = true; }
-        else { bad++; t.classList.add('wrong'); z.el.classList.add('wrong'); if (!hint) hint = (q.hints && q.hints[t.v]) || (q.slotHints && q.slotHints[z.id]) || q.wrongHint || 'Check this one again.'; }
-    });
-    if (bad) return { ok: false, hint: (bad > 1 ? `${bad} answers need changing. ` : '') + hint };
-    return { ok: true };
-}
-const filledAll = zones => () => zones.every(z => z.box.querySelector('.tile'));
-const clearWrong = zones => () => { zones.forEach(z => z.el.classList.remove('wrong')); refresh(); };
-const mkPool = cls => { const p = el('div', 'pool' + (cls ? ' ' + cls : '')); return { el: p, box: p, cap: Infinity, pool: true }; };
-
-/* ---------- question types ---------- */
-const KINDS = {
-    mc(q, body) {
-        let ctl = {};
-        const pic = q.opts[0].pic !== undefined;
-        if (q.scene) ctl = mountScene(q.scene, body);
-        let host = body;
-        if (q.quote || (q.scene && !pic)) { host = el('div', 'col'); body.appendChild(host); }
-        if (q.quote) host.appendChild(el('div', 'quote', q.quote));
-        const g = el('div', pic ? (q.scene ? 'pgrid g22' : 'pgrid') : (host === body ? 'opts g2' : 'opts'));
-        const els = q.opts.map((o, i) => {
-            const inner = o.pic !== undefined ? `<span class="l">${L[i]}</span>${o.pic}${o.t ? `<span class="cap">${o.t}</span>` : ''}` : `<span class="l">${L[i]}</span><span>${o.t}</span>`;
-            const b = el('button', pic ? 'pcard' : 'opt', inner); b.setAttribute('aria-label', `Option ${L[i]}`); g.appendChild(b); return b;
-        });
-        host.appendChild(g);
-        if (q.scene && q.quote) body.style.justifyContent = 'flex-start';
-        return mcCore(els, q, { instr: q.instr, done: () => { if (ctl.done) ctl.done(); } });
-    },
-    sort(q, body) {
-        const wrap = el('div', 'sort3');
-        const bins = q.bins.map(b => { const e = el('div', 'bin' + (b.cls ? ' ' + b.cls : ''), `<h3>${b.h}</h3>${b.sub ? `<div class="sub">${b.sub}</div>` : ''}<div class="area"></div>`); e.tabIndex = 0; return e; });
-        const P = mkPool();
-        const row = el('div', 'binrow'); row.style.gridTemplateColumns = `repeat(${bins.length}, 1fr)`;
-        bins.forEach(b => row.appendChild(b)); wrap.append(P.el, row);
-        body.appendChild(wrap);
-        const zones = bins.map((b, i) => ({ el: b, box: b.querySelector('.area'), cap: Infinity, key: q.bins[i].key }));
-        const D = dnd(P, zones, () => refresh());
-        shuffle(q.items).forEach(([t, k, h]) => { const tl = D.tile(t, t); tl.classList.add('sm'); tl.k = k; tl.h = h; P.el.appendChild(tl); });
-        return {
-            zones,
-            instr: 'Drag each tile into a group (or tap a tile, then a group), then press <b>Check</b>.',
-            ready: () => !P.el.querySelector('.tile'),
-            check() {
-                const wrong = [];
-                zones.forEach(z => z.box.querySelectorAll('.tile').forEach(t => {
-                    if (t.classList.contains('right')) return;
-                    t.classList.remove('wrong'); void t.offsetWidth;
-                    if (t.k === z.key) t.classList.add('right'); else { t.classList.add('wrong'); wrong.push(t.h); }
-                }));
-                return wrong.length ? { ok: false, hint: (wrong.length > 1 ? `${wrong.length} tiles need moving. ` : '') + wrong[0] } : { ok: true };
-            }
-        };
-    },
-    cloze(q, body) {
-        body.classList.add('stack');
-        const p = el('div', 'cloze'), zones = [];
-        q.text.split(/\[\[(.+?)\]\]/).forEach((s, i) => {
-            if (i % 2 === 0) { p.appendChild(document.createTextNode(s)); return; }
-            const z = el('span', 'slot cs'); z.tabIndex = 0; z.setAttribute('aria-label', `Gap ${zones.length + 1}`);
-            p.appendChild(z); zones.push(mkZone(z, zones.length, s.split('|')));
-        });
-        const P = mkPool('cpool');
-        body.append(p, P.el);
-        const D = dnd(P, zones, clearWrong(zones));
-        shuffle(q.tiles).forEach(t => P.el.appendChild(D.tile(t, t)));
-        return { zones, instr: 'Drag a word into each gap (or tap a word, then a gap), then press <b>Check</b>.', ready: filledAll(zones), check: () => slotCheck(q, zones) };
-    },
-    match(q, body) {
-        const grid = el('div', 'mgrid');
-        const zones = shuffle(q.items).map(it => {
-            const card = el('div', 'mcard', it.pic);
-            const z = el('div', 'slot'); z.tabIndex = 0; z.setAttribute('aria-label', 'Name space');
-            card.appendChild(z); grid.appendChild(card);
-            return mkZone(z, it.ans, it.ans);
-        });
-        const side = el('div', 'bside narrow', `<div class="dlbl">${q.poolLabel || 'Names'}</div>`);
-        const P = mkPool(); side.appendChild(P.el);
-        body.append(grid, side);
-        const D = dnd(P, zones, clearWrong(zones));
-        shuffle(q.tiles).forEach(t => P.el.appendChild(D.tile(t, t)));
-        return { zones, instr: 'Drag a name under each Moon (or tap a name, then a space), then press <b>Check</b>.', ready: filledAll(zones), check: () => slotCheck(q, zones) };
-    },
-    order(q, body) {
-        body.classList.add('stack');
-        const row = el('div', 'orow');
-        let n = 1;
-        if (q.fixed) row.appendChild(el('div', 'ocell', `<div class="onum">${n++}</div><div class="ofix">${q.fixed.pic}<span>${q.fixed.t}</span></div>`));
-        const zones = q.seq.map(s => {
-            const c = el('div', 'ocell', `<div class="onum">${n++}</div>`);
-            const z = el('div', 'slot oslot'); z.tabIndex = 0; z.setAttribute('aria-label', `Space ${n - 1}`);
-            c.appendChild(z); row.appendChild(c);
-            return mkZone(z, s.v, s.v);
-        });
-        const P = mkPool('opool');
-        body.append(row, P.el);
-        const D = dnd(P, zones, clearWrong(zones));
-        shuffle(q.seq).forEach(s => { const t = D.tile(s.pic, s.v); t.classList.add('pic'); t.setAttribute('aria-label', s.aria || 'Moon'); P.el.appendChild(t); });
-        return { zones, instr: 'Drag the Moons into order (or tap a Moon, then a space), then press <b>Check</b>.', ready: filledAll(zones), check: () => slotCheck(q, zones) };
-    },
-    label(q, body) {
-        const zones = [], ctls = [];
-        const mkSlot = (s, host, abs) => {
-            const z = el('div', 'slot' + (abs ? ' abs' : '') + (s.cls ? ' ' + s.cls : ''));
-            if (abs) { z.style.left = s.x + 'px'; z.style.top = s.y + 'px'; }
-            if (s.w) z.style.width = s.w + 'px';
-            if (s.h) z.style.height = s.h + 'px';
-            z.tabIndex = 0; z.setAttribute('aria-label', s.aria || 'Drop space');
-            host.appendChild(z); zones.push(mkZone(z, s.id, q.answer[s.id]));
-        };
-        if (q.panels) {
-            const prow = el('div', 'prow'); body.appendChild(prow);
-            q.panels.forEach(pn => {
-                const col = el('div', 'pcol'); prow.appendChild(col);
-                ctls.push(mountScene(pn.scene, col));
-                pn.rows.forEach(r => { const row = el('div', 'lrow', `<span class="ll">${r.label}</span>`); col.appendChild(row); mkSlot(r, row); });
-            });
-        } else {
-            const c = mountScene(q.scene, body); ctls.push(c);
-            (q.slots || []).forEach(s => mkSlot(s, c.el, true));
-        }
-        const side = el('div', 'bside'); if (q.sideW) side.style.width = q.sideW + 'px';
-        if (q.rows) q.rows.forEach(r => { const row = el('div', 'lrow', `<span class="ll">${r.label}</span>`); side.appendChild(row); mkSlot(r, row); });
-        side.appendChild(el('div', 'dlbl', q.poolLabel || 'Labels'));
-        const P = mkPool(q.poolCls); side.appendChild(P.el); body.appendChild(side);
-        const D = dnd(P, zones, clearWrong(zones));
-        shuffle(q.tiles).forEach(t => {
-            const o = typeof t === 'string' ? { v: t, html: t } : t;
-            const tl = D.tile(o.html, o.v); if (o.cls) tl.classList.add(o.cls); P.el.appendChild(tl);
-        });
-        return { zones, instr: q.instrL || 'Drag each label into a space (or tap a label, then a space), then press <b>Check</b>.', ready: filledAll(zones), check: () => slotCheck(q, zones), done: () => ctls.forEach(c => c.done && c.done()) };
-    },
-    hotspot(q, body) {
-        const ctl = mountScene(q.scene, body);
-        if (q.card) body.appendChild(el('div', 'card', q.card));
-        const svg = ctl.el.querySelector('svg');
-        const layer = document.createElementNS(NS, 'g'); svg.appendChild(layer);
-        let sel = null;
-        const spots = q.spots.map((s, i) => {
-            const g = document.createElementNS(NS, 'g');
-            g.setAttribute('class', 'hs'); g.setAttribute('tabindex', '0'); g.setAttribute('role', 'button'); g.setAttribute('aria-label', s.aria || `Position ${i + 1}`);
-            g.innerHTML = `<circle class="hit" cx="${s.x.toFixed(1)}" cy="${s.y.toFixed(1)}" r="${s.r}" fill="transparent"/><circle class="ring" cx="${s.x.toFixed(1)}" cy="${s.y.toFixed(1)}" r="${s.r - 3}"/>`;
-            layer.appendChild(g);
-            const pick = () => {
-                if (mode !== 'check' || g.classList.contains('wrong')) return;
-                spots.forEach(x => x.classList.remove('sel')); g.classList.add('sel'); sel = i; refresh();
-            };
-            g.addEventListener('click', pick);
-            g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
-            return g;
-        });
-        return {
-            instr: 'Click a position on the diagram, then press <b>Check</b>.',
-            ready: () => sel !== null,
-            check() {
-                const g = spots[sel]; g.classList.remove('sel');
-                if (sel === q.answer) { g.classList.add('right'); spots.forEach(x => x.classList.add('off')); return { ok: true }; }
-                g.classList.add('wrong'); const h = q.spots[sel].hint; sel = null; return { ok: false, hint: h };
-            },
-            done: () => { if (ctl.done) ctl.done(); }
-        };
-    }
-};
 
 /* ---------- scale to window ---------- */
 function fit() {
@@ -677,257 +866,6 @@ function fit() {
 window.addEventListener('resize', fit);
 fit();
 (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { fit(); render(); });
-
-/* =========================================================
-   MOON PHASES (SC16, SC17)
-   ========================================================= */
-const PP = [0, .125, .25, .375, .5, .625, .75, .875];
-const NAMES = ['New Moon', 'Waxing crescent', 'First quarter', 'Waxing gibbous', 'Full Moon', 'Waning gibbous', 'Third quarter', 'Waning crescent'];
-
-/* Q: where does moonlight come from */
-const sceneLight = {
-    w: 420, h: 330,
-    svg: `<g transform="translate(62 86)">${sunDisc(38)}</g><text class="oname" x="62" y="164" text-anchor="middle">Sun</text>
-        <g transform="translate(352 86)">${tdMoon(26)}</g><text class="oname" x="352" y="140" text-anchor="middle">Moon</text>
-        <circle cx="250" cy="274" r="52" fill="${EA}" stroke="${NV}" stroke-width="3"/><text class="oname" x="250" y="284" text-anchor="middle">Earth</text>
-        ${person(250, 222)}<g class="a1"></g><g class="a2"></g>
-        <text class="flbl rl" x="312" y="178" opacity="0" style="font-size:22px">Reflected</text>`,
-    anim(svg) {
-        return {
-            async done() {
-                await growArrow(svg.querySelector('.a1'), 122, 86, 0, 196, { c: SUN, label: 'Sunlight', fs: 22 }, 600);
-                await growArrow(svg.querySelector('.a2'), 334, 110, Math.atan2(78, -70), Math.hypot(70, 78), { c: SUN }, 450);
-                const t = svg.querySelector('.rl'); play(300, k => t.setAttribute('opacity', k), always);
-            }
-        };
-    }
-};
-
-/* Q: which side is lit (picture options) */
-function litPic(mode) {
-    const c = { cx: 150, cy: 88, R: 58 };
-    let s = [58, 92, 126].map(y => arrowSVG(6, y, 0, 40, { c: SUN, sw: 5, hl: 13, hw: 9 })).join('');
-    s += `<circle cx="${c.cx}" cy="${c.cy}" r="${c.R}" fill="none" stroke="${GR}" stroke-width="2.5" stroke-dasharray="2 7" stroke-linecap="round"/>`;
-    s += `<circle cx="${c.cx}" cy="${c.cy}" r="17" fill="${EA}" stroke="${NV}" stroke-width="2.5"/>`;
-    PP.filter((_, i) => i % 2 === 0).forEach(p => {
-        const [x, y] = mpos(p, c), toE = Math.atan2(c.cy - y, c.cx - x);
-        const ang = mode === 'sun' ? Math.PI : mode === 'earth' ? toE : mode === 'away' ? toE + Math.PI : 0;
-        s += `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)})">${tdMoon(14, ang)}</g>`;
-    });
-    return `<svg viewBox="0 0 250 176" width="250" height="176">${s}</svg>`;
-}
-
-/* Q: tonight's Moon (pattern over several nights) */
-const NIGHTS = [[2, .068, 70], [4, .136, 180], [6, .203, 290], [8, .271, 400]];
-const sceneNights = {
-    w: 614, h: 327, cls: 'dark',
-    svg: `<rect width="614" height="327" fill="${NV}"/>${stars(614, 327, 46, 3)}
-        <text class="skyt" x="307" y="44" text-anchor="middle">Same time each evening</text>
-        ${NIGHTS.map(([n, p, x]) => `<g class="th"><g transform="translate(${x} 160)">${face(p, 44, SKYF)}</g><text class="skyt" x="${x}" y="238" text-anchor="middle">Night ${n}</text></g>`).join('')}
-        <g fill="#6c7199"><circle cx="458" cy="160" r="3.5"/><circle cx="472" cy="160" r="3.5"/><circle cx="486" cy="160" r="3.5"/></g>
-        <g class="qm"><circle cx="545" cy="160" r="44" fill="none" stroke="#6c7199" stroke-width="3" stroke-dasharray="6 7"/><text x="545" y="176" text-anchor="middle" style="font-family:var(--cond);font-size:46px;font-weight:900;fill:#b9bddb">?</text></g>
-        <g class="an"><g transform="translate(545 160)">${face(.4, 44, SKYF)}</g></g>
-        <text class="skyt" x="545" y="238" text-anchor="middle" style="fill:#ff7cc4">Night 12</text>`,
-    anim(svg) {
-        const th = [...svg.querySelectorAll('.th')], qm = svg.querySelector('.qm'), an = svg.querySelector('.an');
-        let solved = false;
-        const show = (g, k) => { g.setAttribute('opacity', k); g.setAttribute('transform', `translate(0 ${((1 - k) * 14).toFixed(1)})`); };
-        return {
-            async run() {
-                th.forEach(g => show(g, 0)); show(qm, 0); show(an, 0);
-                await wait(350);
-                for (const g of th) { await play(450, k => show(g, easeOut(k))); await wait(260); }
-                if (solved) await play(600, k => show(an, easeOut(k))); else await play(450, k => show(qm, easeOut(k)));
-            },
-            done() { solved = true; play(300, k => show(qm, 1 - k), always); play(650, k => show(an, easeOut(k)), always); }
-        };
-    }
-};
-
-/* Q: find the phase from an orbit diagram */
-const CF = { cx: 380, cy: 160, R: 120, er: 32, sunX: 18, sunYs: [70, 130, 190, 250], sunLen: 74 };
-const sceneFind = {
-    w: 614, h: 327,
-    svg: orbitBase(CF) + moonAt(.25, CF, 20) + `<text class="oname" x="${CF.cx + 32}" y="${CF.cy + CF.R + 7}">Moon</text>` + seenAbove(614, 327)
-};
-
-/* Q: place the Moon (hotspot) */
-const CP = { cx: 430, cy: 165, R: 122, er: 32, sunX: 18, sunYs: [75, 135, 195, 255], sunLen: 74 };
-const placeHints = [
-    'At this spot, none of the lit half faces Earth. That would be a New Moon.',
-    'Here the Moon is waxing, so its sliver of light would be on the left.',
-    'Here we would see the left half lit: a first quarter Moon.',
-    'Here we would see most of the lit half, growing from the left.',
-    'Here we would see the whole lit half: a Full Moon.',
-    'Here we would see most of the lit half. Tonight\u2019s Moon only shows a sliver.',
-    'Here we would see the right half lit. Tonight\u2019s Moon shows less light than that.',
-    ''
-];
-
-/* Q: a month in motion */
-const CM = { cx: 320, cy: 163, R: 118, er: 32, sunX: 16, sunYs: [70, 130, 190, 250], sunLen: 68 };
-const sceneMonth = {
-    w: 614, h: 327,
-    svg: orbitBase(CM) + `<g class="tr"></g><g class="mn">${tdMoon(19)}</g>
-        <text class="spd dc" x="600" y="38" text-anchor="end">Day 0</text>
-        <g class="ins" opacity="0"><rect x="464" y="184" width="144" height="132" rx="6" fill="${NV}"/>
-        <text class="skyt" x="536" y="206" text-anchor="middle" style="font-size:13px;letter-spacing:.04em">From Australia</text><g class="insf" transform="translate(536 258)"></g></g>`,
-    anim(svg) {
-        let solved = false, next = 0;
-        const mn = svg.querySelector('.mn'), tr = svg.querySelector('.tr'), dc = svg.querySelector('.dc'), ins = svg.querySelector('.ins'), insf = svg.querySelector('.insf');
-        const set = p => {
-            const [x, y] = mpos(p, CM);
-            mn.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
-            dc.textContent = 'Day ' + Math.round(p * 29.5);
-            while (next <= p + 1e-6) { const [a, b] = mpos(next, CM); tr.insertAdjacentHTML('beforeend', `<circle cx="${a.toFixed(1)}" cy="${b.toFixed(1)}" r="5" fill="${DT}"/>`); next += 1 / 16; }
-            if (solved) insf.innerHTML = face(p, 40, SKYF);
-        };
-        return {
-            async run() {
-                tr.innerHTML = ''; next = 0; ins.setAttribute('opacity', solved ? 1 : 0); set(0);
-                await wait(500);
-                await play(4400, k => set(.625 * easeInOut(k)));
-            },
-            done() { solved = true; insf.innerHTML = face(.625, 40, SKYF); play(400, k => ins.setAttribute('opacity', k), always); }
-        };
-    }
-};
-
-/* Q: Mia's claim */
-const CC = { cx: 160, cy: 150, R: 100, er: 28, sunX: 4, sunYs: [70, 150, 230], sunLen: 34 };
-const sceneClaim = {
-    w: 360, h: 330,
-    svg: `<polygon points="160,122 360,133 360,167 160,178" fill="${NV}" opacity=".16"/>` + orbitBase({ ...CC, elabel: false })
-        + `<text class="olbl" x="356" y="155" text-anchor="end" style="font-size:13px">Earth\u2019s shadow</text>`
-        + moonAt(.25, CC, 16) + `<text class="olbl" x="160" y="290" text-anchor="middle">First quarter Moon</text><text class="leg" x="350" y="320" text-anchor="end" style="font-size:16px">Seen from above</text>`
-};
-
-/* Q: same face */
-const CS = { cx: 178, cy: 165, R: 112, er: 30 };
-const sceneFace = {
-    w: 340, h: 330,
-    svg: sunArrows(4, [70, 165, 260], 30, { sw: 6, hl: 14, hw: 10, nolabel: true })
-        + `<circle cx="${CS.cx}" cy="${CS.cy}" r="${CS.R}" fill="none" stroke="${GR}" stroke-width="3" stroke-dasharray="2 9" stroke-linecap="round"/>`
-        + PP.map(p => { const [x, y] = mpos(p, CS), a = Math.atan2(CS.cy - y, CS.cx - x); return `<g opacity=".28" transform="translate(${x.toFixed(1)} ${y.toFixed(1)})">${tdMoon(14)}<circle cx="${(Math.cos(a) * 9).toFixed(1)}" cy="${(Math.sin(a) * 9).toFixed(1)}" r="4" fill="${PK}"/></g>`; }).join('')
-        + `<g transform="translate(${CS.cx} ${CS.cy})">${tdEarth(CS.er)}</g><g class="mn">${tdMoon(21)}<circle class="dot" r="6" fill="${PK}"/></g>
-        <text class="leg" x="330" y="320" text-anchor="end" style="font-size:16px">Seen from above</text>`,
-    anim(svg) {
-        const mn = svg.querySelector('.mn'), dot = svg.querySelector('.dot');
-        const set = p => { const [x, y] = mpos(p, CS), a = Math.atan2(CS.cy - y, CS.cx - x); mn.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)})`); dot.setAttribute('cx', (Math.cos(a) * 13).toFixed(1)); dot.setAttribute('cy', (Math.sin(a) * 13).toFixed(1)); };
-        return { loop: true, async run() { const id = runId; set(0); while (id === runId) await play(8000, k => set(k)); } };
-    }
-};
-
-/* =========================================================
-   QUESTIONS
-   ========================================================= */
-const QS = [
-    { kind: 'mc', title: 'Moonlight', sc: 'SC17', prompt: 'Where does the light we see from the Moon come from?', scene: sceneLight,
-      opts: [
-        { t: 'The Moon makes its own light, like a light bulb.', hint: 'The Moon is made of dark rock. It can\u2019t make its own light.' },
-        { t: 'Sunlight that reflects off the Moon\u2019s surface.', hint: '' },
-        { t: 'Light from Earth\u2019s cities bouncing off the Moon.', hint: 'City lights are far too weak to light up the Moon. Think about the brightest light source nearby.' },
-        { t: 'Starlight that reflects off the Moon\u2019s surface.', hint: 'Most stars are so far away that their light is faint. A much closer star does this job.' }],
-      answer: 1, msg: 'The Moon acts like a giant, dusty mirror. Moonlight is reflected sunlight.' },
-
-    { kind: 'mc', title: 'Half and half', sc: 'SC17', prompt: 'Sunlight comes from the left. Which diagram shows the Moon lit correctly?',
-      opts: [
-        { pic: litPic('earth'), hint: 'The Sun lights the Moon, not Earth. The lit half always faces the Sun.' },
-        { pic: litPic('away'), hint: 'Look at the Moon on the left. Its lit half points away from the Sun.' },
-        { pic: litPic('sun'), hint: '' },
-        { pic: litPic('right'), hint: 'Sunlight comes from the left, so the lit half must face left.' }],
-      answer: 2, msg: 'Half of the Moon is always lit: the half facing the Sun. Only our view of it changes.' },
-
-    { kind: 'cloze', title: 'Explain the light', sc: 'SC17', prompt: 'Drag the words to complete the explanation.',
-      text: 'The Moon does not make its own light. It reflects light from the [[Sun]]. [[Half]] of the Moon is always lit. As the Moon [[orbits]] Earth, we see [[a different amount]] of its lit half, so its phase changes.',
-      tiles: ['Sun', 'Half', 'orbits', 'a different amount', 'Earth', 'All', 'hides behind', 'the same amount'],
-      hints: { Earth: 'Earth doesn\u2019t make its own light. Which object lights up our solar system?', All: 'Only the side facing the Sun gets light. How much of a ball is that?', 'hides behind': 'The Moon doesn\u2019t hide behind Earth each month. It travels all the way around Earth.', 'the same amount': 'If we saw the same amount every night, the Moon would never change phase.' },
-      slotHints: ['The Moon reflects light from our star.', 'The side facing the Sun is lit. How much of a ball is that?', 'The Moon travels around Earth about once a month.', 'The phase changes because our view of the lit half changes.'],
-      msg: 'Half the Moon is always lit by the Sun. Its orbit changes how much of that lit half we can see.' },
-
-    { kind: 'match', title: 'Name that phase', sc: 'SC16', prompt: 'Drag each name under the matching Moon, as seen from Australia.',
-      items: PP.map((p, i) => ({ pic: faceSVG(p, 92), ans: NAMES[i] })), tiles: NAMES.slice(),
-      slotHints: {
-        'New Moon': 'None of the lit half faces us. Which phase starts the cycle?',
-        'Full Moon': 'We can see the whole lit half. Which phase is that?',
-        'First quarter': 'The left half is lit. In Australia, the light grows from the left.',
-        'Third quarter': 'The right half is lit, so the Moon is losing light.',
-        'Waxing crescent': 'A thin sliver on the left means the light is still growing.',
-        'Waning crescent': 'A thin sliver on the right is the last light before a New Moon.',
-        'Waxing gibbous': 'More than half is lit, and the light is growing from the left.',
-        'Waning gibbous': 'More than half is lit, but shadow is creeping in from the left.' },
-      msg: 'In Australia, waxing light grows from the left. When the Moon wanes, shadow creeps in from the left.' },
-
-    { kind: 'mc', chip: 'Predict', title: 'Night after night', sc: 'SC16', prompt: 'Watch the Moon over a week. Which Moon will you see on Night 12?', scene: sceneNights,
-      instr: 'Watch, then choose what comes next and press <b>Check</b>.',
-      opts: [
-        { pic: faceSVG(.63, 116), hint: 'The light has been growing from the left. This Moon is lit on the right, so it\u2019s waning.' },
-        { pic: faceSVG(.1, 116), hint: 'That\u2019s smaller than Night 8. While the Moon is waxing, the lit part keeps growing.' },
-        { pic: faceSVG(.87, 116), hint: 'The lit part has been getting bigger each night, not smaller.' },
-        { pic: faceSVG(.4, 116), hint: '' }],
-      answer: 3, msg: 'The light grows from the left each night, so the Moon is waxing. After first quarter comes a waxing gibbous.' },
-
-    { kind: 'order', title: 'Around the cycle', sc: 'SC16', prompt: 'Starting at New Moon, drag the phases into order, as seen from Australia.',
-      fixed: { pic: faceSVG(0, 82), t: 'New Moon' },
-      seq: PP.slice(1).map((p, i) => ({ v: i + 1, pic: faceSVG(p, 82), aria: NAMES[i + 1] })),
-      wrongHint: 'In Australia, the light grows from the left until Full Moon. Then shadow creeps in from the left until it\u2019s gone.',
-      msg: 'New, waxing crescent, first quarter, waxing gibbous, full, waning gibbous, third quarter, waning crescent, then New Moon again.' },
-
-    { kind: 'mc', title: 'Find the phase', sc: 'SC16', prompt: 'Seen from above. Which phase do people in Australia see?', scene: sceneFind,
-      opts: [
-        { pic: faceSVG(.25, 116), hint: '' },
-        { pic: faceSVG(.75, 116), hint: 'Half lit is right, but the Moon is on its way to Full Moon, so it\u2019s waxing. In Australia, waxing light is on the left.' },
-        { pic: faceSVG(.5, 116), hint: 'At Full Moon, the Moon is on the far side of Earth from the Sun. Here it\u2019s only a quarter of the way around.' },
-        { pic: faceSVG(.125, 116), hint: 'From Earth, we can see half of the lit side here, not just a sliver.' }],
-      answer: 0, msg: 'A quarter of the way around its orbit, we see half of the lit side. That\u2019s a first quarter Moon.' },
-
-    { kind: 'hotspot', title: 'Place the Moon', sc: 'SC16', prompt: 'Tonight\u2019s Moon looks like this. Click where the Moon is in its orbit.',
-      scene: { w: 700, h: 330, svg: orbitBase(CP) + PP.map(p => moonAt(p, CP, 18)).join('') + seenAbove(700, 330) },
-      spots: PP.map((p, i) => { const [x, y] = mpos(p, CP); return { x, y, r: 30, hint: placeHints[i], aria: `Moon position ${i + 1}` }; }),
-      card: `<svg viewBox="0 0 300 226" width="300" height="226"><rect width="300" height="226" fill="${NV}"/>${stars(300, 226, 20, 9)}<g transform="translate(150 113)">${face(.875, 78, SKYF)}</g></svg><div class="ccap">Tonight\u2019s Moon, seen from Australia</div>`,
-      answer: 7, msg: 'Just before New Moon, only a sliver of the lit half faces Earth. That\u2019s a waning crescent.' },
-
-    { kind: 'mc', chip: 'Watch and choose', title: 'A month in motion', sc: 'SC16', prompt: 'Watch the Moon orbit. Which phase does Australia see when it stops?', scene: sceneMonth,
-      instr: 'Watch, then choose an answer and press <b>Check</b>.',
-      opts: [
-        { t: 'Waxing gibbous', hint: 'The Moon has passed the Full Moon position, so the lit part we see is now shrinking.' },
-        { t: 'Full Moon', hint: 'Full Moon is directly opposite the Sun. The Moon has moved past that point.' },
-        { t: 'Waning gibbous', hint: '' },
-        { t: 'Third quarter', hint: 'Third quarter is three-quarters of the way around, at the top. The Moon hasn\u2019t reached it yet.' }],
-      answer: 2, msg: 'Past Full Moon, we still see most of the lit half, but less each night. That\u2019s a waning gibbous.' },
-
-    { kind: 'mc', chip: 'Multiple choice', title: 'Mia\u2019s claim', sc: 'SC17', prompt: 'Mia is explaining the Moon\u2019s phases. Is she right?', scene: sceneClaim,
-      quote: '\u201cThe phases happen because Earth\u2019s shadow covers part of the Moon.\u201d',
-      opts: [
-        { t: 'Yes. Earth\u2019s shadow grows and shrinks on the Moon.', hint: 'Earth\u2019s shadow always points away from the Sun. Look where the Moon is in the diagram.' },
-        { t: 'Yes. The dark part is where Earth blocks the light.', hint: 'The dark part is the Moon\u2019s own night side, facing away from the Sun.' },
-        { t: 'No. Clouds cover part of the Moon.', hint: 'Clouds come and go, but the phases follow the same pattern every month.' },
-        { t: 'No. We see more or less of the lit half as it orbits.', hint: '' }],
-      answer: 3, msg: 'Earth\u2019s shadow only reaches the Moon during a lunar eclipse. Phases come from our changing view of the lit half.' },
-
-    { kind: 'sort', title: 'Cause or mix-up?', sc: 'SC17', prompt: 'Sort each idea: does it help explain the Moon\u2019s phases?',
-      bins: [{ h: 'Explains phases', key: 'c', sub: 'True, and part of the reason' }, { h: 'Mix-up', key: 'n', cls: 'pk', sub: 'Not why phases happen' }],
-      items: [
-        ['Half the Moon is always lit', 'c', 'This is true and important. The lit half is what we see more or less of.'],
-        ['The Moon orbits Earth', 'c', 'The orbit changes where the Moon is, which changes our view of the lit half.'],
-        ['Our view of the lit half changes', 'c', 'This is exactly what a phase is.'],
-        ['The Moon reflects sunlight', 'c', 'Without reflected sunlight, we couldn\u2019t see the Moon at all.'],
-        ['Earth\u2019s shadow covers the Moon', 'n', 'Earth\u2019s shadow only reaches the Moon during a lunar eclipse.'],
-        ['Clouds cover the Moon', 'n', 'Clouds come and go. Phases follow the same pattern every month.'],
-        ['The Moon makes its own light', 'n', 'The Moon is dark rock. It only reflects sunlight.'],
-        ['The Moon changes size', 'n', 'The Moon is always the same size. Only the lit part we can see changes.']],
-      msg: 'Phases happen because the Moon\u2019s orbit changes how much of its sunlit half faces Earth.' },
-
-    { kind: 'mc', chip: 'Watch and choose', title: 'Same face', sc: 'SC17', prompt: 'The pink dot marks one crater. Why do we always see the same face?', scene: sceneFace,
-      instr: 'Watch the pink dot, choose an answer, then press <b>Check</b>.',
-      opts: [
-        { t: 'The Moon doesn\u2019t spin at all.', hint: 'Watch the pink dot. To keep facing Earth, the Moon must turn as it goes around.' },
-        { t: 'The Moon spins once in the time it takes to orbit Earth.', hint: '' },
-        { t: 'The far side is always in Earth\u2019s shadow.', hint: 'Earth\u2019s shadow points away from the Sun and only rarely reaches the Moon.' },
-        { t: 'The far side is always dark, so we can\u2019t see it.', hint: 'The far side gets sunlight too. At New Moon, it\u2019s fully lit!' }],
-      answer: 1, msg: 'The Moon spins once about every 27 days, the same time it takes to orbit Earth, so one face always points at us.' }
-];
-
 </script>
 </body>
 </html>
