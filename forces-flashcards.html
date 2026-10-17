@@ -80,7 +80,7 @@
     .deck:hover .dface, .deck:focus-visible .dface { transform: translate(-4px, -10px) rotate(-1.5deg); border-color: var(--pink); }
     .deck:hover::after { transform: translate(9px, 4px) rotate(1.5deg); }
     .deck:focus-visible { outline: none; }
-    .dface svg { width: 100%; height: 112px; }
+    .dface svg { width: 100%; height: 148px; margin-top: 4px; }
     .dcode { font-family: var(--cond); font-size: 66px; font-weight: 900; color: var(--pink); line-height: 1; margin-top: auto; }
     .dname { font-size: 25px; font-weight: 800; line-height: 1.15; margin-top: 4px; min-height: 58px; }
     .dmeta span { white-space: nowrap; }
@@ -727,12 +727,42 @@ const pDiag = (f, o = {}) => V(220, 150, fdiagIn(f, { cx: 110, cy: 80, size: 36,
 const dTile = f => `<svg viewBox="0 0 160 160">${fdiagIn(f, { cx: 80, cy: 80, size: 30, k: 1.8, nolab: true, sw: 6, hl: 15, hw: 10 })}</svg>`;
 const sTile = t => `<span>${t}</span>`;
 
-/* deck icons */
+/* deck icons (160 x 112). Each shows the big idea of its LG using the same visual language as the cards */
+const IA = { sw: 4, hl: 11, hw: 7.5 };
+const iGround = (y, x1 = 4, x2 = 156) => `<rect x="${x1}" y="${y}" width="${x2 - x1}" height="9" fill="url(#pGround)"/><line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${NV}" stroke-width="3" stroke-linecap="round"/>`;
+const iCrate = (x, y, s) => `<rect x="${x}" y="${y}" width="${s}" height="${s}" rx="3" fill="#fff" stroke="${NV}" stroke-width="3"/><path d="M${x + 5} ${y + 5} L${x + s - 5} ${y + s - 5} M${x + s - 5} ${y + 5} L${x + 5} ${y + s - 5}" stroke="${GR}" stroke-width="2.5" stroke-linecap="round"/><rect x="${x + 4}" y="${y + 4}" width="${s - 8}" height="${s - 8}" rx="1.5" fill="none" stroke="${GR}" stroke-width="2"/>`;
+const iApple = (x, y, k = .8, op = 1) => `<g transform="translate(${x} ${y}) scale(${k})" opacity="${op}">${appleSVG()}</g>`;
 const ICON = {
-    LG1: `<svg viewBox="0 0 160 112"><g transform="translate(50 56) scale(.78)">${barMag()}</g><g transform="translate(112 46) scale(1.45)">${clipSVG()}</g>${farrow(110, 56, 'l', 24, '', { sw: 4, hl: 11, hw: 7 })}</svg>`,
-    LG2: `<svg viewBox="0 0 160 112">${fdiagIn([{ d: 'l', n: 20 }, { d: 'r', n: 32 }, { d: 'u', n: 14 }, { d: 'd', n: 14 }], { cx: 72, cy: 56, size: 30, k: 1.5, nolab: true, sw: 5, hl: 12, hw: 8 })}</svg>`,
-    LG3: `<svg viewBox="0 0 160 112"><polygon points="80,74 66,98 94,98" fill="${PK}"/><line x1="12" y1="88" x2="148" y2="98" stroke="${NV}" stroke-width="3"/><g transform="rotate(-14 80 72)"><rect x="14" y="68" width="132" height="8" rx="2" fill="${NV}"/><rect x="18" y="44" width="26" height="24" rx="3" fill="#fff" stroke="${NV}" stroke-width="3"/></g>${farrow(138, 40, 'd', 22, '', { sw: 4, hl: 11, hw: 7 })}</svg>`,
-    LG4: `<svg viewBox="0 0 160 112"><path d="M0 112 Q80 76 160 112 Z" fill="${TN}" stroke="${NV}" stroke-width="3"/><g transform="translate(80 26) scale(.9)">${appleSVG()}</g>${farrow(80, 44, 'd', 34, '', { sw: 4, hl: 11, hw: 7 })}</svg>`
+    /* contact: a push where hands touch the crate. non-contact: a magnet lifting a paperclip across a gap */
+    LG1: (() => {
+        let s = iGround(92) + `<line x1="82" y1="10" x2="82" y2="84" stroke="${GR}" stroke-width="2.5" stroke-dasharray="2 6" stroke-linecap="round"/>`;
+        s += fig(17, 92, 'push', false, .4) + iCrate(39, 62, 30);
+        s += `<path d="M106 44 V26 A15 15 0 0 1 136 26 V44" fill="none" stroke="${GR}" stroke-width="11"/><rect x="100.5" y="40" width="11" height="10" fill="${PK}"/><rect x="130.5" y="40" width="11" height="10" fill="${NV}"/>`;
+        s += `<g transform="translate(108 70) rotate(-8) scale(.82)">${clipSVG()}</g>` + farrow(121, 66, 'u', 14, '', { sw: 3.5, hl: 9, hw: 6 });
+        return `<svg viewBox="0 0 160 112">${s}</svg>`;
+    })(),
+    /* unbalanced forces on a crate, with a dot tape showing it speeding up */
+    LG2: (() => {
+        let s = iGround(84) + iCrate(78, 52, 32);
+        s += farrow(110, 68, 'r', 40, '', IA) + farrow(78, 68, 'l', 20, '', { ...IA, c: NV });
+        s += `<rect x="4" y="96" width="152" height="10" rx="2" fill="${LT}"/>` + [10, 17, 26, 38, 53, 71, 92].map((x, i, a) => `<circle cx="${x}" cy="101" r="2.6" fill="${i === a.length - 1 ? PK : NV}"/>`).join('');
+        return `<svg viewBox="0 0 160 112">${s}</svg>`;
+    })(),
+    /* a lever: effort pushes down on the long arm and lifts the load on the short arm */
+    LG3: (() => {
+        let s = iGround(92) + `<polygon points="70,92 84,69 98,92" fill="${PK}" stroke="${PK}" stroke-width="2" stroke-linejoin="round"/><circle cx="84" cy="72" r="2.5" fill="#fff"/>`;
+        s += `<g transform="rotate(12 84 66)"><rect x="12" y="62" width="142" height="7" rx="2" fill="${NV}"/>${iCrate(18, 40, 22)}</g>`;
+        s += farrow(144, 30, 'd', 42, '', IA);
+        return `<svg viewBox="0 0 160 112">${s}</svg>`;
+    })(),
+    /* an apple speeding up as gravity pulls it towards Earth, with the Moon for other worlds */
+    LG4: (() => {
+        let s = `<path d="M-4 114 Q80 62 164 114 Z" fill="${TN}" stroke="${NV}" stroke-width="3"/>`;
+        s += `<g transform="translate(134 24)"><circle r="10" fill="#fff" stroke="${NV}" stroke-width="2.5"/><circle cx="-3" cy="-3" r="2.6" fill="${NV}" opacity=".15"/><circle cx="4" cy="3" r="1.8" fill="${NV}" opacity=".15"/></g>`;
+        s += [[8, .25], [19, .45], [35, .7]].map(([y, op]) => `<circle cx="72" cy="${y}" r="6.5" fill="none" stroke="${PK}" stroke-width="2" stroke-dasharray="3 3" opacity="${op}"/>`).join('');
+        s += iApple(72, 62, .8) + farrow(72, 75, 'd', 13, '', { sw: 3.5, hl: 9, hw: 6 });
+        return `<svg viewBox="0 0 160 112">${s}</svg>`;
+    })()
 };
 const PATTERN = (() => { let s = ''; for (let r = 60; r < 900; r += 46) s += `<circle cx="600" cy="490" r="${r}" fill="none" stroke="${PK}" stroke-width="2" opacity="${(.55 - r / 2000).toFixed(2)}"/>`; return `<svg viewBox="0 0 584 470" preserveAspectRatio="xMidYMid slice">${s}<circle cx="600" cy="490" r="34" fill="${PK}"/></svg>`; })();
 const REPLAY = `<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v5h5"/></svg>`;
