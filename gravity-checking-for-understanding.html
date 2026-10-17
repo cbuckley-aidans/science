@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gravity: Checking for Understanding</title>
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="%231b1f45"/><path d="M15 31 L27 43 L49 19" fill="none" stroke="%23ea008a" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><rect x="12" y="52" width="40" height="5" rx="2.5" fill="%23fff" opacity=".25"/><rect x="12" y="52" width="26" height="5" rx="2.5" fill="%23fff"/></svg>'>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --navy: #1b1f45;
+        --pink: #ea008a;
+        --mid-grey: #9a9a9a;
+        --light-grey: #e8e8e8;
+        --blank: #f0f3f6;
+        --tint: #e9ecf5;
+        --cond: 'Barlow Condensed', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        --ease: cubic-bezier(.2,.8,.2,1);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #eaeaea; color: var(--navy);
+        display: flex; align-items: center; justify-content: center; overflow: hidden; -webkit-user-select: none; user-select: none; }
+    .stage { width: 1280px; height: 720px; background: #fff; border-top: 6px solid var(--navy); position: relative; padding: 36px 64px 0; flex-shrink: 0; overflow: hidden; transform-origin: center; }
+    .top { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 4px solid var(--navy); padding-bottom: 12px; }
+    .sheet-title { font-family: var(--cond); font-size: 44px; font-weight: 900; text-transform: uppercase; letter-spacing: .01em; margin: 0; line-height: 1; }
+    .sheet-title span { color: var(--pink); }
+    .counter { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; color: var(--mid-grey); text-transform: uppercase; }
+    .counter b { color: var(--navy); }
+    .content { position: absolute; left: 64px; right: 64px; top: 124px; bottom: 108px; }
+    .caption { position: absolute; left: 64px; right: 64px; bottom: 28px; min-height: 60px; display: flex; align-items: center; gap: 16px; font-size: 25px; font-weight: 500; line-height: 1.32; }
+    .caption::before { content: ''; width: 10px; height: 10px; background: var(--pink); flex-shrink: 0; }
+    .caption .txt { flex: 1; }
+    .caption b { color: var(--pink); font-weight: 800; }
+    .caption b.no { color: var(--navy); }
+    .caption .in { animation: capIn .45s var(--ease); display: block; }
+    @keyframes capIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .progress { position: absolute; left: 0; bottom: 0; height: 6px; background: var(--pink); width: 0; transition: width .6s var(--ease); }
+
+    .next { font-family: var(--cond); font-size: 26px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; background: var(--pink); color: #fff;
+        border: none; border-radius: 8px; padding: 12px 30px; cursor: pointer; flex-shrink: 0; }
+    .next[hidden] { display: none; }
+    .next:disabled { background: #c3c6d0; cursor: default; }
+    button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--pink); outline-offset: 3px; }
+    .next:focus-visible { outline-color: var(--navy); }
+    .pop-in { animation: capIn .45s var(--ease); }
+    @keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+
+    /* question frame */
+    .q { display: flex; flex-direction: column; height: 100%; }
+    .qhead { display: flex; align-items: center; gap: 18px; }
+    .qtitle { font-size: 40px; font-weight: 800; line-height: 1.15; }
+    .tchip { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--pink); border: 3px solid var(--pink); border-radius: 6px; padding: 3px 12px 2px; }
+    .sctag { margin-left: auto; font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--navy); box-shadow: inset 0 0 0 3px var(--navy); border-radius: 6px; padding: 6px 12px 5px; line-height: 1; }
+    .prompt { font-size: 28px; font-weight: 600; margin-top: 6px; line-height: 1.3; }
+    .body { flex: 1; min-height: 0; margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 30px; }
+    .center { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+    .dlbl { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mid-grey); }
+
+    /* svg classes */
+    svg { overflow: visible; display: block; }
+    .obj { fill: var(--blank); stroke: var(--navy); stroke-width: 4; }
+    .oname { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; fill: var(--navy); }
+    .flbl { font-family: var(--cond); font-size: 24px; font-weight: 800; fill: var(--navy); }
+    .spd { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; fill: var(--mid-grey); }
+    .leg { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 600; fill: var(--mid-grey); }
+    .gnd { stroke: #c9ccd6; stroke-width: 4; }
+    .rdg { font-family: var(--cond); font-size: 28px; font-weight: 900; fill: var(--pink); }
+    .rdv { font-family: var(--cond); font-size: 42px; font-weight: 900; fill: var(--pink); transition: fill .4s; }
+    .rdv.old { fill: #b5b9c6; }
+    .tagt { font-family: var(--cond); font-size: 20px; font-weight: 800; fill: #fff; letter-spacing: .04em; }
+    .note { font-family: var(--cond); font-size: 24px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; fill: var(--pink); }
+
+    /* multiple choice */
+    .opts { display: grid; gap: 10px; }
+    .col .opt { font-size: 23px; padding: 9px 18px; }
+    .opts.g2 { grid-template-columns: 1fr 1fr; gap: 18px; width: 100%; }
+    .opt { display: flex; align-items: center; gap: 16px; border: 3px solid var(--navy); border-radius: 8px; background: #fff; padding: 12px 20px;
+        font-family: inherit; font-size: 25px; font-weight: 600; color: var(--navy); text-align: left; line-height: 1.25; cursor: pointer;
+        transition: background-color .2s, border-color .2s, color .2s, opacity .2s; }
+    .opts.g2 .opt { min-height: 104px; font-size: 30px; font-weight: 700; padding: 16px 24px; }
+    .opt .l { flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background: var(--navy); color: #fff; font-family: var(--cond); font-size: 24px; font-weight: 900;
+        display: flex; align-items: center; justify-content: center; transition: background-color .2s, color .2s; }
+    .opt:hover:not(:disabled) { background: #f6f7fb; }
+    .opt.sel { background: var(--tint); }
+    .opt.sel .l { background: var(--pink); }
+    .opt.right, .opt.right:hover { background: var(--pink); border-color: var(--pink); color: #fff; opacity: 1; }
+    .opt.right .l { background: #fff; color: var(--pink); }
+    .opt.wrong { border-style: dashed; opacity: .5; animation: shake .4s; cursor: default; }
+    .opt:disabled { cursor: default; }
+    .pred .opts { width: 380px; }
+    .pred .opt { min-height: 76px; font-size: 23px; font-weight: 700; padding: 10px 16px; }
+
+    /* quote */
+    .quote { border-left: 8px solid var(--pink); padding: 4px 0 4px 20px; font-size: 25px; font-weight: 600; font-style: italic; line-height: 1.3; margin-bottom: 14px; }
+    .quote.fact { font-style: normal; }
+    .quote b { font-style: normal; font-weight: 800; color: var(--pink); }
+    .col { display: flex; flex-direction: column; }
+
+    /* scenes */
+    .scene { position: relative; border: 3px solid var(--navy); border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #fff; }
+    .scene > svg { overflow: hidden; }
+    .side { flex-shrink: 0; }
+    .replay { position: absolute; right: 12px; top: 12px; display: flex; align-items: center; gap: 6px; font-family: var(--cond); font-size: 19px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+        background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 6px; padding: 5px 12px 4px 9px; cursor: pointer; }
+    .replay svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+    .replay:hover { background: var(--blank); }
+
+    /* gravity table */
+    .gtab { width: 230px; border: 3px solid var(--navy); border-radius: 8px; overflow: hidden; }
+    .gtab table { width: 100%; border-collapse: collapse; font-size: 19px; }
+    .gtab th { background: var(--navy); color: #fff; font-size: 15px; font-weight: 700; text-align: left; padding: 8px 10px 7px; line-height: 1.15; }
+    .gtab th:last-child, .gtab td:last-child { text-align: right; }
+    .gtab th { white-space: nowrap; }
+    .gtab td { padding: 5px 12px; border-top: 1px solid var(--light-grey); font-weight: 600; transition: background-color .3s, color .3s; }
+    .gtab td:last-child { font-weight: 800; }
+    .gtab tr.hl td { background: var(--pink); color: #fff; }
+
+    /* drag tiles */
+    .tile { font-family: inherit; font-size: 24px; font-weight: 700; color: var(--navy); background: #fff; border: 3px solid var(--navy); border-radius: 8px; padding: 6px 16px; line-height: 1.25;
+        cursor: grab; touch-action: none; position: relative; z-index: 2; transition: transform .3s var(--ease), box-shadow .2s, border-color .2s; box-shadow: 0 4px 0 #c3c6d0; white-space: nowrap; text-align: center; }
+    .tile.sm { font-size: 20px; padding: 5px 10px; white-space: normal; }
+    .tile.sel { border-color: var(--pink); box-shadow: 0 0 0 4px rgba(234,0,138,.22); }
+    .tile.drag { transition: none; cursor: grabbing; z-index: 30; box-shadow: 0 14px 30px rgba(27,31,69,.25); border-color: var(--pink); }
+    .tile.right { background: var(--pink); color: #fff; border-color: var(--pink); box-shadow: none; cursor: default; }
+    .tile.wrong { border-style: dashed; background: var(--tint); box-shadow: none; animation: shake .4s; }
+
+    /* sort */
+    .sort { display: grid; grid-template-columns: 1fr 360px 1fr; gap: 18px; width: 100%; height: 100%; }
+    .bin { border: 3px solid var(--navy); border-radius: 8px; display: flex; flex-direction: column; overflow: visible; transition: box-shadow .2s; }
+    .bin.pk { border-color: var(--pink); }
+    .bin h3 { margin: 0; padding: 8px 16px 7px; font-family: var(--cond); font-size: 28px; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; color: #fff; background: var(--navy); }
+    .bin.pk h3 { background: var(--pink); }
+    .bin .sub { font-size: 18px; font-weight: 600; color: var(--mid-grey); padding: 8px 16px 0; }
+    .bin .area { flex: 1; padding: 12px 14px; display: flex; flex-wrap: wrap; gap: 10px; align-content: flex-start; justify-content: center; border-radius: 0 0 6px 6px; transition: background-color .2s; }
+    .bin.hover .area, .bin.armed:hover .area { background: rgba(234,0,138,.06); }
+    .bin.armed { box-shadow: 0 0 0 4px rgba(234,0,138,.15); cursor: pointer; }
+    .pool { background: var(--blank); border-radius: 8px; padding: 14px; display: flex; flex-wrap: wrap; gap: 10px; align-content: center; justify-content: center; transition: background-color .2s; }
+    .pool.hover { background: #e3e7ee; }
+    .pool.col1 { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 6px; }
+
+    /* slots (force diagram, gap fill, ordering) */
+    .bwrap { position: relative; width: 806px; height: 336px; border: 3px solid var(--navy); border-radius: 8px; flex-shrink: 0; }
+    .bwrap > svg { position: absolute; left: 0; top: 0; }
+    .slot { position: absolute; width: 200px; height: 50px; }
+    .slot, .cslot, .rslot { border: 3px dashed #c3c6d0; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: border-color .2s, background-color .2s; }
+    .slot.hover, .slot.armed:hover, .cslot.hover, .cslot.armed:hover, .rslot.hover, .rslot.armed:hover { border-color: var(--pink); background: rgba(234,0,138,.06); }
+    .slot.armed, .cslot.armed, .rslot.armed { border-color: #e7a3c9; cursor: pointer; }
+    .slot.filled, .cslot.filled, .rslot.filled { border-color: transparent; background: none; }
+    .slot.wrong, .cslot.wrong, .rslot.wrong { animation: shake .4s; }
+    .slot .tile, .cslot .tile { box-shadow: none; padding: 5px 14px; font-size: 23px; }
+    .bside { width: 320px; display: flex; flex-direction: column; gap: 10px; height: 336px; }
+    .bside .pool { flex: 1; flex-direction: column; flex-wrap: nowrap; align-items: center; justify-content: center; }
+
+    /* gap fill */
+    .clzwrap { display: flex; flex-direction: column; gap: 22px; width: 100%; }
+    .cloze { font-size: 30px; font-weight: 600; line-height: 2.1; }
+    .cslot { display: inline-flex; vertical-align: middle; min-width: 200px; height: 52px; margin: 0 4px; position: relative; top: -3px; }
+    .clzwrap .pool { min-height: 76px; }
+
+    /* ordering */
+    .rank { display: flex; flex-direction: column; gap: 16px; width: 100%; }
+    .rrow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .rcell { display: flex; flex-direction: column; gap: 6px; }
+    .rhead { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; text-align: center; }
+    .rslot { height: 90px; }
+    .rsub { text-align: center; font-family: var(--cond); font-size: 30px; font-weight: 900; color: var(--pink); min-height: 36px; opacity: 0; transition: opacity .5s; }
+    .rsub.on { opacity: 1; }
+    .rbar { display: flex; justify-content: space-between; font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--mid-grey);
+        border-top: 5px solid; border-image: linear-gradient(90deg, var(--navy), #d7dae2) 1; padding-top: 6px; }
+    .rank .pool { min-height: 110px; }
+    .rtile { display: inline-flex; flex-direction: column; align-items: center; line-height: 1.15; padding: 8px 24px; }
+    .rtile small { font-size: 18px; font-weight: 600; color: var(--mid-grey); }
+    .rtile.right small { color: #fff; }
+
+    /* calculate */
+    .work { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 18px; }
+    .formula { border-left: 8px solid var(--pink); padding: 4px 0 4px 18px; font-size: 27px; font-weight: 700; }
+    .eqn { display: flex; align-items: flex-start; gap: 10px; }
+    .sym { height: 58px; display: flex; align-items: center; font-size: 30px; font-weight: 800; white-space: nowrap; }
+    .fld { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .ul { font-family: var(--cond); font-size: 18px; font-weight: 800; letter-spacing: .06em; color: var(--mid-grey); min-height: 22px; }
+    .num { width: 120px; height: 58px; border: 3px solid var(--navy); border-radius: 8px; background: #fff; font-family: inherit; font-size: 30px; font-weight: 700; color: var(--navy); text-align: center; padding: 0 6px;
+        transition: background-color .2s, border-color .2s, color .2s; }
+    .num:focus { outline: 3px solid var(--pink); outline-offset: 2px; }
+    .num.right { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .num.wrong { border-style: dashed; background: var(--tint); animation: shake .4s; }
+    .units { display: flex; gap: 8px; height: 58px; align-items: center; margin-left: 6px; }
+    .ubtn { font-family: var(--cond); font-size: 24px; font-weight: 800; color: var(--navy); background: #fff; border: 3px solid var(--navy); border-radius: 8px; padding: 6px 12px; cursor: pointer;
+        transition: background-color .2s, border-color .2s, color .2s, opacity .2s; }
+    .ubtn:hover:not(:disabled) { background: #f6f7fb; }
+    .ubtn.sel { background: var(--tint); border-color: var(--pink); }
+    .ubtn.right { background: var(--pink); border-color: var(--pink); color: #fff; opacity: 1; }
+    .ubtn.wrong { border-style: dashed; opacity: .5; animation: shake .4s; cursor: default; }
+
+    /* end */
+    .scorecard { border: 3px solid var(--pink); border-radius: 8px; padding: 30px 60px; text-align: center; }
+    .scorecard .big { font-family: var(--cond); font-size: 120px; font-weight: 900; color: var(--pink); line-height: 1; }
+    .scorecard .dlbl { margin-top: 8px; }
+    .dots { display: flex; gap: 8px; justify-content: center; margin-top: 22px; }
+    .dots span { width: 34px; height: 34px; border-radius: 6px; border: 3px solid var(--navy); font-family: var(--cond); font-size: 17px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+    .dots span.y { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .again { margin-top: 26px; font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+        background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 8px; padding: 8px 22px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+    <div class="top">
+        <h1 class="sheet-title">Checking <span>gravity</span></h1>
+        <div class="counter" id="counter"></div>
+    </div>
+    <div class="content" id="content"></div>
+    <div class="caption"><div class="txt" id="cap"></div><button class="next" id="next" hidden>Check</button></div>
+    <div class="progress" id="progress"></div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const content = $('#content'), cap = $('#cap'), btn = $('#next'), counter = $('#counter'), progress = $('#progress');
+const PK = '#ea008a', NV = '#1b1f45', GR = '#c9ccd6', DT = '#b5b9c6', LT = '#f0f3f6';
+let scaleK = 1;
+function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
+function say(html) { cap.innerHTML = `<span class="in">${html}</span>`; }
+
+/* ---------- animation helpers ---------- */
+let runId = 0;
+const easeOut = t => 1 - (1 - t) * (1 - t), easeInOut = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+function play(dur, step, guard) {
+    const id = runId, ok = guard || (() => id === runId);
+    return new Promise(res => {
+        const st = performance.now();
+        const f = n => { if (!ok()) return; const t = Math.min(1, (n - st) / dur); step(t); if (t < 1) requestAnimationFrame(f); else res(); };
+        requestAnimationFrame(f);
+    });
+}
+function wait(ms) { const id = runId; return new Promise(r => setTimeout(() => { if (id === runId) r(); }, ms)); }
+const phase = (T0, T1, dur, apply) => play(dur, k => apply(T0 + (T1 - T0) * k));
+
+/* ---------- drawing helpers ---------- */
+const DIR = { r: 0, l: Math.PI, u: -Math.PI / 2, d: Math.PI / 2 };
+function arrowSVG(x, y, ang, len, o = {}) {
+    const c = o.c || PK, sw = o.sw || 8, hw = o.hw || 13, hl = Math.min(o.hl || 22, len);
+    if (len < 1) return '';
+    const ux = Math.cos(ang), uy = Math.sin(ang), ex = x + ux * len, ey = y + uy * len, bx = ex - ux * hl, by = ey - uy * hl, px = -uy * hw, py = ux * hw;
+    const f = v => v.toFixed(1);
+    let s = len > hl ? `<line x1="${f(x)}" y1="${f(y)}" x2="${f(bx)}" y2="${f(by)}" stroke="${c}" stroke-width="${sw}"/>` : '';
+    s += `<polygon points="${f(ex)},${f(ey)} ${f(bx + px)},${f(by + py)} ${f(bx - px)},${f(by - py)}" fill="${c}" stroke="${c}" stroke-width="1.5" stroke-linejoin="round"/>`;
+    if (o.label) {
+        const fs = o.fs || 24, full = o.full || len, op = o.lop === undefined ? 1 : o.lop;
+        let tx, ty, an;
+        if (Math.abs(ux) > .9) { ty = y + (o.below ? (o.dy || 34) : -16); tx = x + ux * full / 2; an = 'middle'; }
+        else { tx = x + (o.left ? -18 : 18); ty = y + uy * full / 2 + 8; an = o.left ? 'end' : 'start'; }
+        s += `<text class="flbl" x="${f(tx)}" y="${f(ty)}" text-anchor="${an}" opacity="${op}" style="font-size:${fs}px">${o.label}</text>`;
+    }
+    return s;
+}
+function ghostArrow(x, y, ang, len) {
+    const ux = Math.cos(ang), uy = Math.sin(ang), hl = 20, hw = 12, ex = x + ux * len, ey = y + uy * len, bx = ex - ux * hl, by = ey - uy * hl, px = -uy * hw, py = ux * hw;
+    return `<line x1="${x}" y1="${y}" x2="${bx}" y2="${by}" stroke="${GR}" stroke-width="4" stroke-dasharray="7 7"/><polygon points="${ex},${ey} ${bx + px},${by + py} ${bx - px},${by - py}" fill="#fff" stroke="${GR}" stroke-width="3" stroke-linejoin="round"/>`;
+}
+function growArrow(g, x, y, ang, len, o = {}, dur = 450) {
+    const tok = g._tok = (g._tok || 0) + 1;
+    return play(dur, k => { g.innerHTML = arrowSVG(x, y, ang, len * easeOut(k), { ...o, full: len, lop: k }); }, () => g._tok === tok && document.body.contains(g));
+}
+function clearArrow(g) { g._tok = (g._tok || 0) + 1; g.innerHTML = ''; }
+const legend = (x, y) => `<circle cx="${x}" cy="${y - 6}" r="6" fill="${DT}"/><text class="leg" x="${x + 14}" y="${y}">Dots show where it was every quarter of a second</text>`;
+const ground = (gy, w = 740) => `<line class="gnd" x1="0" x2="${w}" y1="${gy + 2}" y2="${gy + 2}"/>`;
+const replayIcon = `<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v5h5"/></svg>`;
+
+function feather(fill = '#fff') {
+    const v = 'vector-effect="non-scaling-stroke"';
+    return `<path d="M-31 4 C-17 -14 13 -16 31 -3 C15 9 -15 13 -31 4 Z" fill="${fill}" stroke="${NV}" stroke-width="3" stroke-linejoin="round" ${v}/>
+        <g stroke="${NV}" stroke-width="1.5" stroke-linecap="round" opacity=".45"><line x1="-17" y1="3.6" x2="-22" y2="-6" ${v}/><line x1="-4" y1="2.4" x2="-8" y2="-10" ${v}/><line x1="10" y1="1" x2="7" y2="-10" ${v}/><line x1="-11" y1="3" x2="-14" y2="9.5" ${v}/><line x1="4" y1="1.8" x2="2" y2="8.5" ${v}/></g>
+        <path d="M7 -13 L11 -5" stroke="#fff" stroke-width="2.6"/>
+        <line x1="-41" y1="5.4" x2="30" y2="-2" stroke="${NV}" stroke-width="3" stroke-linecap="round" ${v}/>`;
+}
+const bball = r => `<circle r="${r}" fill="${NV}"/><circle cx="${(-r * .28).toFixed(1)}" cy="${(-r * .32).toFixed(1)}" r="${(r * .13).toFixed(1)}" fill="#fff"/><circle cx="${(r * .1).toFixed(1)}" cy="${(-r * .44).toFixed(1)}" r="${(r * .13).toFixed(1)}" fill="#fff"/><circle cx="${(-r * .02).toFixed(1)}" cy="${(-r * .05).toFixed(1)}" r="${(r * .13).toFixed(1)}" fill="#fff"/>`;
+
+/* planets */
+const GRAV = [['Mercury', 3.7], ['Venus', 8.9], ['Earth', 9.8], ['Mars', 3.8], ['Jupiter', 24.8], ['Saturn', 10.4], ['Uranus', 8.7], ['Neptune', 11.2]];
+const gTable = () => `<div class="gtab"><table><thead><tr><th>Planet</th><th>Gravity (m/s&sup2;)</th></tr></thead><tbody>${GRAV.map(([p, g]) => `<tr data-p="${p}"><td>${p}</td><td>${g}</td></tr>`).join('')}</tbody></table></div>`;
+function planetIcon(n, r) {
+    const crater = (x, y, cr) => `<circle cx="${x}" cy="${y}" r="${cr}" fill="none" stroke="${NV}" stroke-width="2"/>`;
+    if (n === 'Earth') return `<circle r="${r}" fill="${LT}" stroke="${NV}" stroke-width="3"/><path d="M-13 -8 q6 -7 13 -3 q3 6 -3 9 q-6 5 -10 -1 z" fill="${NV}"/><path d="M3 6 q7 -3 10 3 q-4 7 -10 3 z" fill="${NV}"/>`;
+    if (n === 'Mars') return `<circle r="${r}" fill="#f8d6e9" stroke="${NV}" stroke-width="3"/>${crater(-7, -5, 4)}${crater(7, 6, 3)}${crater(8, -9, 2.5)}`;
+    if (n === 'Mercury') return `<circle r="${r}" fill="#dfe2ea" stroke="${NV}" stroke-width="3"/>${crater(-6, -7, 4)}${crater(6, 5, 5)}${crater(-8, 8, 2.5)}`;
+    let b = ''; [[-11, 3], [-3, 2], [6, 4], [13, 2]].forEach(([y, w]) => { const hw = Math.sqrt(r * r - y * y) - 1; b += `<line x1="${-hw}" x2="${hw}" y1="${y}" y2="${y}" stroke="${NV}" stroke-width="${w}"/>`; });
+    return `<circle r="${r}" fill="${LT}" stroke="${NV}" stroke-width="3"/>${b}`;
+}
+const DECOR = {
+    Earth: (() => { let s = ''; [312, 336, 362].forEach(x => s += `<path d="M${x} 297 q-3 -10 -8 -15 M${x} 297 q1 -12 2 -18 M${x} 297 q4 -9 9 -13"/>`); return `<g fill="none" stroke="#8a8fa6" stroke-width="3" stroke-linecap="round">${s}</g>`; })(),
+    Mars: `<g fill="#d7dae2" stroke="${NV}" stroke-width="2"><ellipse cx="44" cy="298" rx="18" ry="8"/><ellipse cx="342" cy="298" rx="24" ry="10"/><ellipse cx="374" cy="299" rx="10" ry="5"/></g>`,
+    Mercury: `<g fill="none" stroke="#c3c6d0" stroke-width="3"><ellipse cx="56" cy="313" rx="28" ry="6"/><ellipse cx="338" cy="316" rx="34" ry="7"/></g>`
+};
+
+/* objects for the weighing scale: bottom at y = 0 */
+const OBJ = {
+    bag: { h: 138, tag: [54, -118], svg: `<path d="M-24 -118 Q-24 -138 0 -138 Q24 -138 24 -118" fill="none" stroke="${NV}" stroke-width="6"/>
+        <rect class="obj" x="-46" y="-122" width="92" height="122" rx="18"/><rect x="-30" y="-62" width="60" height="44" rx="8" fill="#fff" stroke="${NV}" stroke-width="3"/>
+        <line x1="-30" y1="-49" x2="30" y2="-49" stroke="${NV}" stroke-width="2.5"/><line x1="-20" y1="-122" x2="-20" y2="-74" stroke="${NV}" stroke-width="3"/><line x1="20" y1="-122" x2="20" y2="-74" stroke="${NV}" stroke-width="3"/>` },
+    astro: { h: 172, tag: [56, -150], svg: `<rect class="obj" x="-24" y="-62" width="20" height="62" rx="7"/><rect class="obj" x="4" y="-62" width="20" height="62" rx="7"/>
+        <rect class="obj" x="-50" y="-114" width="16" height="52" rx="8"/><rect class="obj" x="34" y="-114" width="16" height="52" rx="8"/>
+        <rect class="obj" x="-35" y="-122" width="70" height="68" rx="16"/><rect x="-15" y="-106" width="30" height="18" rx="3" fill="#fff" stroke="${NV}" stroke-width="2.5"/>
+        <circle cx="-7" cy="-97" r="3" fill="${NV}"/><circle cx="6" cy="-97" r="3" fill="${PK}"/>
+        <circle class="obj" cx="0" cy="-144" r="28"/><rect x="-19" y="-158" width="38" height="25" rx="11" fill="${NV}"/><path d="M-11 -152 q5 -3 11 -2" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".75"/>` },
+    rover: { h: 120, tag: [80, -120], svg: `<line x1="40" y1="-66" x2="40" y2="-106" stroke="${NV}" stroke-width="5"/><rect x="24" y="-120" width="36" height="18" rx="4" fill="${NV}"/><circle cx="50" cy="-111" r="4" fill="#fff"/>
+        <rect x="-66" y="-80" width="84" height="12" fill="#fff" stroke="${NV}" stroke-width="3"/><line x1="-38" y1="-80" x2="-38" y2="-68" stroke="${NV}" stroke-width="2"/><line x1="-10" y1="-80" x2="-10" y2="-68" stroke="${NV}" stroke-width="2"/>
+        <rect class="obj" x="-74" y="-68" width="148" height="38" rx="6"/>
+        <g stroke="${NV}" stroke-width="5"><line x1="-54" y1="-30" x2="-54" y2="-18"/><line x1="0" y1="-30" x2="0" y2="-18"/><line x1="54" y1="-30" x2="54" y2="-18"/></g>
+        ${[-54, 0, 54].map(x => `<circle cx="${x}" cy="-18" r="18" fill="${NV}"/><circle cx="${x}" cy="-18" r="6" fill="#fff"/>`).join('')}` }
+};
+
+/* side pictures */
+const buildingSide = (() => {
+    let w = ''; for (let r = 0; r < 8; r++) for (let c = 0; c < 3; c++) w += `<rect x="${26 + c * 26}" y="${48 + r * 32}" width="16" height="20" fill="#fff" stroke="${NV}" stroke-width="2"/>`;
+    return `<svg viewBox="0 0 250 330" width="250" height="330"><rect x="14" y="34" width="92" height="278" fill="${LT}" stroke="${NV}" stroke-width="4"/>${w}${ground(310, 250)}
+        <g stroke="${NV}" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"><polyline points="170,310 182,262 194,310"/><line x1="182" y1="262" x2="182" y2="216"/><polyline points="162,250 182,226 202,250"/></g><circle cx="182" cy="198" r="14" fill="${NV}"/>
+        <g class="ga1"></g><g class="ga2"></g><g class="gl" opacity="0"><text class="flbl" x="134" y="270" text-anchor="middle" style="font-size:16px">Tiny pull</text><text class="flbl" x="198" y="296" style="font-size:20px">Earth</text></g></svg>`;
+})();
+const uranusSide = `<svg viewBox="0 0 250 330" width="250" height="330">
+    <circle cx="125" cy="54" r="22" fill="${LT}" stroke="${NV}" stroke-width="3"/><line x1="125" y1="54" x2="147" y2="54" stroke="${PK}" stroke-width="3" stroke-dasharray="4 3"/><circle cx="125" cy="54" r="3.5" fill="${NV}"/>
+    <text class="oname" x="125" y="102" text-anchor="middle">Earth</text>
+    <circle cx="125" cy="210" r="88" fill="${LT}" stroke="${NV}" stroke-width="4"/>
+    <g stroke="#d7dae2" stroke-width="4"><line x1="49" x2="201" y1="166" y2="166"/><line x1="38" x2="212" y1="186" y2="186"/><line x1="43" x2="207" y1="244" y2="244"/></g>
+    <line x1="125" y1="210" x2="213" y2="210" stroke="${PK}" stroke-width="3" stroke-dasharray="6 5"/><circle cx="125" cy="210" r="4" fill="${NV}"/>
+    <text class="leg" x="169" y="230" text-anchor="middle" style="font-size:14px">surface to centre</text>
+    <text class="oname" x="125" y="322" text-anchor="middle">Uranus</text>
+    <g class="gv" opacity="0"><text class="rdg" x="154" y="62" style="font-size:24px">9.8 m/s&sup2;</text><text class="rdg" x="125" y="274" text-anchor="middle" style="font-size:24px">8.7 m/s&sup2;</text></g></svg>`;
+
+/* =========================================================
+   QUESTIONS
+   ========================================================= */
+const QS = [
+    { kind: 'mc', title: 'Falling apple', sc: 'SC15', prompt: 'Why does an apple fall to the ground when it drops from a tree?',
+      opts: [
+        { t: 'Air pushes it down.', hint: 'Air resistance pushes up against a falling object, not down.' },
+        { t: 'Gravity pulls it towards the centre of Earth.', hint: '' },
+        { t: 'Nothing is holding it up, so no force acts.', hint: 'The apple speeds up as it falls. A force must be acting on it.' },
+        { t: 'The tree pushes it away.', hint: 'Once the apple lets go, the tree isn\u2019t touching it any more.' }],
+      answer: 1, msg: 'Gravity is a non-contact force that pulls the apple towards the centre of Earth.' },
+
+    { kind: 'cloze', title: 'Why objects fall', sc: 'SC15', prompt: 'Drag the words to complete the explanation.',
+      parts: ['Objects fall because ', ['gravity', 'Which force pulls every object with mass towards Earth?'], ' pulls them towards the ', ['centre', 'Objects fall straight down because gravity pulls towards the middle of Earth.'],
+        ' of Earth. Gravity is a ', ['non-contact', 'Gravity pulls across a gap, so nothing needs to touch the object.'], ' force, so nothing has to touch the object. As it falls, ',
+        ['air resistance', 'Air particles hit a falling object. Which force do they cause?'], ' pushes up and slows it down.'],
+      tiles: ['gravity', 'centre', 'non-contact', 'air resistance', 'friction', 'surface', 'contact', 'magnetic force'],
+      msg: 'Gravity pulls objects towards the centre of Earth without touching them.' },
+
+    { kind: 'mcside', title: 'Leila\u2019s claim', sc: 'SC15', prompt: 'Leila is standing next to a tall building. Is she right?', side: buildingSide,
+      quote: '\u201cThe building doesn\u2019t pull me towards it, so gravity must only work between planets.\u201d',
+      opts: [
+        { t: 'Yes. Only very large objects have gravity.', hint: 'Every object with mass pulls on every other object. Even Leila pulls on the building.' },
+        { t: 'No. The building pulls her, but the pull is far too small to notice.', hint: '' },
+        { t: 'No. Gravity only acts on falling objects.', hint: 'Gravity acts on Leila while she stands still. It is what keeps her on the ground.' },
+        { t: 'Yes. Buildings push objects away instead.', hint: 'Gravity is always a pulling force. It never pushes objects apart.' }],
+      onDone: s => { growArrow(s.querySelector('.ga1'), 160, 242, DIR.l, 14, { sw: 5, hl: 12, hw: 9 }); growArrow(s.querySelector('.ga2'), 182, 262, DIR.d, 46, { sw: 7, hl: 18, hw: 11 }).then(() => play(300, k => s.querySelector('.gl').setAttribute('opacity', k))); },
+      answer: 1, msg: 'All objects with mass attract each other. A building\u2019s mass is tiny compared to Earth\u2019s, so its pull is too small to feel.' },
+
+    { kind: 'build', title: 'Falling feather', sc: 'SC15', prompt: 'A feather is falling slowly. Drag each force acting on it to an arrow.',
+      box: { x: 330, y: 138, w: 140, h: 52 },
+      scene: `<g stroke="${GR}" stroke-width="3" stroke-linecap="round"><line x1="350" y1="94" x2="350" y2="126"/><line x1="368" y1="84" x2="368" y2="122"/><line x1="432" y1="86" x2="432" y2="120"/><line x1="450" y1="96" x2="450" y2="126"/></g>
+        <g transform="translate(402 166) rotate(-8) scale(1.9)">${feather(LT)}</g>
+        <text class="spd" x="760" y="306" text-anchor="end">Falling slowly &darr;</text>`,
+      answer: { u: 'Air resistance', d: 'Gravity' },
+      tiles: ['Gravity', 'Air resistance', 'Support force', 'Magnetic force'],
+      hints: { 'Support force': 'A support force needs a surface underneath. Nothing is holding the feather up from below.', 'Magnetic force': 'There are no magnets here, so there is no magnetic force.' },
+      wrongDir: { 'Air resistance': 'Air resistance pushes against the motion. The feather falls down, so it pushes up.', Gravity: 'Gravity pulls towards the centre of Earth, so its arrow points down.' },
+      missing: { u: 'Air particles hit the feather as it falls. Which force do they cause?', d: 'Something is pulling the feather towards the ground. Which force is missing?' },
+      msg: 'Gravity (non-contact) pulls the feather down. Air resistance (contact) pushes up and slows its fall.' },
+
+    { kind: 'predict', scene: 'moonDrop', title: 'Drop on the Moon', sc: 'SC15', prompt: 'Watch the drop on Earth. What happens when the same two objects are dropped on the Moon?',
+      opts: [
+        { t: 'The bowling ball lands first', hint: 'On Earth, air resistance slowed the feather. There is no air on the Moon.' },
+        { t: 'The feather lands first', hint: 'Nothing pushes the feather down faster than the ball. Gravity pulls both towards the Moon.' },
+        { t: 'They land at the same time', hint: '' },
+        { t: 'They float away', hint: 'The Moon has gravity. It is weaker than Earth\u2019s, but it still pulls them down.' }],
+      answer: 2, msg: 'With no air resistance, gravity makes all objects speed up at the same rate. The Moon\u2019s weaker gravity makes them fall more slowly than on Earth.' },
+
+    { kind: 'mc', title: 'What is weight?', sc: 'SC16', prompt: 'Which statement describes weight?',
+      opts: [
+        { t: 'The amount of matter in an object', hint: 'That describes mass. Mass is measured in kilograms.' },
+        { t: 'The force of gravity pulling on an object', hint: '' },
+        { t: 'How much space an object takes up', hint: 'That describes volume. Weight is a force.' },
+        { t: 'Another name for mass', hint: 'Mass and weight are different. Mass stays the same, but weight changes with gravity.' }],
+      answer: 1, msg: 'Weight is a force, so it is measured in newtons (N). It depends on mass and gravity.' },
+
+    { kind: 'sort', small: true, title: 'Mass or weight?', sc: 'SC16', prompt: 'Drag each statement into the correct group.',
+      bins: [{ h: 'Mass', sub: 'How much matter', key: 'a' }, { h: 'Weight', sub: 'How hard gravity pulls', key: 'b', pk: true }],
+      items: [
+        ['Measured in kilograms (kg)', 'a', 'Kilograms measure the amount of matter, so they are the unit for mass.'],
+        ['Measured in newtons (N)', 'b', 'Newtons measure forces. Weight is a force, so it is measured in newtons.'],
+        ['The amount of matter in an object', 'a', 'The amount of matter in an object is its mass.'],
+        ['The force of gravity on an object', 'b', 'The pull of gravity on an object is its weight.'],
+        ['Stays the same on every planet', 'a', 'Travelling to another planet doesn\u2019t add or remove matter, so mass stays the same.'],
+        ['Changes on different planets', 'b', 'Gravity is different on each planet, so weight changes.'],
+        ['Does not depend on gravity', 'a', 'Mass is the same with or without gravity. Weight is the one that depends on gravity.']],
+      msg: 'Mass is the amount of matter and never changes. Weight is the pull of gravity, so it changes from planet to planet.' },
+
+    { kind: 'predict', scene: 'moonMass', title: 'Off to the Moon', sc: 'SC16', prompt: 'This 1 kg mass weighs 9.8 N on Earth. It is taken to the Moon. What happens next?',
+      opts: [
+        { t: 'Mass stays 1 kg. Weight gets smaller.', hint: '' },
+        { t: 'Mass and weight both get smaller.', hint: 'It is the same object with the same amount of matter. Only the pull of gravity changes.' },
+        { t: 'Mass and weight both stay the same.', hint: 'The Moon\u2019s gravity is weaker, so it pulls less on the mass. Weight depends on gravity.' },
+        { t: 'Mass gets smaller. Weight stays 9.8 N.', hint: 'Moving to the Moon doesn\u2019t remove any matter, so the mass stays the same.' }],
+      answer: 0, msg: 'Mass is the amount of matter, so it stays 1 kg. Weight depends on gravity, so it drops to 1.6 N on the Moon.' },
+
+    { kind: 'calc', title: 'Weight on Earth', sc: 'SC16', prompt: 'A school bag has a mass of 5 kg. Calculate its weight on Earth.',
+      obj: 'bag', planet: 'Earth', m: 5, g: 9.8, W: 49,
+      msg: 'Weight = 5 kg \u00d7 9.8 m/s\u00b2 = 49 N. Weight is a force, so it is measured in newtons.' },
+
+    { kind: 'calc', title: 'Astronaut on Mars', sc: 'SC17', prompt: 'An astronaut has a mass of 60 kg. Calculate her weight on Mars.',
+      obj: 'astro', planet: 'Mars', m: 60, g: 3.8, W: 228,
+      msg: '60 \u00d7 3.8 = 228 N. On Earth she weighs 588 N, but her mass is still 60 kg on both planets.' },
+
+    { kind: 'calc', title: 'Rover on Mercury', sc: 'SC17', prompt: 'A rover has a mass of 40 kg. Calculate its weight on Mercury.',
+      obj: 'rover', planet: 'Mercury', m: 40, g: 3.7, W: 148,
+      msg: '40 \u00d7 3.7 = 148 N. Mercury\u2019s gravity is weaker than Earth\u2019s, so the rover weighs less there.' },
+
+    { kind: 'rank', title: 'Heaviest to lightest', sc: 'SC17', prompt: 'A 50 kg student could visit each planet. Order them from where she would weigh the most to the least.',
+      m: 50, labels: ['Heaviest', '2nd', '3rd', 'Lightest'],
+      items: [['Jupiter', 24.8, 0], ['Neptune', 11.2, 1], ['Earth', 9.8, 2], ['Mars', 3.8, 3]],
+      hint: 'The stronger the gravity, the more she weighs. Compare the gravity values.',
+      msg: 'Stronger gravity means more weight. Her mass stays 50 kg on every planet.' },
+
+    { kind: 'mcside', title: 'Mystery planet', sc: 'SC17', prompt: 'On which planet would a 10 kg box weigh 248 N?', table: true,
+      fact: 'Weight = mass \u00d7 gravity',
+      opts: [
+        { t: 'Earth', hint: 'On Earth, 10 kg would weigh 10 \u00d7 9.8 = 98 N. Try 248 \u00f7 10.' },
+        { t: 'Mars', hint: 'On Mars, 10 kg would weigh 10 \u00d7 3.8 = 38 N. Try 248 \u00f7 10.' },
+        { t: 'Jupiter', hint: '' },
+        { t: 'Neptune', hint: 'On Neptune, 10 kg would weigh 10 \u00d7 11.2 = 112 N. Try 248 \u00f7 10.' }],
+      onDone: s => s.querySelector('[data-p="Jupiter"]').classList.add('hl'),
+      answer: 2, msg: '248 \u00f7 10 = 24.8 m/s\u00b2, which is Jupiter\u2019s gravity. Jupiter has the strongest gravity of all the planets.' },
+
+    { kind: 'mcside', title: 'The Uranus puzzle', sc: 'SC17', prompt: 'Why is gravity weaker on the surface of Uranus than on Earth?', side: uranusSide,
+      fact: 'Uranus has about 14 times more mass than Earth, but its gravity is weaker.',
+      opts: [
+        { t: 'Uranus has less mass than Earth.', hint: 'Uranus has about 14 times more mass than Earth, so that isn\u2019t the reason.' },
+        { t: 'Its surface is much further from its centre.', hint: '' },
+        { t: 'Uranus is further from the Sun.', hint: 'Distance from the Sun doesn\u2019t change the pull at a planet\u2019s surface. Look at the size of each planet.' },
+        { t: 'Uranus is made of gas, so it has no gravity.', hint: 'Gas has mass, and all mass has gravity. Uranus still has strong gravity.' }],
+      onDone: s => play(400, k => s.querySelector('.gv').setAttribute('opacity', k)),
+      answer: 1, msg: 'Gravity gets weaker with distance. Uranus is so big that its surface is far from its centre, so the pull there is weaker.' }
+];
+const TOTAL = QS.length;
+const CHIP = { mc: 'Multiple choice', mcside: 'Multiple choice', sort: 'Drag and drop', build: 'Force diagram', predict: 'Predict', cloze: 'Fill the gaps', calc: 'Calculate', rank: 'Order' };
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+/* ---------- flow ---------- */
+let qi = 0, firstTry = [], tries = 0, mode = 'check', cur = null;
+function render() {
+    runId++;
+    content.innerHTML = ''; tries = 0; mode = 'check';
+    const q = QS[qi];
+    counter.innerHTML = `Question <b>${qi + 1}</b> / ${TOTAL}`;
+    progress.style.width = (qi / TOTAL * 100) + '%';
+    const wrap = el('div', 'q');
+    wrap.appendChild(el('div', 'qhead', `<div class="qtitle">${q.title}</div><div class="tchip">${CHIP[q.kind]}</div><div class="sctag">${q.sc}</div>`));
+    wrap.appendChild(el('div', 'prompt', q.prompt));
+    const body = el('div', 'body'); wrap.appendChild(body); content.appendChild(wrap);
+    cur = KINDS[q.kind](q, body);
+    say(cur.instr);
+    btn.hidden = false; btn.textContent = 'Check';
+    refresh();
+}
+function refresh() { if (mode === 'check') btn.disabled = !cur.ready(); }
+function check() {
+    tries++;
+    const r = cur.check();
+    if (r.ok) {
+        if (tries === 1) firstTry[qi] = true;
+        say(`<b>Correct.</b> ${QS[qi].msg}`);
+        mode = 'next'; btn.disabled = false; btn.textContent = qi === TOTAL - 1 ? 'Finish' : 'Next';
+        btn.classList.remove('pop-in'); void btn.offsetWidth; btn.classList.add('pop-in');
+        if (cur.done) cur.done();
+    } else {
+        say(`<b class="no">Not quite.</b> ${r.hint}`);
+        refresh();
+    }
+}
+btn.onclick = () => {
+    if (btn.disabled) return;
+    if (mode === 'check') check();
+    else if (qi === TOTAL - 1) finish();
+    else { qi++; render(); }
+};
+function finish() {
+    runId++;
+    content.innerHTML = '';
+    btn.hidden = true;
+    counter.innerHTML = '<b>Complete</b>';
+    progress.style.width = '100%';
+    const n = firstTry.filter(Boolean).length;
+    say('Take a screenshot of this screen and paste it into Stile as evidence of your work.');
+    const c = el('div', 'center');
+    const dots = QS.map((_, i) => `<span class="${firstTry[i] ? 'y' : ''}">${i + 1}</span>`).join('');
+    const card = el('div', 'scorecard pop-in', `<div class="big">${n} / ${TOTAL}</div><div class="dlbl">Correct on the first try</div><div class="dots">${dots}</div>`);
+    const again = el('button', 'again', 'Start again');
+    again.onclick = () => { qi = 0; firstTry = []; render(); };
+    c.append(card, again); content.appendChild(c);
+}
+
+/* ---------- multiple choice core ---------- */
+function mcCore(els, q, extra = {}) {
+    let sel = null;
+    els.forEach((b, i) => b.onclick = () => {
+        if (mode !== 'check' || b.classList.contains('wrong')) return;
+        els.forEach(x => x.classList.remove('sel')); b.classList.add('sel'); sel = i; refresh();
+    });
+    return {
+        instr: extra.instr || 'Choose an answer, then press <b>Check</b>.',
+        ready: () => sel !== null,
+        check() {
+            const b = els[sel];
+            b.classList.remove('sel');
+            if (sel === q.answer) { b.classList.add('right'); els.forEach(x => x.disabled = true); return { ok: true }; }
+            b.classList.add('wrong'); b.disabled = true;
+            const h = q.opts[sel].hint; sel = null; return { ok: false, hint: h };
+        },
+        done: extra.done
+    };
+}
+const L = 'ABCD';
+const KINDS = {
+    mc(q, body) {
+        const g = el('div', 'opts g2');
+        const els = q.opts.map((o, i) => { const b = el('button', 'opt', `<span class="l">${L[i]}</span><span>${o.t}</span>`); g.appendChild(b); return b; });
+        body.appendChild(g);
+        return mcCore(els, q);
+    },
+    mcside(q, body) {
+        const side = el('div', q.table ? 'side' : 'scene');
+        side.innerHTML = q.table ? gTable() : q.side;
+        const col = el('div', 'col'); col.style.flex = '1';
+        if (q.quote) col.appendChild(el('div', 'quote', q.quote));
+        if (q.fact) col.appendChild(el('div', 'quote fact', q.fact));
+        const g = el('div', 'opts');
+        const els = q.opts.map((o, i) => { const b = el('button', 'opt', `<span class="l">${L[i]}</span><span>${o.t}</span>`); g.appendChild(b); return b; });
+        col.appendChild(g); body.append(side, col);
+        body.style.justifyContent = 'flex-start';
+        return mcCore(els, q, { done: () => q.onDone && q.onDone(side) });
+    },
+    predict(q, body) {
+        body.classList.add('pred');
+        const sc = el('div', 'scene');
+        sc.innerHTML = `<svg viewBox="0 0 740 330" width="734" height="327"></svg>`;
+        const rp = el('button', 'replay', `${replayIcon}<span>Replay</span>`); sc.appendChild(rp);
+        const g = el('div', 'opts');
+        const els = q.opts.map((o, i) => { const b = el('button', 'opt', `<span class="l">${L[i]}</span><span>${o.t}</span>`); g.appendChild(b); return b; });
+        body.append(sc, g);
+        const S = SCENES[q.scene](sc.querySelector('svg'));
+        let solved = false;
+        const go = () => { runId++; S.run(solved); };
+        S.introDone = false;
+        rp.onclick = go;
+        go();
+        return mcCore(els, q, { instr: 'Watch, then choose what happens next and press <b>Check</b>.', done: () => { solved = true; runId++; S.run(true, S.introDone); } });
+    },
+    sort(q, body) {
+        const wrap = el('div', 'sort');
+        const mk = b => { const d = el('div', 'bin' + (b.pk ? ' pk' : ''), `<h3>${b.h}</h3><div class="sub">${b.sub}</div><div class="area"></div>`); d.tabIndex = 0; return d; };
+        const b1 = mk(q.bins[0]), b2 = mk(q.bins[1]);
+        const pool = el('div', 'pool' + (q.small ? ' col1' : ''));
+        wrap.append(b1, pool, b2); body.appendChild(wrap);
+        const zPool = { el: pool, box: pool, cap: Infinity, pool: true };
+        const zones = [{ el: b1, box: b1.querySelector('.area'), cap: Infinity, key: q.bins[0].key }, { el: b2, box: b2.querySelector('.area'), cap: Infinity, key: q.bins[1].key }];
+        const D = dnd(zPool, zones, () => refresh());
+        shuffle(q.items).forEach(([t, k, h]) => { const tl = D.tile(t); if (q.small) tl.classList.add('sm'); tl.k = k; tl.h = h; pool.appendChild(tl); });
+        return {
+            instr: 'Drag each tile into a group (or tap a tile, then a group), then press <b>Check</b>.',
+            ready: () => !pool.querySelector('.tile'),
+            check() {
+                let wrong = [];
+                zones.forEach(z => z.box.querySelectorAll('.tile').forEach(t => {
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (t.k === z.key) t.classList.add('right'); else { t.classList.add('wrong'); wrong.push(t.h); }
+                }));
+                return wrong.length ? { ok: false, hint: (wrong.length > 1 ? `${wrong.length} tiles need moving. ` : '') + wrong[0] } : { ok: true };
+            }
+        };
+    },
+    cloze(q, body) {
+        const wrap = el('div', 'clzwrap'), txt = el('div', 'cloze'), zones = [];
+        q.parts.forEach(p => {
+            if (typeof p === 'string') { txt.appendChild(document.createTextNode(p)); return; }
+            const s = el('span', 'cslot'); s.tabIndex = 0; s.setAttribute('aria-label', 'Gap'); txt.appendChild(s);
+            zones.push({ el: s, box: s, cap: 1, ans: p[0], hint: p[1], onPut: () => s.classList.add('filled'), onTake: () => s.classList.remove('filled') });
+        });
+        const pool = el('div', 'pool');
+        wrap.append(txt, pool); body.appendChild(wrap);
+        const D = dnd({ el: pool, box: pool, cap: Infinity, pool: true }, zones, () => { zones.forEach(z => z.el.classList.remove('wrong')); refresh(); });
+        shuffle(q.tiles).forEach(t => { const tl = D.tile(t); tl.k = t; pool.appendChild(tl); });
+        return {
+            instr: 'Drag a word into each gap (or tap a word, then a gap), then press <b>Check</b>.',
+            ready: () => zones.every(z => z.box.querySelector('.tile')),
+            check() {
+                let bad = 0, hint = null;
+                zones.forEach(z => {
+                    const t = z.box.querySelector('.tile'); z.el.classList.remove('wrong'); t.classList.remove('wrong'); void t.offsetWidth;
+                    if (t.k === z.ans) { t.classList.add('right'); z.locked = true; }
+                    else { bad++; t.classList.add('wrong'); z.el.classList.add('wrong'); if (!hint) hint = z.hint; }
+                });
+                return bad ? { ok: false, hint: (bad > 1 ? `${bad} gaps need changing. ` : '') + hint } : { ok: true };
+            }
+        };
+    },
+    rank(q, body) {
+        const wrap = el('div', 'rank'), row = el('div', 'rrow');
+        const zones = q.labels.map((lb, i) => {
+            const cell = el('div', 'rcell', `<div class="rhead">${lb}</div>`);
+            const s = el('div', 'rslot'); s.tabIndex = 0; s.setAttribute('aria-label', lb);
+            const sub = el('div', 'rsub');
+            cell.append(s, sub); row.appendChild(cell);
+            return { el: s, box: s, cap: 1, key: i, sub, onPut: () => s.classList.add('filled'), onTake: () => s.classList.remove('filled') };
+        });
+        const bar = el('div', 'rbar', '<span>More weight</span><span>Less weight</span>');
+        const pool = el('div', 'pool');
+        wrap.append(row, bar, pool); body.appendChild(wrap);
+        const D = dnd({ el: pool, box: pool, cap: Infinity, pool: true }, zones, () => { zones.forEach(z => z.el.classList.remove('wrong')); refresh(); });
+        shuffle(q.items).forEach(([n, g, i]) => { const t = D.tile(`${n}<small>${g} m/s&sup2;</small>`); t.classList.add('rtile'); t.k = i; t.w = q.m * g; pool.appendChild(t); });
+        return {
+            instr: 'Drag each planet into a box (or tap a planet, then a box), then press <b>Check</b>.',
+            ready: () => !pool.querySelector('.tile'),
+            check() {
+                let bad = 0;
+                zones.forEach(z => {
+                    const t = z.box.querySelector('.tile'); z.el.classList.remove('wrong'); t.classList.remove('wrong'); void t.offsetWidth;
+                    if (t.k === z.key) { t.classList.add('right'); z.locked = true; } else { bad++; t.classList.add('wrong'); z.el.classList.add('wrong'); }
+                });
+                return bad ? { ok: false, hint: `${bad} planets need moving. ` + q.hint } : { ok: true };
+            },
+            done() { zones.forEach((z, i) => setTimeout(() => { z.sub.textContent = Math.round(z.box.querySelector('.tile').w) + ' N'; z.sub.classList.add('on'); }, i * 220)); }
+        };
+    },
+    calc(q, body) {
+        const sc = el('div', 'scene');
+        sc.innerHTML = `<svg viewBox="0 0 400 330" width="400" height="330"></svg>`;
+        const fld = (f, unit, lab) => `<div class="fld"><input class="num" data-f="${f}" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" aria-label="${lab}"><span class="ul">${unit}</span></div>`;
+        const work = el('div', 'work', `<div class="formula">Weight = mass &times; gravity</div>
+            <div class="eqn"><span class="sym">W =</span>${fld('a', 'kg', 'Mass in kilograms')}<span class="sym">&times;</span>${fld('b', 'm/s&sup2;', 'Gravity')}</div>
+            <div class="eqn"><span class="sym">W =</span>${fld('w', '', 'Weight')}<div class="units">${['kg', 'N', 'm/s\u00b2'].map(u => `<button class="ubtn" data-u="${u}">${u}</button>`).join('')}</div></div>`);
+        const tab = el('div', 'side'); tab.innerHTML = gTable();
+        body.append(sc, work, tab);
+        body.style.gap = '26px';
+        const [ia, ib, iw] = ['a', 'b', 'w'].map(f => work.querySelector(`[data-f="${f}"]`));
+        const ubs = [...work.querySelectorAll('.ubtn')];
+        let unit = null, unitOk = false;
+        ubs.forEach(b => b.onclick = () => {
+            if (mode !== 'check' || unitOk || b.classList.contains('wrong')) return;
+            ubs.forEach(x => x.classList.remove('sel')); b.classList.add('sel'); unit = b.dataset.u; refresh();
+        });
+        [ia, ib, iw].forEach(i => {
+            i.addEventListener('input', () => { i.classList.remove('wrong'); refresh(); });
+            i.addEventListener('keydown', e => { if (e.key === 'Enter' && !btn.disabled) btn.click(); });
+        });
+        const S = calcScene(sc.querySelector('svg'), q);
+        S.intro();
+        const val = i => { const s = i.value.replace(/[\s,]/g, ''); return s === '' ? NaN : Number(s); };
+        const near = (x, y, t = .051) => Math.abs(x - y) <= t;
+        const fm = x => Number.isFinite(x) ? String(+x.toFixed(2)) : '?';
+        const mark = (i, ok) => { if (i.classList.contains('right')) return; i.classList.remove('wrong'); void i.offsetWidth; if (ok) { i.classList.add('right'); i.readOnly = true; } else i.classList.add('wrong'); };
+        return {
+            instr: 'Fill in the working, choose the unit, then press <b>Check</b>.',
+            ready: () => [ia, ib, iw].every(i => i.value.trim() !== '') && (unit !== null || unitOk),
+            check() {
+                const { m, g, W, planet: P } = q, A = val(ia), B = val(ib), Wv = val(iw);
+                let ra, rb;
+                if (near(A, g) && near(B, m)) ra = rb = true; else { ra = near(A, m); rb = near(B, g); }
+                const rw = near(Wv, W, .51);
+                mark(ia, ra); mark(ib, rb); mark(iw, rw);
+                let ru = unitOk;
+                if (!unitOk) {
+                    const b = ubs.find(x => x.dataset.u === unit); b.classList.remove('sel');
+                    if (unit === 'N') { b.classList.add('right'); unitOk = ru = true; ubs.forEach(x => x.disabled = true); }
+                    else { b.classList.add('wrong'); b.disabled = true; unit = null; }
+                }
+                if (ra && rb && rw && ru) { [ia, ib, iw].forEach(i => i.blur()); return { ok: true }; }
+                let hint;
+                if (!rb) hint = (g !== 9.8 && (near(A, 9.8) || near(B, 9.8))) ? `9.8 m/s\u00b2 is Earth\u2019s gravity. Find the gravity on ${P} in the table.` : `Find the ${P} row in the table to get the gravity.`;
+                else if (!ra) hint = 'Mass is measured in kilograms. Find the mass in the question.';
+                else if (!rw) {
+                    if (near(Wv, m + g, .51)) hint = 'You added. To find weight, multiply mass by gravity.';
+                    else if (near(Wv, m / g, .05) || near(Wv, g / m, .05)) hint = 'You divided. To find weight, multiply mass by gravity.';
+                    else if (g !== 9.8 && near(Wv, m * 9.8, .51)) hint = `That is the weight on Earth. Use the gravity on ${P}.`;
+                    else if (near(Wv, m)) hint = 'That is the mass. Weight is mass multiplied by gravity.';
+                    else hint = `Check your multiplication: ${fm(A)} \u00d7 ${fm(B)}.`;
+                }
+                else hint = unitOk ? '' : 'Weight is a force, so it is measured in newtons (N).';
+                if (!ru && (!ra || !rb || !rw)) hint += ' Check the unit too.';
+                return { ok: false, hint };
+            },
+            done() { const r = tab.querySelector(`[data-p="${q.planet}"]`); if (r) r.classList.add('hl'); S.reveal(); }
+        };
+    },
+    build(q, body) {
+        const W = 800, H = 330, len = 66, gap = 6, b = q.box, cx = b.x + b.w / 2, cy = b.y + b.h / 2;
+        const A = { u: [cx, b.y], d: [cx, b.y + b.h], l: [b.x, cy], r: [b.x + b.w, cy] };
+        const SL = { u: [cx - 100, b.y - len - gap - 50], d: [cx - 100, b.y + b.h + len + gap], l: [b.x - len - gap - 200, cy - 25], r: [b.x + b.w + len + gap, cy - 25] };
+        const wrap = el('div', 'bwrap');
+        wrap.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${q.scene}<g class="ghosts"></g><g class="arrs"></g></svg>`;
+        const gh = wrap.querySelector('.ghosts'), ar = wrap.querySelector('.arrs');
+        const side = el('div', 'bside', '<div class="dlbl">Forces</div>');
+        const pool = el('div', 'pool'); side.appendChild(pool);
+        body.append(wrap, side);
+        const zones = Object.keys(A).map(d => {
+            gh.insertAdjacentHTML('beforeend', `<g data-d="${d}">${ghostArrow(A[d][0], A[d][1], DIR[d], len)}</g>`);
+            const g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); ar.appendChild(g);
+            const s = el('div', 'slot'); s.style.left = SL[d][0] + 'px'; s.style.top = SL[d][1] + 'px'; s.tabIndex = 0; s.setAttribute('aria-label', { u: 'Up arrow', d: 'Down arrow', l: 'Left arrow', r: 'Right arrow' }[d]);
+            wrap.appendChild(s);
+            const ghost = gh.querySelector(`[data-d="${d}"]`);
+            return { el: s, box: s, cap: 1, dir: d,
+                onPut: () => { s.classList.add('filled'); ghost.style.display = 'none'; growArrow(g, A[d][0], A[d][1], DIR[d], len); },
+                onTake: () => { s.classList.remove('filled'); ghost.style.display = ''; clearArrow(g); } };
+        });
+        const zPool = { el: pool, box: pool, cap: Infinity, pool: true };
+        const D = dnd(zPool, zones, () => { zones.forEach(z => z.el.classList.remove('wrong')); refresh(); });
+        shuffle(q.tiles).forEach(t => pool.appendChild(D.tile(t)));
+        return {
+            instr: 'Drag forces onto the arrows. Leave any arrow empty if no force acts that way.',
+            ready: () => zones.some(z => z.box.querySelector('.tile')),
+            check() {
+                let hint = null, bad = 0;
+                zones.forEach(z => {
+                    const t = z.box.querySelector('.tile'); z.el.classList.remove('wrong');
+                    if (!t) return;
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (q.answer[z.dir] === t.textContent) { t.classList.add('right'); z.locked = true; }
+                    else { bad++; t.classList.add('wrong'); z.el.classList.add('wrong'); if (!hint) hint = q.hints[t.textContent] || q.wrongDir[t.textContent]; }
+                });
+                if (bad) return { ok: false, hint: (bad > 1 ? `${bad} labels need changing. ` : '') + hint };
+                const miss = Object.keys(q.answer).find(d => !zones.find(z => z.dir === d).box.querySelector('.tile'));
+                if (miss) return { ok: false, hint: 'Good so far, but a force is missing. ' + q.missing[miss] };
+                return { ok: true };
+            }
+        };
+    }
+};
+
+/* ---------- drag and drop (drag, or tap a tile then tap a target) ---------- */
+function dnd(pool, zones, onChange) {
+    let sel = null;
+    const all = () => [pool, ...zones];
+    const zoneOf = t => all().find(z => z.box.contains(t));
+    const armAll = on => zones.forEach(z => z.el.classList.toggle('armed', on && !z.locked));
+    const deselect = () => { if (sel) sel.classList.remove('sel'); sel = null; armAll(false); };
+    function moveTo(t, z) {
+        const from = zoneOf(t);
+        t.style.transform = ''; t.classList.remove('wrong');
+        z.box.appendChild(t);
+        if (from && from !== z && from.onTake) from.onTake(t);
+        if (z.onPut) z.onPut(t);
+        deselect(); onChange();
+    }
+    function put(t, z) {
+        const from = zoneOf(t);
+        if (z.locked || from === z) { t.style.transform = ''; return; }
+        if (z.cap === 1) {
+            const ex = z.box.querySelector('.tile');
+            if (ex) { if (ex.classList.contains('right')) { t.style.transform = ''; return; } moveTo(ex, pool); }
+        }
+        moveTo(t, z);
+    }
+    const hit = (x, y) => all().find(z => { const r = z.el.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; });
+    all().forEach(z => {
+        const act = () => { if (sel && !z.locked) put(sel, z); };
+        z.el.addEventListener('click', act);
+        z.el.addEventListener('keydown', e => { if (e.target === z.el && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); act(); } });
+    });
+    function tile(text) {
+        const t = el('span', 'tile', text);
+        t.tabIndex = 0; t.setAttribute('role', 'button');
+        const tap = () => {
+            if (t.classList.contains('right')) return;
+            t.style.transform = '';
+            const z = zoneOf(t);
+            if (z !== pool) { put(t, pool); return; }
+            if (sel === t) { deselect(); return; }
+            deselect(); sel = t; t.classList.add('sel'); armAll(true);
+        };
+        t.addEventListener('click', e => e.stopPropagation());
+        t.addEventListener('pointerdown', e => {
+            if (t.classList.contains('right') || e.button > 0) return;
+            e.preventDefault(); e.stopPropagation(); t.setPointerCapture(e.pointerId);
+            const sx = e.clientX, sy = e.clientY; let moved = false;
+            const move = ev => {
+                const dx = ev.clientX - sx, dy = ev.clientY - sy;
+                if (!moved && Math.hypot(dx, dy) > 6) { moved = true; t.classList.add('drag'); }
+                if (!moved) return;
+                t.style.transform = `translate(${dx / scaleK}px, ${dy / scaleK}px)`;
+                const h = hit(ev.clientX, ev.clientY);
+                all().forEach(z => z.el.classList.toggle('hover', z === h));
+            };
+            const up = ev => {
+                t.removeEventListener('pointermove', move); t.removeEventListener('pointerup', up); t.removeEventListener('pointercancel', up);
+                t.classList.remove('drag'); all().forEach(z => z.el.classList.remove('hover'));
+                if (!moved) { tap(); return; }
+                const h = hit(ev.clientX, ev.clientY);
+                if (h) put(t, h); else t.style.transform = '';
+            };
+            t.addEventListener('pointermove', move); t.addEventListener('pointerup', up); t.addEventListener('pointercancel', up);
+        });
+        t.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); tap(); } });
+        return t;
+    }
+    return { tile };
+}
+
+/* =========================================================
+   ANIMATED SCENES
+   ========================================================= */
+function mkTrail(layer, pos, y, every = 250) {
+    let next = 0;
+    const dot = p => layer.insertAdjacentHTML('beforeend', `<circle cx="${p.x.toFixed(1)}" cy="${(y === undefined ? p.y : y).toFixed(1)}" r="5.5" fill="${DT}"/>`);
+    return {
+        reset() { layer.innerHTML = ''; next = 0; },
+        upto(T) { while (next <= T + .5) { dot(pos(next)); next += every; } },
+        dot
+    };
+}
+
+const SCENES = {
+    moonDrop(svg) {
+        const GY = 288, TOP = 96, R = 20, D = GY - R - TOP, tE = 1150, tF = 3600, tM = 2800;
+        const aE = 2 * D / tE ** 2, aM = 2 * D / tM ** 2, X = { eb: 115, ef: 258, mb: 485, mf: 628 };
+        svg.innerHTML = `<rect x="370" y="0" width="370" height="${GY + 2}" fill="#f5f6fa"/>
+            <line x1="370" y1="0" x2="370" y2="${GY + 2}" stroke="${NV}" stroke-width="3"/>
+            <text class="oname" x="185" y="38" text-anchor="middle">Earth</text><text class="leg" x="185" y="62" text-anchor="middle">Air resistance acts</text>
+            <text class="oname" x="505" y="38" text-anchor="middle">Moon</text><text class="leg" x="505" y="62" text-anchor="middle">No air, so no air resistance</text>
+            ${ground(GY)}<g class="tr"></g>
+            <g class="eb">${bball(R)}</g><g class="ef">${feather()}</g><g class="mb">${bball(R)}</g><g class="mf">${feather()}</g>
+            <text class="note res" x="556" y="${GY - 66}" text-anchor="middle" opacity="0" style="font-size:22px">Same time</text>${legend(16, 318)}`;
+        const q = s => svg.querySelector(s), eb = q('.eb'), ef = q('.ef'), mb = q('.mb'), mf = q('.mf'), res = q('.res'), tl = q('.tr');
+        const fall = (a, t) => Math.min(D, .5 * a * t * t);
+        const sw = T => Math.sin(Math.min(T, tF) / 330);
+        const pEB = T => ({ x: X.eb, y: TOP + fall(aE, T) });
+        const pEF = T => ({ x: X.ef + 14 * sw(T), y: TOP + 12 + D * Math.min(1, T / tF) });
+        const pMB = T => ({ x: X.mb, y: TOP + fall(aM, T) });
+        const pMF = T => ({ x: X.mf, y: TOP + 12 + fall(aM, T) });
+        const lay = () => { const g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); tl.appendChild(g); return g; };
+        const trs = [mkTrail(lay(), pEB), mkTrail(lay(), pEF), mkTrail(lay(), pMB), mkTrail(lay(), pMF)];
+        const at = (g, p, rot = 0) => g.setAttribute('transform', `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) rotate(${rot.toFixed(1)})`);
+        const setE = T => { at(eb, pEB(T)); at(ef, pEF(T), 12 * Math.sin(Math.min(T, tF) / 330 + 1.2)); trs[0].upto(T); trs[1].upto(T); };
+        const setM = T => { at(mb, pMB(T)); at(mf, pMF(T), -6); trs[2].upto(T); trs[3].upto(T); };
+        return {
+            async run(full, skipIntro) {
+                if (!skipIntro) {
+                    this.introDone = false;
+                    trs.forEach(t => t.reset()); res.setAttribute('opacity', 0);
+                    setE(0); setM(0);
+                    await wait(500);
+                    await phase(0, tF, tF, setE);
+                    this.introDone = true;
+                }
+                if (!full) return;
+                await wait(skipIntro ? 100 : 500);
+                await phase(0, tM, tM, setM);
+                await play(350, k => res.setAttribute('opacity', k));
+            }
+        };
+    },
+    moonMass(svg) {
+        const EX = 200, MX = 570, ARM = 24, T0 = 34, PXN = 11, y0 = T0 + 34;
+        const ptr = r => y0 + r * PXN, org = r => ptr(r) + 62;
+        const massG = `<line x1="0" y1="0" x2="0" y2="10" stroke="${NV}" stroke-width="4"/><rect class="obj" x="-27" y="10" width="54" height="40" rx="6"/><text class="oname" x="0" y="37" text-anchor="middle" style="font-size:19px">1 kg</text>`;
+        const stand = cx => `<rect x="${cx - 86}" y="${ARM - 4}" width="96" height="8" fill="${NV}"/><rect x="${cx - 90}" y="${ARM - 4}" width="10" height="${300 - ARM}" fill="${NV}"/><rect x="${cx - 116}" y="294" width="62" height="8" rx="2" fill="${NV}"/>`;
+        function meter(cx, r, withMass) {
+            const p = ptr(r);
+            let s = `<line x1="${cx}" y1="${ARM}" x2="${cx}" y2="${T0}" stroke="${NV}" stroke-width="4"/><rect x="${cx - 15}" y="${T0}" width="30" height="152" rx="6" fill="#fff" stroke="${NV}" stroke-width="3"/>`;
+            for (let n = 0; n <= 10; n++) {
+                const y = y0 + n * PXN;
+                s += `<line x1="${cx + 15}" y1="${y}" x2="${cx + (n % 5 ? 22 : 28)}" y2="${y}" stroke="${NV}" stroke-width="2"/>`;
+                if (n % 5 === 0) s += `<text class="leg" x="${cx + 32}" y="${y + 5}" style="font-size:15px">${n}</text>`;
+            }
+            const a = T0 + 6, nz = 7; let pts = `${cx},${a}`;
+            for (let i = 1; i < 2 * nz; i++) pts += ` ${i % 2 ? cx - 9 : cx + 9},${(a + (p - a) * i / (2 * nz)).toFixed(1)}`;
+            pts += ` ${cx},${p.toFixed(1)}`;
+            s += `<polyline points="${pts}" fill="none" stroke="${NV}" stroke-width="2.2" stroke-linejoin="round"/>
+                <line x1="${cx}" y1="${p.toFixed(1)}" x2="${cx}" y2="${(p + 50).toFixed(1)}" stroke="${NV}" stroke-width="4"/>
+                <circle cx="${cx}" cy="${(p + 56).toFixed(1)}" r="6" fill="none" stroke="${NV}" stroke-width="3"/>
+                <line x1="${cx - 15}" y1="${p.toFixed(1)}" x2="${cx + 26}" y2="${p.toFixed(1)}" stroke="${PK}" stroke-width="4" stroke-linecap="round"/>`;
+            if (withMass) s += `<g transform="translate(${cx} ${org(r).toFixed(1)})">${massG}</g>`;
+            return s;
+        }
+        svg.innerHTML = `<rect x="370" y="0" width="370" height="330" fill="#f5f6fa"/><line x1="370" y1="0" x2="370" y2="330" stroke="${NV}" stroke-width="3"/>
+            ${stand(EX)}${stand(MX)}<g class="gE"></g><g class="gM"></g><g class="fm" opacity="0">${massG}</g>
+            <text class="leg" x="${EX + 64}" y="92">Weight</text><text class="rdv rE" x="${EX + 64}" y="134"></text>
+            <text class="leg" x="${MX + 64}" y="92">Weight</text><text class="rdv rM" x="${MX + 64}" y="134"></text>
+            <text class="note nt" x="${MX}" y="${(org(1.6) + 82).toFixed(1)}" text-anchor="middle" opacity="0">Still 1 kg</text>
+            <text class="oname" x="${EX}" y="322" text-anchor="middle">Earth <tspan class="leg" style="text-transform:none;letter-spacing:0">g = 9.8 m/s&sup2;</tspan></text>
+            <text class="oname" x="${MX}" y="322" text-anchor="middle">Moon <tspan class="leg" style="text-transform:none;letter-spacing:0">g = 1.6 m/s&sup2;</tspan></text>`;
+        const q = s => svg.querySelector(s), gE = q('.gE'), gM = q('.gM'), fm = q('.fm'), rE = q('.rE'), rM = q('.rM'), nt = q('.nt');
+        const fmt = r => r.toFixed(1) + ' N';
+        const hover = org(0) + 22;
+        return {
+            async run(full, skipIntro) {
+                if (!skipIntro) {
+                    this.introDone = false;
+                    gE.innerHTML = meter(EX, 0, true); gM.innerHTML = meter(MX, 0, false);
+                    fm.setAttribute('opacity', 0); nt.setAttribute('opacity', 0);
+                    rE.classList.remove('old'); rE.textContent = '0.0 N'; rM.textContent = '';
+                    await wait(500);
+                    await play(900, k => { const r = 9.8 * easeOut(k); gE.innerHTML = meter(EX, r, true); rE.textContent = fmt(r); });
+                    await wait(800);
+                    rE.classList.add('old'); fm.setAttribute('opacity', 1);
+                    await play(1400, k => {
+                        const e = easeInOut(k), x = EX + (MX - EX) * e, y = org(9.8) + (hover - org(9.8)) * e - 90 * Math.sin(Math.PI * e);
+                        fm.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
+                        gE.innerHTML = meter(EX, 9.8 * Math.max(0, 1 - easeOut(Math.min(1, k * 3))), false);
+                    });
+                    rM.textContent = '? N';
+                    this.introDone = true;
+                }
+                if (!full) return;
+                await wait(skipIntro ? 100 : 500);
+                await play(260, k => fm.setAttribute('transform', `translate(${MX} ${(hover + (org(0) - hover) * easeOut(k)).toFixed(1)})`));
+                fm.setAttribute('opacity', 0);
+                await play(800, k => { const r = 1.6 * easeOut(k); gM.innerHTML = meter(MX, r, true); rM.textContent = fmt(r); });
+                await play(350, k => nt.setAttribute('opacity', k));
+            }
+        };
+    }
+};
+
+function calcScene(svg, q) {
+    const PX = 200, PT = 228, O = OBJ[q.obj];
+    svg.innerHTML = `<rect x="0" y="298" width="400" height="40" fill="${LT}"/>${ground(296, 400)}${DECOR[q.planet] || ''}
+        <g transform="translate(38 40)">${planetIcon(q.planet, 20)}</g><text class="oname" x="68" y="48" style="font-size:22px">${q.planet}</text>
+        <g class="ob"><g>${O.svg}</g><g transform="translate(${O.tag[0]} ${O.tag[1]})"><rect width="70" height="30" rx="6" fill="${PK}"/><text class="tagt" x="35" y="22" text-anchor="middle">${q.m} kg</text></g></g>
+        <g class="pl"><rect x="${PX - 95}" y="${PT}" width="190" height="10" rx="3" fill="${NV}"/><rect x="${PX - 8}" y="${PT + 10}" width="16" height="12" fill="${NV}"/></g>
+        <rect x="${PX - 100}" y="248" width="200" height="48" rx="6" fill="${NV}"/><rect x="${PX - 64}" y="255" width="128" height="34" rx="4" fill="#fff"/>
+        <text class="rdg" x="${PX}" y="282" text-anchor="middle">? N</text>
+        <text class="spd" x="${PX - 108}" y="279" text-anchor="end" style="font-size:19px">Weight</text>
+        <g class="arr"></g>`;
+    const ob = svg.querySelector('.ob'), pl = svg.querySelector('.pl'), rd = svg.querySelector('.rdg'), arr = svg.querySelector('.arr');
+    const setOb = d => ob.setAttribute('transform', `translate(${PX} ${(PT + d).toFixed(1)})`);
+    setOb(-320);
+    return {
+        async intro() {
+            await wait(300);
+            await play(560, k => setOb(-320 * (1 - k * k)));
+            await play(260, k => { const d = 5 * Math.sin(Math.PI * k); setOb(d); pl.setAttribute('transform', `translate(0 ${d.toFixed(1)})`); });
+        },
+        async reveal() {
+            setOb(0); pl.setAttribute('transform', '');
+            await play(900, k => { rd.textContent = Math.round(q.W * easeOut(k)) + ' N'; });
+            rd.textContent = q.W + ' N';
+            growArrow(arr, PX, PT - O.h / 2, DIR.d, O.h / 2 - 4);
+        }
+    };
+}
+
+/* ---------- scale to window ---------- */
+function fit() {
+    const st = $('#stage');
+    scaleK = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    st.style.transform = `scale(${scaleK})`;
+    st.style.margin = `${(720 * scaleK - 720) / 2}px ${(1280 * scaleK - 1280) / 2}px`;
+}
+window.addEventListener('resize', fit);
+fit();
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { fit(); render(); });
+</script>
+</body>
+</html>
