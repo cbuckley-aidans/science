@@ -499,6 +499,21 @@
     .ui-blk .ui-msg span { color: var(--pink); }
     .ui-blk .ui-bh { position: absolute; bottom: 28px; color: rgba(255,255,255,.28); }
 
+
+    /* pasted images */
+    .ui-ilayer { position: absolute; left: 0; top: 0; width: 1280px; height: 714px; z-index: 4; pointer-events: none; }
+    .ui-img { position: absolute; pointer-events: auto; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+    .ui-img img { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; -webkit-user-drag: none; }
+    .ui-img.ui-dragging { cursor: grabbing; }
+    .ui-img.ui-sel { outline: 3px solid var(--pink); outline-offset: 3px; }
+    .ui-img.ui-in { animation: fbIn .45s var(--ease); }
+    .ui-imx { position: absolute; top: -16px; right: -16px; width: 30px; height: 30px; padding: 0; border-radius: 50%; border: 2.5px solid var(--navy); background: var(--white);
+        display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transition: opacity .15s; }
+    .ui-imx svg { width: 14px; height: 14px; fill: none; stroke: var(--navy); stroke-width: 3; stroke-linecap: round; }
+    .ui-imr { position: absolute; right: -11px; bottom: -11px; width: 20px; height: 20px; border-radius: 4px; border: 3px solid var(--pink); background: var(--white); cursor: nwse-resize; opacity: 0; transition: opacity .15s; }
+    .ui-img:hover .ui-imx, .ui-img.ui-sel .ui-imx, .ui-img:hover .ui-imr, .ui-img.ui-sel .ui-imr { opacity: 1; }
+    .ui-drop { position: absolute; inset: 0; z-index: 7; pointer-events: none; opacity: 0; transition: opacity .15s; box-shadow: inset 0 0 0 6px var(--pink); background: rgba(234,0,138,.06); }
+    .ui-drop.on { opacity: 1; }
     /* floating text boxes */
     .ui-tbox { position: absolute; pointer-events: auto; max-width: 560px; padding: 12px 20px; border-radius: 8px; border: 3px solid var(--navy);
         background: var(--white); color: var(--navy); cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; box-shadow: 0 6px 18px rgba(27,31,69,.14); }
@@ -609,6 +624,8 @@
         #print .ui-fb .ui-x, #print .ui-tbbar { display: none !important; }
         #print .ui-tbox { outline: none !important; }
         #print .ui-tbt:empty::before { content: none; }
+        #print .ui-imx, #print .ui-imr { display: none !important; }
+        #print .ui-img { outline: none !important; animation: none !important; }
         #print .ui-hlc { mix-blend-mode: multiply; }
     }
 
@@ -631,6 +648,7 @@
         <div class="caption" id="caption"></div>
         <div class="progress" id="progress"></div>
         <div class="ui-wboard" id="wboard"><div class="ui-wbl" id="wbl"></div></div>
+        <div class="ui-ilayer" id="ilayer"></div>
         <canvas class="ui-hlc hlmain" id="hl" width="2560" height="1440"></canvas>
         <canvas class="ui-hlc hllive" id="hllive" width="2560" height="1440"></canvas>
         <canvas class="ink" id="ink" width="2560" height="1440"></canvas>
@@ -674,6 +692,7 @@
                 <div class="ui-swrow"><button class="swatch cur" data-c="#ea008a" style="background:#ea008a" aria-label="Pink pen"></button><button class="swatch" data-c="#1b1f45" style="background:#1b1f45" aria-label="Navy pen"></button><button class="swatch" data-c="#111111" style="background:#111111" aria-label="Black pen"></button><button class="swatch" data-c="#0a7bd6" style="background:#0a7bd6" aria-label="Blue pen"></button><button class="swatch" data-c="#12a150" style="background:#12a150" aria-label="Green pen"></button><button class="swatch" data-c="#f28c00" style="background:#f28c00" aria-label="Orange pen"></button><button class="swatch" data-c="#ffd60a" style="background:#ffd60a" aria-label="Yellow"></button></div>
                 <button class="ui-mi tg" id="eraser" aria-pressed="false"><span class="ui-ind"></span><span class="bl">Eraser</span><kbd>E</kbd></button>
                 <button class="ui-mi" id="textbtn"><span class="ui-ind ui-no"></span><span class="bl">Text box</span><kbd>B</kbd></button>
+                <button class="ui-mi" id="imgbtn"><span class="ui-ind ui-no"></span><span class="bl">Image</span><kbd>Ctrl+V</kbd></button>
                 <div class="ui-div"></div>
                 <button class="ui-mi" id="clear"><span class="ui-ind ui-no"></span><span class="bl">Clear ink</span><kbd>C</kbd></button>
             </div>
@@ -746,6 +765,7 @@
     <div class="ui-bh">Click or press K to return</div>
 </div>
 <div id="print"></div>
+<input type="file" id="imgfile" accept="image/*" multiple hidden>
 
 <script>
 const $ = s => document.querySelector(s);
@@ -2230,6 +2250,7 @@ function renderBadges() {
     blayer.innerHTML = '';
     (badgeStore[curKey()] || []).forEach(b => blayer.appendChild(uiBadgeEl(b)));
     (textStore[curKey()] || []).forEach(t => blayer.appendChild(textEl(t)));
+    renderImages();
 }
 function addBadge(k) {
     const arr = sceneBadges(), b = { k, x: 0, y: 0, big: false }, e = uiBadgeEl(b, true);
@@ -2317,6 +2338,125 @@ function addText(atMouse) {
     e.edit();
 }
 $('#textbtn').onclick = () => addText(false);
+
+/* ---------- pasted images ---------- */
+const ilayer = $('#ilayer'), imgStore = {}, imgFile = $('#imgfile');
+const sceneImgs = () => { const k = curKey(); return (imgStore[k] = imgStore[k] || []); };
+let imgSel = null, ptrIn = false, ptrX = 0, ptrY = 0;
+const IMG_MAX = 1920;
+stage.addEventListener('pointerenter', () => ptrIn = true);
+stage.addEventListener('pointerleave', () => ptrIn = false);
+window.addEventListener('pointermove', e => { ptrX = e.clientX; ptrY = e.clientY; }, true);
+function layerPt(cx, cy) { const r = ilayer.getBoundingClientRect(); return { x: (cx - r.left) / r.width * 1280, y: (cy - r.top) / r.height * 714, k: r.width / 1280 }; }
+function selectImg(o) {
+    imgSel = o;
+    ilayer.querySelectorAll('.ui-img').forEach(n => n.classList.toggle('ui-sel', !!o && n.img === o));
+}
+function placeImg(o, e) {
+    o.w = clamp(o.w, 40, 1280); o.h = o.w / o.r;
+    if (o.h > 714) { o.h = 714; o.w = o.h * o.r; }
+    o.x = clamp(o.x, -o.w + 40, 1240); o.y = clamp(o.y, -o.h + 40, 674);
+    Object.assign(e.style, { left: o.x + 'px', top: o.y + 'px', width: o.w + 'px', height: o.h + 'px' });
+}
+function removeImg(o) {
+    const arr = sceneImgs(), i = arr.indexOf(o); if (i > -1) arr.splice(i, 1);
+    const n = [...ilayer.children].find(n => n.img === o); if (n) n.remove();
+    if (imgSel === o) imgSel = null;
+}
+function imgEl(o, fresh) {
+    const e = el('div', 'ui-img' + (fresh ? ' ui-in' : '') + (imgSel === o ? ' ui-sel' : ''));
+    e.img = o;
+    const im = el('img'); im.src = o.src; im.alt = ''; im.draggable = false;
+    const x = el('button', 'ui-imx', '<svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg>');
+    x.type = 'button'; x.setAttribute('aria-label', 'Remove image');
+    const rz = el('span', 'ui-imr'); rz.setAttribute('aria-hidden', 'true');
+    e.append(im, x, rz); placeImg(o, e);
+    x.addEventListener('pointerdown', ev => ev.stopPropagation());
+    x.onclick = () => removeImg(o);
+    let mode = null, sx = 0, sy = 0, ox = 0, oy = 0, ow = 0, k = 1;
+    const start = (ev, m) => {
+        if (ev.button !== 0) return;
+        ev.preventDefault(); ev.stopPropagation();
+        mode = m; sx = ev.clientX; sy = ev.clientY; ox = o.x; oy = o.y; ow = o.w; k = layerPt(0, 0).k;
+        e.setPointerCapture(ev.pointerId); e.classList.remove('ui-in');
+        if (m === 'move') e.classList.add('ui-dragging');
+        const arr = sceneImgs(), i = arr.indexOf(o);
+        if (i > -1 && i < arr.length - 1) { arr.splice(i, 1); arr.push(o); ilayer.appendChild(e); }
+        selectImg(o);
+    };
+    e.addEventListener('pointerdown', ev => start(ev, 'move'));
+    rz.addEventListener('pointerdown', ev => start(ev, 'size'));
+    e.addEventListener('pointermove', ev => {
+        if (!mode) return;
+        const dx = (ev.clientX - sx) / k, dy = (ev.clientY - sy) / k;
+        if (mode === 'move') { o.x = ox + dx; o.y = oy + dy; }
+        else o.w = Math.max(ow + dx, ow + dy * o.r);
+        placeImg(o, e);
+    });
+    ['pointerup', 'pointercancel'].forEach(t => e.addEventListener(t, () => { mode = null; e.classList.remove('ui-dragging'); }));
+    return e;
+}
+function renderImages() {
+    ilayer.innerHTML = '';
+    if (imgSel && !sceneImgs().includes(imgSel)) imgSel = null;
+    (imgStore[curKey()] || []).forEach(o => ilayer.appendChild(imgEl(o)));
+}
+function readImage(file) {
+    return new Promise((res, rej) => {
+        const url = URL.createObjectURL(file), im = new Image();
+        im.onload = () => {
+            const nw = im.naturalWidth, nh = im.naturalHeight, sc = Math.min(1, IMG_MAX / Math.max(nw, nh));
+            const cv = document.createElement('canvas');
+            cv.width = Math.max(1, Math.round(nw * sc)); cv.height = Math.max(1, Math.round(nh * sc));
+            cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height);
+            URL.revokeObjectURL(url);
+            const keepAlpha = /png|gif|webp|svg/.test(file.type);
+            res({ src: cv.toDataURL(keepAlpha ? 'image/png' : 'image/jpeg', .92), nw, nh });
+        };
+        im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Could not read image')); };
+        im.src = url;
+    });
+}
+async function addImages(files, at) {
+    const list = [...files].filter(f => f && f.type && f.type.startsWith('image/'));
+    for (let n = 0; n < list.length; n++) {
+        let d; try { d = await readImage(list[n]); } catch (err) { continue; }
+        const r = d.nw / d.nh, w = Math.min(560, 380 * r, d.nw), h = w / r;
+        const c = at || { x: 640, y: 357 }, off = n * 28 + (at ? 0 : (sceneImgs().length % 5) * 24);
+        const o = { src: d.src, r, w, h, x: c.x - w / 2 + off, y: c.y - h / 2 + off };
+        sceneImgs().push(o);
+        const e = imgEl(o, true); ilayer.appendChild(e); selectImg(o);
+    }
+}
+document.addEventListener('paste', e => {
+    if (isTyping(e) || modal) return;
+    const files = [...((e.clipboardData && e.clipboardData.items) || [])].filter(i => i.kind === 'file' && i.type.startsWith('image/')).map(i => i.getAsFile());
+    if (!files.length) return;
+    e.preventDefault();
+    closeMenus(); setTool(null);
+    addImages(files, ptrIn ? layerPt(ptrX, ptrY) : null);
+});
+const dropEl = el('div', 'ui-drop'); stage.appendChild(dropEl);
+const hasFiles = e => e.dataTransfer && [...e.dataTransfer.types].includes('Files');
+let dragDepth = 0;
+window.addEventListener('dragenter', e => { if (!hasFiles(e)) return; dragDepth++; dropEl.classList.add('on'); });
+window.addEventListener('dragleave', e => { if (!hasFiles(e)) return; if (--dragDepth <= 0) { dragDepth = 0; dropEl.classList.remove('on'); } });
+window.addEventListener('dragover', e => { if (hasFiles(e)) e.preventDefault(); });
+window.addEventListener('drop', e => {
+    if (!hasFiles(e)) return;
+    e.preventDefault(); dragDepth = 0; dropEl.classList.remove('on');
+    if (modal) return;
+    setTool(null);
+    addImages(e.dataTransfer.files, stage.contains(e.target) ? layerPt(e.clientX, e.clientY) : null);
+});
+$('#imgbtn').onclick = () => imgFile.click();
+imgFile.addEventListener('change', () => { addImages(imgFile.files); imgFile.value = ''; });
+document.addEventListener('pointerdown', e => { if (imgSel && !e.target.closest('.ui-img')) selectImg(null); });
+document.addEventListener('keydown', e => {
+    if (!imgSel || isTyping(e) || modal) return;
+    if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); removeImg(imgSel); }
+    if (e.key === 'Escape') selectImg(null);
+});
 
 /* ---------- menus ---------- */
 const menus = [...document.querySelectorAll('.ui-menu')], engMenu = $('#engmenu');
@@ -2443,7 +2583,7 @@ function renderOverview() {
 
 const SHORTCUTS = [
     ['Slides', [['&rarr;', 'Next'], ['&larr;', 'Previous'], ['R', 'Replay scene'], ['Space', 'Autoplay'], ['G', 'Slide overview']]],
-    ['Draw', [['P', 'Pen'], ['Y', 'Highlighter'], ['E', 'Eraser'], ['B', 'Text box'], ['C', 'Clear ink'], ['Ctrl|Z', 'Undo'], ['Ctrl|Shift|Z', 'Redo']]],
+    ['Draw', [['P', 'Pen'], ['Y', 'Highlighter'], ['E', 'Eraser'], ['B', 'Text box'], ['C', 'Clear ink'], ['Ctrl|Z', 'Undo'], ['Ctrl|Shift|Z', 'Redo'], ['Ctrl|V', 'Paste image'], ['Del', 'Delete selected image']]],
     ['Focus', [['Z', 'Zoom (scroll to adjust)'], ['L', 'Lock zoom'], ['H', 'Spotlight (scroll to resize)'], ['K', 'Blackout']]],
     ['Engage', [['M', 'Engagement methods'], ['1|5', 'Choose a method'], ['T', 'Timer']]],
     ['Whiteboard', [['W', 'Open or close'], ['&larr;|&rarr;', 'Change page'], ['N', 'New page']]],
@@ -2507,7 +2647,7 @@ async function exportPDF() {
         exporting = false;
         go(keepIdx, keepBeat);
     }
-    await Promise.all(imgs.map(im => im.decode().catch(() => {})));
+    await Promise.all([...imgs, ...printBox.querySelectorAll('img')].map(im => im.decode().catch(() => {})));
     window.print();
 }
 $('#pdf').onclick = exportPDF;
