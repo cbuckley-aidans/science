@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Friction and simple machines: Cornell notes</title>
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="%231b1f45"/><path d="M15 31 L27 43 L49 19" fill="none" stroke="%23ea008a" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><rect x="12" y="52" width="40" height="5" rx="2.5" fill="%23fff" opacity=".25"/><rect x="12" y="52" width="26" height="5" rx="2.5" fill="%23fff"/></svg>'>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+    :root {
+        --navy: #1b1f45; --pink: #ea008a; --grey: #9a9a9a; --rule: #d7dae2; --blank: #c3c6d0; --tint: #f3f4f8; --pinkT: rgba(234,0,138,.07);
+        --font: 'Helvetica Neue', Helvetica, Arial, sans-serif; --ease: cubic-bezier(.2,.8,.2,1);
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html { scroll-padding-top: 96px; }
+    body { margin: 0; font-family: var(--font); color: var(--navy); background: #e8e9ee; font-size: 18px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+    button, select { font-family: inherit; }
+    :focus-visible { outline: 3px solid var(--pink); outline-offset: 2px; }
+    @keyframes shake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+    @keyframes pop { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+    /* top bar */
+    .bar { position: sticky; top: 0; z-index: 20; background: #fff; border-bottom: 2px solid var(--navy); }
+    .bar-in { max-width: 1000px; margin: 0 auto; padding: 12px 28px; display: flex; align-items: center; gap: 14px; }
+    .bar-t { font-weight: 800; font-size: 17px; letter-spacing: -.01em; }
+    .bar-p { font-size: 15px; font-weight: 600; color: var(--grey); margin-left: auto; margin-right: 6px; white-space: nowrap; }
+    .bar-p b { color: var(--navy); }
+    .prog { position: absolute; left: 0; bottom: -2px; height: 4px; background: var(--pink); width: 0; transition: width .5s var(--ease); }
+    .btn { font-size: 16px; font-weight: 700; border-radius: 6px; padding: 9px 18px; cursor: pointer; border: 2px solid var(--navy); background: #fff; color: var(--navy); white-space: nowrap; transition: background-color .2s, color .2s, border-color .2s, opacity .2s; }
+    .btn:hover { background: var(--tint); }
+    .btn.pk { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .btn.pk:hover { background: #c90076; border-color: #c90076; }
+    .btn.sm { font-size: 15px; padding: 6px 14px; }
+    .btn[aria-pressed="true"] { background: var(--navy); color: #fff; }
+    .btn:disabled { opacity: .45; cursor: default; }
+    .btn:disabled:hover { background: #fff; }
+
+    /* sheet */
+    .sheet { max-width: 1000px; margin: 28px auto 60px; background: #fff; padding: 0 48px 48px; border-top: 12px solid var(--navy); }
+    .head { display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; padding: 30px 0 20px; border-bottom: 4px solid var(--navy); }
+    h1 { margin: 0; font-size: 42px; line-height: 1; font-weight: 800; letter-spacing: -.025em; }
+    h1 span { color: var(--pink); }
+    .sub { margin: 10px 0 0; font-size: 16px; font-weight: 600; color: var(--grey); }
+    .who { display: flex; gap: 14px; align-items: flex-end; flex-shrink: 0; }
+    .who label { font-weight: 800; font-size: 16px; }
+    .who input { width: 150px; font: inherit; font-size: 18px; font-weight: 700; color: var(--pink); border: 0; border-bottom: 2px solid var(--navy); padding: 2px 2px 3px; background: none; outline: none; border-radius: 0; }
+    .who input:focus { border-bottom-color: var(--pink); background: var(--pinkT); }
+    .scs { list-style: none; margin: 0; padding: 16px 0 14px; display: grid; grid-template-columns: repeat(3, auto); justify-content: space-between; gap: 6px 24px; font-size: 16px; font-weight: 500; }
+    .scs b { color: var(--pink); font-weight: 800; margin-right: 6px; }
+    .cnh { display: grid; grid-template-columns: 240px 1fr; border-bottom: 3px solid var(--navy); font-size: 14px; font-weight: 700; color: var(--grey); }
+    .cnh > div { padding: 6px 0; }
+    .cnh > div + div { border-left: 4px solid var(--navy); padding-left: 24px; }
+    .cnh b { color: var(--navy); margin-right: 10px; }
+
+    h2 { display: flex; align-items: center; gap: 14px; margin: 34px 0 0; padding-bottom: 10px; border-bottom: 2px solid var(--rule); font-size: 21px; font-weight: 800; letter-spacing: -.01em; line-height: 1.2; }
+    .chip { background: var(--navy); color: #fff; font-size: 15px; font-weight: 800; padding: 4px 10px; border-radius: 4px; flex-shrink: 0; }
+    .chip.pk { background: var(--pink); }
+
+    /* cornell rows */
+    .row { display: grid; grid-template-columns: 240px 1fr; border-bottom: 2px solid var(--rule); }
+    .cue { padding: 18px 20px 18px 0; border-right: 4px solid var(--navy); }
+    .cue strong { display: block; font-size: 18px; font-weight: 800; line-height: 1.25; }
+    .cue small { display: block; margin-top: 6px; font-size: 15px; font-weight: 600; color: var(--grey); line-height: 1.35; }
+    .cue.own strong { color: var(--pink); }
+    .cue.own textarea { margin-top: 12px; }
+    .notes { padding: 18px 0 20px 24px; min-width: 0; position: relative; }
+    .notes p { margin: 0; line-height: 2.05; }
+    .notes p + p { margin-top: 8px; }
+    .prompt { font-size: 16px; font-weight: 700; color: var(--grey); margin-bottom: 10px; line-height: 1.4; }
+    .q2 { font-size: 17px; font-weight: 700; margin: 16px 0 6px; }
+    .fig { border: 2px solid var(--rule); border-radius: 8px; padding: 8px 10px; margin-bottom: 12px; }
+    .fig svg { display: block; width: 100%; height: auto; }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: center; }
+    .split .fig { margin: 0; }
+
+    /* inputs */
+    input.b { font: inherit; font-weight: 700; color: var(--pink); border: 0; border-bottom: 2px solid var(--blank); background: none; padding: 0 4px; margin: 0 2px; outline: none; text-align: center; line-height: 1.3; border-radius: 0; transition: border-color .2s, background-color .2s; }
+    input.b.has { border-bottom-color: var(--navy); }
+    input.b:focus { border-bottom-color: var(--pink); background: var(--pinkT); }
+    select.b { -webkit-appearance: none; appearance: none; font: inherit; font-weight: 700; color: var(--pink); border: 0; border-bottom: 2px solid var(--blank); border-radius: 0; margin: 0 2px; padding: 0 24px 0 6px; line-height: 1.3; cursor: pointer; outline: none;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23ea008a' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 5px center / 12px 8px; transition: border-color .2s, background-color .2s; }
+    select.b.empty { color: #9ea2b3; font-weight: 600; }
+    select.b.has { border-bottom-color: var(--navy); }
+    select.b:focus { border-bottom-color: var(--pink); background-color: var(--pinkT); }
+    select.b option { color: var(--navy); font-weight: 600; }
+    .ln { display: block; width: 100%; font: inherit; font-size: 17px; font-weight: 600; color: var(--pink); line-height: 1.4; border: 0; border-bottom: 1.5px solid var(--rule); padding: 8px 2px; background: none; outline: none; border-radius: 0; }
+    .ln:focus { border-bottom-color: var(--pink); background: var(--pinkT); }
+    textarea { display: block; width: 100%; font: inherit; font-size: 17px; font-weight: 500; color: var(--pink); line-height: 1.5; border: 2px solid var(--rule); border-radius: 6px; padding: 9px 12px; resize: none; outline: none; overflow: hidden; background: #fff; }
+    textarea:focus { border-color: var(--pink); }
+    ::placeholder { color: #b9bccb; font-weight: 500; opacity: 1; }
+
+    /* toggles */
+    .tg { display: inline-flex; gap: 6px; flex-wrap: wrap; flex-shrink: 0; }
+    .tg button { font-size: 15px; font-weight: 700; color: var(--navy); background: #fff; border: 2px solid var(--navy); border-radius: 999px; padding: 3px 13px; cursor: pointer; line-height: 1.35; transition: background-color .2s, color .2s, border-color .2s; }
+    .tg button:hover { background: var(--tint); }
+    .tg button[aria-checked="true"] { background: var(--pink); border-color: var(--pink); color: #fff; }
+
+    .chg { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; }
+    .chg > div { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1.5px solid var(--rule); font-size: 17px; }
+
+    /* tables */
+    .tbl { width: 100%; border-collapse: collapse; font-size: 17px; }
+    .tbl th { text-align: left; font-size: 15px; font-weight: 800; padding: 0 8px 8px 0; border-bottom: 2px solid var(--navy); }
+    .tbl td { padding: 9px 8px 9px 0; border-bottom: 1.5px solid var(--rule); vertical-align: middle; }
+    .tbl.adv th:last-child, .tbl.adv td:last-child { text-align: right; padding-right: 0; }
+    .tbl.adv .tg { flex-wrap: nowrap; }
+    .tbl.adv .tg button { white-space: nowrap; padding: 3px 11px; }
+    .fig.ramp { max-width: 560px; }
+    .nb { display: inline-flex; width: 26px; height: 26px; border-radius: 50%; background: var(--pink); color: #fff; font-size: 14px; font-weight: 800; align-items: center; justify-content: center; margin-right: 10px; vertical-align: 1px; }
+
+    /* six machines */
+    .mach { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .mc { border: 2px solid var(--rule); border-radius: 8px; padding: 10px 12px 12px; display: grid; grid-template-columns: 52px 1fr; gap: 2px 12px; align-items: center; }
+    .mc > svg { grid-row: span 2; width: 52px; height: 52px; }
+    .mc label { display: flex; align-items: baseline; gap: 6px; font-size: 15px; font-weight: 600; color: var(--grey); }
+    .mc label span { width: 40px; flex-shrink: 0; }
+    .mc input.ln { flex: 1; min-width: 0; font-size: 16px; padding: 5px 2px; }
+
+    /* summary */
+    .sum { border: 3px solid var(--navy); border-radius: 8px; padding: 20px 24px 24px; margin-top: 30px; }
+    .sumh { display: flex; justify-content: space-between; align-items: baseline; gap: 10px 20px; flex-wrap: wrap; }
+    .sumh h3 { margin: 0; font-size: 21px; font-weight: 800; }
+    .use { font-size: 15px; font-weight: 600; color: var(--grey); }
+    .use span { display: inline-block; margin: 2px 0 2px 6px; padding: 1px 10px; border: 2px solid var(--rule); border-radius: 999px; color: var(--navy); font-weight: 700; transition: background-color .25s, border-color .25s, color .25s; }
+    .use span.on { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .sum .prompt { margin: 8px 0 12px; }
+    .st + .st { margin-top: 14px; }
+    .st label { display: block; font-weight: 700; font-size: 17px; margin-bottom: 6px; }
+
+    /* crowbar */
+    .playbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 6px; }
+    .playbar span { font-size: 15px; font-weight: 600; color: var(--grey); }
+    .playbar span b { color: var(--navy); }
+
+    /* confidence */
+    .conf { margin-top: 30px; padding-top: 16px; border-top: 4px solid var(--navy); }
+    .conf h3 { margin: 0; font-size: 19px; font-weight: 800; display: inline; }
+    .conf .lg { font-size: 15px; font-weight: 600; color: var(--grey); margin-left: 10px; }
+    .cfs { display: flex; flex-wrap: wrap; gap: 12px 34px; margin-top: 12px; }
+    .cf { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 16px; }
+    .cf .tg button { width: 36px; height: 36px; padding: 0; border-radius: 50%; }
+
+    .fin { margin-top: 34px; display: flex; align-items: center; justify-content: space-between; gap: 20px; background: var(--navy); color: #fff; padding: 22px 26px; border-radius: 8px; }
+    .fin p { margin: 0; font-size: 18px; font-weight: 700; }
+    .fin small { display: block; font-size: 15px; font-weight: 500; opacity: .75; margin-top: 2px; }
+
+    /* cover mode */
+    body.cover .row:not(.peek):not(.nocover) .notes > * { filter: blur(9px); pointer-events: none; user-select: none; }
+    body.cover .row:not(.peek):not(.nocover) .notes { cursor: pointer; }
+    body.cover .row:not(.peek):not(.nocover) .notes::after { content: 'Say it, then tap to check'; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: var(--navy); color: #fff; font-size: 15px; font-weight: 700; padding: 7px 14px; border-radius: 999px; white-space: nowrap; }
+
+    /* modal */
+    .ov { position: fixed; inset: 0; background: rgba(27,31,69,.55); display: none; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
+    .ov.show { display: flex; }
+    .md { background: #fff; border-top: 8px solid var(--pink); border-radius: 8px; max-width: 500px; width: 100%; padding: 26px 30px 28px; animation: pop .35s var(--ease); }
+    .md h3 { margin: 0 0 8px; font-size: 24px; font-weight: 800; letter-spacing: -.01em; }
+    .md p { margin: 0; font-size: 17px; font-weight: 500; }
+    .md .acts { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; flex-wrap: wrap; }
+
+    /* done screen */
+    .done { position: fixed; inset: 0; background: #fff; z-index: 60; display: none; overflow: auto; border-top: 12px solid var(--navy); }
+    .done.show { display: block; }
+    .done-in { max-width: 760px; margin: 0 auto; padding: 64px 28px 48px; animation: pop .45s var(--ease); }
+    .tick { width: 76px; height: 76px; }
+    .tick circle { fill: var(--pink); }
+    .tick path { fill: none; stroke: #fff; stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 60; stroke-dashoffset: 60; }
+    .done.show .tick path { animation: draw .5s .25s var(--ease) forwards; }
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+    .done h2 { border: 0; margin: 22px 0 6px; padding: 0; font-size: 44px; letter-spacing: -.025em; line-height: 1.05; display: block; }
+    .done h2 span { color: var(--pink); }
+    .done .lead { font-size: 19px; font-weight: 500; margin: 0 0 30px; }
+    .steps { list-style: none; margin: 0; padding: 0; border-top: 4px solid var(--navy); }
+    .steps li { display: grid; grid-template-columns: 56px 1fr; gap: 16px; padding: 18px 0; border-bottom: 2px solid var(--rule); }
+    .steps .n { width: 44px; height: 44px; border-radius: 50%; background: var(--navy); color: #fff; font-weight: 800; font-size: 21px; display: flex; align-items: center; justify-content: center; }
+    .steps li:last-child .n { background: var(--pink); }
+    .steps strong { display: block; font-size: 20px; font-weight: 800; }
+    .steps span { display: block; font-size: 17px; font-weight: 500; margin-top: 2px; }
+    .file { display: inline-flex; align-items: center; gap: 10px; margin-top: 10px; border: 2px solid var(--navy); border-radius: 6px; padding: 7px 14px 7px 10px; font-size: 16px; font-weight: 700; word-break: break-all; }
+    .file svg { width: 22px; height: 26px; flex-shrink: 0; }
+    .dacts { display: flex; gap: 10px; margin-top: 30px; flex-wrap: wrap; }
+
+    @media (max-width: 820px) {
+        .sheet { padding: 0 20px 32px; margin-top: 16px; }
+        .head { flex-direction: column; align-items: flex-start; }
+        h1 { font-size: 34px; }
+        .row, .cnh { grid-template-columns: 1fr; }
+        .cue { border-right: 0; padding-bottom: 0; }
+        .notes, .cnh > div + div { padding-left: 0; border-left: 0; }
+        .chg, .scs, .split, .mach { grid-template-columns: 1fr; }
+        .bar-t { display: none; }
+        .fin { flex-direction: column; align-items: flex-start; }
+        .tbl { font-size: 16px; }
+    }
+
+    /* claims */
+    .claim + .claim { margin-top: 14px; padding-top: 14px; border-top: 1.5px solid var(--rule); }
+    .claim .who2 { font-size: 17px; font-weight: 500; line-height: 1.4; }
+    .claim .who2 b { font-weight: 800; }
+    .claim .ctl { display: flex; align-items: center; gap: 12px; margin: 8px 0 2px; font-size: 16px; font-weight: 700; flex-wrap: wrap; }
+    .claim .ctl .lb { color: var(--grey); }
+    /* identify cards */
+    .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .card { border: 2px solid var(--rule); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; }
+    .card strong { font-size: 17px; font-weight: 800; }
+    .card span.cl { font-size: 15px; font-weight: 500; color: #5c6080; line-height: 1.35; flex: 1; }
+    .card select.b { align-self: flex-start; margin: 6px 0 0; }
+    .lbl { font-size: 15px; font-weight: 700; color: var(--grey); margin: 14px 0 4px; }
+    .ctx { font-size: 17px; font-weight: 500; line-height: 1.45; margin: 0 0 8px; padding: 10px 14px; background: var(--tint); border-left: 6px solid var(--navy); }
+    .ctx b { font-weight: 800; }
+    /* apply it */
+    .aq + .aq { margin-top: 18px; }
+    .aq .rq { display: flex; gap: 12px; font-size: 17px; font-weight: 700; margin-bottom: 8px; line-height: 1.35; }
+    .rn { flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--navy); color: #fff; font-size: 15px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin-top: -2px; }
+    .checks { margin-top: 22px; border-top: 2px solid var(--navy); padding-top: 12px; }
+    .checks h4 { margin: 0 0 8px; font-size: 17px; font-weight: 800; }
+    .ck { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: none; border: 0; border-bottom: 1.5px solid var(--rule); padding: 9px 2px; font-size: 16px; font-weight: 600; color: var(--navy); cursor: pointer; }
+    .ck .box { width: 24px; height: 24px; border: 2px solid var(--navy); border-radius: 5px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: background-color .2s, border-color .2s; }
+    .ck .box svg { width: 16px; height: 16px; opacity: 0; transition: opacity .2s; }
+    .ck[aria-pressed="true"] .box { background: var(--pink); border-color: var(--pink); }
+    .ck[aria-pressed="true"] .box svg { opacity: 1; }
+    .ck:hover { background: var(--tint); }
+    @media (max-width: 820px) { .cards { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="bar">
+    <div class="bar-in">
+        <div class="bar-t">Cornell notes</div>
+        <div class="bar-p" id="count"></div>
+        <button class="btn" id="cover" aria-pressed="false">Cover notes</button>
+        <button class="btn pk" id="exportTop">Export PDF</button>
+    </div>
+    <div class="prog" id="prog"></div>
+</div>
+
+<main class="sheet">
+    <div class="head">
+        <div>
+            <h1>Friction and <span>simple machines</span></h1>
+            <p class="sub">Cornell notes | Consolidating SC7 to SC9</p>
+        </div>
+        <div class="who"><label for="date">Date</label><input id="date"></div>
+    </div>
+
+    <ul class="scs">
+        <li><b>SC7</b>Recognise the effects of friction</li>
+        <li><b>SC8</b>Define the term ‘simple machine’</li>
+        <li><b>SC9</b>Identify the advantages of simple machines</li>
+    </ul>
+    <div class="cnh"><div>Cues</div><div><b>Notes</b>Complete the notes, then cover them and test yourself with the cues.</div></div>
+
+    <!-- SC7 -->
+    <h2><span class="chip">SC7</span>Recognise the beneficial and unwanted effects of friction</h2>
+    <div class="row">
+        <div class="cue"><strong>What is friction?</strong><small>Which way does it act?</small></div>
+        <div class="notes">
+            <p>Friction is a <i data-s="f1" data-o="contact|non-contact" data-l="Type of force"></i> force that acts in the <i data-b="f2" data-w="9"></i> direction to motion.</p>
+            <p>It turns some movement energy into <i data-b="f3" data-w="8"></i>.</p>
+            <div class="q2">A skier glides down a snowy slope. Which arrow shows the friction on her skis?</div>
+            <div class="fig ramp" id="skiFig"></div>
+            <p>Friction arrow: <span data-t="fA" data-o="A|B|C" data-l="Friction arrow"></span></p>
+            <p>Friction acts <i data-s="f4" data-o="up the slope|down the slope" data-l="Friction direction"></i> because it opposes <i data-s="f5" data-o="the skier’s motion|the pull of gravity" data-l="What friction opposes"></i>.</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="cue"><strong>Can friction be helpful and unwanted?</strong><small>It depends on the situation.</small></div>
+        <div class="notes">
+            <p class="ctx">Bowling shoes have a <b>smooth leather sole</b> on one shoe and a <b>grippy rubber sole</b> on the other.</p>
+            <p>The leather sole has <i data-s="bw1" data-o="more|less" data-l="Leather sole friction"></i> friction so the bowler can <i data-s="bw2" data-o="slide|stop" data-l="Leather sole purpose"></i> as they release the ball.</p>
+            <p>The rubber sole has <i data-s="bw3" data-o="more|less" data-l="Rubber sole friction"></i> friction so the bowler can <i data-s="bw4" data-o="slide|stop" data-l="Rubber sole purpose"></i> safely.</p>
+            <div class="q2">Explain why a running shoe with two rubber soles would be a poor choice for bowling.</div>
+            <textarea class="ans" data-k="bw5" rows="2" aria-label="Running shoe for bowling"></textarea>
+            <p class="ctx" style="margin-top:18px">A car’s <b>brake pads</b> press on a spinning disc to slow the car.</p>
+            <div class="lbl">One beneficial effect of this friction</div>
+            <textarea class="ln ans" data-k="bp1" rows="1" aria-label="Beneficial effect of brake friction"></textarea>
+            <div class="lbl">One unwanted effect of the same friction</div>
+            <textarea class="ln ans" data-k="bp2" rows="1" aria-label="Unwanted effect of brake friction"></textarea>
+        </div>
+    </div>
+    <div class="row">
+        <div class="cue"><strong>How can we change friction?</strong><small>Predict more or less friction, then choose how it works.</small></div>
+        <div class="notes">
+            <table class="tbl">
+                <tr><th>Change</th><th>Friction</th><th>How it works</th></tr>
+                <tr><td>Chalk on a gymnast’s hands</td><td><span data-t="cg1" data-o="More|Less" data-l="Chalk"></span></td><td><i data-s="ch1" data-o="Rougher surface|Smoother surface|Adds a lubricant|Rolls instead of slides" data-l="Chalk mechanism"></i></td></tr>
+                <tr><td>Castor wheels under a heavy wardrobe</td><td><span data-t="cg2" data-o="More|Less" data-l="Castor wheels"></span></td><td><i data-s="ch2" data-o="Rougher surface|Smoother surface|Adds a lubricant|Rolls instead of slides" data-l="Castor mechanism"></i></td></tr>
+                <tr><td>Silicone spray on a stuck zip</td><td><span data-t="cg3" data-o="More|Less" data-l="Silicone spray"></span></td><td><i data-s="ch3" data-o="Rougher surface|Smoother surface|Adds a lubricant|Rolls instead of slides" data-l="Silicone mechanism"></i></td></tr>
+                <tr><td>Metal studs on football boots</td><td><span data-t="cg4" data-o="More|Less" data-l="Studs"></span></td><td><i data-s="ch4" data-o="Rougher surface|Smoother surface|Adds a lubricant|Rolls instead of slides" data-l="Studs mechanism"></i></td></tr>
+                <tr><td>Polishing a timber floor</td><td><span data-t="cg5" data-o="More|Less" data-l="Polishing"></span></td><td><i data-s="ch5" data-o="Rougher surface|Smoother surface|Adds a lubricant|Rolls instead of slides" data-l="Polish mechanism"></i></td></tr>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="cue"><strong>What does the evidence show?</strong><small>Kai pushed the same toy car across four surfaces and measured how far it rolled.</small></div>
+        <div class="notes">
+            <div class="fig" id="carFig"></div>
+            <p>Most friction: <i data-s="cr1" data-o="Rubber mat|Carpet|Wooden floor|Tiles" data-l="Most friction"></i></p>
+            <p>The further the car rolled, the <i data-s="cr2" data-o="more|less" data-l="Distance and friction"></i> friction acted on it.</p>
+            <div class="q2">Kai pushed harder on the tiles. Explain why that result is not a fair comparison, and how Kai could fix it.</div>
+            <textarea class="ans" data-k="cr3" rows="3" aria-label="Fair test explanation"></textarea>
+        </div>
+    </div>
+
+    <!-- SC8 -->
+    <h2><span class="chip">SC8</span>Define the term ‘simple machine’</h2>
+    <div class="row">
+        <div class="cue"><strong>What is a simple machine?</strong><small>When is work done?</small></div>
+        <div class="notes">
+            <p>A simple machine is a device with few or no moving parts that makes <i data-b="sm1" data-w="7"></i> easier by changing the <i data-b="sm2" data-w="7"></i> or <i data-b="sm3" data-w="9"></i> of a force.</p>
+            <p>Work is done when a force moves an object a <i data-b="sm4" data-w="9"></i>.</p>
+            <div class="q2">Is work being done?</div>
+            <div class="chg">
+                <div>Lifting a school bag onto a shelf <span data-t="wk1" data-o="Work|No work" data-l="Lifting a bag"></span></div>
+                <div>Pushing hard on a wall that doesn’t move <span data-t="wk2" data-o="Work|No work" data-l="Pushing a wall"></span></div>
+                <div>Holding a heavy box perfectly still <span data-t="wk3" data-o="Work|No work" data-l="Holding a box"></span></div>
+                <div>Dragging a sled across the snow <span data-t="wk4" data-o="Work|No work" data-l="Dragging a sled"></span></div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="cue"><strong>Which simple machine is it?</strong><small>Read how each object works, then choose the simple machine.</small></div>
+        <div class="notes"><div class="cards" id="cards"></div></div>
+    </div>
+    <div class="row">
+        <div class="cue"><strong>Does it fit the definition?</strong><small>Agree or disagree with each student, then explain.</small></div>
+        <div class="notes" id="claims"></div>
+    </div>
+    <div class="row">
+        <div class="cue own"><strong>Your cue</strong><small>Write your own question.</small><textarea class="ans" data-k="cue1" rows="2" aria-label="Your own cue question"></textarea></div>
+        <div class="notes">
+            <div class="prompt">Scissors combine two simple machines. Name both and explain what each part of the scissors does.</div>
+            <textarea class="ans" data-k="cue1a" rows="3" aria-label="Scissors explanation"></textarea>
+        </div>
+    </div>
+
+    <div class="sum">
+        <div class="sumh"><h3>Summary</h3><div class="use" id="use1">Use:<span>friction</span><span>opposes</span><span>beneficial</span><span>unwanted</span><span>simple machine</span></div></div>
+        <div class="prompt">Explain why the same friction can be helpful in one situation and unwanted in another, and what makes a device a simple machine.</div>
+        <textarea class="ans" data-k="sum1" rows="4" aria-label="Summary 1"></textarea>
+    </div>
+
+    <!-- SC9 -->
+    <h2><span class="chip">SC9</span>Identify the advantages of simple machines</h2>
+    <div class="row">
+        <div class="cue"><strong>What advantages can machines give?</strong><small>What is the trade-off?</small></div>
+        <div class="notes">
+            <p>A simple machine can change the <i data-b="ad1" data-w="9"></i> of a force, multiply <i data-b="ad2" data-w="6"></i>, or multiply <i data-b="ad3" data-w="8"></i> and <i data-b="ad4" data-w="6"></i>.</p>
+            <p>Trade-off: when a machine multiplies force, the effort moves a <i data-s="ad5" data-o="longer|shorter" data-l="Effort distance"></i> distance than the load.</p>
+            <p>When a machine multiplies distance and speed, it needs a <i data-s="ad6" data-o="bigger|smaller" data-l="Effort force size"></i> effort force.</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="cue"><strong>Which advantage does each machine give?</strong><small>Think about what the user gains.</small></div>
+        <div class="notes">
+            <table class="tbl adv">
+                <tr><th>Situation</th><th>Main advantage</th></tr>
+                <tr><td>Using a long spanner to undo a tight wheel nut</td><td><span data-t="av1" data-o="Direction|Force|Distance and speed" data-l="Spanner"></span></td></tr>
+                <tr><td>Flicking a fishing rod to cast a lure across a river</td><td><span data-t="av2" data-o="Direction|Force|Distance and speed" data-l="Fishing rod"></span></td></tr>
+                <tr><td>Pulling a gym cable down to lift the weights up</td><td><span data-t="av3" data-o="Direction|Force|Distance and speed" data-l="Gym cable"></span></td></tr>
+                <tr><td>Wheeling a heavy load of soil in a wheelbarrow</td><td><span data-t="av4" data-o="Direction|Force|Distance and speed" data-l="Wheelbarrow"></span></td></tr>
+                <tr><td>Swinging a hockey stick to hit the ball hard</td><td><span data-t="av5" data-o="Direction|Force|Distance and speed" data-l="Hockey stick"></span></td></tr>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="cue"><strong>How does the trade-off change?</strong><small>Two crowbars lift the same rock 10 cm.</small></div>
+        <div class="notes">
+            <div class="fig">
+                <svg id="cbSvg" viewBox="0 0 640 330" aria-label="Two crowbars lifting the same rock"></svg>
+                <div class="playbar"><span>Grey: start position. <b>Navy: end position.</b></span><button class="btn sm" id="cbPlay">Replay</button></div>
+            </div>
+            <p>Crowbar B’s hands move <i data-b="cb1" data-w="4" data-l="How many times further"></i> times as far as crowbar A’s hands.</p>
+            <p>The crowbar that needs the smaller effort force: <span data-t="cb2" data-o="A|B" data-l="Smaller effort"></span></p>
+            <div class="q2">Explain your choice using the words effort, distance and trade-off.</div>
+            <textarea class="ans" data-k="cb3" rows="3" aria-label="Crowbar explanation"></textarea>
+        </div>
+    </div>
+    <div class="row">
+        <div class="cue own"><strong>Your cue</strong><small>Write your own question.</small><textarea class="ans" data-k="cue2" rows="2" aria-label="Your own cue question"></textarea></div>
+        <div class="notes">
+            <div class="prompt">A builder uses a single pulley to lift bricks, even though it doesn’t reduce the force needed. Why is it still worth using?</div>
+            <textarea class="ans" data-k="cue2a" rows="3" aria-label="Pulley explanation"></textarea>
+        </div>
+    </div>
+
+    <!-- Apply -->
+    <h2><span class="chip pk">SC7 to SC9</span>Put it all together</h2>
+    <div class="row nocover">
+        <div class="cue"><strong>Can I apply it?</strong><small>Use friction, simple machines and advantages to solve a new problem.</small></div>
+        <div class="notes">
+            <p class="ctx">The drama club needs to move a <b>150 kg piano</b> from the hall floor up onto a <b>1 m high stage</b>.</p>
+            <div class="fig" id="pianoFig"></div>
+            <div class="aq"><div class="rq"><span class="rn">1</span><span>Which simple machine would you use, and what advantage does it give?</span></div><textarea class="ans" data-k="ap1" rows="2" aria-label="Machine and advantage"></textarea></div>
+            <div class="aq"><div class="rq"><span class="rn">2</span><span>What is the trade-off of using your machine?</span></div><textarea class="ans" data-k="ap2" rows="2" aria-label="Trade-off"></textarea></div>
+            <div class="aq"><div class="rq"><span class="rn">3</span><span>Where would friction help the team, and where would it get in the way? How could they change it?</span></div><textarea class="ans" data-k="ap3" rows="3" aria-label="Friction in the plan"></textarea></div>
+            <div class="checks">
+                <h4>Check my answers include</h4>
+                <button class="ck" data-c="k1" aria-pressed="false"><span class="box"><svg viewBox="0 0 16 16"><path d="M3 8.5 L6.5 12 L13 4.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>A named simple machine</button>
+                <button class="ck" data-c="k2" aria-pressed="false"><span class="box"><svg viewBox="0 0 16 16"><path d="M3 8.5 L6.5 12 L13 4.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>The advantage it gives</button>
+                <button class="ck" data-c="k3" aria-pressed="false"><span class="box"><svg viewBox="0 0 16 16"><path d="M3 8.5 L6.5 12 L13 4.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>A trade-off that uses effort and distance</button>
+                <button class="ck" data-c="k4" aria-pressed="false"><span class="box"><svg viewBox="0 0 16 16"><path d="M3 8.5 L6.5 12 L13 4.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Where friction is beneficial and where it is unwanted</button>
+                <button class="ck" data-c="k5" aria-pressed="false"><span class="box"><svg viewBox="0 0 16 16"><path d="M3 8.5 L6.5 12 L13 4.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>A way to increase or reduce friction</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="sum">
+        <div class="sumh"><h3>Summary</h3><div class="use" id="use2">Use:<span>advantage</span><span>effort</span><span>trade-off</span><span>friction</span></div></div>
+        <div class="st" style="margin-top:14px"><label for="s2a">A simple machine can give three advantages:</label><textarea class="ans" id="s2a" data-k="s2a" rows="1"></textarea></div>
+        <div class="st"><label for="s2b">When a machine multiplies force, the trade-off is</label><textarea class="ans" id="s2b" data-k="s2b" rows="1"></textarea></div>
+        <div class="st"><label for="s2c">Friction matters when using machines because</label><textarea class="ans" id="s2c" data-k="s2c" rows="1"></textarea></div>
+    </div>
+
+    <div class="conf">
+        <h3>How confident am I?</h3><span class="lg">1 = not yet, 4 = I can teach it</span>
+        <div class="cfs">
+            <div class="cf">SC7 <span data-t="c7" data-o="1|2|3|4" data-l="SC7 confidence"></span></div>
+            <div class="cf">SC8 <span data-t="c8" data-o="1|2|3|4" data-l="SC8 confidence"></span></div>
+            <div class="cf">SC9 <span data-t="c9" data-o="1|2|3|4" data-l="SC9 confidence"></span></div>
+        </div>
+    </div>
+
+    <div class="fin">
+        <p>Finished?<small>Export your notes as a PDF, then upload it to the Stile lesson.</small></p>
+        <button class="btn pk" id="exportBottom">Export PDF</button>
+    </div>
+</main>
+
+<div class="ov" id="ov" role="dialog" aria-modal="true" aria-labelledby="mdh">
+    <div class="md"><h3 id="mdh"></h3><p id="mdp"></p><div class="acts" id="mda"></div></div>
+</div>
+
+<div class="done" id="done" role="dialog" aria-modal="true" aria-labelledby="doneh">
+    <div class="done-in">
+        <svg class="tick" viewBox="0 0 76 76"><circle cx="38" cy="38" r="38"/><path d="M22 39 L33 50 L55 27"/></svg>
+        <h2 id="doneh">PDF saved. Now <span>upload it to Stile.</span></h2>
+        <p class="lead">Your notes are not handed in until the PDF is in the Stile lesson.</p>
+        <ol class="steps">
+            <li><div class="n">1</div><div><strong>Find your PDF</strong><span>It saved to your Downloads folder.</span><div class="file"><svg viewBox="0 0 22 26"><path d="M2 1 H14 L20 7 V25 H2 Z" fill="#fff" stroke="#1b1f45" stroke-width="2" stroke-linejoin="round"/><rect x="0" y="13" width="17" height="8" fill="#ea008a"/><text x="8.5" y="19.4" fill="#fff" font-size="6" font-weight="800" text-anchor="middle" font-family="Helvetica, Arial, sans-serif">PDF</text></svg><span id="fname"></span></div></div></li>
+            <li><div class="n">2</div><div><strong>Go back to the Stile lesson</strong><span>Scroll to the Cornell Notes section at the end of the lesson.</span></div></li>
+            <li><div class="n">3</div><div><strong>Upload your PDF to Question 30</strong><span>Add the file, then open it to check it worked.</span></div></li>
+        </ol>
+        <div class="dacts">
+            <button class="btn" id="again">Download again</button>
+            <button class="btn" id="back">Back to my notes</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const NV = '#1b1f45', PK = '#ea008a', GR = '#c9ccd6', LT = '#f0f3f6', FONT = 'Helvetica Neue, Helvetica, Arial, sans-serif';
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+let dirty = false, exported = false, lastDoc = null;
+const FILE = 'Friction-and-simple-machines-Cornell-notes.pdf';
+const f1 = v => v.toFixed(1);
+
+function arrow(x, y, ang, len, c = PK, sw = 6) {
+    const hl = Math.min(18, len), hw = 10, ux = Math.cos(ang), uy = Math.sin(ang), ex = x + ux * len, ey = y + uy * len, bx = ex - ux * hl, by = ey - uy * hl, px = -uy * hw, py = ux * hw;
+    return (len > hl ? `<line x1="${f1(x)}" y1="${f1(y)}" x2="${f1(bx)}" y2="${f1(by)}" stroke="${c}" stroke-width="${sw}"/>` : '') +
+        `<polygon points="${f1(ex)},${f1(ey)} ${f1(bx + px)},${f1(by + py)} ${f1(bx - px)},${f1(by - py)}" fill="${c}" stroke="${c}" stroke-width="1.5" stroke-linejoin="round"/>`;
+}
+const wrapSvg = (vb, w, h, inner) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" width="${w}" height="${h}" font-family="${FONT}">${inner}</svg>`;
+const lab = (x, y, L) => `<circle cx="${f1(x)}" cy="${f1(y)}" r="16" fill="${NV}"/><text x="${f1(x)}" y="${f1(y + 6.5)}" font-size="19" font-weight="800" fill="#fff" text-anchor="middle">${L}</text>`;
+
+/* ---------- skier on a slope ---------- */
+function skiSvg() {
+    const t = Math.atan2(170, 560), c = Math.cos(t), s = Math.sin(t), d = 280, P = [30 + d * c, 56 + d * s];
+    const rot = (x, y) => [P[0] + x * c - y * s, P[1] + x * s + y * c];
+    const [k1x, k1y] = rot(-62, -5), [k2x, k2y] = rot(62, -5), [ax, ay] = rot(58, 10), [bx, by] = rot(-58, 10), [cx, cy] = rot(0, 6);
+    const L = 96, LC = 46, X = P[0], Yb = P[1] - 8;
+    const pt = (dx, dy) => `${f1(X + dx)},${f1(Yb + dy)}`;
+    return wrapSvg('0 -36 620 286', 620, 286, `
+        <line x1="10" y1="234" x2="610" y2="234" stroke="${GR}" stroke-width="4"/>
+        <polygon points="30,56 590,226 30,226" fill="${LT}" stroke="${NV}" stroke-width="4" stroke-linejoin="round"/>
+        <g stroke="${NV}" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+            <polyline points="${pt(-16, -4)} ${pt(4, -34)} ${pt(-12, -62)}"/>
+            <polyline points="${pt(14, 4)} ${pt(28, -28)} ${pt(-12, -62)}"/>
+            <line x1="${f1(X - 12)}" y1="${f1(Yb - 62)}" x2="${f1(X + 6)}" y2="${f1(Yb - 104)}"/>
+            <polyline points="${pt(6, -104)} ${pt(30, -78)} ${pt(46, -76)}"/>
+        </g>
+        <line x1="${f1(X + 46)}" y1="${f1(Yb - 76)}" x2="${f1(X + 34)}" y2="${f1(Yb + 6)}" stroke="#9a9a9a" stroke-width="3.5" stroke-linecap="round"/>
+        <circle cx="${f1(X + 14)}" cy="${f1(Yb - 122)}" r="14" fill="${NV}"/>
+        <line x1="${f1(k1x)}" y1="${f1(k1y)}" x2="${f1(k2x)}" y2="${f1(k2y)}" stroke="${NV}" stroke-width="7" stroke-linecap="round"/>
+        ${arrow(ax, ay, t, L, NV, 7)}${lab(ax + (L + 22) * c, ay + (L + 22) * s, 'A')}
+        ${arrow(bx, by, Math.PI + t, L, NV, 7)}${lab(bx - (L + 24) * c - 4, by - (L + 24) * s + 16, 'B')}
+        ${arrow(cx, cy, t + Math.PI / 2, LC, NV, 7)}${lab(cx - (LC + 20) * s + 4, cy + (LC + 20) * c - 2, 'C')}
+        <text x="${f1(X + 74)}" y="${f1(Yb - 124)}" font-size="16" font-weight="800" fill="#9a9a9a" letter-spacing="1">MOVING</text>
+        ${arrow(X + 74, Yb - 112, t, 74, '#9a9a9a', 4)}`);
+}
+
+/* ---------- toy car results ---------- */
+function carSvg() {
+    const D = [['Rubber mat', 30], ['Carpet', 45], ['Wooden floor', 160], ['Tiles*', 210]], B = 182, k = .6;
+    let s = `<text x="16" y="18" font-size="14" font-weight="700" fill="#9a9a9a">Distance rolled (cm)</text>`;
+    [0, 60, 120, 180, 240].forEach(v => s += `<line x1="58" x2="510" y1="${B - v * k}" y2="${B - v * k}" stroke="#e3e5ec" stroke-width="1.5"/><text x="48" y="${B - v * k + 5}" font-size="14" font-weight="700" fill="#9a9a9a" text-anchor="end">${v}</text>`);
+    D.forEach(([n, v], i) => {
+        const x = 82 + i * 108;
+        s += `<rect x="${x}" y="${B - v * k}" width="72" height="${v * k}" fill="${NV}"/>
+            <text x="${x + 36}" y="${B - v * k - 8}" font-size="17" font-weight="800" fill="${NV}" text-anchor="middle">${v}</text>
+            <text x="${x + 36}" y="${B + 22}" font-size="15" font-weight="700" fill="${NV}" text-anchor="middle">${n}</text>`;
+    });
+    s += `<line x1="58" x2="510" y1="${B}" y2="${B}" stroke="${NV}" stroke-width="3"/>
+        <text x="510" y="${B + 44}" font-size="14" font-weight="700" fill="${PK}" text-anchor="end">* Kai pushed the car harder on the tiles</text>`;
+    return wrapSvg('0 0 520 232', 520, 232, s);
+}
+
+/* ---------- two crowbars ---------- */
+const BARS = [{ k: 'A', G: 140, R: 120 }, { k: 'B', G: 310, R: 360 }], PVX = 170, LA = 40, A0 = -14.4, A1 = 0;
+const ROCK = [[-92, 0], [-94, -48], [-72, -72], [-30, -78], [2, -56], [0, 0]];
+const rockPts = (dx, dy) => ROCK.map(([x, y]) => `${f1(x + dx)},${f1(y + dy)}`).join(' ');
+function barInner(a, ghost, labelK) {
+    let s = `<line x1="10" y1="168" x2="630" y2="168" stroke="#e3e5ec" stroke-width="2"/>`;
+    BARS.forEach(({ k, G, R }) => {
+        const py = G - 14, end = ang => { const r = ang * Math.PI / 180; return { l: [PVX - LA * Math.cos(r), py - LA * Math.sin(r)], r: [PVX + R * Math.cos(r), py + R * Math.sin(r)] }; };
+        const p = end(a), p0 = end(A0), rx = 132;
+        s += `<line x1="10" y1="${G + 2}" x2="630" y2="${G + 2}" stroke="${GR}" stroke-width="4"/>
+            <text x="${k === 'A' ? 330 : 300}" y="${G - 116}" font-size="20" font-weight="800" fill="${NV}">Crowbar ${k}</text>`;
+        if (ghost) s += `<polygon points="${rockPts(rx, p0.l[1])}" fill="none" stroke="${GR}" stroke-width="3" stroke-dasharray="7 6"/>
+            <line x1="${f1(p0.l[0])}" y1="${f1(p0.l[1])}" x2="${f1(p0.r[0])}" y2="${f1(p0.r[1])}" stroke="${GR}" stroke-width="9" stroke-linecap="round"/><circle cx="${f1(p0.r[0])}" cy="${f1(p0.r[1])}" r="9" fill="${GR}"/>`;
+        s += `<polygon points="${rockPts(rx, p.l[1])}" fill="${LT}" stroke="${NV}" stroke-width="4" stroke-linejoin="round"/>
+            <text x="${rx - 46}" y="${f1(p.l[1] - 28)}" font-size="15" font-weight="800" fill="${NV}" text-anchor="middle">ROCK</text>
+            <polygon points="${PVX},${py + 2} ${PVX - 13},${G} ${PVX + 13},${G}" fill="${NV}"/>
+            <line x1="${f1(p.l[0])}" y1="${f1(p.l[1])}" x2="${f1(p.r[0])}" y2="${f1(p.r[1])}" stroke="${NV}" stroke-width="9" stroke-linecap="round"/>
+            <circle cx="${f1(p.r[0])}" cy="${f1(p.r[1])}" r="9" fill="${NV}"/>`;
+        if (labelK > 0) {
+            const hx = p0.r[0] + 22, cm = Math.round(R * Math.sin(-A0 * Math.PI / 180));
+            s += `<g opacity="${labelK.toFixed(2)}">
+                <line x1="${f1(hx)}" y1="${f1(p0.r[1])}" x2="${f1(hx)}" y2="${f1(p.r[1] - 12)}" stroke="${PK}" stroke-width="4" stroke-dasharray="7 5"/>
+                <polygon points="${f1(hx)},${f1(p.r[1] + 2)} ${f1(hx - 8)},${f1(p.r[1] - 12)} ${f1(hx + 8)},${f1(p.r[1] - 12)}" fill="${PK}"/>
+                <text x="${f1(hx + 14)}" y="${f1((p0.r[1] + p.r[1]) / 2 + 7)}" font-size="18" font-weight="800" fill="${PK}">${cm} cm</text>
+                <text x="${f1(hx - 12)}" y="${f1(p0.r[1] - 12)}" font-size="16" font-weight="800" fill="${PK}" text-anchor="end">Hands move</text>
+                ${arrow(22, G - 20, -Math.PI / 2, 34, NV, 5)}<text x="36" y="${G - 98}" font-size="16" font-weight="800" fill="${NV}">Rock rises 10 cm</text></g>`;
+        }
+    });
+    return s;
+}
+const barSvg = () => wrapSvg('0 0 640 330', 640, 330, barInner(A1, true, 1));
+let cbTok = 0;
+function playBars() {
+    const tok = ++cbTok, svg = $('#cbSvg'), ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    const run = (dur, step) => new Promise(res => { const st = performance.now(); const f = n => { if (tok !== cbTok) return; const k = Math.min(1, (n - st) / dur); step(k); k < 1 ? requestAnimationFrame(f) : res(); }; requestAnimationFrame(f); });
+    svg.innerHTML = barInner(A0, false, 0);
+    setTimeout(async () => {
+        if (tok !== cbTok) return;
+        await run(1800, k => svg.innerHTML = barInner(A0 + (A1 - A0) * ease(k), false, 0));
+        await run(450, k => svg.innerHTML = barInner(A1, true, k));
+    }, 500);
+}
+$('#cbPlay').onclick = playBars;
+
+/* ---------- piano and stage ---------- */
+function pianoSvg() {
+    return wrapSvg('0 0 620 200', 620, 200, `
+        <line x1="10" y1="182" x2="610" y2="182" stroke="${GR}" stroke-width="4"/>
+        <rect x="380" y="100" width="230" height="80" fill="${LT}" stroke="${NV}" stroke-width="4"/>
+        <text x="495" y="148" font-size="18" font-weight="800" fill="${NV}" text-anchor="middle">STAGE</text>
+        <g stroke="#9a9a9a" stroke-width="2.5"><line x1="360" y1="100" x2="360" y2="180"/><line x1="353" y1="100" x2="367" y2="100"/><line x1="353" y1="180" x2="367" y2="180"/></g>
+        <text x="348" y="146" font-size="17" font-weight="800" fill="#9a9a9a" text-anchor="end">1 m</text>
+        <rect x="70" y="62" width="120" height="118" rx="4" fill="#fff" stroke="${NV}" stroke-width="4"/>
+        <rect x="60" y="104" width="140" height="16" fill="${NV}"/>
+        <g stroke="#fff" stroke-width="2">${[0, 1, 2, 3, 4, 5, 6, 7, 8].map(i => `<line x1="${72 + i * 14}" y1="106" x2="${72 + i * 14}" y2="118"/>`).join('')}</g>
+        <text x="130" y="92" font-size="15" font-weight="800" fill="${NV}" text-anchor="middle">PIANO</text>
+        <text x="130" y="152" font-size="15" font-weight="800" fill="#9a9a9a" text-anchor="middle">150 kg</text>
+        <g stroke="${NV}" stroke-width="7" stroke-linecap="round" fill="none"><polyline points="252,180 262,140 272,180"/><line x1="262" y1="140" x2="262" y2="98"/><polyline points="236,120 262,104 288,120"/></g>
+        <circle cx="262" cy="84" r="13" fill="${NV}"/>`);
+}
+
+$('#skiFig').innerHTML = skiSvg();
+$('#carFig').innerHTML = carSvg();
+$('#pianoFig').innerHTML = pianoSvg();
+playBars();
+
+/* ---------- which simple machine: cards ---------- */
+const MOPTS = 'Lever|Wheel and axle|Pulley|Inclined plane|Wedge|Screw';
+const CARDS = [
+    ['Stapler', 'You press the top down and it pivots at the back.'],
+    ['Chisel', 'A thin, sharp edge is hammered into wood to split it.'],
+    ['Light bulb base', 'It turns round and round to move into the socket.'],
+    ['Fishing reel', 'A large handle turns a thin spool that winds in the line.'],
+    ['Theatre curtain', 'The crew pull a rope down over a wheel to lift the curtain up.'],
+    ['Zig-zag mountain road', 'Cars climb a gentle slope over a much longer distance.']
+];
+$('#cards').innerHTML = CARDS.map(([n, c], i) => `<div class="card"><strong>${n}</strong><span class="cl">${c}</span><i data-s="id${i + 1}" data-o="${MOPTS}" data-l="${n} simple machine"></i></div>`).join('');
+
+/* ---------- claims ---------- */
+const CLAIMS = [
+    ['Mia', '“A staircase isn’t a simple machine because nothing on it moves.”'],
+    ['Leo', '“A car is a simple machine because it makes work easier.”'],
+    ['Sam', '“A wheelbarrow is made of more than one simple machine.”']
+];
+$('#claims').innerHTML = CLAIMS.map(([n, q], i) => `<div class="claim"><div class="who2"><b>${n}:</b> ${q}</div>
+    <div class="ctl"><span data-t="cl${i + 1}" data-o="Agree|Disagree" data-l="${n}’s claim"></span><span class="lb">because</span></div>
+    <textarea class="ln ans" data-k="cw${i + 1}" rows="1" aria-label="Reason for ${n}’s claim"></textarea></div>`).join('');
+
+/* ---------- checklist ---------- */
+$$('.ck').forEach(b => b.onclick = () => { b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true')); dirty = true; exported = false; });
+
+/* ---------- blanks, dropdowns, toggles, textareas ---------- */
+function size(inp) { inp.style.width = Math.max(+inp.dataset.w, inp.value.length + 2) + 'ch'; inp.classList.toggle('has', !!inp.value.trim()); }
+$$('i[data-b]').forEach(i => {
+    const inp = document.createElement('input');
+    inp.className = 'b ans'; inp.dataset.k = i.dataset.b; inp.dataset.w = i.dataset.w || 8;
+    inp.setAttribute('aria-label', i.dataset.l || 'Blank'); inp.autocomplete = 'off';
+    i.replaceWith(inp); size(inp);
+    inp.addEventListener('input', () => size(inp));
+});
+$$('i[data-s]').forEach(i => {
+    const sel = document.createElement('select');
+    sel.className = 'b ans empty'; sel.dataset.k = i.dataset.s; sel.setAttribute('aria-label', i.dataset.l || 'Choose');
+    sel.innerHTML = '<option value="">choose</option>' + i.dataset.o.split('|').map(o => `<option>${o}</option>`).join('');
+    sel.addEventListener('change', () => { sel.classList.toggle('empty', !sel.value); sel.classList.toggle('has', !!sel.value); changed(); });
+    i.replaceWith(sel);
+});
+$$('[data-t]').forEach(g => {
+    g.classList.add('tg', 'ans'); g.setAttribute('role', 'radiogroup'); g.setAttribute('aria-label', g.dataset.l || '');
+    g.dataset.k = g.dataset.t; g.dataset.v = '';
+    g.dataset.o.split('|').forEach(o => {
+        const b = document.createElement('button'); b.type = 'button'; b.textContent = o;
+        b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', 'false');
+        b.onclick = () => {
+            const off = g.dataset.v === o; g.dataset.v = off ? '' : o;
+            $$('button', g).forEach(x => x.setAttribute('aria-checked', String(!off && x === b)));
+            changed();
+        };
+        g.appendChild(b);
+    });
+});
+function grow(t) { if (!t.offsetParent) return; t.style.height = 'auto'; t.style.height = t.scrollHeight + 4 + 'px'; }
+$$('textarea').forEach(t => { t.addEventListener('input', () => grow(t)); grow(t); });
+window.addEventListener('resize', () => $$('textarea').forEach(grow));
+document.addEventListener('input', e => { if (e.target.matches('.ans, #date')) changed(); });
+
+const isTg = e => e.dataset.t !== undefined;
+const valOf = e => (isTg(e) ? e.dataset.v : e.value).trim();
+const V = k => { const e = $(`[data-k="${k}"]`); return e ? valOf(e) : ''; };
+const CK = k => $(`[data-c="${k}"]`).getAttribute('aria-pressed') === 'true';
+
+$('#date').value = new Date().toLocaleDateString('en-AU');
+
+/* ---------- progress ---------- */
+const unanswered = () => $$('.ans').filter(e => !valOf(e));
+function changed() {
+    dirty = true; exported = false;
+    const total = $$('.ans').length, n = total - unanswered().length;
+    $('#count').innerHTML = `<b>${n}</b> of ${total} answered`;
+    $('#prog').style.width = (n / total * 100) + '%';
+    useChips('#use1', [/\bfriction/i, /\boppos/i, /\bbenefic/i, /\bunwanted/i, /simple machine/i], V('sum1'));
+    useChips('#use2', [/\badvantage/i, /\beffort/i, /trade.?off/i, /\bfriction/i], [V('s2a'), V('s2b'), V('s2c')].join(' '));
+}
+function useChips(sel, res, txt) { $$(sel + ' span').forEach((s, i) => s.classList.toggle('on', res[i].test(txt))); }
+
+/* ---------- cover mode ---------- */
+$('#cover').onclick = () => {
+    const on = !document.body.classList.contains('cover');
+    document.body.classList.toggle('cover', on);
+    $('#cover').setAttribute('aria-pressed', on); $('#cover').textContent = on ? 'Uncover notes' : 'Cover notes';
+    $$('.row').forEach(r => r.classList.remove('peek'));
+};
+$$('.row .notes').forEach(n => n.addEventListener('click', e => {
+    const r = n.parentNode;
+    if (document.body.classList.contains('cover') && !r.classList.contains('peek') && !r.classList.contains('nocover')) { e.preventDefault(); e.stopPropagation(); r.classList.add('peek'); }
+}, true));
+
+/* ---------- modal ---------- */
+function modal(h, p, acts) {
+    $('#mdh').textContent = h; $('#mdp').innerHTML = p;
+    const a = $('#mda'); a.innerHTML = '';
+    acts.forEach(([t, cls, fn]) => { const b = document.createElement('button'); b.className = 'btn ' + cls; b.textContent = t; b.onclick = () => { closeModal(); fn && fn(); }; a.appendChild(b); });
+    $('#ov').classList.add('show'); a.lastChild.focus();
+}
+const closeModal = () => $('#ov').classList.remove('show');
+$('#ov').addEventListener('click', e => { if (e.target.id === 'ov') closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+function jumpTo(e) {
+    const row = e.closest('.row'); if (row) row.classList.add('peek');
+    e.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const f = isTg(e) ? e.querySelector('button') : e;
+    setTimeout(() => f && f.focus({ preventScroll: true }), 450);
+}
+function startExport() {
+    const left = unanswered();
+    if (left.length) {
+        modal(`${left.length} ${left.length === 1 ? 'answer is' : 'answers are'} still blank`, 'You can export now, or go to the next blank and finish it first.',
+            [['Go to next blank', '', () => jumpTo(left[0])], ['Export anyway', 'pk', makePdf]]);
+        return;
+    }
+    makePdf();
+}
+$('#exportTop').onclick = startExport; $('#exportBottom').onclick = startExport;
+
+/* =========================================================
+   PDF EXPORT
+   ========================================================= */
+function svgPng(svg, w, h, k = 4) {
+    return new Promise((res, rej) => {
+        const img = new Image();
+        img.onload = () => { const c = document.createElement('canvas'); c.width = w * k; c.height = h * k; const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0, c.width, c.height); res(c.toDataURL('image/png')); };
+        img.onerror = rej;
+        img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    });
+}
+const C = { nv: [27, 31, 69], pk: [234, 0, 138], gr: [154, 154, 154], ru: [210, 214, 224], bl: [190, 193, 205], wh: [255, 255, 255], tn: [243, 244, 248] };
+const ML = 14, MR = 196, CW = 40, CX = 57, NX = 61, NW = MR - NX, BOT = 281;
+let doc, Y, DRY = false;
+const mm = pt => pt * .3528;
+const clean = s => String(s || '').replace(/[\u2018\u2019\u02bc]/g, "'").replace(/[\u201c\u201d]/g, '"').replace(/[\u2013\u2014]/g, '-').replace(/\u2026/g, '...').replace(/[^\x09\x0a\x0d\x20-\x7e\xa0-\xff]/g, '');
+function font(st, sz, col) { doc.setFont('helvetica', st); doc.setFontSize(sz); doc.setTextColor(...col); }
+function T(s, x, y, o) { if (!DRY) doc.text(s, x, y, o); }
+function Ln(x1, y1, x2, y2, col, w) { if (DRY) return; doc.setDrawColor(...col); doc.setLineWidth(w); doc.line(x1, y1, x2, y2); }
+function RR(x, y, w, h, r, fill, stroke, lw = .4) {
+    if (DRY) return;
+    if (fill) doc.setFillColor(...fill);
+    if (stroke) { doc.setDrawColor(...stroke); doc.setLineWidth(lw); }
+    doc.roundedRect(x, y, w, h, r, r, fill && stroke ? 'FD' : fill ? 'F' : 'S');
+}
+function IMG(d, x, y, w, h) { if (!DRY) doc.addImage(d, 'PNG', x, y, w, h); }
+function meas(fn) { const d = DRY; DRY = true; const r = fn(); DRY = d; return r; }
+
+function flow(segs, x, y, w, o = {}) {
+    const fs = o.fs || 9.5, lh = o.lh || mm(fs) * 1.65, col = o.col || C.nv, st = o.st || 'normal', plain = o.plain, ac = o.ac || C.pk;
+    const toks = [];
+    for (const s of segs) {
+        if (typeof s === 'string') s.split(/(\s+)/).forEach(p => p && toks.push(/^\s+$/.test(p) ? { sp: 1 } : { t: p }));
+        else {
+            const v = clean(s.a).replace(/\s+/g, ' ').trim();
+            if (!v) toks.push({ bk: s.min || 22 });
+            else v.split(/(\s+)/).forEach(p => p && toks.push(/^\s+$/.test(p) ? { sp: 1, a: 1 } : { t: p, a: 1 }));
+        }
+    }
+    let cx = x, by = y + mm(fs) * .78, pend = 0, prevA = false, prevEnd = x;
+    for (let i = 0; i < toks.length; i++) {
+        const k = toks[i];
+        if (k.sp) { if (cx > x) { font(st, fs, col); pend = doc.getTextWidth(' '); } continue; }
+        const aSt = plain ? 'normal' : 'bold';
+        let wd;
+        if (k.bk) wd = k.bk;
+        else { font(k.a ? aSt : st, fs, k.a ? ac : col); wd = doc.getTextWidth(k.t); }
+        if (!k.bk && wd > w) {
+            let j = k.t.length; while (j > 1 && doc.getTextWidth(k.t.slice(0, j)) > w) j--;
+            toks.splice(i + 1, 0, { t: k.t.slice(j), a: k.a }); k.t = k.t.slice(0, j); wd = doc.getTextWidth(k.t);
+        }
+        if (cx > x && cx + pend + wd > x + w) { cx = x; by += lh; prevA = false; }
+        else cx += pend;
+        pend = 0;
+        if (k.bk) { Ln(cx, by + 1, cx + wd, by + 1, C.bl, .35); prevA = false; }
+        else {
+            font(k.a ? aSt : st, fs, k.a ? ac : col); T(k.t, cx, by);
+            if (k.a && !plain) Ln(prevA ? prevEnd : cx, by + 1, cx + wd, by + 1, ac, .3);
+            prevA = !!k.a;
+        }
+        cx += wd; prevEnd = cx;
+    }
+    return by + mm(fs) * .45;
+}
+function longAns(v, x, y, w, lines = 3, fs = 9.5, ac) {
+    v = clean(v).trim();
+    const lh = mm(fs) * 1.7;
+    if (!v) { for (let i = 1; i <= lines; i++) Ln(x, y + lh * i, x + w, y + lh * i, C.ru, .3); return y + lh * lines + 1; }
+    let e = y;
+    v.split(/\n+/).forEach((p, i) => { if (p.trim()) e = flow([{ a: p }], x, e + (i ? 1 : 0), w, { fs, plain: true, ac }); });
+    return e;
+}
+function pills(opts, sel, xr, y, fs = 8.5, round = false) {
+    font('bold', fs, C.nv);
+    const ws = opts.map(o => round ? 5 : doc.getTextWidth(o) + 5), g = round ? 1.2 : 1.5, ph = round ? 5 : 5.4;
+    let x = xr - ws.reduce((a, b) => a + b, 0) - g * (opts.length - 1);
+    opts.forEach((o, i) => {
+        const on = o === sel;
+        RR(x, y, ws[i], ph, ph / 2, on ? C.pk : null, on ? C.pk : C.nv, .35);
+        font('bold', fs, on ? C.wh : C.nv); T(o, x + ws[i] / 2, y + ph / 2 + 1.1, { align: 'center' });
+        x += ws[i] + g;
+    });
+}
+function pillsW(opts, fs = 8.5) { font('bold', fs, C.nv); return opts.reduce((a, o) => a + doc.getTextWidth(o) + 5, 0) + 1.5 * (opts.length - 1); }
+function newPage() {
+    doc.addPage();
+    doc.setFillColor(...C.nv); doc.rect(ML, 10, MR - ML, 1.8, 'F');
+    font('bold', 9, C.nv); T('Friction and simple machines: Cornell notes', ML, 17);
+    font('bold', 8, C.gr); T('Cues', ML, 23); T('Notes', NX, 23);
+    Ln(ML, 25, MR, 25, C.nv, .8); Ln(CX, 20, CX, 25, C.nv, .8);
+    Y = 25;
+}
+function ensure(h) { if (Y + h > BOT) newPage(); }
+function sec(code, title, pk) {
+    ensure(36);
+    Y += 5;
+    font('bold', 8.5, C.wh); const w = doc.getTextWidth(code) + 4.5;
+    RR(ML, Y, w, 6, 1, pk ? C.pk : C.nv); T(code, ML + w / 2, Y + 4.2, { align: 'center' });
+    font('bold', 11, C.nv); T(title, ML + w + 3, Y + 4.5);
+    Y += 8.5; Ln(ML, Y, MR, Y, C.ru, .3);
+}
+function cueBlock(c, y) {
+    let e = flow([c.q], ML, y, CW, { fs: 10, st: 'bold', lh: 4.6, col: c.own ? C.pk : C.nv });
+    if (c.s) e = flow([c.s], ML, e + .8, CW, { fs: 8.5, st: 'bold', col: C.gr, lh: 3.9 });
+    if (c.own) e = longAns(V(c.k), ML, e + 1.5, CW, 3, 9);
+    return e;
+}
+function row(cue, notes) {
+    DRY = true; const h = Math.max(cueBlock(cue, 0), notes(0)) + 6; DRY = false;
+    ensure(h);
+    const top = Y;
+    cueBlock(cue, top + 3); notes(top + 3);
+    Ln(CX, top, CX, top + h, C.nv, .8); Ln(ML, top + h, MR, top + h, C.ru, .3);
+    Y = top + h;
+}
+function sumBox(words, prompt, body) {
+    const inner = y => { let e = y; if (prompt) e = flow([prompt], ML + 5, e, MR - ML - 10, { fs: 8.5, st: 'bold', col: C.gr }); return body(e + 2); };
+    const h = meas(() => inner(0)) + 15;
+    ensure(h + 6); Y += 6;
+    RR(ML, Y, MR - ML, h, 2.5, null, C.nv, .6);
+    font('bold', 11, C.nv); T('Summary', ML + 5, Y + 7.5);
+    font('bold', 8.5, C.gr); T('Use: ' + words, MR - 5, Y + 7.5, { align: 'right' });
+    inner(Y + 10);
+    Y += h;
+}
+function twoCol(items, opts, y) {
+    const cw = (NW - 6) / 2, lw = cw - pillsW(opts) - 3, fo = { fs: 9, lh: 3.9 };
+    let yy = y;
+    for (let r = 0; r < items.length; r += 2) {
+        const pair = items.slice(r, r + 2);
+        const h = Math.max(7.6, ...pair.map(([t]) => meas(() => flow([t], 0, 0, lw, fo)) + 3.6));
+        pair.forEach(([t, k], j) => {
+            const x = NX + j * (cw + 6);
+            flow([t], x, yy + (h - meas(() => flow([t], 0, 0, lw, fo))) / 2, lw, fo);
+            pills(opts, V(k), x + cw, yy + (h - 5.4) / 2);
+            if (r + 2 < items.length) Ln(x, yy + h, x + cw, yy + h, C.ru, .25);
+        });
+        yy += h;
+    }
+    return yy;
+}
+
+/* generic table: rows of [label, toggleKey, opts, selectKey] */
+function tableRows(rows, y, cols) {
+    // cols: { lw: label width, pr: right edge for pills, ax: x of answer text (optional) }
+    let yy = y;
+    rows.forEach(([t, k, opts, sk], i) => {
+        const fo = { fs: 9, lh: 3.9 };
+        const th = meas(() => flow([t], 0, 0, cols.lw, fo)), ah = sk ? meas(() => flow([{ a: V(sk), min: 30 }], 0, 0, MR - (NX + cols.ax), fo)) : 0;
+        const h = Math.max(7.6, th + 3.6, ah + 3.6);
+        flow([t], NX, yy + (h - th) / 2, cols.lw, fo);
+        if (opts) pills(opts, V(k), NX + cols.pr, yy + (h - 5.4) / 2, 8);
+        if (sk) flow([{ a: V(sk), min: 30 }], NX + cols.ax, yy + (h - ah) / 2, MR - (NX + cols.ax), fo);
+        if (i < rows.length - 1) Ln(NX, yy + h, MR, yy + h, C.ru, .25);
+        yy += h;
+    });
+    return yy;
+}
+const MECH = 'Rougher surface|Smoother surface|Adds a lubricant|Rolls instead of slides';
+async function makePdf() {
+    if (!window.jspdf) {
+        modal('The PDF tool did not load', 'Check your internet connection, then try again. Keep this page open so you don’t lose your answers.', [['OK', 'pk']]);
+        return;
+    }
+    const btns = [$('#exportTop'), $('#exportBottom')];
+    btns.forEach(b => { b.disabled = true; b.textContent = 'Making PDF…'; });
+    try {
+        const img = {
+            ski: await svgPng(skiSvg(), 620, 286, 3), car: await svgPng(carSvg(), 520, 232, 3),
+            bars: await svgPng(barSvg(), 640, 330, 3), piano: await svgPng(pianoSvg(), 620, 200, 3)
+        };
+        const date = clean($('#date').value.trim());
+        doc = new jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+        doc.setProperties({ title: 'Friction and simple machines: Cornell notes' });
+        DRY = false;
+
+        /* header */
+        doc.setFillColor(...C.nv); doc.rect(ML, 10, MR - ML, 2.4, 'F');
+        font('bold', 23, C.nv); T('Friction and ', ML, 24); const tw = doc.getTextWidth('Friction and ');
+        font('bold', 23, C.pk); T('simple machines', ML + tw, 24);
+        font('bold', 8.5, C.gr); T('Cornell notes  |  Consolidating SC7 to SC9', ML, 30);
+        font('bold', 9.5, C.nv); T('Date', 150, 24); font('bold', 10, C.pk); T(doc.splitTextToSize(date, 34)[0] || '', 161, 23.7);
+        Ln(161, 25.2, MR, 25.2, C.nv, .35);
+        Ln(ML, 33.5, MR, 33.5, C.nv, .9);
+        [['SC7', 'Recognise the effects of friction'], ['SC8', "Define the term 'simple machine'"], ['SC9', 'Identify the advantages of simple machines']].forEach(([c, t], i) => {
+            const x = [ML, 76, 136][i];
+            font('bold', 8.5, C.pk); T(c, x, 39.5); const w = doc.getTextWidth(c + ' ');
+            font('normal', 8.5, C.nv); T(t, x + w + .5, 39.5);
+        });
+        font('bold', 8, C.gr); T('Cues', ML, 46);
+        font('bold', 8, C.nv); T('Notes', NX, 46); const nw = doc.getTextWidth('Notes  ');
+        font('bold', 8, C.gr); T('Complete the notes, then cover them and test yourself with the cues.', NX + nw, 46);
+        Ln(ML, 48.5, MR, 48.5, C.nv, .9); Ln(CX, 42.5, CX, 48.5, C.nv, .8);
+        Y = 48.5;
+        const Q = (t, x, y, w = NW) => flow([t], x, y, w, { fs: 8.5, st: 'bold', col: C.gr });
+
+        /* SC7 */
+        sec('SC7', 'Recognise the beneficial and unwanted effects of friction');
+        row({ q: 'What is friction?', s: 'Which way does it act?' }, y => {
+            let e = flow(['Friction is a ', { a: V('f1') }, ' force that acts in the ', { a: V('f2') }, ' direction to motion.'], NX, y, NW);
+            e = flow(['It turns some movement energy into ', { a: V('f3') }, '.'], NX, e + 2, NW);
+            e = flow(['A skier glides down a snowy slope. Which arrow shows the friction on her skis?'], NX, e + 3, NW, { st: 'bold' });
+            const iw = 74, ih = iw * 286 / 620, rx = NX + iw + 6, rw = NW - iw - 6;
+            IMG(img.ski, NX, e + 2, iw, ih);
+            let e2 = flow(['Friction arrow: ', { a: V('fA'), min: 8 }], rx, e + 6, rw);
+            flow(['Friction acts ', { a: V('f4'), min: 18 }, ' because it opposes ', { a: V('f5'), min: 22 }, '.'], rx, e2 + 3, rw);
+            return e + 2 + ih;
+        });
+        row({ q: 'Can friction be helpful and unwanted?', s: 'It depends on the situation.' }, y => {
+            let e = Q('Bowling shoes have a smooth leather sole on one shoe and a grippy rubber sole on the other.', NX, y);
+            e = flow(['The leather sole has ', { a: V('bw1'), min: 12 }, ' friction so the bowler can ', { a: V('bw2'), min: 12 }, ' as they release the ball.'], NX, e + 2, NW);
+            e = flow(['The rubber sole has ', { a: V('bw3'), min: 12 }, ' friction so the bowler can ', { a: V('bw4'), min: 12 }, ' safely.'], NX, e + 2, NW);
+            e = Q('Why would a running shoe with two rubber soles be a poor choice for bowling?', NX, e + 3);
+            e = longAns(V('bw5'), NX, e + 1.5, NW, 2);
+            e = Q("A car's brake pads press on a spinning disc to slow the car.", NX, e + 4);
+            e = flow(['Beneficial effect: ', { a: V('bp1'), min: 70 }], NX, e + 2, NW);
+            return flow(['Unwanted effect: ', { a: V('bp2'), min: 70 }], NX, e + 2, NW);
+        });
+        row({ q: 'How can we change friction?', s: 'Predict more or less friction, then say how it works.' }, y => {
+            font('bold', 8.5, C.nv); T('Change', NX, y + 3); T('Friction', NX + 52, y + 3); T('How it works', NX + 82, y + 3);
+            Ln(NX, y + 5, MR, y + 5, C.nv, .5);
+            return tableRows([["Chalk on a gymnast's hands", 'cg1', ['More', 'Less'], 'ch1'], ['Castor wheels under a heavy wardrobe', 'cg2', ['More', 'Less'], 'ch2'], ['Silicone spray on a stuck zip', 'cg3', ['More', 'Less'], 'ch3'], ['Metal studs on football boots', 'cg4', ['More', 'Less'], 'ch4'], ['Polishing a timber floor', 'cg5', ['More', 'Less'], 'ch5']], y + 5, { lw: 48, pr: 78, ax: 82 });
+        });
+        row({ q: 'What does the evidence show?', s: 'Kai pushed the same toy car across four surfaces.' }, y => {
+            const iw = 70, ih = iw * 232 / 520, rx = NX + iw + 5, rw = NW - iw - 5;
+            IMG(img.car, NX, y, iw, ih);
+            let e2 = flow(['Most friction: ', { a: V('cr1'), min: 22 }], rx, y + 6, rw);
+            flow(['The further the car rolled, the ', { a: V('cr2'), min: 12 }, ' friction acted on it.'], rx, e2 + 3, rw);
+            const e = Q('Kai pushed harder on the tiles. Why is that result not a fair comparison, and how could Kai fix it?', NX, y + ih + 3);
+            return longAns(V('cr3'), NX, e + 1.5, NW, 3);
+        });
+
+        /* SC8 */
+        sec('SC8', "Define the term 'simple machine'");
+        row({ q: 'What is a simple machine?', s: 'When is work done?' }, y => {
+            let e = flow(['A simple machine is a device with few or no moving parts that makes ', { a: V('sm1') }, ' easier by changing the ', { a: V('sm2') }, ' or ', { a: V('sm3') }, ' of a force.'], NX, y, NW);
+            e = flow(['Work is done when a force moves an object a ', { a: V('sm4') }, '.'], NX, e + 2, NW);
+            e = flow(['Is work being done?'], NX, e + 3, NW, { st: 'bold' });
+            return twoCol([['Lifting a school bag onto a shelf', 'wk1'], ["Pushing hard on a wall that doesn't move", 'wk2'], ['Holding a heavy box perfectly still', 'wk3'], ['Dragging a sled across the snow', 'wk4']], ['Work', 'No work'], e + 1);
+        });
+        row({ q: 'Which simple machine is it?', s: 'Read how each object works, then choose.' }, y => {
+            const bw = (NW - 4) / 2;
+            let yy = y;
+            for (let r = 0; r < 3; r++) {
+                const text = (x, ty, i) => {
+                    let e = flow([CARDS[i][0]], x + 3, ty + 2.5, bw - 6, { st: 'bold' });
+                    e = flow([CARDS[i][1]], x + 3, e + .8, bw - 6, { fs: 8, col: C.gr, lh: 3.6 });
+                    return flow([{ a: V('id' + (i + 1)), min: 28 }], x + 3, e + 1.5, bw - 6);
+                };
+                const h = Math.max(meas(() => text(0, 0, r * 2)), meas(() => text(0, 0, r * 2 + 1))) + 3;
+                for (let c = 0; c < 2; c++) { const x = NX + c * (bw + 4); RR(x, yy, bw, h, 1.8, null, C.ru, .4); text(x, yy, r * 2 + c); }
+                yy += h + 3;
+            }
+            return yy - 3;
+        });
+        row({ q: 'Does it fit the definition?', s: 'Agree or disagree with each student, then explain.' }, y => {
+            let e = y - 2;
+            CLAIMS.forEach(([n, q], i) => {
+                e = flow([n + ': ' + q], NX, e + 2, NW - 40, { fs: 9 });
+                pills(['Agree', 'Disagree'], V('cl' + (i + 1)), MR, e - 4.5, 8);
+                e = flow(['because ', { a: V('cw' + (i + 1)), min: 80 }], NX, e + 1.5, NW, { fs: 9 }) + 1.5;
+            });
+            return e;
+        });
+        row({ q: 'Your cue', s: 'Write your own question.', own: true, k: 'cue1' }, y => {
+            const e = Q('Scissors combine two simple machines. Name both and explain what each part of the scissors does.', NX, y);
+            return longAns(V('cue1a'), NX, e + 1.5, NW, 3);
+        });
+        sumBox('friction, opposes, beneficial, unwanted, simple machine', 'Explain why the same friction can be helpful in one situation and unwanted in another, and what makes a device a simple machine.', y => longAns(V('sum1'), ML + 5, y, MR - ML - 10, 4));
+
+        /* SC9 */
+        sec('SC9', 'Identify the advantages of simple machines');
+        row({ q: 'What advantages can machines give?', s: 'What is the trade-off?' }, y => {
+            let e = flow(['A simple machine can change the ', { a: V('ad1') }, ' of a force, multiply ', { a: V('ad2') }, ', or multiply ', { a: V('ad3') }, ' and ', { a: V('ad4') }, '.'], NX, y, NW);
+            e = flow(['Trade-off: when a machine multiplies force, the effort moves a ', { a: V('ad5'), min: 16 }, ' distance than the load.'], NX, e + 2, NW);
+            return flow(['When a machine multiplies distance and speed, it needs a ', { a: V('ad6'), min: 16 }, ' effort force.'], NX, e + 2, NW);
+        });
+        row({ q: 'Which advantage does each machine give?', s: 'Think about what the user gains.' }, y => {
+            const O = ['Direction', 'Force', 'Distance and speed'], pw = pillsW(O, 8) + 3;
+            font('bold', 8.5, C.nv); T('Situation', NX, y + 3); T('Main advantage', MR, y + 3, { align: 'right' });
+            Ln(NX, y + 5, MR, y + 5, C.nv, .5);
+            return tableRows([['Using a long spanner to undo a tight wheel nut', 'av1', O], ['Flicking a fishing rod to cast a lure across a river', 'av2', O], ['Pulling a gym cable down to lift the weights up', 'av3', O], ['Wheeling a heavy load of soil in a wheelbarrow', 'av4', O], ['Swinging a hockey stick to hit the ball hard', 'av5', O]], y + 5, { lw: NW - pw, pr: NW });
+        });
+        row({ q: 'How does the trade-off change?', s: 'Two crowbars lift the same rock 10 cm.' }, y => {
+            const iw = NW * .62, ih = iw * 330 / 640, rx = NX + iw + 5, rw = NW - iw - 5;
+            IMG(img.bars, NX, y, iw, ih);
+            let e2 = flow(["Crowbar B's hands move ", { a: V('cb1'), min: 8 }, " times as far as crowbar A's hands."], rx, y + 6, rw);
+            flow(['Smaller effort force: crowbar ', { a: V('cb2'), min: 8 }], rx, e2 + 3, rw);
+            const e = Q('Explain your choice using the words effort, distance and trade-off.', NX, y + ih + 3);
+            return longAns(V('cb3'), NX, e + 1.5, NW, 3);
+        });
+        row({ q: 'Your cue', s: 'Write your own question.', own: true, k: 'cue2' }, y => {
+            const e = Q("A builder uses a single pulley to lift bricks, even though it doesn't reduce the force needed. Why is it still worth using?", NX, y);
+            return longAns(V('cue2a'), NX, e + 1.5, NW, 3);
+        });
+
+        /* apply */
+        sec('SC7 to SC9', 'Put it all together', true);
+        row({ q: 'Can I apply it?', s: 'The drama club needs to move a 150 kg piano from the hall floor onto a 1 m high stage.' }, y => {
+            const iw = NW * .62, ih = iw * 200 / 620;
+            IMG(img.piano, NX, y, iw, ih);
+            let e = Q('1. Which simple machine would you use, and what advantage does it give?', NX, y + ih + 3);
+            return longAns(V('ap1'), NX, e + 1.5, NW, 2);
+        });
+        row({ q: '', s: '' }, y => {
+            let e = Q('2. What is the trade-off of using your machine?', NX, y);
+            e = longAns(V('ap2'), NX, e + 1.5, NW, 2);
+            e = Q('3. Where would friction help the team, and where would it get in the way? How could they change it?', NX, e + 4);
+            return longAns(V('ap3'), NX, e + 1.5, NW, 3);
+        });
+        row({ q: 'Self-check', s: 'My answers include' }, y => {
+            let yy = y;
+            ['A named simple machine', 'The advantage it gives', 'A trade-off that uses effort and distance', 'Where friction is beneficial and where it is unwanted', 'A way to increase or reduce friction'].forEach((t, i) => {
+                const on = CK('k' + (i + 1));
+                RR(NX, yy + .6, 4.2, 4.2, .8, on ? C.pk : null, on ? C.pk : C.nv, .35);
+                if (on && !DRY) { doc.setDrawColor(...C.wh); doc.setLineWidth(.6); doc.lines([[1.1, 1.1], [1.9, -2.4]], NX + .9, yy + 2.8); }
+                font('normal', 9, C.nv); T(t, NX + 7, yy + 3.9);
+                yy += 6.4;
+            });
+            return yy - 1.4;
+        });
+
+        sumBox('advantage, effort, trade-off, friction', '', y => {
+            let e = y - 1;
+            [['A simple machine can give three advantages: ', 's2a'], ['When a machine multiplies force, the trade-off is ', 's2b'], ['Friction matters when using machines because ', 's2c']].forEach(([t, k]) => {
+                e = flow([t, { a: V(k), min: 60 }], ML + 5, e + 2, MR - ML - 10, { plain: true }) + 1;
+            });
+            return e;
+        });
+
+        /* confidence */
+        ensure(22); Y += 7;
+        Ln(ML, Y, MR, Y, C.nv, .8);
+        font('bold', 10, C.nv); T('How confident am I?', ML, Y + 6); const cw2 = doc.getTextWidth('How confident am I?  ');
+        font('bold', 8.5, C.gr); T('1 = not yet, 4 = I can teach it', ML + cw2, Y + 6);
+        ['7', '8', '9'].forEach((n, i) => {
+            const x = ML + i * 44;
+            font('bold', 8.5, C.nv); T('SC' + n, x, Y + 13.8); const lw = doc.getTextWidth('SC' + n) + 2;
+            pills(['1', '2', '3', '4'], V('c' + n), x + lw + 24.5, Y + 10.2, 7.5, true);
+        });
+        Y += 18;
+
+        const pages = doc.getNumberOfPages();
+        for (let i = 1; i <= pages; i++) {
+            doc.setPage(i);
+            font('normal', 7.5, C.gr);
+            doc.text('Friction and simple machines: Cornell notes', ML, 289);
+            doc.text(`Page ${i} of ${pages}`, MR, 289, { align: 'right' });
+        }
+
+        lastDoc = doc;
+        doc.save(FILE);
+        exported = true;
+        $('#fname').textContent = FILE;
+        $('#done').classList.add('show'); $('#done').scrollTop = 0;
+        document.body.style.overflow = 'hidden';
+        $('#back').focus({ preventScroll: true });
+    } catch (err) {
+        console.error(err);
+        modal('The PDF could not be made', 'Try pressing Export PDF again. If it still doesn’t work, tell your teacher.', [['OK', 'pk']]);
+    } finally {
+        btns.forEach(b => { b.disabled = false; b.textContent = 'Export PDF'; });
+    }
+}
+$('#again').onclick = () => { if (lastDoc) lastDoc.save(FILE); };
+$('#back').onclick = () => { $('#done').classList.remove('show'); document.body.style.overflow = ''; };
+
+window.addEventListener('beforeunload', e => { if (dirty && !exported) { e.preventDefault(); e.returnValue = ''; } });
+
+changed(); dirty = false;
+
+</script>
+</body>
+</html>
