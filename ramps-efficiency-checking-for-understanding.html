@@ -374,7 +374,7 @@ function rampTile(a) {
         <path class="angarc" d="M${f1(x0 + 22)} ${gy} A22 22 0 0 0 ${f1(x0 + 22 * Math.cos(deg(a)))} ${f1(gy - 22 * Math.sin(deg(a)))}"/>
         ${T(x0, gy + 22, a + '&deg;', 'mid sm')}<g class="ea" data-a="${a}" data-x="${f1(x0)}"></g></svg>`;
 }
-const rcE = (name, a, b, pct) => `<div class="rc"><b>${name}</b><span>Energy in ${a} J</span><span>Useful out ${b} J</span><em class="rv">${pct}%</em></div>`;
+const rcF = (name, a, b, pct) => `<div class="rc"><b>${name}</b><span>Without ${a} N</span><span>With ${b} N</span><em class="rv">${pct}%</em></div>`;
 
 /* graph helpers */
 function graphFrame(GX, GY, x0, x1, y0, y1, o = {}) {
@@ -491,33 +491,76 @@ const SCENES = {
         }
         return { start: () => run(false), replay: () => run(false), done() { runId++; run(true); } };
     },
-    /* energy flow for efficiency, 560 x 330 */
-    energy(svg) {
-        svg.innerHTML = `<rect x="20" y="60" width="180" height="100" fill="${NV}"/>${T(110, 92, 'Energy in', 'mid wh sm')}${T(110, 128, '500 J', 'mid wh lg')}
-            <path d="M330 60 H512 L540 100 L512 140 H330 Z" fill="${PK}"/>${T(426, 86, 'Useful out', 'mid wh sm')}${T(426, 118, '400 J', 'mid wh lg')}
-            <path d="M330 140 H352 Q376 140 376 164 V242 H392 L366 274 L340 242 H356 V170 Q356 160 346 160 H330 Z" fill="#c3c6d0"/>
-            <g class="pts"></g>
-            <rect x="196" y="40" width="138" height="140" rx="8" fill="#fff" stroke="${NV}" stroke-width="4"/>${T(265, 104, 'Wheel-', 'mid')}${T(265, 130, 'barrow', 'mid')}
-            ${T(406, 262, 'Wasted', 'gr sm')}<text class="lbl lg wv" x="406" y="296" style="fill:var(--mid-grey)">? J</text>
-            <g class="ht" opacity="0">${heat(300, 300)}${heat(318, 300)}${heat(336, 300)}</g>
-            <g class="pct" opacity="0">${T(470, 178, '80% efficient', 'mid pk')}</g>`;
-        const pts = svg.querySelector('.pts'), wv = svg.querySelector('.wv'), ht = svg.querySelector('.ht'), pct = svg.querySelector('.pct');
-        let now = 0, dT = null;
-        return {
-            start() {
-                loop(t => {
-                    now = t;
-                    const o = (t * .05) % 34;
-                    let s = '';
-                    for (let x = 26 + o; x < 196; x += 34) s += `<circle cx="${f1(x)}" cy="148" r="4" fill="#fff" opacity=".55"/>`;
-                    for (let x = 336 + o; x < 510; x += 34) s += `<circle cx="${f1(x)}" cy="131" r="4" fill="#fff" opacity=".6"/>`;
-                    for (let y = 172 + o; y < 240; y += 34) s += `<circle cx="366" cy="${f1(y)}" r="4" fill="#fff"/>`;
-                    pts.innerHTML = s;
-                    if (dT !== null) { const k = Math.min(1, (t - dT) / 500); ht.setAttribute('opacity', f1(k * (.6 + .4 * Math.sin(t / 150)))); pct.setAttribute('opacity', f1(k)); }
-                });
-            },
-            done() { dT = now; wv.textContent = '100 J'; wv.style.fill = PK; }
+    /* effort force (bar height) and distance (bar length) for three paths, 560 x 330 */
+    tiles(svg) {
+        const X0 = 20, XS = 110, YS = .8, rows = [[100, 1, 50, 'Lift straight up'], [50, 2, 182, 'Steep ramp'], [25, 4, 280, 'Gentle ramp']];
+        let s = '';
+        rows.forEach(([f, d, y, n], i) => {
+            const w = d * XS, h = f * YS, last = i === 2;
+            s += `${T(X0, y - 10, n + ': ' + f + ' N effort over ' + (last ? '<tspan class="dq">? m</tspan>' : d + ' m'), last ? 'pk' : '')}`;
+            s += last ? `<rect class="bx3" x="${X0}" y="${y}" width="${w}" height="${h}" fill="#fff" stroke="${PK}" stroke-width="3" stroke-dasharray="8 6"/>`
+                : `<rect x="${X0}" y="${y}" width="${w}" height="${h}" fill="${LT}" stroke="${NV}" stroke-width="3"/>`;
+        });
+        svg.innerHTML = s;
+        const bx = svg.querySelector('.bx3'), dq = svg.querySelector('.dq');
+        return { start() {}, done() { bx.setAttribute('fill', PK); bx.removeAttribute('stroke-dasharray'); dq.textContent = '4 m'; } };
+    },
+    /* lift straight up vs a ramp, 560 x 330 */
+    rampEff(svg) {
+        const GY = 270, H = 90, A = 30, K = 1.1, base = H / Math.tan(deg(A)), XR = 470, X0 = XR - base, L = Math.hypot(base, H);
+        svg.innerHTML = `${T(16, 34, 'Without: lift it', 'sm')}${T(268, 34, 'With: a ramp', 'pk sm')}
+            <line x1="246" y1="20" x2="246" y2="${GY}" stroke="${GR}" stroke-width="2" stroke-dasharray="6 6"/>
+            <line class="gnd" x1="0" x2="560" y1="${GY + 2}" y2="${GY + 2}"/>
+            <rect class="load" x="160" y="${GY - H}" width="60" height="${H}"/>${T(190, GY - H / 2 + 7, '1 m', 'mid sm')}
+            <g class="b1"><rect class="solid" x="-20" y="-34" width="40" height="34" rx="3"/>${arrowSVG(0, -40, -Math.PI / 2, 120 * .55, { sw: 7, hl: 16, hw: 10 })}${T(-12, -64, '120 N', 'end pk')}</g>
+            <polygon class="rampp" points="${f1(X0)},${GY} ${XR},${GY} ${XR},${GY - H}"/><rect class="load" x="${XR}" y="${GY - H}" width="60" height="${H}"/>${T(XR + 30, GY - H / 2 + 7, '1 m', 'mid sm')}
+            <path class="angarc" d="M${f1(X0 + 34)} ${GY} A34 34 0 0 0 ${f1(X0 + 34 * Math.cos(deg(A)))} ${f1(GY - 34 * Math.sin(deg(A)))}"/>
+            <g class="b2"><rect class="solid" x="-20" y="-34" width="40" height="34" rx="3"/>${arrowSVG(24, -17, 0, 60 * K, { sw: 7, hl: 16, hw: 10 })}${T(24 + 30 * K, -34, '60 N', 'mid pk')}</g>
+            <g class="res" opacity="0">${T(280, 318, '120 &divide; 60 &times; 100 = 200%', 'mid pk')}</g>`;
+        const b1 = svg.querySelector('.b1'), b2 = svg.querySelector('.b2'), res = svg.querySelector('.res');
+        const set = k => {
+            b1.setAttribute('transform', `translate(134 ${f1(GY - k * H)})`);
+            const p = onSlope(X0, GY, A, 24 + k * (L - 48));
+            b2.setAttribute('transform', `translate(${f1(p.x)} ${f1(p.y)}) rotate(${-A})`);
         };
+        set(0);
+        return { start() { loop(t => set(cycle(t, 4200, 2600))); }, done() { res.setAttribute('opacity', 1); } };
+    },
+    /* dragging vs a trolley, 560 x 330 */
+    wheels(svg) {
+        const G1 = 128, G2 = 282, X0 = 24, D = 270, K = 1.2;
+        const crate = (y) => `<rect class="load" x="0" y="${y - 56}" width="80" height="56" rx="3"/><path d="M0 ${y - 56} L80 ${y} M80 ${y - 56} L0 ${y}" stroke="${NV}" stroke-width="2.5"/>`;
+        const wheel = (cx, cy) => `<g class="wh" data-cx="${cx}" data-cy="${cy}"><circle cx="${cx}" cy="${cy}" r="11" fill="#fff" stroke="${NV}" stroke-width="4"/><line x1="${cx - 9}" y1="${cy}" x2="${cx + 9}" y2="${cy}" stroke="${NV}" stroke-width="3"/></g>`;
+        svg.innerHTML = `${T(16, 30, 'Dragging it', 'sm')}${T(16, G1 + 50, 'On a trolley', 'pk sm')}
+            <line class="gnd" x1="0" x2="560" y1="${G1 + 2}" y2="${G1 + 2}"/><line class="gnd" x1="0" x2="560" y1="${G2 + 2}" y2="${G2 + 2}"/>
+            <g class="c1"><g class="ht">${heat(-10, G1 - 4)}${heat(-26, G1 - 4)}</g>${crate(G1)}${arrowSVG(86, G1 - 28, 0, 90 * K, { sw: 7, hl: 16, hw: 10 })}${T(86 + 45 * K, G1 - 44, '90 N', 'mid pk')}</g>
+            <g class="c2">${crate(G2 - 30)}<rect class="solid" x="-4" y="${G2 - 30}" width="88" height="8" rx="2"/>${wheel(14, G2 - 11)}${wheel(66, G2 - 11)}
+                ${arrowSVG(86, G2 - 58, 0, 30 * K, { sw: 7, hl: 16, hw: 10 })}${T(86 + 15 * K + 4, G2 - 74, '30 N', 'mid pk')}</g>
+            <g class="res" opacity="0">${T(548, 326, '90 &divide; 30 &times; 100 = 300%', 'end pk')}</g>`;
+        const c1 = svg.querySelector('.c1'), c2 = svg.querySelector('.c2'), ht = svg.querySelector('.ht'), res = svg.querySelector('.res'), whs = [...svg.querySelectorAll('.wh')];
+        const set = (k, t) => {
+            c1.setAttribute('transform', `translate(${f1(X0 + k * D)} 0)`); c2.setAttribute('transform', `translate(${f1(X0 + k * D)} 0)`);
+            ht.setAttribute('opacity', k > 0 && k < 1 ? f1(.5 + .5 * Math.sin(t / 90)) : 0);
+            whs.forEach(w => w.setAttribute('transform', `rotate(${f1(k * D / 11 * 180 / Math.PI)} ${w.dataset.cx} ${w.dataset.cy})`));
+        };
+        set(0, 0);
+        return { start() { loop(t => set(cycle(t, 4200, 2600), t)); }, done() { res.setAttribute('opacity', 1); } };
+    },
+    /* lever lifting a load, 740 x 330 */
+    lever(svg) {
+        const FX = 250, FY = 214, LA = 80, EA = 320, A0 = -10, A1 = 6;
+        svg.innerHTML = `${T(20, 40, 'Without: lift it', 'sm')}${T(20, 72, '200 N', 'lg')}${T(720, 40, 'With a lever', 'end pk sm')}${T(720, 72, '50 N', 'end pk lg')}
+            <line class="gnd" x1="20" x2="720" y1="${FY + 62}" y2="${FY + 62}"/>
+            <polygon points="${FX},${FY} ${FX - 30},${FY + 60} ${FX + 30},${FY + 60}" fill="${PK}"/>
+            <g class="arm"><rect x="${FX - LA - 40}" y="${FY - 12}" width="${LA + EA + 60}" height="12" rx="2" fill="${NV}"/>
+                <rect x="${FX - LA - 38}" y="${FY - 72}" width="76" height="60" rx="4" fill="${NV}"/>${T(FX - LA, FY - 34, '200 N', 'mid wh')}
+                ${arrowSVG(FX + EA, FY - 104, Math.PI / 2, 86, { sw: 7, hl: 16, hw: 10 })}${T(FX + EA - 16, FY - 64, '50 N', 'end pk')}</g>
+            ${T(FX, FY + 90, 'Fulcrum', 'mid gr sm')}
+            <g class="res" opacity="0">${T(720, FY + 90, '200 &divide; 50 &times; 100 = 400%', 'end pk')}</g>`;
+        const arm = svg.querySelector('.arm'), res = svg.querySelector('.res');
+        const set = k => arm.setAttribute('transform', `rotate(${f1(A0 + (A1 - A0) * k)} ${FX} ${FY})`);
+        set(0);
+        return { start() { loop(t => set(cycle(t, 4000, 2400))); }, done() { res.setAttribute('opacity', 1); } };
     }
 };
 
@@ -549,6 +592,17 @@ const QS = [
       ans: [{ min: 66, max: 75, hint: v => v < 66 ? 'That is a bit low. Make sure you go up from 45&deg;, halfway between 40 and 50, to the line.' : 'That is a bit high. Make sure you go up from 45&deg;, halfway between 40 and 50, to the line.' }],
       msg: 'At 45&deg;, the effort force is about 71 N. It sits between the 40&deg; and 50&deg; results.' },
 
+    { kind: 'sort', small: true, title: 'Steep or gentle?', sc: 'SC10', prompt: 'Two ramps raise the same box to the same height. Sort each statement into the ramp it describes.',
+      bins: [{ h: 'Steep ramp', sub: 'Short ramp, same height', k: 's' }, { h: 'Gentle ramp', sub: 'Long ramp, same height', k: 'g', pk: true }],
+      items: [
+        ['Larger angle of inclination', 's', 'The steep ramp rises more sharply, so it has the larger angle of inclination.'],
+        ['Smaller angle of inclination', 'g', 'The gentle ramp rises slowly, so it has the smaller angle of inclination.'],
+        ['Needs more effort force', 's', 'A larger angle of inclination means more effort force is needed.'],
+        ['Needs less effort force', 'g', 'A smaller angle of inclination means less effort force is needed.'],
+        ['Load travels a shorter distance', 's', 'The steep ramp is shorter, so the load travels a shorter distance.'],
+        ['Load travels a longer distance', 'g', 'The gentle ramp is longer, so the load travels further to reach the same height.']],
+      msg: 'A steep ramp needs more effort force over a shorter distance. A gentle ramp needs less effort force over a longer distance.' },
+
     { kind: 'mcscene', scene: 'tradeoff', title: 'The trade-off', sc: 'SC10', prompt: 'The gentle ramp needs less effort force. What is the trade-off?',
       opts: [
         { t: 'The box travels a longer distance', hint: '' },
@@ -556,6 +610,12 @@ const QS = [
         { t: 'The box gets heavier', hint: 'The box\u2019s weight doesn\u2019t change. Count the dots on each ramp.' },
         { t: 'There is no trade-off', hint: 'Count the dots. Does one box travel further than the other?' }],
       answer: 0, msg: 'A gentle ramp needs less effort, but the load travels a longer distance to reach the same height.' },
+
+    { kind: 'calc', scene: 'tiles', title: 'How far?', sc: 'SC10', prompt: 'Each path raises the same 100 N box 1 m high. Use the pattern to work out how far the box travels along the gentle ramp.',
+      chips: ['Compare the <b>effort force</b> and the <b>distance</b> for the first two paths. What happens to the distance when the effort force halves?'],
+      lines: ['<small>Distance along the gentle ramp</small>[] m'],
+      ans: [{ v: 4, hint: v => v < 2 ? 'A smaller effort force means a longer distance, not a shorter one.' : v === 2 ? 'That is the steep ramp. The gentle ramp needs even less effort force, so the box travels further.' : v === 3 ? 'The distance does not go up by 1 m each time. Look at what happens when the effort force halves from 100 N to 50 N.' : 'From 50 N to 25 N, the effort force halves once. What happens to the distance when the effort force halves?' }],
+      msg: '25 N is half of 50 N, so the distance doubles from 2 m to 4 m. Less effort force means a longer distance.' },
 
     { kind: 'mcpic', title: 'Access ramps', sc: 'SC10', prompt: 'Australian access ramps are usually no steeper than 1 in 14. Each ramp rises 1 m. Which follows this guideline?',
       opts: [
@@ -565,47 +625,42 @@ const QS = [
         { p: 14, t: '1 m up, 14 m along', hint: '' }],
       answer: 3, msg: 'Rising 1 m over 14 m is 1 in 14. The small angle keeps the effort force low for wheelchair users.' },
 
-    { kind: 'calc', scene: 'energy', title: 'Efficiency', sc: 'SC11', prompt: 'Calculate the efficiency of the wheelbarrow and the energy it wastes.',
-      chips: ['<b>Efficiency</b> = useful energy out &divide; energy in &times; 100', '<b>Wasted energy</b> = energy in &minus; useful energy out'],
-      lines: ['<small>Efficiency</small>[] %', '<small>Wasted energy</small>[] J'],
-      ans: [
-        { v: 80, hint: v => v === .8 ? 'Nearly there. Multiply by 100 to turn it into a percentage.' : v === 125 ? 'Check the order. Divide the useful energy out by the energy in.' : 'Divide the useful energy out by the energy in, then multiply by 100.' },
-        { v: 100, hint: v => v === 900 ? 'You added. Subtract the useful energy out from the energy in.' : 'Subtract the useful energy out from the energy in.' }],
-      msg: '400 &divide; 500 &times; 100 = 80%. The other 100 J is wasted as heat and sound.' },
+    { kind: 'mc', title: 'Mountain roads', sc: 'SC10', prompt: 'Roads up steep mountains often zigzag back and forth instead of going straight up. Why?',
+      opts: [
+        { t: 'It makes the road shorter, so cars arrive sooner', hint: 'A zigzag road is longer than a straight one. Think about the angle of each section.' },
+        { t: 'It makes the top of the mountain lower', hint: 'The mountain stays the same height. Think about the angle of each section of road.' },
+        { t: 'It makes the angle of inclination smaller, so less effort force is needed', hint: '' },
+        { t: 'It makes the cars lighter as they climb', hint: 'The weight of the cars does not change. Think about the angle of each section of road.' }],
+      answer: 2, msg: 'Each zigzag is a gentle ramp. A smaller angle means less effort force, but the road is longer.' },
+
+    { kind: 'calc', scene: 'rampEff', title: 'Efficiency of a ramp', sc: 'SC11', prompt: 'Lifting a box straight up takes 120 N. Pushing it up a ramp takes 60 N. Calculate the efficiency of the ramp.',
+      chips: ['<b>Efficiency</b> = force without simple machine &divide; force with simple machine &times; 100'],
+      lines: ['<small>Efficiency</small>[] %'],
+      ans: [{ v: 200, hint: v => v === 2 ? 'Nearly there. Multiply by 100 to turn it into a percentage.' : v === 50 ? 'Check the order. Divide the force without the ramp (120 N) by the force with it (60 N).' : v === 60 ? 'You subtracted. Divide the force without the ramp by the force with it, then multiply by 100.' : 'Divide the force without the ramp (120 N) by the force with it (60 N), then multiply by 100.' }],
+      msg: '120 &divide; 60 &times; 100 = 200%. The ramp halves the effort force needed.' },
+
+    { kind: 'mcscene', scene: 'lever', title: 'Efficiency of a lever', sc: 'SC11', prompt: 'Lifting a load straight up takes 200 N. With a lever, it takes 50 N. How efficient is the lever?',
+      opts: [
+        { t: '25%', hint: 'Check the order. Divide the force without the lever (200 N) by the force with it (50 N).' },
+        { t: '4%', hint: 'Nearly there. After dividing, multiply by 100 to turn it into a percentage.' },
+        { t: '400%', hint: '' },
+        { t: '150%', hint: 'You subtracted. Divide the force without the lever by the force with it, then multiply by 100.' }],
+      answer: 2, msg: '200 &divide; 50 &times; 100 = 400%. A small effort force lifts a much bigger load.' },
 
     { kind: 'rank', title: 'Most efficient', sc: 'SC11', prompt: 'Work out the efficiency of each machine, then rank them from most to least efficient.',
       slot: [226, 140], ends: ['Most efficient', 'Least efficient'],
-      items: [{ k: 'sc', html: rcE('Scissors', 200, 190, 95) }, { k: 'sco', html: rcE('Scooter', 600, 480, 80) }, { k: 'cr', html: rcE('Crane pulley', 1000, 450, 45) }, { k: 'jk', html: rcE('Car jack', 800, 240, 30) }],
-      order: ['sc', 'sco', 'cr', 'jk'],
-      hint: 'Use useful out &divide; energy in &times; 100 for each machine. The biggest percentage goes first.',
-      msg: 'The scissors waste the least energy, so they are the most efficient.' },
-
-    { kind: 'mc', title: 'Never 100%', sc: 'SC11', prompt: 'Why is no machine 100% efficient?',
-      opts: [
-        { t: 'Friction changes some of the energy into heat and sound', hint: '' },
-        { t: 'Machines destroy some of the energy put into them', hint: 'Energy can\u2019t be destroyed. It changes into other forms.' },
-        { t: 'The load gets heavier as it is moved', hint: 'The load doesn\u2019t change. Think about what happens where moving parts rub together.' },
-        { t: 'Machines can only ever use half of the energy put in', hint: 'Many machines are more than 50% efficient. Think about what happens where moving parts rub together.' }],
-      answer: 0, msg: 'Friction changes some energy into heat and sound. This energy is wasted, so no machine is 100% efficient.' },
-
-    { kind: 'sort', small: true, title: 'Better or worse?', sc: 'SC11', prompt: 'Does each change make a machine more or less efficient?',
-      bins: [{ h: 'More efficient', sub: 'Less energy wasted', k: 'm', pk: true }, { h: 'Less efficient', sub: 'More energy wasted', k: 'l' }],
-      items: [
-        ['Oiling the axle', 'm', 'Oil reduces friction, so less energy is wasted as heat.'],
-        ['Adding ball bearings', 'm', 'Ball bearings roll instead of sliding, which reduces friction.'],
-        ['Cleaning grit from a chain', 'm', 'Grit rubs on the moving parts. Removing it reduces friction.'],
-        ['Rust on the moving parts', 'l', 'Rust makes surfaces rough, so friction wastes more energy.'],
-        ['A rope rubbing on a rough edge', 'l', 'Rubbing on a rough edge adds friction, which wastes more energy.'],
-        ['A squeaky, dry hinge', 'l', 'The squeak is wasted sound energy caused by friction.']],
-      msg: 'Reducing friction means less energy is wasted, so the machine is more efficient.' },
+      items: [{ k: 'lv', html: rcF('Lever', 120, 30, 400) }, { k: 'wb', html: rcF('Wheelbarrow', 300, 100, 300) }, { k: 'rp', html: rcF('Ramp', 80, 40, 200) }, { k: 'pu', html: rcF('Single pulley', 60, 60, 100) }],
+      order: ['lv', 'wb', 'rp', 'pu'],
+      hint: 'Use force without &divide; force with &times; 100 for each machine. The biggest percentage goes first.',
+      msg: 'The lever reduces the effort force the most. The single pulley is 100%: it only changes the direction of the force.' },
 
     { kind: 'tf', title: 'True or false?', sc: 'SC10, SC11', prompt: 'Decide whether each statement is true or false.',
       rows: [
         ['A steeper ramp needs less effort force to push a load up.', false, 'A steeper ramp has a bigger angle of inclination, so it needs more effort force.'],
         ['A gentle ramp makes the load travel a longer distance.', true, 'A gentle ramp is longer, so the load travels further to reach the same height.'],
-        ['A machine that is 70% efficient wastes 30% of the energy put in.', true, '100% &minus; 70% = 30%, so 30% of the energy is wasted.'],
-        ['Oiling the moving parts of a machine makes it less efficient.', false, 'Oil reduces friction, so less energy is wasted. The machine becomes more efficient.']],
-      msg: 'Gentle ramps need less effort but a longer distance, and less friction means better efficiency.' }
+        ['A ramp makes the load lighter, so it is easier to push.', false, 'The weight of the load does not change. The ramp spreads the job over a longer distance, so less effort force is needed.'],
+        ['The higher the efficiency, the less effort force is needed.', true, 'Efficiency compares the force without a machine to the force with it. A higher efficiency means less effort force.']],
+      msg: 'Gentle ramps need less effort force but a longer distance, and a higher efficiency means less effort force.' }
 ];
 
 /* =========================================================
