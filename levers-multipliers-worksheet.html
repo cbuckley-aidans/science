@@ -249,10 +249,16 @@ footer .wrap { display: flex; justify-content: space-between; gap: 20px; flex-wr
 .remind div { padding: 9px 14px; font-size: 15px; }
 .remind div + div { border-left: 1px solid var(--line); }
 .remind b { color: var(--pink); }
-.obj { display: grid; grid-template-columns: 1fr 160px 130px; gap: 16px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.obj { display: grid; grid-template-columns: 270px 1fr; gap: 26px; align-items: center; padding: 18px 0; border-bottom: 1px solid var(--line); }
+.ill { margin: 0; background: var(--tint); }
+.ill .rv { opacity: 0; transition: opacity .45s ease; }
+.obj.shown .ill .rv { opacity: 1; }
+.osel > .pills { width: auto; padding: 2px; margin-left: -2px; }
+.osel { display: flex; flex-wrap: wrap; gap: 14px 18px; margin-top: 14px; }
+.osel > div { width: 170px; }
 .obj:first-of-type { border-top: 2px solid var(--navy); }
 .obj h3, .lv h3 { margin: 0; font-size: 17px; font-weight: 700; }
-.obj p { margin: 2px 0 0; font-size: 15px; color: var(--grey); max-width: 52ch; }
+.obj p { margin: 4px 0 0; font-size: 15px; color: var(--grey); max-width: 52ch; }
 .obj label, .lvf label { display: block; font-size: 13px; font-weight: 700; color: var(--grey); margin-bottom: 4px; }
 .obj select { width: 100%; }
 .lv { padding: 18px 0 20px; border-bottom: 1px solid var(--line); }
@@ -268,15 +274,17 @@ td select { font-size: 15px; padding: 5px 28px 5px 8px; min-width: 112px; }
 .leg i.d { width: 18px; height: 0; border-radius: 0; background: none; border-top: 3px dashed var(--pink); vertical-align: 3px; }
 .simctl .angv { font-size: 34px; }
 @media screen and (max-width: 860px) {
-    .obj { grid-template-columns: 1fr 1fr; }
-    .obj > div:first-child { grid-column: 1 / -1; }
+    .obj { grid-template-columns: 220px 1fr; gap: 20px; }
     .remind { grid-template-columns: 1fr; }
     .remind div + div { border-left: 0; border-top: 1px solid var(--line); }
 }
-@media screen and (max-width: 560px) { .sort { grid-template-columns: 1fr; } }
+@media screen and (max-width: 560px) { .sort, .obj { grid-template-columns: 1fr; } .ill { max-width: 340px; } .osel > div { flex: 1; min-width: 130px; } }
 @media print {
     .obj, .lv, .sort { break-inside: avoid; }
-    .obj { grid-template-columns: 1fr 38mm 30mm; padding: 2mm 0; gap: 3mm; }
+    .obj { grid-template-columns: 46mm 1fr; padding: 2mm 0; gap: 5mm; }
+    .ill svg { max-height: 33mm; width: auto; }
+    .osel { margin-top: 2mm; gap: 2mm 6mm; }
+    .osel > div { width: 40mm; }
     .obj h3, .lv h3 { font-size: 10.5pt; }
     .obj p { font-size: 9pt; }
     .obj .pv, .lvf .pv { display: block; }
@@ -355,7 +363,7 @@ td select { font-size: 15px; padding: 5px 28px 5px 8px; min-width: 112px; }
     <div class="n">3</div>
     <div>
         <h2>What is in the middle?<span class="sc">SC12</span></h2>
-        <p class="task">Read where each part is found. Decide what is in the middle, then choose the class of lever.</p>
+        <p class="task">Use the picture and the description to find the fulcrum, load and effort. Decide what is in the middle, then choose the class of lever. Get both right and the parts will appear on the picture.</p>
         <div class="remind"><div><b>Class 1</b> &nbsp;Fulcrum in the middle</div><div><b>Class 2</b> &nbsp;Load in the middle</div><div><b>Class 3</b> &nbsp;Effort in the middle</div></div>
         <div id="objs"></div>
         <div class="actfoot"><button class="btn chk" type="button">Check answers</button><span class="res"></span></div>
@@ -450,7 +458,7 @@ td select { font-size: 15px; padding: 5px 28px 5px 8px; min-width: 112px; }
     <div class="n">6</div>
     <div>
         <h2>Force or speed?<span class="sc">SC13</span></h2>
-        <p class="task">Decide whether each lever is used as a force multiplier or a speed multiplier.</p>
+        <p class="task">Use the picture to compare the effort arm and the resistance arm, then decide whether each lever is used as a force multiplier or a speed multiplier. Get it right and the arms will appear on the picture.</p>
         <div id="sorts"></div>
         <div class="blk" style="margin-top:26px">
             <div class="qh"><span class="l">a</span><span>Choose one force multiplier and one speed multiplier from the list. Contrast them.</span></div>
@@ -551,19 +559,187 @@ const FS = [['f', 'Force multiplier'], ['s', 'Speed multiplier']];
 })();
 
 /* ---------- 3 objects ---------- */
+/* ---- illustration helpers (activity 3) ---- */
+const WH = '#ffffff', NT = '#e7e8f1';
+const P = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+const pts = a => a.map(p => f1(p[0]) + ',' + f1(p[1])).join(' ');
+const unit = (a, b) => { const dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy); return [dx / l, dy / l]; };
+/* outlined bar: navy outline with a coloured core */
+const bar = (ps, w, fill = WH, ow = 3) => `<polyline points="${pts(ps)}" fill="none" stroke="${NV}" stroke-width="${w + ow * 2}" stroke-linecap="round" stroke-linejoin="round"/>` + (fill === NV ? '' : `<polyline points="${pts(ps)}" fill="none" stroke="${fill}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`);
+/* tapered rod between two points */
+const taper = (a, b, w1, w2, fill = NV) => { const [ux, uy] = unit(a, b), nx = -uy, ny = ux; return `<polygon points="${pts([[a[0] + nx * w1 / 2, a[1] + ny * w1 / 2], [b[0] + nx * w2 / 2, b[1] + ny * w2 / 2], [b[0] - nx * w2 / 2, b[1] - ny * w2 / 2], [a[0] - nx * w1 / 2, a[1] - ny * w1 / 2]])}" fill="${fill}" stroke="${NV}" stroke-width="2" stroke-linejoin="round"/>`; };
+/* effort arrow pushing onto point p from direction n (unit vector pointing away from the part) */
+const push = (p, n, len = 46, gap = 9) => arrow(p[0] + n[0] * (len + gap), p[1] + n[1] * (len + gap), p[0] + n[0] * gap, p[1] + n[1] * gap, PK, 5, 10);
+const pull = (p, n, len = 46, gap = 9) => arrow(p[0] + n[0] * gap, p[1] + n[1] * gap, p[0] + n[0] * (len + gap), p[1] + n[1] * (len + gap), PK, 5, 10);
+const rivet = (x, y, r = 12) => `<circle cx="${f1(x)}" cy="${f1(y)}" r="${r}" fill="${WH}" stroke="${NV}" stroke-width="3"/><circle cx="${f1(x)}" cy="${f1(y)}" r="${f1(r * .36)}" fill="${NV}"/>`;
+/* hand gripping a rod: centred on c, rod direction u */
+const hand = (c, u, w = 30, h = 24) => {
+    const a = Math.atan2(u[1], u[0]) * 180 / Math.PI;
+    let s = `<g transform="translate(${f1(c[0])} ${f1(c[1])}) rotate(${f1(a)})">`;
+    s += `<rect x="${-w / 2}" y="${-h / 2}" width="${w}" height="${h}" rx="9" fill="${NT}" stroke="${NV}" stroke-width="2.5"/>`;
+    for (let i = 1; i < 4; i++) { const x = -w / 2 + w * i / 4; s += `<line x1="${f1(x)}" x2="${f1(x)}" y1="${-h / 2 + 3}" y2="${f1(h * .12)}" stroke="${NV}" stroke-width="1.8" stroke-linecap="round"/>`; }
+    s += `<path d="M${f1(-w / 2 + 2)},${f1(h * .18)} q${f1(w * .35)},${f1(h * .3)} ${f1(w * .62)},${f1(h * .02)}" fill="none" stroke="${NV}" stroke-width="1.8" stroke-linecap="round"/>`;
+    return s + '</g>';
+};
+/* reveal tag: dot on the part, leader line, label */
+const tag = (px, py, tx, ty, label) => {
+    const w = label.length * 7.6 + 18;
+    return `<line x1="${f1(px)}" y1="${f1(py)}" x2="${f1(tx)}" y2="${f1(ty)}" stroke="${NV}" stroke-width="2"/>`
+        + `<rect x="${f1(tx - w / 2)}" y="${f1(ty - 12)}" width="${f1(w)}" height="24" fill="${NV}"/>`
+        + T(tx, ty + 4.5, label, `text-anchor="middle" font-size="13" font-weight="700" fill="#fff"`)
+        + `<circle cx="${f1(px)}" cy="${f1(py)}" r="6.5" fill="${PK}" stroke="#fff" stroke-width="2.5"/>`;
+};
+const rv = (f, l, e) => `<g class="rv" aria-hidden="true">${tag(...f, 'Fulcrum')}${tag(...l, 'Load')}${tag(...e, 'Effort')}</g>`;
+
+const ILL = {
+    /* 1 nutcracker: hinge at end, nut near hinge, squeeze far ends */
+    nut() {
+        const H = [44, 120], A = [300, 46], B = [300, 194];
+        const ua = unit(H, A), ub = unit(H, B);
+        let s = '';
+        s += bar([H, A], 11) + bar([P(H, A, .5), A], 16, NV, 0);
+        s += bar([H, B], 11) + bar([P(H, B, .5), B], 16, NV, 0);
+        s += `<line x1="${f1(P(H, A, .54)[0])}" y1="${f1(P(H, A, .54)[1])}" x2="${f1(P(H, A, .96)[0])}" y2="${f1(P(H, A, .96)[1])}" stroke="#fff" stroke-opacity=".28" stroke-width="2" stroke-linecap="round" transform="translate(0 -3)"/>`;
+        s += `<line x1="${f1(P(H, B, .54)[0])}" y1="${f1(P(H, B, .54)[1])}" x2="${f1(P(H, B, .96)[0])}" y2="${f1(P(H, B, .96)[1])}" stroke="#fff" stroke-opacity=".28" stroke-width="2" stroke-linecap="round" transform="translate(0 -3)"/>`;
+        /* walnut */
+        const nx = 134, ny = 120, r = 18;
+        s += `<circle cx="${nx}" cy="${ny}" r="${r}" fill="${GR}" stroke="${NV}" stroke-width="2.5"/>`;
+        s += `<path d="M${nx},${ny - r} q5,6 0,12 q-5,6 0,12 q5,6 0,12" fill="none" stroke="${NV}" stroke-width="2" stroke-linecap="round"/>`;
+        s += `<path d="M${nx - 11},${ny - 9} q4,4 1,9 M${nx + 11},${ny + 1} q-4,4 -1,9" fill="none" stroke="${NV}" stroke-width="1.6" stroke-linecap="round"/>`;
+        s += rivet(H[0], H[1], 14);
+        s += push(P(H, A, .9), [ua[1], -ua[0]], 36) + push(P(H, B, .9), [-ub[1], ub[0]], 36);
+        s += rv([H[0], H[1], 50, 172], [nx, ny + 4, 142, 210], [P(H, A, .9)[0] - 6, P(H, A, .9)[1] + 18, 214, 120]);
+        return s;
+    },
+    /* 2 tongs: joined at one end, squeeze the middle, food at the tips */
+    tongs() {
+        const a0 = [58, 104], a1 = [292, 92], b0 = [58, 136], b1 = [292, 148];
+        const ua = unit(a0, a1), ub = unit(b0, b1);
+        let s = '';
+        /* sausage */
+        s += `<rect x="252" y="99" width="80" height="42" rx="21" fill="${GR}" stroke="${NV}" stroke-width="2.5"/>`;
+        s += `<path d="M268,108 q6,4 12,0 M292,108 q6,4 12,0 M314,110 q4,3 8,0" fill="none" stroke="${NV}" stroke-width="1.6" stroke-linecap="round"/>`;
+        /* spring end */
+        s += `<path d="M${a0[0]},${a0[1]} A16,16 0 0 0 ${b0[0]},${b0[1]}" fill="none" stroke="${NV}" stroke-width="15" stroke-linecap="round"/><path d="M${a0[0]},${a0[1]} A16,16 0 0 0 ${b0[0]},${b0[1]}" fill="none" stroke="${WH}" stroke-width="9" stroke-linecap="round"/>`;
+        s += bar([a0, a1], 9) + bar([b0, b1], 9);
+        /* scalloped tips */
+        [[a1, ua, 1], [b1, ub, -1]].forEach(([e, u, sg]) => {
+            for (let i = 0; i < 4; i++) { const c = [e[0] - u[0] * (6 + i * 9), e[1] - u[1] * (6 + i * 9) + sg * 7]; s += `<circle cx="${f1(c[0])}" cy="${f1(c[1])}" r="3.4" fill="${WH}" stroke="${NV}" stroke-width="2"/>`; }
+        });
+        /* locking ring */
+        s += `<rect x="74" y="97" width="11" height="46" fill="${NV}"/>`;
+        /* silicone grips in the middle */
+        s += bar([P(a0, a1, .36), P(a0, a1, .62)], 14, NV, 0) + bar([P(b0, b1, .36), P(b0, b1, .62)], 14, NV, 0);
+        s += push(P(a0, a1, .49), [ua[1], -ua[0]]) + push(P(b0, b1, .49), [-ub[1], ub[0]]);
+        s += rv([42, 120, 56, 184], [306, 120, 290, 190], [P(a0, a1, .49)[0] + 6, P(a0, a1, .49)[1] + 6, 220, 46]);
+        return s;
+    },
+    /* 3 pliers: pivot between jaws and handles */
+    pliers() {
+        const C = [138, 120], hA = [306, 172], hB = [306, 68];
+        const uA = unit(C, hA), uB = unit(C, hB);
+        let s = '';
+        /* wire */
+        s += `<path d="M10,186 Q10,121 44,121 L74,121" fill="none" stroke="${NV}" stroke-width="8" stroke-linecap="round"/><path d="M10,186 Q10,121 44,121 L74,121" fill="none" stroke="${GR}" stroke-width="3.5" stroke-linecap="round"/>`;
+        /* handles */
+        s += bar([C, hB], 11) + bar([P(C, hB, .32), hB], 17, NV, 0);
+        s += bar([C, hA], 11) + bar([P(C, hA, .32), hA], 17, NV, 0);
+        /* jaws */
+        s += `<path d="M40,117.5 L58,105 L112,100 Q132,100 140,112 L140,117.5 Z" fill="${WH}" stroke="${NV}" stroke-width="3" stroke-linejoin="round"/>`;
+        s += `<path d="M40,124.5 L58,137 L112,142 Q132,142 140,130 L140,124.5 Z" fill="${WH}" stroke="${NV}" stroke-width="3" stroke-linejoin="round"/>`;
+        for (let x = 60; x <= 100; x += 8) s += `<path d="M${x},117.5 l4,-4 l4,4" fill="none" stroke="${NV}" stroke-width="1.5"/><path d="M${x},124.5 l4,4 l4,-4" fill="none" stroke="${NV}" stroke-width="1.5"/>`;
+        /* cutter notch */
+        s += `<path d="M112,117.5 l10,-6 l6,6 M112,124.5 l10,6 l6,-6" fill="none" stroke="${NV}" stroke-width="2"/>`;
+        s += `<circle cx="${C[0]}" cy="${C[1]}" r="21" fill="${WH}" stroke="${NV}" stroke-width="3"/>` + rivet(C[0], C[1], 9);
+        s += push(P(C, hB, .84), [uB[1], -uB[0]]) + push(P(C, hA, .84), [-uA[1], uA[0]]);
+        s += rv([C[0], C[1], 160, 205], [56, 121, 66, 52], [P(C, hB, .84)[0] - 4, P(C, hB, .84)[1] + 10, 218, 120]);
+        return s;
+    },
+    /* 4 fishing rod: bottom hand still, top hand lifts, fish at tip */
+    rod() {
+        const B = [34, 208], Tp = [298, 34], u = unit(B, Tp), n = [u[1], -u[0]];
+        let s = '';
+        /* line and fish */
+        s += `<line x1="${Tp[0]}" y1="${Tp[1]}" x2="${Tp[0]}" y2="150" stroke="${NV}" stroke-width="1.5"/>`;
+        const fx = Tp[0], fy = 150;
+        s += `<path d="M${fx},${fy} C${fx + 17},${fy + 6} ${fx + 18},${fy + 36} ${fx + 6},${fy + 54} L${fx + 16},${fy + 72} L${fx - 16},${fy + 72} L${fx - 6},${fy + 54} C${fx - 18},${fy + 36} ${fx - 17},${fy + 6} ${fx},${fy} Z" fill="${GR}" stroke="${NV}" stroke-width="2.5" stroke-linejoin="round"/>`;
+        s += `<circle cx="${fx - 5}" cy="${fy + 12}" r="2.6" fill="${NV}"/><path d="M${fx - 12},${fy + 22} q12,6 24,0" fill="none" stroke="${NV}" stroke-width="1.8"/><path d="M${fx + 10},${fy + 32} l6,6 l-6,6" fill="none" stroke="${NV}" stroke-width="1.8" stroke-linejoin="round"/>`;
+        /* guides */
+        [.38, .56, .72, .86].forEach(t => { const p = P(B, Tp, t), g = [p[0] - n[0] * 7, p[1] - n[1] * 7]; s += `<circle cx="${f1(g[0])}" cy="${f1(g[1])}" r="${f1(4 - t * 2)}" fill="none" stroke="${NV}" stroke-width="1.8"/>`; });
+        /* rod blank and handle */
+        s += taper(B, Tp, 8, 2.5);
+        s += taper(B, P(B, Tp, .27), 14, 12, NT);
+        const rp = P(B, Tp, .2);
+        s += `<line x1="${f1(rp[0])}" y1="${f1(rp[1])}" x2="${f1(rp[0] - n[0] * 13)}" y2="${f1(rp[1] - n[1] * 13)}" stroke="${NV}" stroke-width="4"/><circle cx="${f1(rp[0] - n[0] * 20)}" cy="${f1(rp[1] - n[1] * 20)}" r="10" fill="${WH}" stroke="${NV}" stroke-width="2.5"/><circle cx="${f1(rp[0] - n[0] * 20)}" cy="${f1(rp[1] - n[1] * 20)}" r="3" fill="${NV}"/>`;
+        /* hands */
+        const h1 = P(B, Tp, .05), h2 = P(B, Tp, .44);
+        s += hand(h1, u) + hand(h2, u);
+        s += push([h2[0] - n[0] * 10, h2[1] - n[1] * 10], [-n[0], -n[1]], 42, 6);
+        s += rv([h1[0], h1[1], 64, 150], [fx, fy + 30, 252, 214], [h2[0] + n[0] * 12, h2[1] + n[1] * 12, 120, 70]);
+        return s;
+    },
+    /* 5 bottle opener: end rests on cap, hook under cap, lift handle */
+    opener() {
+        let s = '';
+        /* bottle */
+        s += `<path d="M76,114 L76,146 Q76,166 60,182 Q52,192 52,206 L52,240 L130,240 L130,206 Q130,192 122,182 Q106,166 106,146 L106,114 Z" fill="${WH}" stroke="${NV}" stroke-width="2.5" stroke-linejoin="round"/>`;
+        s += `<path d="M84,124 L84,148" stroke="${GR}" stroke-width="4" stroke-linecap="round"/><path d="M62,204 L62,232" stroke="${GR}" stroke-width="4" stroke-linecap="round"/>`;
+        /* crown cap */
+        let z = 'M68,100 L114,100 L114,109';
+        for (let x = 114; x > 68; x -= 5.75) z += ` L${f1(x - 2.9)},${114} L${f1(x - 5.75)},109`;
+        s += `<path d="${z} Z" fill="${GR}" stroke="${NV}" stroke-width="2.5" stroke-linejoin="round"/>`;
+        /* hook */
+        s += `<path d="M115,88 L128,87 L128,119 Q128,123 124,123 L102,123 L102,117 L116,117 Z" fill="${WH}" stroke="${NV}" stroke-width="3" stroke-linejoin="round"/>`;
+        /* opener: metal head then handle */
+        const a = [62, 94], b = [318, 70], u = unit(a, b);
+        s += bar([a, P(a, b, .5)], 12) + bar([P(a, b, .42), b], 18, NV, 0);
+        s += `<circle cx="${f1(P(a, b, .9)[0])}" cy="${f1(P(a, b, .9)[1])}" r="4" fill="${WH}"/>`;
+        s += push(P(a, b, .93), [-u[1], u[0]], 46, 12);
+        s += rv([69, 100, 40, 62], [109, 118, 186, 156], [P(a, b, .93)[0] - 6, P(a, b, .93)[1] + 4, 230, 30]);
+        return s;
+    },
+    /* 6 claw hammer: head rocks on wood, nail in the claw, pull the handle */
+    hammer() {
+        const px = 166, py = 198, ang = 15, r = ang * Math.PI / 180;
+        const g = (x, y) => { const yy = y + 18; return [px + x * Math.cos(r) - yy * Math.sin(r), py - 18 + x * Math.sin(r) + yy * Math.cos(r)]; };
+        let s = '';
+        /* board */
+        s += `<rect x="-4" y="${py}" width="348" height="46" fill="${NT}" stroke="${NV}" stroke-width="2.5"/>`;
+        s += `<path d="M10,${py + 14} q40,-5 80,0 t80,0 M190,${py + 14} q40,6 76,0 t70,0 M24,${py + 30} q50,6 110,0 M150,${py + 30} q60,-6 120,0 t60,0" fill="none" stroke="${MID}" stroke-width="1.5"/>`;
+        /* nail, held in the claw */
+        const tip = g(-84, -12), nx = tip[0] + 12, nh = tip[1] - 9;
+        s += `<line x1="${f1(nx)}" y1="${py + 2}" x2="${f1(nx)}" y2="${py + 30}" stroke="${NV}" stroke-width="2" stroke-dasharray="4 4"/>`;
+        s += `<line x1="${f1(nx)}" y1="${f1(nh)}" x2="${f1(nx)}" y2="${py}" stroke="${NV}" stroke-width="7.5"/><line x1="${f1(nx)}" y1="${f1(nh + 2)}" x2="${f1(nx)}" y2="${py - 1}" stroke="${GR}" stroke-width="3"/>`;
+        /* hammer, drawn upright then tipped onto its rounded head */
+        let h = '';
+        h += bar([[0, -50], [0, -176]], 13) + bar([[0, -110], [0, -180]], 20, NV, 0);
+        h += `<path d="M-14,-46 C-40,-54 -68,-46 -86,-14 L-80,-9 C-66,-30 -46,-36 -16,-24 Z" fill="${WH}" stroke="${NV}" stroke-width="3" stroke-linejoin="round"/>`;
+        h += `<path d="M-30,-40 C-50,-42 -66,-34 -78,-16" fill="none" stroke="${NV}" stroke-width="1.8" stroke-linecap="round"/>`;
+        h += `<rect x="16" y="-40" width="24" height="16" fill="${WH}" stroke="${NV}" stroke-width="3"/><rect x="38" y="-46" width="15" height="28" rx="4" fill="${WH}" stroke="${NV}" stroke-width="3"/>`;
+        h += `<rect x="-18" y="-60" width="36" height="60" rx="18" fill="${WH}" stroke="${NV}" stroke-width="3"/><rect x="-8" y="-54" width="16" height="12" rx="2" fill="${NV}"/>`;
+        s += `<g transform="translate(${px} ${py - 18}) rotate(${ang}) translate(0 18)">${h}</g>`;
+        s += `<rect x="${f1(nx - 11)}" y="${f1(nh - 6)}" width="22" height="6" rx="1.5" fill="${GR}" stroke="${NV}" stroke-width="2.5"/>`;
+        const top = g(0, -168);
+        s += pull(top, [Math.cos(r), Math.sin(r)], 48, 16);
+        s += rv([px, py, 240, 226], [nx, nh - 3, 40, 110], [top[0], top[1], 150, 26]);
+        return s;
+    }
+};
+const illSvg = (k, label) => `<svg viewBox="0 0 340 240" role="img" aria-label="${label}">${ILL[k]()}</svg>`;
 (() => {
     const O = [
-        ['Nutcracker', 'The hinge is at one end. The nut sits between the arms close to the hinge, and you squeeze the far ends of the arms.', 'load', '2'],
-        ['Kitchen tongs', 'The arms are joined at one end. You squeeze near the middle of the arms, and the food is gripped at the far ends.', 'effort', '3'],
-        ['Pliers', 'A pivot joins the two arms. The wire is gripped in the jaws on one side, and you squeeze the handles on the other side.', 'fulcrum', '1'],
-        ['Fishing rod', 'One hand holds the bottom of the rod still. The other hand lifts near the middle, and the fish hangs from the tip.', 'effort', '3'],
-        ['Bottle opener', 'The end of the opener rests on top of the cap. The hook catches the edge of the cap, and you lift the handle.', 'load', '2'],
-        ['Claw hammer pulling a nail', 'The head rocks on the wood. The nail is caught in the claw on one side, and you pull the end of the handle on the other side.', 'fulcrum', '1']
+        ['Nutcracker', 'The hinge is at one end. The nut sits between the arms close to the hinge, and you squeeze the far ends of the arms.', 'load', '2', 'nut'],
+        ['Kitchen tongs', 'The arms are joined at one end. You squeeze near the middle of the arms, and the food is gripped at the far ends.', 'effort', '3', 'tongs'],
+        ['Pliers', 'A pivot joins the two arms. The wire is gripped in the jaws on one side, and you squeeze the handles on the other side.', 'fulcrum', '1', 'pliers'],
+        ['Fishing rod', 'One hand holds the bottom of the rod still. The other hand lifts near the middle, and the fish hangs from the tip.', 'effort', '3', 'rod'],
+        ['Bottle opener', 'The end of the opener rests on top of the cap. The hook catches the edge of the cap, and you lift the handle.', 'load', '2', 'opener'],
+        ['Claw hammer pulling a nail', 'The head rocks on the wood. The nail is caught in the claw on one side, and you pull the end of the handle on the other side.', 'fulcrum', '1', 'hammer']
     ];
     const M = [['fulcrum', 'Fulcrum'], ['load', 'Load'], ['effort', 'Effort']], C = [['1', 'Class 1'], ['2', 'Class 2'], ['3', 'Class 3']];
-    $('#objs').innerHTML = O.map(([n, d, m, c], i) => `<div class="obj"><div><h3>${n}</h3><p>${d}</p></div>
-        <div><label for="om${i}">In the middle</label><select class="q" id="om${i}" name="om${i}" data-ans="${m}">${opts(M)}</select></div>
-        <div><label for="oc${i}">Class</label><select class="q" id="oc${i}" name="oc${i}" data-ans="${c}">${opts(C)}</select></div></div>`).join('');
+    $('#objs').innerHTML = O.map(([n, d, m, c, k], i) => `<div class="obj"><figure class="ill">${illSvg(k, n + ' in use. Pink arrows show where the force is applied.')}</figure>
+        <div><h3>${n}</h3><p>${d}</p>
+        <div class="osel"><div><label for="om${i}">In the middle</label><select class="q" id="om${i}" name="om${i}" data-ans="${m}">${opts(M)}</select></div>
+        <div><label for="oc${i}">Class</label><select class="q" id="oc${i}" name="oc${i}" data-ans="${c}">${opts(C)}</select></div></div></div></div>`).join('');
 })();
 
 /* ---------- 4 measure the arms ---------- */
@@ -682,16 +858,162 @@ function drawGraph() {
 }
 
 /* ---------- 6 sort ---------- */
+/* ---- illustration helpers (activity 6) ---- */
+const barD = (d, w, fill = WH, ow = 3) => `<path d="${d}" fill="none" stroke="${NV}" stroke-width="${w + ow * 2}" stroke-linecap="round" stroke-linejoin="round"/>` + (fill === NV ? '' : `<path d="${d}" fill="none" stroke="${fill}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`);
+/* arm dimension: fulcrum a to point b, offset sideways by off; label at lp (or beside the middle) */
+const armDim = (a, b, off, col, label, lp) => {
+    const [ux, uy] = unit(a, b), nx = -uy, ny = ux;
+    const a2 = [a[0] + nx * off, a[1] + ny * off], b2 = [b[0] + nx * off, b[1] + ny * off];
+    let s = `<line x1="${f1(a[0])}" y1="${f1(a[1])}" x2="${f1(a2[0])}" y2="${f1(a2[1])}" stroke="${col}" stroke-width="1.5" stroke-dasharray="3 3"/><line x1="${f1(b[0])}" y1="${f1(b[1])}" x2="${f1(b2[0])}" y2="${f1(b2[1])}" stroke="${col}" stroke-width="1.5" stroke-dasharray="3 3"/>`;
+    s += `<line x1="${f1(a2[0])}" y1="${f1(a2[1])}" x2="${f1(b2[0])}" y2="${f1(b2[1])}" stroke="${col}" stroke-width="3.5"/>`;
+    [a2, b2].forEach(p => s += `<line x1="${f1(p[0] - nx * 8)}" y1="${f1(p[1] - ny * 8)}" x2="${f1(p[0] + nx * 8)}" y2="${f1(p[1] + ny * 8)}" stroke="${col}" stroke-width="3"/>`);
+    const m = [(a2[0] + b2[0]) / 2, (a2[1] + b2[1]) / 2], sg = Math.sign(off) || 1;
+    const L = lp || [m[0] + nx * 17 * sg, m[1] + ny * 17 * sg], w = label.length * 7.4 + 16;
+    if (lp) s += `<line x1="${f1(m[0])}" y1="${f1(m[1])}" x2="${f1(L[0])}" y2="${f1(L[1])}" stroke="${col}" stroke-width="2"/>`;
+    s += `<rect x="${f1(L[0] - w / 2)}" y="${f1(L[1] - 12)}" width="${f1(w)}" height="24" fill="${col}"/>` + T(L[0], L[1] + 4.5, label, `text-anchor="middle" font-size="13" font-weight="700" fill="#fff"`);
+    return s;
+};
+const fdot = p => `<circle cx="${f1(p[0])}" cy="${f1(p[1])}" r="7" fill="#fff" stroke="${NV}" stroke-width="3.5"/>`;
+const arms = (F, e, r) => `<g class="rv" aria-hidden="true">${armDim(F, e[0], e[1], PK, 'Effort arm', e[2])}${armDim(F, r[0], r[1], NV, 'Resistance arm', r[2])}${fdot(F)}</g>`;
+
+Object.assign(ILL, {
+    /* car jack: long pump handle, plunger close to the pivot */
+    jack() {
+        const gy = 214, F = [148, 190], E = [318, 124], L = P(F, E, .13), u = unit(F, E);
+        let s = `<line x1="0" x2="340" y1="${gy}" y2="${gy}" stroke="${NV}" stroke-width="2.5"/>`;
+        /* car */
+        s += `<path d="M-4,54 L132,54 Q160,54 168,70 L174,104 Q174,118 160,118 L102,118 A46,46 0 0 0 10,118 L-4,118 Z" fill="${NT}" stroke="${NV}" stroke-width="2.5" stroke-linejoin="round"/>`;
+        s += `<line x1="18" y1="72" x2="150" y2="72" stroke="${NV}" stroke-width="1.6"/>`;
+        s += `<circle cx="56" cy="164" r="40" fill="${NV}"/><circle cx="56" cy="164" r="20" fill="${GR}" stroke="${NV}" stroke-width="2.5"/><circle cx="56" cy="164" r="5" fill="${NV}"/>`;
+        /* jack */
+        s += `<rect x="92" y="200" width="78" height="14" fill="${NV}"/>`;
+        s += `<rect x="104" y="136" width="36" height="64" fill="${WH}" stroke="${NV}" stroke-width="2.5"/>`;
+        s += `<rect x="113" y="122" width="18" height="14" fill="${GR}" stroke="${NV}" stroke-width="2.5"/><rect x="106" y="117" width="32" height="6" fill="${NV}"/>`;
+        s += `<rect x="${f1(L[0] - 6)}" y="${f1(L[1] + 4)}" width="12" height="${f1(200 - L[1] - 4)}" fill="${GR}" stroke="${NV}" stroke-width="2.5"/>`;
+        s += `<rect x="140" y="182" width="12" height="18" fill="${WH}" stroke="${NV}" stroke-width="2.5"/>`;
+        /* handle */
+        s += bar([F, E], 8) + bar([P(F, E, .62), E], 13, NV, 0);
+        s += rivet(F[0], F[1], 7) + `<circle cx="${f1(L[0])}" cy="${f1(L[1])}" r="3.5" fill="${NV}"/>`;
+        s += push(P(F, E, .95), [0, -1], 46, 9);
+        s += arms(F, [E, -18], [L, 16, [250, 216]]);
+        return s;
+    },
+    /* hockey stick: top hand still, lower hand pushes, ball at the head */
+    hockey() {
+        const F = [56, 52], H = [236, 186], u = unit(F, H), n = [-u[1], u[0]];
+        let s = `<line x1="0" x2="340" y1="216" y2="216" stroke="${NV}" stroke-width="2.5"/>`;
+        s += barD(`M${F[0]},${F[1]} L${H[0]},${H[1]} Q245,209 263,209 Q281,209 283,195`, 10);
+        s += bar([F, P(F, H, .34)], 14, NV, 0);
+        const h1 = P(F, H, .04), h2 = P(F, H, .24);
+        s += hand(h1, u) + hand(h2, u);
+        s += `<circle cx="306" cy="204" r="11" fill="${WH}" stroke="${NV}" stroke-width="2.5"/><path d="M299,196 q6,8 0,16 M313,196 q-6,8 0,16" fill="none" stroke="${GR}" stroke-width="2"/>`;
+        s += push(h2, [-n[0], -n[1]], 28, 15);
+        s += arms(h1, [h2, 22, [64, 132]], [[292, 202], -52]);
+        return s;
+    },
+    /* loppers: short blades, long handles */
+    loppers() {
+        const C = [98, 120], hA = [318, 176], hB = [318, 64];
+        const uA = unit(C, hA), uB = unit(C, hB);
+        let s = '';
+        /* branch */
+        s += `<path d="M46,8 Q54,120 66,236" fill="none" stroke="${NV}" stroke-width="20" stroke-linecap="round"/><path d="M46,8 Q54,120 66,236" fill="none" stroke="${GR}" stroke-width="14" stroke-linecap="round"/>`;
+        s += `<path d="M52,58 Q30,44 22,24 Q42,28 52,58 Z" fill="${GR}" stroke="${NV}" stroke-width="2"/>`;
+        s += bar([C, hB], 10) + bar([P(C, hB, .42), hB], 16, NV, 0);
+        s += bar([C, hA], 10) + bar([P(C, hA, .42), hA], 16, NV, 0);
+        /* blades */
+        s += `<path d="M100,113 C84,96 52,90 30,106 C48,104 64,110 72,118 L100,121 Z" fill="${WH}" stroke="${NV}" stroke-width="3" stroke-linejoin="round"/>`;
+        s += `<path d="M100,127 C84,144 56,148 40,136 C54,134 66,128 72,122 L100,119 Z" fill="${WH}" stroke="${NV}" stroke-width="3" stroke-linejoin="round"/>`;
+        s += `<circle cx="${C[0]}" cy="${C[1]}" r="16" fill="${WH}" stroke="${NV}" stroke-width="3"/>` + rivet(C[0], C[1], 7);
+        s += push(P(C, hB, .9), [uB[1], -uB[0]], 40) + push(P(C, hA, .9), [-uA[1], uA[0]], 40);
+        s += arms(C, [P(C, hB, .9), -24, [214, 46]], [[56, 120], 30, [62, 192]]);
+        return s;
+    },
+    /* forearm: elbow is the fulcrum, biceps pulls close to the elbow, cup in the hand */
+    arm() {
+        const F = [66, 172], ins = [102, 172], L = [274, 172];
+        let s = '<g transform="translate(0 -10)">';
+        /* arm silhouette with biceps bulge */
+        s += `<path d="M38,-6 L38,164 Q38,200 76,200 C132,198 192,192 246,188 L246,156 C196,154 146,150 112,146 Q98,144 95,132 C108,96 110,30 96,-6 Z" fill="${NT}" stroke="${NV}" stroke-width="2.5" stroke-linejoin="round"/>`;
+        /* bones */
+        s += `<rect x="60" y="-6" width="12" height="166" fill="${WH}"/>`;
+        s += `<path d="M60,-6 L60,158 M72,-6 L72,158" stroke="${NV}" stroke-width="2.2"/>`;
+        s += `<path d="M78,${F[1] + 12} C120,184 180,182 236,180" fill="none" stroke="${NV}" stroke-width="10" stroke-linecap="round"/><path d="M78,${F[1] + 12} C120,184 180,182 236,180" fill="none" stroke="${WH}" stroke-width="5.6" stroke-linecap="round"/>`;
+        s += `<path d="M82,${F[1] - 4} C120,166 180,166 236,166" fill="none" stroke="${NV}" stroke-width="10" stroke-linecap="round"/><path d="M82,${F[1] - 4} C120,166 180,166 236,166" fill="none" stroke="${WH}" stroke-width="5.6" stroke-linecap="round"/>`;
+        s += `<circle cx="${F[0]}" cy="${F[1]}" r="16" fill="${WH}" stroke="${NV}" stroke-width="2.2"/><circle cx="${F[0] + 6}" cy="${F[1] + 2}" r="9" fill="none" stroke="${NV}" stroke-width="1.6"/>`;
+        /* biceps and tendon */
+        s += `<path d="M73,2 C114,26 114,100 96,130 L88,131 C78,104 73,60 72,12 Z" fill="${GR}" stroke="${NV}" stroke-width="2.2" stroke-linejoin="round"/>`;
+        s += `<path d="M84,26 C98,50 100,86 94,114 M78,40 C86,62 88,92 86,116" fill="none" stroke="${NV}" stroke-width="1.3" stroke-linecap="round"/>`;
+        s += `<line x1="92" y1="130" x2="${ins[0]}" y2="${ins[1] - 6}" stroke="${NV}" stroke-width="3.5" stroke-linecap="round"/><circle cx="${ins[0]}" cy="${ins[1] - 6}" r="3" fill="${NV}"/>`;
+        /* takeaway cup */
+        s += `<path d="M255,160 L293,160 L299,104 L249,104 Z" fill="${WH}" stroke="${NV}" stroke-width="2.5" stroke-linejoin="round"/>`;
+        s += `<path d="M251.5,122 L296.5,122 L294.6,140 L253.4,140 Z" fill="${GR}" stroke="${NV}" stroke-width="2" stroke-linejoin="round"/>`;
+        s += `<rect x="244" y="96" width="60" height="9" rx="3" fill="${NV}"/><rect x="254" y="90" width="40" height="7" rx="2" fill="${NV}"/>`;
+        /* hand: palm under the cup, fingers curled up the far side */
+        s += `<path d="M240,156 L292,159 L294,140 Q295,132 302,132 Q310,132 310,140 L310,168 Q310,188 288,188 L240,188 Z" fill="${NT}" stroke="${NV}" stroke-width="2.5" stroke-linejoin="round"/>`;
+        s += `<path d="M296,150 L308,150 M296,164 L308,164" stroke="${NV}" stroke-width="1.6" stroke-linecap="round"/>`;
+        s += `<path d="M246,156 L246,188" stroke="${NT}" stroke-width="4"/>`;
+        s += pull([ins[0] + 14, 150], [0, -1], 46, 0);
+        s += '</g>';
+        const up = p => [p[0], p[1] - 10];
+        s += arms(up(F), [up(ins), 28, [160, 190]], [up(L), 52, [182, 214]]);
+        return s;
+    },
+    /* screwdriver: rim of the tin is the fulcrum, tip under the lid */
+    paint() {
+        const tip = [137, 108], F = [154, 106], u = unit(tip, F), end = [tip[0] + u[0] * 184, tip[1] + u[1] * 184];
+        let s = '';
+        /* tin */
+        s += `<rect x="18" y="112" width="140" height="132" fill="${WH}" stroke="${NV}" stroke-width="2.5"/>`;
+        s += `<rect x="18" y="150" width="140" height="54" fill="${NT}" stroke="${NV}" stroke-width="2.5"/><line x1="40" y1="170" x2="110" y2="170" stroke="${NV}" stroke-width="3"/><line x1="40" y1="184" x2="90" y2="184" stroke="${MID}" stroke-width="3"/>`;
+        /* lid, tipped up on the right */
+        s += `<g transform="rotate(-4 26 111)"><rect x="24" y="103" width="122" height="8" rx="2" fill="${GR}" stroke="${NV}" stroke-width="2.5"/></g>`;
+        s += `<rect x="13" y="106" width="13" height="8" rx="3" fill="${GR}" stroke="${NV}" stroke-width="2"/><rect x="${F[0] - 6}" y="${F[1] + 1}" width="12" height="8" rx="3" fill="${GR}" stroke="${NV}" stroke-width="2"/>`;
+        /* screwdriver */
+        const sh = P(tip, end, .3);
+        s += bar([tip, sh], 4);
+        s += bar([sh, end], 16, NV, 0);
+        for (let t = .5; t < .95; t += .1) { const p = P(tip, end, t); s += `<line x1="${f1(p[0] - u[1] * 5)}" y1="${f1(p[1] + u[0] * 5)}" x2="${f1(p[0] + u[1] * 5)}" y2="${f1(p[1] - u[0] * 5)}" stroke="#fff" stroke-opacity=".35" stroke-width="2"/>`; }
+        s += `<rect x="${f1(sh[0] - 4)}" y="${f1(sh[1] - 10)}" width="10" height="20" rx="2" fill="${WH}" stroke="${NV}" stroke-width="2.5" transform="rotate(${f1(Math.atan2(u[1], u[0]) * 180 / Math.PI)} ${f1(sh[0])} ${f1(sh[1])})"/>`;
+        s += push(P(tip, end, .95), [0, -1], 46, 11);
+        s += arms(F, [P(tip, end, .95), 22, [262, 128]], [tip, 18, [80, 70]]);
+        return s;
+    },
+    /* tennis racquet: swung from the wrist, ball far from the hand */
+    racquet() {
+        const Wr = [56, 200], C = [234, 82], u = unit(Wr, C), n = [-u[1], u[0]], a = Math.atan2(u[1], u[0]) * 180 / Math.PI;
+        let s = '';
+        s += bar([[-20, 252], Wr], 30, NT, 2.5);
+        /* head */
+        s += `<g transform="translate(${C[0]} ${C[1]}) rotate(${f1(a)})"><clipPath id="rq"><ellipse rx="58" ry="44"/></clipPath><g clip-path="url(#rq)" stroke="${MID}" stroke-width="1.3">`;
+        for (let x = -60; x <= 60; x += 10) s += `<line x1="${x}" x2="${x}" y1="-50" y2="50"/>`;
+        for (let y = -50; y <= 50; y += 10) s += `<line y1="${y}" y2="${y}" x1="-60" x2="60"/>`;
+        s += `</g><ellipse rx="58" ry="44" fill="none" stroke="${NV}" stroke-width="9"/><path d="M-92,0 L-56,-16 M-92,0 L-56,16" stroke="${NV}" stroke-width="6" stroke-linecap="round"/></g>`;
+        const tb = [C[0] - u[0] * 92, C[1] - u[1] * 92];
+        s += bar([Wr, tb], 10, NV, 0) + bar([Wr, P(Wr, tb, .55)], 15, NV, 0);
+        const h = P(Wr, C, .1);
+        s += hand(h, u, 32, 30);
+        /* ball on the strings */
+        const B = [C[0] + u[0] * 30 + n[0] * 8, C[1] + u[1] * 30 + n[1] * 8];
+        s += `<circle cx="${f1(B[0])}" cy="${f1(B[1])}" r="13" fill="${GR}" stroke="${NV}" stroke-width="2.5"/><path d="M${f1(B[0] - 9)},${f1(B[1] - 9)} q9,9 0,18 M${f1(B[0] + 9)},${f1(B[1] - 9)} q-9,9 0,18" fill="none" stroke="#fff" stroke-width="2"/>`;
+        s += push(h, [n[0] * -1, n[1] * -1], 42, 18);
+        s += `<circle cx="${Wr[0]}" cy="${Wr[1]}" r="9" fill="none" stroke="${NV}" stroke-width="2" stroke-dasharray="3 3"/>`;
+        s += arms(Wr, [h, 34, [150, 214]], [B, -66]);
+        return s;
+    }
+});
+
 (() => {
     const S = [
-        ['Car jack handle', 'A long handle lifts a heavy car a small distance', 'f'],
-        ['Hockey stick', 'Hands near the top, ball struck at the far end', 's'],
-        ['Long-handled garden loppers', 'Long handles, blades close to the pivot', 'f'],
-        ['Your forearm lifting a cup', 'Elbow is the fulcrum, muscle attaches close to the elbow', 's'],
-        ['Screwdriver levering open a paint tin', 'Tip under the lid, handle pushed down', 'f'],
-        ['Tennis racquet', 'Swung from the wrist, ball struck far from the hand', 's']
+        ['Car jack handle', 'A long handle lifts a heavy car a small distance', 'f', 'jack'],
+        ['Hockey stick', 'Hands near the top, ball struck at the far end', 's', 'hockey'],
+        ['Long-handled garden loppers', 'Long handles, blades close to the pivot', 'f', 'loppers'],
+        ['Your forearm lifting a cup', 'Elbow is the fulcrum, muscle attaches close to the elbow', 's', 'arm'],
+        ['Screwdriver levering open a paint tin', 'Tip under the lid, handle pushed down', 'f', 'paint'],
+        ['Tennis racquet', 'Swung from the wrist, ball struck far from the hand', 's', 'racquet']
     ];
-    $('#sorts').innerHTML = S.map(([n, d, a], i) => `<div class="sort"><span>${n}<small>${d}</small></span>${pillset('so' + i, a, FS)}</div>`).join('');
+    $('#sorts').innerHTML = S.map(([n, d, a, k], i) => `<div class="obj"><figure class="ill">${illSvg(k, n + '. Pink arrows show where the effort is applied.')}</figure>
+        <div><h3>${n}</h3><p>${d}</p><div class="osel">${pillset('so' + i, a, FS)}</div></div></div>`).join('');
 })();
 
 /* ---------- 7 claims ---------- */
@@ -721,6 +1043,7 @@ function checkAct(sec) {
     const r = sec.querySelector('.res');
     r.className = 'res ' + (ok === fs.length ? 'all' : 'some');
     r.textContent = ok === fs.length ? `${ok} of ${fs.length} correct. Well done.` : `${ok} of ${fs.length} correct. Have another go at the ones marked in pink.`;
+    $$('.obj', sec).forEach(o => o.classList.toggle('shown', $$('select, .pills', o).every(s => s.classList.contains('ok'))));
 }
 $$('.chk').forEach(b => b.addEventListener('click', () => checkAct(b.closest('.act'))));
 
@@ -747,6 +1070,7 @@ function progress() {
 function changed(e) {
     const t = e.target, holder = t.type === 'radio' ? t.closest('.pills') : t;
     if (holder) holder.classList.remove('ok', 'no');
+    const ob = t.closest && t.closest('.obj'); if (ob) ob.classList.remove('shown');
     if (t.name && /^e\d+$/.test(t.name)) drawGraph();
     if (t.id === 'nm') $('#msg').textContent = '';
     save(); progress();
@@ -776,6 +1100,7 @@ $('#clearbtn').addEventListener('click', () => {
     if (!confirm('Clear all of your answers? This cannot be undone.')) return;
     allFields().forEach(f => { if (f.type === 'radio') f.checked = false; else f.value = ''; });
     $$('.ok, .no').forEach(e => e.classList.remove('ok', 'no'));
+    $$('.obj.shown').forEach(e => e.classList.remove('shown'));
     $$('.res').forEach(r => r.textContent = '');
     try { localStorage.removeItem(KEY); } catch (e) {}
     $('#dt').value = new Date().toLocaleDateString('en-AU');
