@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Levers: Checking for Understanding</title>
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="%231b1f45"/><path d="M15 31 L27 43 L49 19" fill="none" stroke="%23ea008a" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><rect x="12" y="52" width="40" height="5" rx="2.5" fill="%23fff" opacity=".25"/><rect x="12" y="52" width="26" height="5" rx="2.5" fill="%23fff"/></svg>'>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --navy: #1b1f45;
+        --pink: #ea008a;
+        --mid-grey: #9a9a9a;
+        --light-grey: #e8e8e8;
+        --blank: #f0f3f6;
+        --tint: #e9ecf5;
+        --cond: 'Barlow Condensed', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        --ease: cubic-bezier(.2,.8,.2,1);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #eaeaea; color: var(--navy);
+        display: flex; align-items: center; justify-content: center; overflow: hidden; -webkit-user-select: none; user-select: none; }
+    .stage { width: 1280px; height: 720px; background: #fff; border-top: 6px solid var(--navy); position: relative; padding: 36px 64px 0; flex-shrink: 0; overflow: hidden; transform-origin: center; }
+    .top { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 4px solid var(--navy); padding-bottom: 12px; }
+    .sheet-title { font-family: var(--cond); font-size: 44px; font-weight: 900; text-transform: uppercase; letter-spacing: .01em; margin: 0; line-height: 1; }
+    .sheet-title span { color: var(--pink); }
+    .counter { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; color: var(--mid-grey); text-transform: uppercase; }
+    .counter b { color: var(--navy); }
+    .content { position: absolute; left: 64px; right: 64px; top: 124px; bottom: 108px; }
+    .caption { position: absolute; left: 64px; right: 64px; bottom: 28px; min-height: 60px; display: flex; align-items: center; gap: 16px; font-size: 25px; font-weight: 500; line-height: 1.32; }
+    .caption::before { content: ''; width: 10px; height: 10px; background: var(--pink); flex-shrink: 0; }
+    .caption .txt { flex: 1; }
+    .caption b { color: var(--pink); font-weight: 800; }
+    .caption b.no { color: var(--navy); }
+    .caption .in { animation: capIn .45s var(--ease); display: block; }
+    @keyframes capIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .progress { position: absolute; left: 0; bottom: 0; height: 6px; background: var(--pink); width: 0; transition: width .6s var(--ease); }
+
+    .next { font-family: var(--cond); font-size: 26px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; background: var(--pink); color: #fff;
+        border: none; border-radius: 8px; padding: 12px 30px; cursor: pointer; flex-shrink: 0; }
+    .next[hidden] { display: none; }
+    .next:disabled { background: #c3c6d0; cursor: default; }
+    button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--pink); outline-offset: 3px; }
+    svg [tabindex]:focus-visible { outline: none; }
+    .next:focus-visible { outline-color: var(--navy); }
+    .pop-in { animation: capIn .45s var(--ease); }
+    @keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+
+    /* buckles */
+    .hright { display: flex; align-items: flex-end; gap: 28px; }
+    .bcount { display: flex; align-items: center; gap: 10px; }
+    .counter-icon { width: 34px; height: 34px; display: block; }
+    .bcount .num { font-family: var(--cond); font-size: 34px; font-weight: 900; line-height: 1; }
+    .bcount .lbl { font-family: var(--cond); font-size: 18px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mid-grey); }
+    .award { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(.8); opacity: 0; pointer-events: none; z-index: 30;
+        background: #fff; border: 3px solid var(--pink); border-radius: 12px; padding: 24px 40px; display: flex; flex-direction: column; align-items: center; gap: 10px;
+        box-shadow: 0 20px 50px rgba(27,31,69,.25); transition: opacity .3s, transform .35s var(--ease); }
+    .award.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    .award.hide { opacity: 0; transform: translate(-50%, -60%) scale(.95); }
+    .award-img { width: 140px; height: auto; }
+    .award-text { font-family: var(--cond); font-size: 40px; font-weight: 900; color: var(--pink); text-transform: uppercase; letter-spacing: .04em; }
+    .confetti-canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 29; }
+
+    /* question frame */
+    .q { display: flex; flex-direction: column; height: 100%; }
+    .qhead { display: flex; align-items: center; gap: 18px; }
+    .qtitle { font-size: 40px; font-weight: 800; line-height: 1.15; }
+    .tchip { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--pink); border: 3px solid var(--pink); border-radius: 6px; padding: 3px 12px 2px; }
+    .sctag { margin-left: auto; font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--navy); box-shadow: inset 0 0 0 3px var(--navy); border-radius: 6px; padding: 6px 12px 5px; line-height: 1; }
+    .prompt { font-size: 28px; font-weight: 600; margin-top: 6px; line-height: 1.3; }
+    .body { flex: 1; min-height: 0; margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 22px; }
+    .center { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+    .dlbl { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mid-grey); }
+
+    /* svg basics */
+    svg { overflow: visible; display: block; }
+    .t { font-family: var(--cond); font-weight: 800; font-size: 22px; letter-spacing: .03em; fill: var(--navy); }
+    .t.mid { text-anchor: middle; } .t.end { text-anchor: end; }
+    .t.pk { fill: var(--pink); } .t.gr { fill: var(--mid-grey); }
+    .t.sm { font-size: 19px; }
+    .obj { fill: var(--blank); stroke: var(--navy); stroke-width: 4; stroke-linejoin: round; }
+    .oname { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; fill: var(--navy); }
+    .gnd { stroke: #c9ccd6; stroke-width: 4; }
+    .fig line, .fig polyline { stroke: var(--navy); stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+    .fig circle { fill: var(--navy); }
+    .ln { fill: none; stroke: var(--navy); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+    .fa line { stroke: var(--pink); stroke-width: 7; } .fa polygon { fill: var(--pink); }
+    .gd { stroke: #b4b8c4; stroke-width: 2; stroke-dasharray: 5 6; fill: none; }
+    .lab2 { font-family: var(--cond); font-size: 15px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; fill: #9a9fb3; }
+    .fg line { stroke: #b4b8c4; stroke-width: 5; } .fg polygon { fill: #b4b8c4; }
+    .ld { stroke: #b4b8c4; stroke-width: 2.5; stroke-dasharray: 4 5; fill: none; }
+    .ldot { fill: #b4b8c4; }
+    .mkr circle { stroke-width: 3; }
+    .mkr text { font-family: var(--cond); font-size: 20px; font-weight: 900; text-anchor: middle; }
+    .mF circle { fill: var(--navy); stroke: #fff; } .mF text { fill: #fff; }
+    .mL circle { fill: #fff; stroke: var(--navy); } .mL text { fill: var(--navy); }
+    .mE circle { fill: var(--pink); stroke: var(--pink); } .mE text { fill: #fff; }
+
+    /* arm brackets: grey until solved, or coloured from the start (cE / cR) */
+    .dim .m, .dim .tk { stroke: #b4b8c4; stroke-width: 5; transition: stroke .4s; }
+    .cE .m, .cE .tk, .solved .bE .m, .solved .bE .tk { stroke: var(--pink); }
+    .cR .m, .cR .tk, .solved .bR .m, .solved .bR .tk { stroke: var(--navy); }
+    .disc circle { fill: var(--navy); transition: fill .3s; } .disc text { font-family: var(--cond); font-size: 20px; font-weight: 900; fill: #fff; text-anchor: middle; }
+    .cE .disc circle { fill: var(--pink); }
+    .tag rect { fill: #fff; stroke: var(--navy); stroke-width: 3; }
+    .tag text { font-family: var(--cond); font-size: 21px; font-weight: 800; fill: var(--navy); text-anchor: middle; }
+    .tag.ok rect { stroke: var(--pink); } .tag.ok text { fill: var(--pink); }
+    .swap { transition: opacity .5s; }
+
+    /* multiple choice */
+    .opts { display: grid; gap: 10px; }
+    .col .opt { font-size: 23px; padding: 9px 18px; }
+    .opt { display: flex; align-items: center; gap: 16px; border: 3px solid var(--navy); border-radius: 8px; background: #fff; padding: 12px 20px;
+        font-family: inherit; font-size: 25px; font-weight: 600; color: var(--navy); text-align: left; line-height: 1.25; cursor: pointer;
+        transition: background-color .2s, border-color .2s, color .2s, opacity .2s; }
+    .opt .l { flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background: var(--navy); color: #fff; font-family: var(--cond); font-size: 24px; font-weight: 900;
+        display: flex; align-items: center; justify-content: center; transition: background-color .2s, color .2s; }
+    .opt:hover:not(:disabled) { background: #f6f7fb; }
+    .opt.sel { background: var(--tint); }
+    .opt.sel .l { background: var(--pink); }
+    .opt.right, .opt.right:hover { background: var(--pink); border-color: var(--pink); color: #fff; opacity: 1; }
+    .opt.right .l { background: #fff; color: var(--pink); }
+    .opt.wrong { border-style: dashed; opacity: .5; animation: shake .4s; cursor: default; }
+    .opt:disabled { cursor: default; }
+    .opt.lockd { opacity: .4; }
+    .popts .opt { min-height: 58px; font-size: 24px; font-weight: 700; padding: 8px 16px; }
+
+    /* picture choices */
+    .pgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; width: 100%; }
+    .pcard { position: relative; border: 3px solid var(--navy); border-radius: 8px; background: #fff; padding: 22px 4px 10px; cursor: pointer;
+        display: flex; flex-direction: column; align-items: center; gap: 8px; font-family: inherit; color: var(--navy); transition: background-color .2s, border-color .2s, opacity .2s; }
+    .pcard .l { position: absolute; left: 10px; top: 10px; width: 38px; height: 38px; border-radius: 50%; background: var(--navy); color: #fff; font-family: var(--cond); font-size: 23px; font-weight: 900;
+        display: flex; align-items: center; justify-content: center; transition: background-color .2s; }
+    .pcard:hover:not(:disabled) { background: #f6f7fb; }
+    .pcard.sel { background: var(--tint); }
+    .pcard.sel .l { background: var(--pink); }
+    .pcard.right, .pcard.right:hover { border-color: var(--pink); background: #fff; box-shadow: 0 0 0 5px rgba(234,0,138,.18); opacity: 1; }
+    .pcard.right .l { background: var(--pink); }
+    .pcard.wrong { border-style: dashed; opacity: .45; animation: shake .4s; cursor: default; }
+    .pcard:disabled { cursor: default; }
+
+    /* quote */
+    .quote { border-left: 8px solid var(--pink); padding: 4px 0 4px 20px; font-size: 25px; font-weight: 600; font-style: italic; line-height: 1.3; margin-bottom: 14px; }
+    .col { display: flex; flex-direction: column; }
+    .scene { position: relative; border: 3px solid var(--navy); border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #fff; }
+
+    /* drag tiles */
+    .tile { font-family: inherit; font-size: 24px; font-weight: 700; color: var(--navy); background: #fff; border: 3px solid var(--navy); border-radius: 8px; padding: 6px 16px; line-height: 1.25;
+        cursor: grab; touch-action: none; position: relative; z-index: 2; transition: transform .3s var(--ease), box-shadow .2s, border-color .2s; box-shadow: 0 4px 0 #c3c6d0; white-space: nowrap; text-align: center; }
+    .tile.sm { font-size: 22px; padding: 6px 12px; }
+    .tile.sel { border-color: var(--pink); box-shadow: 0 0 0 4px rgba(234,0,138,.22); }
+    .tile.drag { transition: none; cursor: grabbing; z-index: 30; box-shadow: 0 14px 30px rgba(27,31,69,.25); border-color: var(--pink); }
+    .tile.right { background: var(--pink); color: #fff; border-color: var(--pink); box-shadow: none; cursor: default; }
+    .tile.wrong { border-style: dashed; background: var(--tint); box-shadow: none; animation: shake .4s; }
+    .tile.mk { width: 50px; height: 50px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center; font-family: var(--cond); font-size: 27px; font-weight: 900; }
+    .tile.mk.F { background: var(--navy); color: #fff; border-color: var(--navy); }
+    .tile.mk.E { background: var(--pink); color: #fff; border-color: var(--pink); }
+    .tile.mk.sel { box-shadow: 0 0 0 5px rgba(234,0,138,.35); }
+    .tile.mk.right { box-shadow: 0 0 0 5px rgba(234,0,138,.3); }
+    .tile.mk.L.right { background: #fff; color: var(--navy); border-color: var(--navy); }
+    .tile.mk.F.right { background: var(--navy); border-color: var(--navy); }
+
+    /* sort */
+    .sort { display: grid; grid-template-columns: 1fr 360px 1fr; gap: 18px; width: 100%; height: 100%; }
+    .bin { border: 3px solid var(--navy); border-radius: 8px; display: flex; flex-direction: column; overflow: visible; transition: box-shadow .2s; }
+    .bin.pk { border-color: var(--pink); }
+    .bin h3 { margin: 0; padding: 8px 16px 7px; font-family: var(--cond); font-size: 28px; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; color: #fff; background: var(--navy); }
+    .bin.pk h3 { background: var(--pink); }
+    .bin .sub { font-size: 18px; font-weight: 600; color: var(--mid-grey); padding: 8px 16px 0; }
+    .bin .area { flex: 1; padding: 12px 14px; display: flex; flex-wrap: wrap; gap: 10px; align-content: flex-start; justify-content: center; border-radius: 0 0 6px 6px; transition: background-color .2s; }
+    .bin.hover .area, .bin.armed:hover .area { background: rgba(234,0,138,.06); }
+    .bin.armed { box-shadow: 0 0 0 4px rgba(234,0,138,.15); cursor: pointer; }
+    .pool { background: var(--blank); border-radius: 8px; padding: 14px; display: flex; flex-wrap: wrap; gap: 10px; align-content: center; justify-content: center; transition: background-color .2s; }
+    .pool.hover { background: #e3e7ee; }
+
+    /* scene + side panel */
+    .bwrap { position: relative; width: 806px; height: 336px; border: 3px solid var(--navy); border-radius: 8px; flex-shrink: 0; background: #fff; }
+    .bwrap > svg { position: absolute; left: 0; top: 0; overflow: hidden; border-radius: 6px; }
+    .slot { position: absolute; height: 48px; border: 3px dashed #c3c6d0; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,.85); transition: border-color .2s, background-color .2s; }
+    .slot.round { border-radius: 50%; background: rgba(255,255,255,.6); }
+    .slot.hover, .slot.armed:hover { border-color: var(--pink); background: rgba(234,0,138,.08); }
+    .slot.armed { border-color: #e7a3c9; cursor: pointer; }
+    .slot.filled { border-color: transparent; background: none; }
+    .slot.wrong { animation: shake .4s; }
+    .slot .tile { box-shadow: none; padding: 5px 14px; font-size: 23px; }
+    .slot .tile.mk { padding: 0; font-size: 27px; }
+    .bside { width: 324px; display: flex; flex-direction: column; gap: 10px; height: 336px; }
+    .bside .pool { flex: 1; flex-direction: column; flex-wrap: nowrap; align-items: center; justify-content: center; }
+    .bside .pool.mkp { flex-direction: row; flex: 0 0 110px; gap: 20px; }
+    .mkkey { display: flex; flex-direction: column; gap: 10px; padding: 6px 4px; font-size: 22px; font-weight: 700; }
+    .mkkey span { display: flex; align-items: center; gap: 12px; }
+
+    /* tap to find */
+    .spot { cursor: pointer; }
+    .spot .ring { fill: rgba(255,255,255,.01); stroke: #b4b8c4; stroke-width: 3; stroke-dasharray: 6 6; transition: stroke .2s, fill .2s; }
+    .spot .hit { fill: transparent; }
+    .spot:hover .ring { stroke: var(--pink); }
+    .spot:focus-visible .ring { stroke: var(--pink); stroke-width: 5; }
+    .spot.sel .ring { stroke: var(--pink); stroke-dasharray: none; fill: rgba(234,0,138,.14); stroke-width: 4; }
+    .spot.wrong { cursor: default; }
+    .spot.wrong .ring { stroke: var(--navy); opacity: .35; }
+    .spot.done { display: none; }
+    .steps { display: flex; flex-direction: column; gap: 10px; }
+    .stp { display: flex; align-items: center; gap: 14px; border: 3px solid #c3c6d0; border-radius: 8px; padding: 10px 14px; font-size: 24px; font-weight: 700; color: var(--mid-grey); transition: border-color .2s, color .2s, background-color .2s; }
+    .stp .n { width: 36px; height: 36px; border-radius: 50%; background: #c3c6d0; color: #fff; font-family: var(--cond); font-size: 22px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background-color .2s; }
+    .stp.on { border-color: var(--pink); color: var(--navy); }
+    .stp.on .n { background: var(--pink); }
+    .stp.ok { border-color: var(--navy); color: var(--navy); background: var(--blank); }
+    .stp.ok .n { background: var(--navy); }
+    .tipnote { font-size: 19px; font-weight: 600; color: var(--mid-grey); line-height: 1.3; margin-top: auto; }
+
+    /* drag and test */
+    .hdl { cursor: grab; }
+    .hdl.grab { cursor: grabbing; }
+    .hdl .hb { fill: var(--pink); stroke: #fff; stroke-width: 3; }
+    .hdl .ht { font-family: var(--cond); font-size: 22px; font-weight: 900; fill: #fff; text-anchor: middle; pointer-events: none; }
+    .hdl .pulse { fill: none; stroke: var(--pink); stroke-width: 3; transform-box: fill-box; transform-origin: center; animation: pulse 1.6s ease-out infinite; pointer-events: none; }
+    .hdl.used .pulse { display: none; }
+    .hdl:focus-visible .hb { stroke: var(--navy); stroke-width: 4; }
+    @keyframes pulse { from { transform: scale(1); opacity: .8; } to { transform: scale(2.1); opacity: 0; } }
+    .trE { fill: none; stroke: var(--pink); stroke-width: 4; stroke-dasharray: 1 9; stroke-linecap: round; }
+    .trL { fill: none; stroke: var(--navy); stroke-width: 4; stroke-dasharray: 1 9; stroke-linecap: round; }
+    .arms { opacity: 0; transition: opacity .6s; }
+    .solved .arms { opacity: 1; }
+    .stat { border: 3px solid var(--navy); border-radius: 8px; padding: 6px 14px 10px; }
+    .stat.pk { border-color: var(--pink); }
+    .stat .num { font-family: var(--cond); font-size: 40px; font-weight: 900; line-height: 1.05; }
+    .stat.pk .num { color: var(--pink); }
+    .sbar { height: 10px; background: var(--blank); border-radius: 5px; overflow: hidden; margin-top: 4px; }
+    .sbar i { display: block; height: 100%; width: 0; background: var(--navy); }
+    .stat.pk .sbar i { background: var(--pink); }
+    .popts { margin-top: auto; }
+
+    /* move the fulcrum */
+    .fu { cursor: ew-resize; }
+    .fu .fp { fill: var(--navy); stroke: var(--navy); stroke-width: 3; stroke-linejoin: round; transition: stroke .2s; }
+    .fu:hover .fp, .fu:focus-visible .fp, .fu.grab .fp { stroke: var(--pink); stroke-width: 5; }
+    .fu.lock { cursor: default; }
+    .fu.lock .fp { stroke: var(--navy); stroke-width: 3; }
+    .drg { stroke: #b4b8c4; stroke-width: 4; fill: none; stroke-linecap: round; stroke-linejoin: round; transition: opacity .3s; }
+    .tl { transform-box: view-box; transition: transform 1.2s var(--ease); }
+
+    /* cloze */
+    .cz { display: flex; flex-direction: column; gap: 16px; width: 100%; }
+    .crow { display: flex; align-items: center; gap: 22px; }
+    .crow > svg { flex-shrink: 0; border: 3px solid var(--navy); border-radius: 8px; background: #fff; }
+    .ctext { font-size: 25px; font-weight: 600; line-height: 1.3; }
+    .ctext b { font-weight: 800; }
+    .cslot { display: inline-flex; vertical-align: middle; min-width: 132px; height: 48px; border: 3px dashed #c3c6d0; border-radius: 8px; margin: 3px 4px; align-items: center; justify-content: center; transition: border-color .2s, background-color .2s; }
+    .cslot.hover, .cslot.armed:hover { border-color: var(--pink); background: rgba(234,0,138,.06); }
+    .cslot.armed { border-color: #e7a3c9; cursor: pointer; }
+    .cslot.filled { border-color: transparent; }
+    .cslot.wrong { animation: shake .4s; }
+    .cslot .tile { box-shadow: none; padding: 4px 14px; font-size: 23px; }
+    .cz .pool { flex-direction: row; margin-top: 4px; min-height: 70px; }
+
+    /* end */
+    .scorecard { border: 3px solid var(--pink); border-radius: 8px; padding: 22px 60px 26px; text-align: center; display: flex; flex-direction: column; align-items: center; }
+    .scorecard .big { font-family: var(--cond); font-size: 96px; font-weight: 900; color: var(--pink); line-height: 1; margin-top: 8px; }
+    .scorecard .dlbl { margin-top: 8px; }
+    .scorecard .sub { margin-top: 18px; }
+    .done-buckle { width: 90px; height: 90px; }
+    .dots { display: flex; gap: 8px; justify-content: center; margin-top: 14px; }
+    .dots span { width: 34px; height: 34px; border-radius: 6px; border: 3px solid var(--navy); font-family: var(--cond); font-size: 17px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+    .dots span.y { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .again { margin-top: 22px; font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+        background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 8px; padding: 8px 22px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+    <div class="top">
+        <h1 class="sheet-title">Checking <span>levers</span></h1>
+        <div class="hright">
+            <div class="counter" id="counter"></div>
+            <div class="bcount" title="Buckles earned">
+                <img src="buckle.svg" alt="" class="counter-icon" onerror="this.style.visibility='hidden'">
+                <div class="num" id="buckleCount">0</div>
+                <div class="lbl">Buckles</div>
+            </div>
+        </div>
+    </div>
+    <div class="content" id="content"></div>
+    <div class="caption"><div class="txt" id="cap"></div><button class="next" id="next" hidden>Check</button></div>
+    <div class="progress" id="progress"></div>
+</div>
+
+<div class="award" id="award" role="status" aria-live="polite">
+    <img src="penguin-with-buckle.svg" alt="" class="award-img" onerror="this.style.display='none'">
+    <div class="award-text" id="awardText">+1 Buckle!</div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const content = $('#content'), cap = $('#cap'), btn = $('#next'), counter = $('#counter'), progress = $('#progress');
+const NS = 'http://www.w3.org/2000/svg';
+const NV = '#1b1f45', PK = '#ea008a', GR = '#c9ccd6', LT = '#f0f3f6', MG = '#b8bcc8', SK = '#d7dae2';
+let scaleK = 1;
+function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
+function say(html) { cap.innerHTML = `<span class="in">${html}</span>`; }
+
+/* ---------- animation helpers ---------- */
+let runId = 0;
+const easeOut = t => 1 - (1 - t) * (1 - t);
+function play(dur, step, guard) {
+    const id = runId, ok = guard || (() => id === runId);
+    return new Promise(res => {
+        const st = performance.now();
+        const f = n => { if (!ok()) return; const t = Math.min(1, (n - st) / dur); step(t); if (t < 1) requestAnimationFrame(f); else res(); };
+        requestAnimationFrame(f);
+    });
+}
+
+/* ---------- drawing helpers ---------- */
+const f1 = n => String(Math.round(n * 10) / 10);
+const tx = (x, y, s, cls = '') => `<text class="t ${cls}" x="${f1(x)}" y="${f1(y)}">${s}</text>`;
+const mark = (x, y, t, r = 17) => `<g class="mkr m${t}"><circle cx="${f1(x)}" cy="${f1(y)}" r="${r}"/><text x="${f1(x)}" y="${f1(y + r * .41)}"${r < 15 ? ` style="font-size:${Math.round(r * 1.2)}px"` : ''}>${t}</text></g>`;
+const lead = (x1, y1, x2, y2) => `<line class="ld" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/><circle class="ldot" cx="${x2}" cy="${y2}" r="4"/>`;
+function arrow(x1, y1, x2, y2, cls = 'fa', hw = 12) {
+    const a = Math.atan2(y2 - y1, x2 - x1), L = Math.hypot(x2 - x1, y2 - y1), hl = Math.min(hw * 1.6, L * 0.6);
+    const bx = x2 - Math.cos(a) * hl, by = y2 - Math.sin(a) * hl, px = Math.sin(a) * hw, py = -Math.cos(a) * hw;
+    return `<g class="${cls}"><line x1="${f1(x1)}" y1="${f1(y1)}" x2="${f1(bx + Math.cos(a))}" y2="${f1(by + Math.sin(a))}"/><polygon points="${f1(x2)},${f1(y2)} ${f1(bx + px)},${f1(by + py)} ${f1(bx - px)},${f1(by - py)}"/></g>`;
+}
+/* dimension bracket between two points, pushed sideways by off (sign picks the side) */
+function dim(x1, y1, x2, y2, off, cls = '', disc) {
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy), nx = -dy / L, ny = dx / L, s = Math.sign(off) || 1, t = 10;
+    const ax = x1 + nx * off, ay = y1 + ny * off, bx = x2 + nx * off, by = y2 + ny * off;
+    const ext = (x, y, X, Y) => `<line class="gd" x1="${f1(x + nx * s * 6)}" y1="${f1(y + ny * s * 6)}" x2="${f1(X + nx * s * 8)}" y2="${f1(Y + ny * s * 8)}"/>`;
+    const tk = (x, y) => `<line class="tk" x1="${f1(x - nx * t)}" y1="${f1(y - ny * t)}" x2="${f1(x + nx * t)}" y2="${f1(y + ny * t)}"/>`;
+    const d = disc ? `<g class="disc"><circle cx="${f1(disc[1] === undefined ? (ax + bx) / 2 : disc[1])}" cy="${f1(disc[2] === undefined ? (ay + by) / 2 : disc[2])}" r="15"/><text x="${f1(disc[1] === undefined ? (ax + bx) / 2 : disc[1])}" y="${f1((disc[2] === undefined ? (ay + by) / 2 : disc[2]) + 7)}">${disc[0]}</text></g>` : '';
+    return `<g class="dim ${cls}">${ext(x1, y1, ax, ay)}${ext(x2, y2, bx, by)}<line class="m" x1="${f1(ax)}" y1="${f1(ay)}" x2="${f1(bx)}" y2="${f1(by)}"/>${tk(ax, ay)}${tk(bx, by)}${d}</g>`;
+}
+const tagW = t => Math.round(t.length * 10.5 + 28);
+const tag = (x, y, t, cls = '') => { const w = tagW(t); return `<g class="tag ${cls}"><rect x="${x - w / 2}" y="${y - 19}" width="${w}" height="38" rx="6"/><text x="${x}" y="${y + 7}">${t}</text></g>`; };
+
+/* ---------- people and hands (pictogram style, soft grey so the lever stays the hero) ---------- */
+const PG = '#aab0c2', OBJ = '#e6e8ef', HL = '#4b5080';
+const P2 = p => f1(p[0]) + ',' + f1(p[1]);
+const limb = (pts, w) => `<polyline points="${pts.map(P2).join(' ')}" fill="none" stroke="#fff" stroke-width="${w + 6}" stroke-linecap="round" stroke-linejoin="round"/><polyline points="${pts.map(P2).join(' ')}" fill="none" stroke="${PG}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+/* elbow or knee position for a two-part limb, bending to the side with the larger y when low is true */
+function ik(s, h, a, b, low = true) {
+    const dx = h[0] - s[0], dy = h[1] - s[1], d = Math.min(Math.hypot(dx, dy), a + b - .01), ang = Math.atan2(dy, dx);
+    const A = Math.acos(Math.max(-1, Math.min(1, (a * a + d * d - b * b) / (2 * a * d))));
+    const e1 = [s[0] + a * Math.cos(ang + A), s[1] + a * Math.sin(ang + A)], e2 = [s[0] + a * Math.cos(ang - A), s[1] + a * Math.sin(ang - A)];
+    return (e1[1] > e2[1]) === low ? e1 : e2;
+}
+/* j: hip, sh, hd (head centre), k1/f1 back leg, k2/f2 front leg, h1/h2 hands, arm lengths ua/fa */
+function person(j) {
+    const e1 = j.e1 || ik(j.sh, j.h1, j.ua, j.fa, j.low !== false), e2 = j.e2 || ik(j.sh, j.h2, j.ua, j.fa, j.low !== false);
+    return `${limb([j.hip, j.k1, j.f1], 16)}${limb([j.sh, e1, j.h1], 14)}${limb([j.hip, j.sh], 24)}${limb([j.hip, j.k2, j.f2], 16)}
+        <circle cx="${f1(j.hd[0])}" cy="${f1(j.hd[1])}" r="${j.hr || 16}" fill="${PG}" stroke="#fff" stroke-width="3"/>${limb([j.sh, e2, j.h2], 14)}`;
+}
+/* forearm entering from off the scene, ending in a fist at (x, y) */
+const armIn = (x, y, deg, len = 220, w = 22) => {
+    const ex = x + Math.cos(deg * Math.PI / 180) * len, ey = y + Math.sin(deg * Math.PI / 180) * len;
+    return `${limb([[ex, ey], [x, y]], w)}<circle cx="${f1(x)}" cy="${f1(y)}" r="${w * .82}" fill="${PG}" stroke="#fff" stroke-width="3"/>`;
+};
+/* grey motion cue along an arc */
+function arcCue(cx, cy, r, a0, a1) {
+    const P = a => [cx + r * Math.cos(a * Math.PI / 180), cy + r * Math.sin(a * Math.PI / 180)], s = P(a0), e = P(a1), sw = a1 > a0 ? 1 : 0;
+    const t = a1 * Math.PI / 180, dir = sw ? 1 : -1, tx_ = -Math.sin(t) * dir, ty_ = Math.cos(t) * dir, n = [-ty_, tx_];
+    const tip = [e[0] + tx_ * 14, e[1] + ty_ * 14];
+    return `<path d="M${P2(s)} A${r} ${r} 0 0 ${sw} ${P2(e)}" fill="none" stroke="#b4b8c4" stroke-width="4" stroke-dasharray="8 7" stroke-linecap="round"/>
+        <polygon points="${P2(tip)} ${P2([e[0] + n[0] * 9, e[1] + n[1] * 9])} ${P2([e[0] - n[0] * 9, e[1] - n[1] * 9])}" fill="#b4b8c4"/>`;
+}
+const ground = (y, x0 = 0, x1 = 806) => { let h = ''; for (let x = x0 + 8; x < x1; x += 16) h += `M${x} ${y + 4} l-8 9 `; return `<path d="${h}" stroke="#e1e4eb" stroke-width="2"/><line class="gnd" x1="${x0}" x2="${x1}" y1="${y}" y2="${y}"/>`; };
+const lab2 = (x, y, s, a = 'middle') => `<text class="lab2" x="${x}" y="${y}" text-anchor="${a}">${s}</text>`;
+const steelBar = (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="${NV}"/><line x1="${x + 6}" y1="${y + 3.5}" x2="${x + w - 6}" y2="${y + 3.5}" stroke="${HL}" stroke-width="2" stroke-linecap="round"/>`;
+const thickLine = (a, b, w, inner = LT, iw = w - 8) => `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${NV}" stroke-width="${w}" stroke-linecap="round"/><line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${inner}" stroke-width="${iw}" stroke-linecap="round"/>`;
+
+/* ---------- 1. pole lifting a rock ---------- */
+const SC_ROCK = `${ground(236)}
+    <circle cx="250" cy="210" r="26" fill="${OBJ}" stroke="${NV}" stroke-width="4"/><circle cx="250" cy="210" r="17" fill="none" stroke="${GR}" stroke-width="2"/><circle cx="250" cy="210" r="9" fill="none" stroke="${GR}" stroke-width="2"/><circle cx="250" cy="210" r="2.5" fill="${GR}"/>
+    <path d="M252 207 l13 -11" stroke="${GR}" stroke-width="2" stroke-linecap="round"/>
+    ${steelBar(86, 172, 600, 12)}
+    <polygon points="100,172 96,146 112,118 146,100 182,104 206,126 214,152 208,172" fill="${OBJ}"/>
+    <polygon points="146,100 182,104 206,126 170,134 140,124" fill="#d3d7e1"/><polygon points="170,134 206,126 214,152 208,172 178,172" fill="#dcdfe7"/>
+    <path d="M112 118 L140 124 L170 134 L206 126 M140 124 L132 172 M170 134 L178 172" fill="none" stroke="${NV}" stroke-width="2" opacity=".3"/>
+    <polygon points="100,172 96,146 112,118 146,100 182,104 206,126 214,152 208,172" fill="none" stroke="${NV}" stroke-width="4" stroke-linejoin="round"/>
+    ${person({ hip: [746, 152], sh: [702, 104], hd: [682, 81], hr: 17, k1: [766, 194], f1: [782, 234], k2: [734, 194], f2: [720, 234], h1: [688, 170], h2: [681, 167], ua: 38, fa: 38 })}
+    ${lead(155, 76, 155, 98)}${lead(302, 132, 266, 192)}${lead(604, 88, 670, 160)}
+    ${dim(155, 178, 250, 178, 84, 'bR')}${dim(250, 178, 680, 178, 84, 'bE')}`;
+
+/* ---------- 2. claw hammer pulling a nail ----------
+   Drawn upright in its own frame (handle up, claw left, face right), then tilted
+   slightly and dropped so the curved back of the claw rests on the wood. */
+const HAMMER = (() => {
+    const TH = -6 * Math.PI / 180, c = Math.cos(TH), s = Math.sin(TH), WOOD = 282, HX = 430, K = 1.12;
+    const rot = p => [K * (p[0] * c - p[1] * s), K * (p[0] * s + p[1] * c)];
+    const cub = (p0, p1, p2, p3, t) => { const u = 1 - t; return [0, 1].map(i => u * u * u * p0[i] + 3 * u * u * t * p1[i] + 3 * u * t * t * p2[i] + t * t * t * p3[i]); };
+    const back = [[-16, 18], [-50, 24], [-82, 8], [-99, -28]];
+    let low = [0, -1e9];
+    for (let i = 0; i <= 40; i++) { const p = rot(cub(...back, i / 40)); if (p[1] > low[1]) low = p; }
+    const OY = WOOD - low[1], W = p => { const r = rot(p); return [HX + r[0], OY + r[1]]; };
+    const tip = W([-101, -31]);
+    const nx = tip[0] + 3, ny = tip[1] - 8;
+    let ridges = '';
+    for (let y = -206; y <= -128; y += 13) ridges += `M-15 ${y} H15 `;
+    const head = `<g transform="translate(${f1(HX)} ${f1(OY)}) rotate(${f1(TH * 180 / Math.PI)}) scale(${K})">
+        <path d="M-11 -20 L-13 -196 Q0 -206 13 -196 L11 -20 Z" fill="${LT}" stroke="${NV}" stroke-width="4" stroke-linejoin="round"/>
+        <path d="M-4 -40 Q-2 -110 -5 -180 M5 -60 Q6 -120 4 -170" fill="none" stroke="${GR}" stroke-width="2" stroke-linecap="round"/>
+        <rect x="-16" y="-214" width="32" height="98" rx="15" fill="${NV}"/><path d="${ridges}" stroke="${HL}" stroke-width="2.5"/>
+        <path d="M-16 18 C-50 24 -82 8 -99 -28 L-102 -34 C-84 -16 -52 -12 -16 -16 Z" fill="${NV}" stroke="${NV}" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M-66 1 C-80 -6 -90 -14 -98 -29" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+        <rect x="14" y="-12" width="36" height="24" fill="${NV}"/>
+        <path d="M48 -19 H60 Q66 -19 66 -13 V13 Q66 19 60 19 H48 Z" fill="${NV}"/><line x1="62" y1="-14" x2="62" y2="14" stroke="${HL}" stroke-width="2"/>
+        <rect x="-19" y="-24" width="38" height="46" rx="7" fill="${NV}"/>
+        <path d="M-7 -24 V-14 M0 -24 V-12 M7 -24 V-14" stroke="${HL}" stroke-width="2"/>
+    </g>`;
+    const P = { f: low.map((v, i) => i ? WOOD : HX + v), l: [nx, ny + 2], e: W([0, -170]), m: W([0, -84]), h: W([58, 0]) };
+    const scene = `<rect x="110" y="${WOOD}" width="660" height="60" fill="${OBJ}" stroke="${NV}" stroke-width="3"/>
+        <path d="M130 300 Q260 294 420 300 M470 316 Q600 311 740 316 M560 298 Q630 294 700 298" fill="none" stroke="${GR}" stroke-width="2.5" stroke-linecap="round"/>
+        <rect x="${f1(nx - 4)}" y="${f1(ny)}" width="8" height="${f1(WOOD - ny + 2)}" fill="${GR}" stroke="${NV}" stroke-width="2"/>
+        <rect x="${f1(nx - 13)}" y="${f1(ny - 7)}" width="26" height="7" rx="2" fill="${NV}"/>
+        ${lab2(f1(nx - 24), f1(ny - 2), 'Nail', 'end')}${lab2(740, WOOD - 12, 'Wood', 'end')}
+        ${head}
+        ${armIn(P.e[0], P.e[1], -8, 260)}${arcCue(P.f[0], P.f[1], 212, -79, -61)}`;
+    return { scene, P };
+})();
+const SC_HAMMER = HAMMER.scene;
+
+/* ---------- 3 and 10. wheelie bin (turns about its wheel axle at 380, 282) ---------- */
+const BIN = `<polygon points="382,146 494,146 482,290 392,290" fill="${OBJ}" stroke="${NV}" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M390 166 H488" stroke="${GR}" stroke-width="3"/><path d="M414 184 L418 272 M460 184 L456 272" stroke="${GR}" stroke-width="2.5" stroke-linecap="round"/>
+    <rect x="466" y="288" width="13" height="12" rx="2" fill="${NV}"/><rect x="384" y="250" width="16" height="40" fill="${NV}"/>
+    <path d="M384 152 L360 147 L360 128 L378 132" fill="none" stroke="${NV}" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+    <rect x="374" y="132" width="128" height="14" rx="3" fill="${NV}"/><rect x="496" y="132" width="8" height="22" rx="2" fill="${NV}"/>`;
+const WHEEL = `<circle cx="380" cy="282" r="18" fill="${NV}"/><circle cx="380" cy="282" r="11" fill="none" stroke="${HL}" stroke-width="2"/><circle cx="380" cy="282" r="5" fill="#fff"/>`;
+const AVA = { hip: [306, 210], sh: [300, 128], k1: [298, 256], f1: [288, 300], k2: [318, 256], f2: [330, 300], ua: 46, fa: 46 };
+function ava(dx = 0, lean = 0, hand = [361, 138]) {
+    const m = p => [p[0] + dx, p[1]], sh = [AVA.sh[0] + dx - 12 * lean, AVA.sh[1] + 8 * lean], hip = m(AVA.hip);
+    const d = [sh[0] - hip[0], sh[1] - hip[1]], L = Math.hypot(...d), hd = [sh[0] + d[0] / L * 29, sh[1] + d[1] / L * 29];
+    return person({ hip, sh, hd, k1: m(AVA.k1), f1: [AVA.f1[0] + dx * 1.1, 300], k2: m(AVA.k2), f2: [AVA.f2[0] + dx, 300], h1: [hand[0] - 3, hand[1] + 2], h2: hand, ua: 46, fa: 46 });
+}
+const SC_BIN = `${ground(300)}${ava()}${BIN}${WHEEL}`;
+
+/* ---------- 4. bolt cutters ---------- */
+const SC_CUTTERS = (() => {
+    const ridges = (a, b) => { let s = ''; for (let i = 1; i < 8; i++) { const t = i / 8, x = a[0] + (b[0] - a[0]) * t, y = a[1] + (b[1] - a[1]) * t; s += `M${f1(x)} ${f1(y - 10)} l0 20 `; } return `<path d="${s}" stroke="${HL}" stroke-width="2.5"/>`; };
+    return `${armIn(186, 103, 196, 240)}${armIn(186, 197, 164, 240)}
+    ${thickLine([110, 94], [538, 141], 16, MG, 6)}${thickLine([110, 206], [538, 159], 16, MG, 6)}
+    <line x1="110" y1="94" x2="262" y2="110" stroke="${NV}" stroke-width="26" stroke-linecap="round"/><line x1="110" y1="206" x2="262" y2="190" stroke="${NV}" stroke-width="26" stroke-linecap="round"/>
+    ${ridges([110, 94], [262, 110])}${ridges([110, 206], [262, 190])}
+    <circle cx="186" cy="103" r="18" fill="${PG}" stroke="#fff" stroke-width="3"/><circle cx="186" cy="197" r="18" fill="${PG}" stroke="#fff" stroke-width="3"/>
+    ${arrow(232, 58, 232, 86, 'fg', 9)}${arrow(232, 242, 232, 214, 'fg', 9)}
+    <path d="M672 172 V122 A26 26 0 0 1 724 122 V172" fill="none" stroke="${MG}" stroke-width="9"/><path d="M672 172 V122 A26 26 0 0 1 724 122 V172" fill="none" stroke="${NV}" stroke-width="2" opacity=".35"/>
+    <rect x="652" y="166" width="92" height="72" rx="8" fill="${OBJ}" stroke="${NV}" stroke-width="4"/><circle cx="698" cy="194" r="7" fill="${NV}"/><path d="M695 196 h6 l2 18 h-10 z" fill="${NV}"/>
+    <polygon points="594,136 676,141 683,150 598,150" fill="${NV}"/><polygon points="598,150 683,150 676,159 594,164" fill="${NV}"/><line x1="604" y1="150" x2="680" y2="150" stroke="#fff" stroke-width="1.5"/>
+    <path d="M522 126 L598 132 Q606 133 606 141 L606 159 Q606 167 598 168 L522 174 Q514 174 514 166 L514 134 Q514 126 522 126 Z" fill="${NV}"/>
+    <circle cx="530" cy="138" r="3.5" fill="${HL}"/><circle cx="530" cy="162" r="3.5" fill="${HL}"/><circle cx="590" cy="140" r="3.5" fill="${HL}"/><circle cx="590" cy="160" r="3.5" fill="${HL}"/>
+    ${mark(560, 150, 'F')}${mark(640, 112, 'L')}${mark(186, 150, 'E')}
+    <g class="dA">${dim(560, 150, 672, 150, 112, '', ['A'])}</g>
+    <g class="dB">${dim(186, 150, 560, 150, 112, '', ['B'])}</g>
+    <g class="dC">${dim(186, 150, 672, 150, -104, '', ['C'])}</g>
+    <g class="lbA swap" style="opacity:0">${tx(616, 300, 'Resistance arm', 'mid')}</g><g class="lbB swap" style="opacity:0">${tx(373, 300, 'Effort arm', 'mid pk')}</g>`;
+})();
+
+/* ---------- 5 and 16. barbecue tongs (hinge 215, 160) ---------- */
+const TONGS_BODY = `<path d="M228 151 L640 134 L652 141" fill="none" stroke="${NV}" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><path d="M232 151 L638 134.5" stroke="${HL}" stroke-width="2"/>
+    <path d="M228 169 L640 186 L652 179" fill="none" stroke="${NV}" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><path d="M232 169 L638 185.5" stroke="${HL}" stroke-width="2"/>
+    <circle cx="215" cy="160" r="17" fill="${OBJ}" stroke="${NV}" stroke-width="5"/><circle cx="215" cy="160" r="6" fill="${NV}"/>
+    <path d="M664 147 Q700 140 734 147 A13 13 0 0 1 734 173 Q700 180 664 173 A13 13 0 0 1 664 147 Z" fill="#d7dae2" stroke="${NV}" stroke-width="3"/>
+    <path d="M684 148 l-8 22 M704 147 l-8 24 M724 148 l-8 22" stroke="${NV}" stroke-width="3" stroke-linecap="round" opacity=".35"/>
+    <ellipse cx="655" cy="144" rx="9" ry="4.5" fill="${NV}"/><ellipse cx="655" cy="176" rx="9" ry="4.5" fill="${NV}"/>`;
+/* a fist squeezing the tongs: wraps both arms, thumb lies along the top */
+const SC_TONGS = `${TONGS_BODY}
+    <rect x="334" y="124" width="56" height="74" rx="24" fill="${PG}" stroke="#fff" stroke-width="3"/>
+    <path d="M349 160 V194 M362 158 V196 M375 160 V194" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+    <rect x="332" y="114" width="62" height="20" rx="10" fill="${PG}" stroke="#fff" stroke-width="3" transform="rotate(-4 363 124)"/>
+    ${arrow(363, 74, 363, 104, 'fg', 9)}${arrow(330, 238, 330, 208, 'fg', 9)}
+    ${dim(215, 160, 660, 160, -96, 'bR')}${dim(215, 160, 360, 160, 90, 'bE')}
+    ${lead(440, 214, 394, 192)}${lead(712, 190, 704, 177)}`;
+const TONGS_SIDE = `<svg viewBox="0 0 380 330" width="380" height="330">${lab2(24, 40, 'Barbecue tongs', 'start')}<g transform="translate(-89.3 40.8) scale(.62)">${TONGS_BODY}</g>
+    ${mark(44, 140, 'F', 14)}${mark(134, 140, 'E', 14)}${mark(344, 140, 'L', 14)}
+    ${dim(44, 140, 134, 140, 76, 'cE')}${dim(44, 140, 320, 140, 128, 'cR')}
+    ${tx(44, 244, 'Effort arm', 'pk sm')}${tx(44, 298, 'Resistance arm', 'sm')}</svg>`;
+
+/* ---------- 7. class 2 lever card ---------- */
+function c2Pic(a, b) {
+    return `<svg viewBox="0 0 250 160" width="250" height="160" style="margin-top:22px">${ground(130, 0, 70)}
+        ${steelBar(20, 84, 212, 10)}<polygon points="30,94 12,130 48,130" fill="${NV}"/>
+        <rect x="102" y="46" width="46" height="38" rx="3" fill="${OBJ}" stroke="${NV}" stroke-width="3"/>${arrow(222, 152, 222, 98, 'fa', 9)}
+        ${mark(30, 116, 'F', 10)}${mark(125, 65, 'L', 10)}${mark(204, 134, 'E', 10)}
+        ${dim(a, 84, b, 84, -52, 'cR')}</svg>`;
+}
+
+/* ---------- 14. loppers and hedge shears ---------- */
+const LOPPERS = `<svg viewBox="0 0 190 112" width="170" height="100"><g transform="translate(8 2) scale(1.08)">
+    <line x1="100" y1="48" x2="12" y2="20" stroke="${NV}" stroke-width="7" stroke-linecap="round"/><line x1="100" y1="48" x2="12" y2="76" stroke="${NV}" stroke-width="7" stroke-linecap="round"/>
+    <line x1="12" y1="20" x2="50" y2="32" stroke="${NV}" stroke-width="14" stroke-linecap="round"/><line x1="12" y1="76" x2="50" y2="64" stroke="${NV}" stroke-width="14" stroke-linecap="round"/>
+    <path d="M98 44 Q124 28 150 36 Q132 46 104 52 Z" fill="${NV}"/><path d="M98 52 Q124 66 148 60 Q132 50 104 45 Z" fill="${MG}" stroke="${NV}" stroke-width="2" stroke-linejoin="round"/>
+    <circle cx="158" cy="48" r="9" fill="#e6e8ef" stroke="${NV}" stroke-width="2.5"/><circle cx="158" cy="48" r="4" fill="none" stroke="${GR}" stroke-width="1.5"/><circle cx="100" cy="48" r="6" fill="#fff" stroke="${NV}" stroke-width="3"/></g>${lab2(12, 106, 'Long handles', 'start')}</svg>`;
+const SHEARS = `<svg viewBox="0 0 190 112" width="170" height="100"><g transform="translate(8 2) scale(1.08)">
+    <line x1="50" y1="48" x2="12" y2="24" stroke="${NV}" stroke-width="7" stroke-linecap="round"/><line x1="50" y1="48" x2="12" y2="72" stroke="${NV}" stroke-width="7" stroke-linecap="round"/>
+    <line x1="12" y1="24" x2="32" y2="37" stroke="${NV}" stroke-width="14" stroke-linecap="round"/><line x1="12" y1="72" x2="32" y2="59" stroke="${NV}" stroke-width="14" stroke-linecap="round"/>
+    <path d="M48 44 L152 28 L152 37 L54 50 Z" fill="${NV}"/><path d="M48 52 L152 68 L152 59 L54 46 Z" fill="${MG}" stroke="${NV}" stroke-width="2" stroke-linejoin="round"/>
+    <circle cx="50" cy="48" r="6" fill="#fff" stroke="${NV}" stroke-width="3"/></g>${lab2(12, 106, 'Short handles', 'start')}</svg>`;
+
+/* ---------- drag and test scenes ---------- */
+const HOCKEY_BODY = { hip: [262, 214], sh: [322, 142], k1: [246, 264], f1: [226, 318], k2: [300, 262], f2: [312, 318] };
+const PULL = {
+    stone: {
+        P: [260, 250], E: [700, 243], L: [150, 236], Fm: [260, 280], Lm: [150, 222], a0: -16, a1: 6, cm: .25,
+        scene: `${ground(300)}<rect x="222" y="257" width="76" height="21" fill="${OBJ}" stroke="${NV}" stroke-width="3"/><rect x="222" y="278" width="76" height="22" fill="${OBJ}" stroke="${NV}" stroke-width="3"/>
+            <path d="M260 257 V278 M241 278 V300 M279 278 V300" stroke="${NV}" stroke-width="3"/>${lab2(260, 326, 'Bricks')}`,
+        arm: `${steelBar(100, 236, 620, 14)}<polygon points="100,236 86,249 100,250" fill="${NV}"/>
+            <rect x="104" y="208" width="92" height="28" rx="2" fill="${OBJ}" stroke="${NV}" stroke-width="4"/><line x1="108" y1="214" x2="192" y2="214" stroke="#fff" stroke-width="2"/>
+            <g fill="${GR}"><circle cx="120" cy="224" r="2"/><circle cx="138" cy="229" r="1.6"/><circle cx="158" cy="222" r="2"/><circle cx="176" cy="230" r="1.6"/><circle cx="184" cy="220" r="1.8"/></g>`,
+        dims: `${dim(260, 243, 700, 243, -56, 'cE')}${dim(260, 243, 150, 243, 56, 'cR')}`,
+        hand: limb([[0, 0], [86, -150]], 22)
+    },
+    hockey: {
+        P: [400, 150], E: [400, 195], L: [418, 312], Fm: [400, 150], Lm: [420, 300], a0: 35, a1: -30, cm: .46,
+        scene: `${ground(318)}
+            <path d="M728 318 V232 H800" fill="none" stroke="${NV}" stroke-width="5" stroke-linejoin="round"/><path d="M740 244 L800 304 M740 268 L790 318 M740 292 L766 318 M760 238 L800 278 M784 238 L800 254 M740 244 H800 M740 268 H800 M740 292 H800" stroke="${GR}" stroke-width="1.5"/>
+            ${lab2(764, 222, 'Goal')}<g class="ply"></g>`,
+        arm: `<line x1="400" y1="118" x2="400" y2="296" stroke="${NV}" stroke-width="12" stroke-linecap="round"/>
+            <line x1="400" y1="118" x2="400" y2="176" stroke="${NV}" stroke-width="17" stroke-linecap="round"/><path d="M394 128 l12 -5 M394 142 l12 -5 M394 156 l12 -5 M394 170 l12 -5" stroke="${HL}" stroke-width="2"/>
+            <path d="M400 290 Q400 318 420 316 Q438 314 437 300" fill="none" stroke="${NV}" stroke-width="12" stroke-linecap="round"/>`,
+        dims: `${dim(400, 150, 400, 195, 30, 'cE')}${dim(400, 150, 400, 312, 54, 'cR')}`,
+        top: `<g class="ball"><g transform="translate(452 308)"><g class="bspin"><circle r="10" fill="#fff" stroke="${NV}" stroke-width="3"/><path d="M-4 -8 Q3 0 -4 8" fill="none" stroke="${GR}" stroke-width="2"/></g></g></g>`,
+        onAng(svg, a, st, S, rotPt) {
+            const B = HOCKEY_BODY, d = [B.sh[0] - B.hip[0], B.sh[1] - B.hip[1]], L = Math.hypot(...d);
+            svg.querySelector('.ply').innerHTML = person({ ...B, hd: [B.sh[0] + d[0] / L * 30, B.sh[1] + d[1] / L * 30], h1: S.P, h2: rotPt(S.E, a), ua: 56, fa: 56 });
+            const b = svg.querySelector('.ball'), sp = svg.querySelector('.bspin');
+            if (a <= -2 && !st.hit) {
+                st.hit = true;
+                play(900, k => { const e = easeOut(k); b.setAttribute('transform', `translate(${f1(e * 318)} 0)`); sp.setAttribute('transform', `rotate(${f1(e * 318 / 10 * 57.3)})`); }, () => st.hit && document.body.contains(b));
+            } else if (a > 3 && st.hit) { st.hit = false; b.setAttribute('transform', ''); sp.setAttribute('transform', ''); }
+        }
+    },
+    bin: {
+        P: [380, 282], E: [361, 138], L: [437, 215], Fm: [380, 282], Lm: [437, 215], a0: 0, a1: -38, cm: .66,
+        scene: `${ground(300)}<g class="ava"></g>`,
+        arm: BIN,
+        dims: `${dim(380, 282, 361, 138, -30, 'cE')}${dim(380, 282, 437, 215, -24, 'cR')}`,
+        top: WHEEL,
+        onAng(svg, a, st, S, rotPt) {
+            const p = (a - S.a0) / (S.a1 - S.a0);
+            svg.querySelector('.ava').innerHTML = ava(-90 * p, p, rotPt(S.E, a));
+        }
+    },
+    treb: {
+        P: [470, 150], E: [535, 210], L: [268, 140], Fm: [470, 150], Lm: [268, 178], a0: -36, a1: 38, cm: .5,
+        scene: `${ground(316)}
+            ${thickLine([420, 296], [470, 150], 14, LT, 7)}${thickLine([520, 296], [470, 150], 14, LT, 7)}${thickLine([438, 246], [502, 246], 12, LT, 5)}
+            <rect x="370" y="290" width="200" height="14" rx="3" fill="${LT}" stroke="${NV}" stroke-width="3"/>
+            <circle cx="392" cy="304" r="12" fill="${LT}" stroke="${NV}" stroke-width="4"/><circle cx="392" cy="304" r="3" fill="${NV}"/><circle cx="548" cy="304" r="12" fill="${LT}" stroke="${NV}" stroke-width="4"/><circle cx="548" cy="304" r="3" fill="${NV}"/>`,
+        arm: `<polygon points="268,147 268,153 544,159 544,141" fill="${NV}" stroke="${NV}" stroke-width="3" stroke-linejoin="round"/>
+            <path d="M254 134 Q256 154 268 154 Q280 154 282 134" fill="none" stroke="${NV}" stroke-width="4" stroke-linecap="round"/>
+            <circle class="proj swap" cx="268" cy="140" r="11" fill="${MG}" stroke="${NV}" stroke-width="3"/>
+            <line x1="511" y1="157" x2="511" y2="164" stroke="${NV}" stroke-width="4"/><line x1="559" y1="157" x2="559" y2="164" stroke="${NV}" stroke-width="4"/>
+            <rect x="503" y="162" width="64" height="62" rx="3" fill="${OBJ}" stroke="${NV}" stroke-width="4"/>
+            <g fill="${GR}" stroke="${NV}" stroke-width="1.5"><circle cx="514" cy="178" r="6.5"/><circle cx="530" cy="176" r="7"/><circle cx="546" cy="177" r="6"/><circle cx="558" cy="180" r="5.5"/><circle cx="521" cy="191" r="5.5"/><circle cx="553" cy="192" r="6"/></g>`,
+        dims: `${dim(470, 150, 535, 210, -36, 'cE')}${dim(470, 150, 268, 150, 34, 'cR')}`,
+        top: `<g class="fly" style="opacity:0"><circle r="11" fill="${MG}" stroke="${NV}" stroke-width="3"/></g>`,
+        onAng(svg, a, st, S, rotPt) {
+            const pr = (a - S.a0) / (S.a1 - S.a0), pj = svg.querySelector('.proj'), fl = svg.querySelector('.fly');
+            if (pr >= .97 && !st.go) {
+                st.go = true; pj.style.opacity = 0; fl.style.opacity = 1;
+                const [x0, y0] = rotPt(S.L, a);
+                play(1100, k => fl.setAttribute('transform', `translate(${f1(x0 + 540 * k)} ${f1(y0 - 80 * k + 260 * k * k)})`), () => st.go && document.body.contains(fl));
+            } else if (pr < .85 && st.go) { st.go = false; pj.style.opacity = 1; fl.style.opacity = 0; }
+        }
+    }
+};
+
+const TOOLBOX = `<rect x="74" y="146" width="92" height="40" rx="4" fill="${OBJ}" stroke="${NV}" stroke-width="4"/><line x1="76" y1="160" x2="164" y2="160" stroke="${NV}" stroke-width="3"/>
+    <rect x="113" y="155" width="14" height="12" rx="2" fill="${NV}"/>
+    <path d="M100 146 V136 Q100 129 107 129 H133 Q140 129 140 136 V146" fill="none" stroke="${NV}" stroke-width="5"/>
+    <text class="oname" x="120" y="181" text-anchor="middle" style="font-size:14px">Toolbox</text>`;
+const BEANBAG = `<path d="M94 186 Q88 168 102 162 Q120 154 138 162 Q152 168 146 186 Z" fill="#d7dae2" stroke="${NV}" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M100 180 Q98 170 106 166 Q120 160 134 166 Q142 170 140 180" fill="none" stroke="${NV}" stroke-width="1.5" stroke-dasharray="3 3"/>`;
+
+/* =========================================================
+   QUESTIONS
+   Each id is frozen once released: buckles are saved against it.
+   ========================================================= */
+const HINT = {
+    Fulcrum: 'The fulcrum is the fixed point the lever turns around.',
+    Load: 'The load is the object the lever moves.',
+    Effort: 'The effort is where the force is applied to the lever.',
+    'Effort arm': 'The effort arm is the distance from the fulcrum to the effort.',
+    'Resistance arm': 'The resistance arm is the distance from the fulcrum to the load.'
+};
+const lit = (svg, sel, cls, lab) => { svg.querySelector(sel).classList.add(cls); if (lab) svg.querySelector(lab).style.opacity = 1; };
+
+const QS = [
+    { id: 'lv-label-rock', kind: 'label', title: 'Lifting a rock', sc: 'SC12', prompt: 'Drag each label onto the lever that is lifting the rock.',
+      scene: SC_ROCK,
+      slots: [{ x: 155, y: 52, w: 160, ans: 'Load' }, { x: 380, y: 120, w: 160, ans: 'Fulcrum' }, { x: 560, y: 64, w: 160, ans: 'Effort' },
+              { x: 202, y: 304, w: 200, ans: 'Resistance arm' }, { x: 465, y: 304, w: 200, ans: 'Effort arm' }],
+      tiles: ['Fulcrum', 'Load', 'Effort', 'Effort arm', 'Resistance arm'],
+      hints: { Fulcrum: 'The fulcrum is the fixed point the pole turns around. Where does the pole rest?', Effort: 'The effort is where the force is applied. Look for where the person pushes down.',
+               'Effort arm': 'The effort arm runs from the fulcrum to where the person pushes.', 'Resistance arm': 'The resistance arm runs from the fulcrum to the rock.' },
+      msg: 'The pole turns on the log. Both arms are measured from the fulcrum.' },
+
+    { id: 'lv-tap-hammer', kind: 'tap', title: 'Pulling a nail', sc: 'SC12', prompt: 'A claw hammer is pulling out a nail. Find each part in order.',
+      scene: SC_HAMMER,
+      spots: ['f', 'l', 'e', 'm', 'h'].map(id => ({ id, x: HAMMER.P[id][0], y: HAMMER.P[id][1], r: id === 'e' ? 26 : 22 })),
+      steps: [
+        { name: 'Fulcrum', ask: 'Tap the <b>fulcrum</b>.', ans: 'f', show: mark(HAMMER.P.f[0], HAMMER.P.f[1], 'F'), ok: 'The hammer turns where it rests on the wood.',
+          hint: 'The fulcrum is the point the hammer turns around. Where does it press on the wood?',
+          hints: { l: 'That is the nail, which the hammer is moving. Find where the hammer rests and turns.', e: 'That is where a hand pulls. Find the point the hammer turns around.' } },
+        { name: 'Load', ask: 'Now tap the <b>load</b>.', ans: 'l', show: mark(HAMMER.P.l[0], HAMMER.P.l[1], 'L'), ok: 'The nail is the load.',
+          hint: 'The load is the object being moved. What is the hammer pulling out?' },
+        { name: 'Effort', ask: 'Now tap where the <b>effort</b> is applied.', ans: 'e', show: mark(HAMMER.P.e[0], HAMMER.P.e[1], 'E'), ok: '',
+          hint: 'The effort is where a hand pulls on the hammer.', hints: { m: 'Hands grip the end of the handle, as far from the head as possible.', h: 'That is the face of the hammer, used for hitting nails in. Where does a hand pull?' } }],
+      msg: 'The hammer turns on the wood, the nail is the load and the effort is at the end of the handle.' },
+
+    { id: 'lv-mark-bin', kind: 'label', mk: true, title: 'Tipping a bin', sc: 'SC12', prompt: 'Ava pulls the handle to tip a wheelie bin onto its wheels.',
+      scene: SC_BIN,
+      slots: [{ x: 380, y: 282, ans: 'F' }, { x: 437, y: 215, ans: 'L' }, { x: 361, y: 138, ans: 'E' }, { x: 500, y: 106, ans: null }, { x: 472, y: 268, ans: null }],
+      tiles: ['F', 'L', 'E'],
+      hints: { F: 'The fulcrum is the point the bin turns around as it tips. Look at the bottom.', L: 'The load is the bin and the rubbish inside, so it goes in the middle of the bin.', E: 'The effort goes where Ava pulls the handle.' },
+      msg: 'The bin turns on its wheels and the load is in the middle, so a wheelie bin is a class 2 lever.' },
+
+    { id: 'lv-tap-cutters', kind: 'tap', title: 'Bolt cutters', sc: 'SC12', prompt: 'Find each arm on the bolt cutters. Tap a bracket.',
+      scene: SC_CUTTERS,
+      spots: [{ id: 'A', box: [566, 238, 114, 48] }, { id: 'B', box: [178, 238, 380, 48] }, { id: 'C', box: [178, 22, 502, 48] }],
+      steps: [
+        { name: 'Effort arm', ask: 'Tap the bracket that shows the <b>effort arm</b>.', ans: 'B', fn: s => lit(s, '.dB .dim', 'cE', '.lbB'), keep: false, ok: 'B runs from the fulcrum to the hands.',
+          hint: 'The effort arm runs from the fulcrum to the effort.', hints: { A: 'A runs from the fulcrum to the load. That is the resistance arm.', C: 'C runs from the hands to the jaws. Both arms start at the fulcrum.' } },
+        { name: 'Resistance arm', ask: 'Now tap the bracket that shows the <b>resistance arm</b>.', ans: 'A', fn: s => lit(s, '.dA .dim', 'cR', '.lbA'), ok: '',
+          hint: 'The resistance arm runs from the fulcrum to the load.', hints: { C: 'C runs from the hands to the jaws. The resistance arm starts at the fulcrum.' } }],
+      msg: 'The handles are long and the jaws are short, so a small squeeze makes a big cutting force.' },
+
+    { id: 'lv-label-tongs', kind: 'label', title: 'Barbecue tongs', sc: 'SC12', prompt: 'Drag each label onto the tongs gripping a sausage.',
+      scene: SC_TONGS,
+      slots: [{ x: 100, y: 160, w: 160, ans: 'Fulcrum' }, { x: 437, y: 26, w: 200, ans: 'Resistance arm' }, { x: 288, y: 293, w: 200, ans: 'Effort arm' },
+              { x: 520, y: 214, w: 160, ans: 'Effort' }, { x: 712, y: 214, w: 160, ans: 'Load' }],
+      tiles: ['Fulcrum', 'Load', 'Effort', 'Effort arm', 'Resistance arm'],
+      hints: { Fulcrum: 'The tongs turn around the hinge, so the hinge is the fulcrum.', Effort: 'The effort is applied where the hand squeezes the tongs.', Load: 'The load is the sausage being gripped at the tips.',
+               'Effort arm': 'The effort arm runs from the hinge to where the hand squeezes.', 'Resistance arm': 'The resistance arm runs from the hinge to the sausage.' },
+      msg: 'The effort is in the middle, so tongs are a class 3 lever. Their effort arm is shorter than their resistance arm.' },
+
+    { id: 'lv-mc-class2-arm', kind: 'mcpic', title: 'Find the resistance arm', sc: 'SC12', prompt: 'In this class 2 lever, which picture shows the resistance arm?',
+      opts: [
+        { p: c2Pic(30, 125), hint: '' },
+        { p: c2Pic(125, 222), hint: 'This runs from the load to the effort. Both arms are measured from the fulcrum.' },
+        { p: c2Pic(30, 222), hint: 'This runs from the fulcrum to the effort. That is the effort arm.' },
+        { p: c2Pic(20, 232), hint: 'This is the whole bar. The resistance arm stops at the load.' }],
+      answer: 0, msg: 'The resistance arm runs from the fulcrum to the load, even when the load is in the middle.' },
+
+    { id: 'lv-pull-stone', kind: 'pull', scn: 'stone', title: 'Lift the paving stone', sc: 'SC13', prompt: 'Drag the pink handle down to lift the stone, then decide.',
+      opts: [{ t: 'Force multiplier', hint: '' }, { t: 'Speed multiplier', hint: 'Your hand moved much further than the stone. A long effort arm trades distance for force.' }],
+      answer: 0, msg: 'The effort arm is longer than the resistance arm, so a small push lifts a heavy stone a short distance.' },
+
+    { id: 'lv-pull-hockey', kind: 'pull', scn: 'hockey', title: 'Hockey swing', sc: 'SC13', prompt: 'Grace\u2019s top hand stays still. Drag her lower hand to swing the stick.',
+      opts: [{ t: 'Force multiplier', hint: 'The blade moved much further than Grace\u2019s lower hand. A short effort arm trades force for speed.' }, { t: 'Speed multiplier', hint: '' }],
+      answer: 1, msg: 'The effort arm is shorter than the resistance arm, so a small hand movement makes the blade move far and fast.' },
+
+    { id: 'lv-pull-bin', kind: 'pull', scn: 'bin', title: 'Tip the bin', sc: 'SC13', prompt: 'Drag the handle to tip the bin onto its wheels, then decide.',
+      opts: [{ t: 'Force multiplier', hint: '' }, { t: 'Speed multiplier', hint: 'The handle moved further than the middle of the bin. A longer effort arm trades distance for force.' }],
+      answer: 0, msg: 'The effort arm is longer than the resistance arm, so less force is needed to tip a heavy bin.' },
+
+    { id: 'lv-pull-trebuchet', kind: 'pull', scn: 'treb', title: 'Trebuchet', sc: 'SC13', prompt: 'Drag the counterweight down to fire the trebuchet, then decide.',
+      opts: [{ t: 'Force multiplier', hint: 'The ball moved much further than the counterweight. A short effort arm trades force for speed.' }, { t: 'Speed multiplier', hint: '' }],
+      answer: 1, msg: 'The short effort arm makes the long arm swing fast, so the ball is flung a long way.' },
+
+    { id: 'lv-fulcrum-force', kind: 'fulcrum', target: 'f', title: 'Lift the toolbox', sc: 'SC12, SC13', prompt: 'Drag the fulcrum to make this lever a force multiplier.',
+      load: TOOLBOX,
+      msg: 'The effort arm is now longer than the resistance arm, so a small effort lifts the heavy toolbox.' },
+
+    { id: 'lv-fulcrum-speed', kind: 'fulcrum', target: 's', title: 'Launch the beanbag', sc: 'SC12, SC13', prompt: 'Ivy wants to launch a beanbag high and fast. Make this a speed multiplier.',
+      load: BEANBAG,
+      msg: 'The effort arm is now shorter than the resistance arm, so the beanbag moves further and faster than the effort.' },
+
+    { id: 'lv-cloze-loppers', kind: 'cloze', title: 'Loppers and shears', sc: 'SC13', prompt: 'Drag a word into each gap. Compare the handles with the blades.',
+      rows: [
+        { pic: LOPPERS, text: '<b>Loppers</b> have an effort arm that is {longer} than their resistance arm. They are a {force} multiplier, so the blades only move a {short} distance.' },
+        { pic: SHEARS, text: '<b>Hedge shears</b> have an effort arm that is {shorter} than their resistance arm. They are a {speed} multiplier, so they need a {larger} effort.' }],
+      bank: ['longer', 'shorter', 'force', 'speed', 'short', 'long', 'larger', 'smaller'],
+      hints: ['Loppers have long handles and short blades. Compare the effort arm with the resistance arm.', 'A longer effort arm multiplies force.',
+              'A force multiplier trades distance for force, so the blades move a short distance.', 'Hedge shears have short handles and long blades.',
+              'A shorter effort arm multiplies speed.', 'A speed multiplier trades force for speed, so it needs a larger effort.'],
+      msg: 'Both are class 1 levers. Where the pivot sits decides which arm is longer, and so what each one multiplies.' },
+
+    { id: 'lv-claim-class3', kind: 'mcside', title: 'Priya\u2019s claim', sc: 'SC13', prompt: 'Priya is using barbecue tongs. Is she right?',
+      pic: TONGS_SIDE, quote: '\u201cA class 3 lever can never be a force multiplier.\u201d',
+      opts: [
+        { t: 'Yes. The effort is between the fulcrum and the load, so the effort arm is always shorter.', hint: '' },
+        { t: 'No. Squeezing harder turns any lever into a force multiplier.', hint: 'Squeezing harder adds more effort, but it doesn\u2019t change the length of the arms.' },
+        { t: 'No. Tongs are a force multiplier because they help you grip food.', hint: 'Tongs help you grip, but the tips move further than your fingers. Compare the arms.' },
+        { t: 'Yes. Class 3 levers don\u2019t have a fulcrum.', hint: 'Every lever has a fulcrum. On tongs it is the hinge.' }],
+      answer: 0, msg: 'In a class 3 lever the effort sits between the fulcrum and the load, so the effort arm is always the shorter one.' }
+];
+const TOTAL = QS.length;
+const CHIP = { mc: 'Multiple choice', mcpic: 'Multiple choice', mcside: 'Multiple choice', sort: 'Drag and drop', label: 'Label the lever', tap: 'Tap to find', pull: 'Drag and test', fulcrum: 'Move the fulcrum', cloze: 'Fill the gaps' };
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+/* frozen-id check: warns in the console if an id is missing or duplicated */
+(function validate() {
+    const seen = new Set();
+    QS.forEach((q, i) => {
+        if (!q.id || !/^[a-z0-9-]+$/.test(q.id)) console.warn(`Question ${i + 1} needs a lowercase id.`);
+        if (seen.has(q.id)) console.warn(`Duplicate id: ${q.id}`);
+        seen.add(q.id);
+    });
+})();
+
+/* ========================== Buckles (localStorage) ======================= */
+/* Same storage and rules as the other checking for understanding pages: one shared
+   'buckles-shared' record, keys namespaced by page, one buckle per question, awarded
+   the first time the question is answered correctly and never again. */
+const PAGE_ID = 'levers-cfu';
+QS.forEach(q => { q.buckles = 1; });
+const Buckles = {
+    key: 'buckles-shared',
+    posKey: 'pos-' + PAGE_ID,
+    ns(id) { return PAGE_ID + ':' + id; },
+    load() { try { return JSON.parse(localStorage.getItem(this.key)) || {}; } catch (e) { return {}; } },
+    save(d) { try { localStorage.setItem(this.key, JSON.stringify(d)); } catch (e) {} },
+    isDone(id) { return !!this.load()[this.ns(id)]; },
+    award(id, n) { const d = this.load(); const k = this.ns(id); if (!d[k]) { d[k] = n; this.save(d); } },
+    total() { return Object.values(this.load()).reduce((a, b) => a + b, 0); },
+    setPos(i) { try { localStorage.setItem(this.posKey, String(i)); } catch (e) {} },
+    getPos() { try { const v = parseInt(localStorage.getItem(this.posKey), 10); return isNaN(v) ? 0 : v; } catch (e) { return 0; } }
+};
+function refreshCount() { $('#buckleCount').textContent = Buckles.total(); }
+function celebrate(n) {
+    const a = $('#award');
+    $('#awardText').textContent = '+' + n + ' Buckle' + (n > 1 ? 's' : '') + '!';
+    a.classList.remove('hide'); a.classList.add('show');
+    burstConfetti();
+    setTimeout(() => { a.classList.remove('show'); a.classList.add('hide'); setTimeout(() => a.classList.remove('hide'), 360); }, 1100);
+}
+function burstConfetti() {
+    const canvas = document.createElement('canvas');
+    canvas.className = 'confetti-canvas';
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d'), dpr = window.devicePixelRatio || 1;
+    canvas.width = innerWidth * dpr; canvas.height = innerHeight * dpr; ctx.scale(dpr, dpr);
+    const colors = ['#ea008a', '#1b1f45', '#f7a8d4', '#c3c6d0'], cx = innerWidth / 2, cy = innerHeight / 2, parts = [];
+    for (let i = 0; i < 150; i++) {
+        const angle = Math.random() * Math.PI * 2, speed = 4 + Math.random() * 10;
+        parts.push({ x: cx, y: cy, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed - 4, size: 5 + Math.random() * 7,
+            color: colors[Math.floor(Math.random() * colors.length)], rot: Math.random() * Math.PI, vrot: (Math.random() - .5) * .3, life: 0 });
+    }
+    const gravity = 0.22, drag = 0.992; let frame = 0;
+    (function tick() {
+        frame++;
+        ctx.clearRect(0, 0, innerWidth, innerHeight);
+        parts.forEach(p => {
+            p.vx *= drag; p.vy = p.vy * drag + gravity; p.x += p.vx; p.y += p.vy; p.rot += p.vrot; p.life++;
+            ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.globalAlpha = Math.max(0, 1 - p.life / 95);
+            ctx.fillStyle = p.color; ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6); ctx.restore();
+        });
+        if (frame < 95) requestAnimationFrame(tick); else canvas.remove();
+    })();
+}
+
+/* ---------- flow ---------- */
+let qi = 0, firstTry = [], anyWrong = false, mode = 'check', cur = null;
+function render() {
+    runId++;
+    content.innerHTML = ''; anyWrong = false; mode = 'check';
+    const q = QS[qi];
+    counter.innerHTML = `Question <b>${qi + 1}</b> / ${TOTAL}`;
+    Buckles.setPos(qi);
+    progress.style.width = (qi / TOTAL * 100) + '%';
+    const wrap = el('div', 'q');
+    wrap.appendChild(el('div', 'qhead', `<div class="qtitle">${q.title}</div><div class="tchip">${q.chip || CHIP[q.kind]}</div><div class="sctag">${q.sc}</div>`));
+    wrap.appendChild(el('div', 'prompt', q.prompt));
+    const body = el('div', 'body'); wrap.appendChild(body); content.appendChild(wrap);
+    cur = KINDS[q.kind](q, body);
+    say(Buckles.isDone(q.id) ? `${cur.instr} You\u2019ve already earned this buckle.` : cur.instr);
+    btn.hidden = false; btn.textContent = 'Check';
+    refresh();
+}
+function refresh() { if (mode === 'check') btn.disabled = !cur.ready(); }
+function check() {
+    const r = cur.check(), q = QS[qi];
+    if (!r.ok) { anyWrong = true; say(`<b class="no">Not quite.</b> ${r.hint}`); refresh(); return; }
+    if (r.more) { say(`<b>Correct.</b> ${r.msg}`); refresh(); return; }
+    if (!anyWrong) firstTry[qi] = true;
+    say(`<b>Correct.</b> ${q.msg}`);
+    if (!Buckles.isDone(q.id)) { Buckles.award(q.id, q.buckles); refreshCount(); celebrate(q.buckles); }
+    mode = 'next'; btn.disabled = false; btn.textContent = qi === TOTAL - 1 ? 'Finish' : 'Next';
+    btn.classList.remove('pop-in'); void btn.offsetWidth; btn.classList.add('pop-in');
+    if (cur.done) cur.done();
+}
+btn.onclick = () => {
+    if (btn.disabled) return;
+    if (mode === 'check') check();
+    else if (qi === TOTAL - 1) finish();
+    else { qi++; render(); }
+};
+function finish() {
+    runId++;
+    content.innerHTML = '';
+    btn.hidden = true;
+    counter.innerHTML = '<b>Complete</b>';
+    progress.style.width = '100%';
+    Buckles.setPos(TOTAL);
+    const n = firstTry.filter(Boolean).length, earned = QS.filter(q => Buckles.isDone(q.id)).length;
+    say('Take a screenshot of this screen and paste it into Stile as evidence of your work.');
+    const c = el('div', 'center');
+    const dots = QS.map((_, i) => `<span class="${firstTry[i] ? 'y' : ''}">${i + 1}</span>`).join('');
+    const card = el('div', 'scorecard pop-in', `<img src="buckle.svg" alt="" class="done-buckle" onerror="this.style.display='none'"><div class="big">${earned} / ${TOTAL}</div><div class="dlbl">Buckles earned</div>
+        <div class="dlbl sub">Correct on the first try: ${n} / ${TOTAL}</div><div class="dots">${dots}</div>`);
+    const again = el('button', 'again', 'Start again');
+    again.onclick = () => { qi = 0; firstTry = []; Buckles.setPos(0); render(); };
+    c.append(card, again); content.appendChild(c);
+}
+
+/* ---------- multiple choice core ---------- */
+function mcCore(els, q, extra = {}) {
+    let sel = null;
+    els.forEach((b, i) => b.onclick = () => {
+        if (mode !== 'check' || b.disabled || b.classList.contains('wrong')) return;
+        els.forEach(x => x.classList.remove('sel')); b.classList.add('sel'); sel = i; refresh();
+    });
+    return {
+        instr: extra.instr || 'Choose an answer, then press <b>Check</b>.',
+        ready: () => sel !== null,
+        check() {
+            const b = els[sel];
+            b.classList.remove('sel');
+            if (sel === q.answer) { b.classList.add('right'); els.forEach(x => x.disabled = true); return { ok: true }; }
+            b.classList.add('wrong'); b.disabled = true;
+            const h = q.opts[sel].hint; sel = null; return { ok: false, hint: h };
+        },
+        done: extra.done
+    };
+}
+const L = 'ABCD';
+const svgPt = (svg, cx, cy) => { const p = svg.createSVGPoint(); p.x = cx; p.y = cy; return p.matrixTransform(svg.getScreenCTM().inverse()); };
+function sceneWrap(inner, W = 806, H = 336) {
+    const wrap = el('div', 'bwrap'); wrap.style.width = W + 'px'; wrap.style.height = H + 'px';
+    wrap.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${inner}</svg>`;
+    return wrap;
+}
+const MKKEY = `<div class="mkkey"><span><svg width="34" height="34" viewBox="-17 -17 34 34">${mark(0, 0, 'F', 15)}</svg>Fulcrum</span><span><svg width="34" height="34" viewBox="-17 -17 34 34">${mark(0, 0, 'L', 15)}</svg>Load</span><span><svg width="34" height="34" viewBox="-17 -17 34 34">${mark(0, 0, 'E', 15)}</svg>Effort</span></div>`;
+
+const KINDS = {
+    mcpic(q, body) {
+        const g = el('div', 'pgrid');
+        const els = q.opts.map((o, i) => { const b = el('button', 'pcard', `<span class="l">${L[i]}</span>${o.p}`); g.appendChild(b); return b; });
+        body.appendChild(g);
+        return mcCore(els, q);
+    },
+    mcside(q, body) {
+        const side = el('div', 'scene', q.pic);
+        const col = el('div', 'col'); col.style.flex = '1';
+        col.appendChild(el('div', 'quote', q.quote));
+        const g = el('div', 'opts');
+        const els = q.opts.map((o, i) => { const b = el('button', 'opt', `<span class="l">${L[i]}</span><span>${o.t}</span>`); g.appendChild(b); return b; });
+        col.appendChild(g); body.append(side, col);
+        return mcCore(els, q);
+    },
+
+    /* drag text labels or F/L/E markers onto a picture */
+    label(q, body) {
+        const wrap = sceneWrap(q.scene);
+        const side = el('div', 'bside', `<div class="dlbl">${q.mk ? 'Markers' : 'Labels'}</div>`);
+        const pool = el('div', 'pool' + (q.mk ? ' mkp' : '')); side.appendChild(pool);
+        if (q.mk) side.insertAdjacentHTML('beforeend', MKKEY);
+        body.append(wrap, side);
+        const zones = q.slots.map(s => {
+            const d = el('div', 'slot' + (q.mk ? ' round' : ''));
+            const w = q.mk ? 58 : s.w, h = q.mk ? 58 : 48;
+            Object.assign(d.style, { width: w + 'px', height: h + 'px', left: (s.x - w / 2) + 'px', top: (s.y - h / 2) + 'px' });
+            d.tabIndex = 0; d.setAttribute('aria-label', 'Drop zone');
+            wrap.appendChild(d);
+            return { el: d, box: d, cap: 1, ans: s.ans, onPut: () => d.classList.add('filled'), onTake: () => d.classList.remove('filled') };
+        });
+        const zPool = { el: pool, box: pool, cap: Infinity, pool: true };
+        const D = dnd(zPool, zones, () => { zones.forEach(z => z.el.classList.remove('wrong')); refresh(); });
+        shuffle(q.tiles).forEach(t => { const tl = D.tile(t); if (q.mk) tl.classList.add('mk', t); pool.appendChild(tl); });
+        return {
+            instr: q.mk ? 'Drag each marker onto the picture (or tap a marker, then a circle), then press <b>Check</b>.' : 'Drag each label into a box (or tap a label, then a box), then press <b>Check</b>.',
+            ready: () => !pool.querySelector('.tile'),
+            check() {
+                let hint = null, bad = 0;
+                zones.forEach(z => {
+                    const t = z.box.querySelector('.tile'); z.el.classList.remove('wrong');
+                    if (!t) return;
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (z.ans === t.dataset.v) { t.classList.add('right'); z.locked = true; }
+                    else { bad++; t.classList.add('wrong'); z.el.classList.add('wrong'); if (!hint) hint = (q.hints && q.hints[t.dataset.v]) || HINT[t.dataset.v]; }
+                });
+                if (bad) return { ok: false, hint: (bad > 1 ? `${bad} ${q.mk ? 'markers' : 'labels'} need moving. ` : '') + hint };
+                return { ok: true };
+            },
+            done() { wrap.classList.add('solved'); }
+        };
+    },
+
+    /* tap spots on a picture, one step at a time */
+    tap(q, body) {
+        const wrap = sceneWrap(`${q.scene}<g class="rev"></g><g class="spots"></g>`);
+        const svg = wrap.querySelector('svg'), sp = svg.querySelector('.spots'), rv = svg.querySelector('.rev');
+        const spots = q.spots.map(s => {
+            const g = document.createElementNS(NS, 'g');
+            g.setAttribute('class', 'spot'); g.setAttribute('tabindex', '0'); g.setAttribute('role', 'button');
+            g.innerHTML = s.box ? `<rect class="ring" x="${s.box[0]}" y="${s.box[1]}" width="${s.box[2]}" height="${s.box[3]}" rx="8"/>`
+                : `<circle class="hit" cx="${s.x}" cy="${s.y}" r="${s.r + 10}"/><circle class="ring" cx="${s.x}" cy="${s.y}" r="${s.r}"/>`;
+            g.dataset.id = s.id; sp.appendChild(g); return g;
+        });
+        const side = el('div', 'bside', `<div class="dlbl">${q.steps.length > 1 ? 'Find, in order' : 'Find'}</div>`);
+        const list = el('div', 'steps');
+        q.steps.forEach((st, i) => list.appendChild(el('div', 'stp', `<span class="n">${i + 1}</span><span>${st.name}</span>`)));
+        side.append(list, el('div', 'tipnote', 'Tap a dashed outline to choose it, then press Check.'));
+        body.append(wrap, side);
+        let k = 0, sel = null;
+        const setStep = () => { [...list.children].forEach((c, i) => { c.classList.toggle('on', i === k); c.classList.toggle('ok', i < k); }); spots.forEach(g => g.classList.remove('wrong')); };
+        setStep();
+        spots.forEach(g => {
+            const pick = () => {
+                if (mode !== 'check' || g.classList.contains('done') || g.classList.contains('wrong')) return;
+                spots.forEach(x => x.classList.remove('sel')); g.classList.add('sel'); sel = g; refresh();
+            };
+            g.addEventListener('click', pick);
+            g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
+        });
+        return {
+            instr: q.steps[0].ask + ' Then press <b>Check</b>.',
+            ready: () => !!sel,
+            check() {
+                const st = q.steps[k], g = sel, id = g.dataset.id;
+                g.classList.remove('sel'); sel = null;
+                if (id === st.ans) {
+                    g.classList.add('done');
+                    if (st.show) rv.insertAdjacentHTML('beforeend', st.show);
+                    if (st.fn) st.fn(svg);
+                    k++; setStep();
+                    if (k < q.steps.length) return { ok: true, more: true, msg: `${st.ok} ${q.steps[k].ask}` };
+                    spots.forEach(x => x.classList.add('done'));
+                    return { ok: true };
+                }
+                g.classList.add('wrong');
+                return { ok: false, hint: (st.hints && st.hints[id]) || st.hint };
+            }
+        };
+    },
+
+    /* drag the effort point to turn the lever, then decide force or speed */
+    pull(q, body) {
+        const S = PULL[q.scn], [px, py] = S.P;
+        const wrap = sceneWrap(`${S.scene}<g class="trails"></g>
+            <g class="rot">${S.arm}<g class="arms">${S.dims}</g></g>${S.top || ''}<g class="lmk">${mark(0, 0, 'L')}</g>
+            <g class="hdl" tabindex="0" role="slider" aria-label="Effort handle">${S.hand || ''}<circle class="pulse" r="22"/><circle class="hb" r="22"/><text class="ht" y="8">E</text></g>
+            ${mark(S.Fm[0], S.Fm[1], 'F')}`);
+        const svg = wrap.querySelector('svg'), rot = svg.querySelector('.rot'), hdl = svg.querySelector('.hdl'), trails = svg.querySelector('.trails'), lmk = svg.querySelector('.lmk');
+        const side = el('div', 'bside', `<div class="stat pk"><div class="dlbl">Effort moved</div><div class="num en">0 cm</div><div class="sbar"><i class="eb"></i></div></div>
+            <div class="stat"><div class="dlbl">Load moved</div><div class="num lm">0 cm</div><div class="sbar"><i class="lb"></i></div></div>`);
+        const g = el('div', 'opts popts');
+        const els = q.opts.map((o, i) => { const b = el('button', 'opt lockd', `<span class="l">${L[i]}</span><span>${o.t}</span>`); b.disabled = true; g.appendChild(b); return b; });
+        side.appendChild(g); body.append(wrap, side);
+        const en = side.querySelector('.en'), lm = side.querySelector('.lm'), eb = side.querySelector('.eb'), lb = side.querySelector('.lb');
+        const rE = Math.hypot(S.E[0] - px, S.E[1] - py), rL = Math.hypot(S.L[0] - px, S.L[1] - py), span = Math.abs(S.a1 - S.a0) * Math.PI / 180;
+        const mx = Math.max(rE, rL) * span * S.cm, lo = Math.min(S.a0, S.a1), hi = Math.max(S.a0, S.a1);
+        const rotPt = (pt, a) => { const t = a * Math.PI / 180, dx = pt[0] - px, dy = pt[1] - py; return [px + dx * Math.cos(t) - dy * Math.sin(t), py + dx * Math.sin(t) + dy * Math.cos(t)]; };
+        const arc = (pt, a) => { const o = []; for (let i = 0; i <= 30; i++) { const p = rotPt(pt, S.a0 + (a - S.a0) * i / 30); o.push(f1(p[0]) + ',' + f1(p[1])); } return o.join(' '); };
+        const st = {};
+        let ang = S.a0, best = 0, open = false;
+        function setAng(a) {
+            ang = Math.max(lo, Math.min(hi, a));
+            rot.setAttribute('transform', `rotate(${ang.toFixed(2)} ${px} ${py})`);
+            const hp = rotPt(S.E, ang), lp = rotPt(S.Lm, ang);
+            hdl.setAttribute('transform', `translate(${f1(hp[0])} ${f1(hp[1])})`); lmk.setAttribute('transform', `translate(${f1(lp[0])} ${f1(lp[1])})`);
+            const turned = Math.abs(ang - S.a0) * Math.PI / 180, dE = rE * turned * S.cm, dL = rL * turned * S.cm;
+            en.textContent = Math.round(dE) + ' cm'; lm.textContent = Math.round(dL) + ' cm';
+            eb.style.width = (dE / mx * 100).toFixed(1) + '%'; lb.style.width = (dL / mx * 100).toFixed(1) + '%';
+            const s0 = rotPt(S.E, S.a0), l0 = rotPt(S.L, S.a0);
+            trails.innerHTML = `<polyline class="trE" points="${arc(S.E, ang)}"/><polyline class="trL" points="${arc(S.L, ang)}"/>
+                <circle cx="${f1(s0[0])}" cy="${f1(s0[1])}" r="5" fill="${PK}"/><circle cx="${f1(l0[0])}" cy="${f1(l0[1])}" r="5" fill="${NV}"/>`;
+            best = Math.max(best, (ang - S.a0) / (S.a1 - S.a0));
+            if (best >= .9 && !open && mode === 'check') {
+                open = true;
+                els.forEach(b => { if (!b.classList.contains('wrong')) { b.disabled = false; b.classList.remove('lockd'); } });
+                say('Compare how far the <b>effort</b> and the <b>load</b> moved. Choose, then press <b>Check</b>.');
+            }
+            if (S.onAng) S.onAng(svg, ang, st, S, rotPt);
+        }
+        let start = 0, startAng = 0, dragging = false;
+        hdl.addEventListener('pointerdown', e => {
+            if (e.button > 0) return;
+            e.preventDefault(); hdl.setPointerCapture(e.pointerId);
+            const p = svgPt(svg, e.clientX, e.clientY);
+            start = Math.atan2(p.y - py, p.x - px); startAng = ang; dragging = true; hdl.classList.add('grab', 'used');
+        });
+        hdl.addEventListener('pointermove', e => {
+            if (!dragging) return;
+            const p = svgPt(svg, e.clientX, e.clientY);
+            let d = (Math.atan2(p.y - py, p.x - px) - start) * 180 / Math.PI;
+            while (d > 180) d -= 360; while (d < -180) d += 360;
+            setAng(startAng + d);
+        });
+        const stop = () => { dragging = false; hdl.classList.remove('grab'); };
+        hdl.addEventListener('pointerup', stop); hdl.addEventListener('pointercancel', stop);
+        hdl.addEventListener('keydown', e => {
+            const stp = (S.a1 - S.a0) / 10;
+            if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); hdl.classList.add('used'); setAng(ang + stp); }
+            if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); hdl.classList.add('used'); setAng(ang - stp); }
+        });
+        setAng(S.a0);
+        return mcCore(els, q, { instr: 'Drag the pink <b>E</b> handle all the way. Watch how far each part moves.', done: () => wrap.classList.add('solved') });
+    },
+
+    /* drag the fulcrum along the plank to set the arm lengths */
+    fulcrum(q, body) {
+        const Y = 200, GY = 280, LX = 120, EX = 720, PXM = 200, SN = 20, lo = LX + 40, hi = EX - 40;
+        const wrap = sceneWrap(`<line class="gnd" x1="0" x2="806" y1="${GY}" y2="${GY}"/>
+            <g class="tl"><rect x="60" y="186" width="680" height="14" rx="3" fill="${NV}"/><g class="ldg">${q.load}</g>${arrow(EX, 92, EX, 180, 'fa', 12)}${tx(EX - 16, 120, 'Effort', 'pk sm end')}</g>
+            <g class="dims"></g>
+            <g class="fu" tabindex="0" role="slider" aria-label="Fulcrum position"><rect x="-46" y="196" width="92" height="88" fill="transparent"/><polygon class="fp" points="0,${Y + 2} -30,${GY} 30,${GY}"/><path d="M-8 244 H8 M-12 256 H12 M-16 268 H16" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".55" pointer-events="none"/>
+                <path class="drg" d="M-44 230 l-12 10 12 10 M44 230 l12 10 -12 10"/></g>`);
+        const svg = wrap.querySelector('svg'), fu = svg.querySelector('.fu'), dims = svg.querySelector('.dims'), tl = svg.querySelector('.tl'), ldg = svg.querySelector('.ldg');
+        const side = el('div', 'bside', `<div class="stat pk"><div class="dlbl">Effort arm</div><div class="num ea"></div></div>
+            <div class="stat"><div class="dlbl">Resistance arm</div><div class="num ra"></div></div>
+            <div class="tipnote">Drag the fulcrum left or right. The arms are measured from the fulcrum.</div>`);
+        body.append(wrap, side);
+        const ea = side.querySelector('.ea'), ra = side.querySelector('.ra');
+        let fx = 420, moved = false, locked = false, dragging = false;
+        const arms = () => [(EX - fx) / PXM, (fx - LX) / PXM];
+        function setF(x) {
+            fx = Math.max(lo, Math.min(hi, LX + Math.round((x - LX) / SN) * SN));
+            fu.setAttribute('transform', `translate(${fx} 0)`);
+            const [E, R] = arms();
+            dims.innerHTML = `${dim(LX, 193, fx, 193, 107, 'cR')}${dim(fx, 193, EX, 193, 107, 'cE')}${tx((LX + fx) / 2, 330, R.toFixed(1) + ' m', 'mid sm')}${tx((fx + EX) / 2, 330, E.toFixed(1) + ' m', 'mid sm pk')}`;
+            ea.textContent = E.toFixed(1) + ' m'; ra.textContent = R.toFixed(1) + ' m';
+        }
+        const touch = () => { if (!moved) { moved = true; svg.querySelector('.drg').style.opacity = 0; } refresh(); };
+        fu.addEventListener('pointerdown', e => { if (locked || e.button > 0) return; e.preventDefault(); fu.setPointerCapture(e.pointerId); dragging = true; fu.classList.add('grab'); });
+        fu.addEventListener('pointermove', e => { if (!dragging) return; const p = svgPt(svg, e.clientX, e.clientY); const old = fx; setF(p.x); if (fx !== old) touch(); });
+        const stop = () => { dragging = false; fu.classList.remove('grab'); };
+        fu.addEventListener('pointerup', stop); fu.addEventListener('pointercancel', stop);
+        fu.addEventListener('keydown', e => {
+            if (locked) return;
+            if (e.key === 'ArrowLeft') { e.preventDefault(); setF(fx - SN); touch(); }
+            if (e.key === 'ArrowRight') { e.preventDefault(); setF(fx + SN); touch(); }
+        });
+        setF(420);
+        return {
+            instr: 'Drag the fulcrum to change the arms, then press <b>Check</b>.',
+            ready: () => moved,
+            check() {
+                const [E, R] = arms();
+                if (Math.abs(E - R) < .01) return { ok: false, hint: 'Both arms are the same length, so this lever doesn\u2019t multiply force or speed. Move the fulcrum.' };
+                if (q.target === 'f' ? E > R : E < R) return { ok: true };
+                return { ok: false, hint: q.target === 'f'
+                    ? 'The effort arm is shorter than the resistance arm, so this is a speed multiplier. Move the fulcrum closer to the toolbox.'
+                    : 'The effort arm is longer than the resistance arm, so this is a force multiplier. Move the fulcrum closer to the effort.' };
+            },
+            done() {
+                locked = true; fu.classList.add('lock'); fu.removeAttribute('tabindex');
+                const a = Math.min(14, Math.atan(70 / (EX - fx)) * 180 / Math.PI);
+                tl.style.transformOrigin = `${fx}px ${Y}px`;
+                requestAnimationFrame(() => { tl.style.transform = `rotate(${a.toFixed(2)}deg)`; });
+                if (q.target === 's') setTimeout(() => play(1000, k => ldg.setAttribute('transform', `translate(0 ${f1(-170 * Math.sin(k * Math.PI))})`)), 900);
+            }
+        };
+    },
+
+    /* fill the gaps from a word bank */
+    cloze(q, body) {
+        body.style.flexDirection = 'column'; body.style.alignItems = 'stretch';
+        const wrap = el('div', 'cz'), zones = [];
+        q.rows.forEach(r => {
+            const row = el('div', 'crow'); row.insertAdjacentHTML('beforeend', r.pic);
+            const p = el('div', 'ctext');
+            p.innerHTML = r.text.replace(/\{(\w+)\}/g, (_, w) => `<span class="cslot" tabindex="0" data-a="${w}"></span>`);
+            row.appendChild(p); wrap.appendChild(row);
+        });
+        const pool = el('div', 'pool'); wrap.appendChild(pool); body.appendChild(wrap);
+        wrap.querySelectorAll('.cslot').forEach(s => zones.push({ el: s, box: s, cap: 1, ans: s.dataset.a, onPut: () => s.classList.add('filled'), onTake: () => s.classList.remove('filled') }));
+        const D = dnd({ el: pool, box: pool, cap: Infinity, pool: true }, zones, () => { zones.forEach(z => z.el.classList.remove('wrong')); refresh(); });
+        shuffle(q.bank).forEach(w => pool.appendChild(D.tile(w)));
+        return {
+            instr: 'Drag a word into each gap (or tap a word, then a gap), then press <b>Check</b>.',
+            ready: () => zones.every(z => z.box.querySelector('.tile')),
+            check() {
+                let hint = null, bad = 0;
+                zones.forEach((z, i) => {
+                    const t = z.box.querySelector('.tile'); t.classList.remove('wrong'); void t.offsetWidth;
+                    if (t.dataset.v === z.ans) { t.classList.add('right'); z.locked = true; }
+                    else { bad++; t.classList.add('wrong'); z.el.classList.add('wrong'); if (!hint) hint = q.hints[i]; }
+                });
+                return bad ? { ok: false, hint: (bad > 1 ? `${bad} gaps need changing. ` : '') + hint } : { ok: true };
+            }
+        };
+    },
+
+    sort(q, body) {
+        const wrap = el('div', 'sort');
+        const mk = (cls, h, sub) => { const b = el('div', 'bin ' + cls, `<h3>${h}</h3><div class="sub">${sub}</div><div class="area"></div>`); b.tabIndex = 0; return b; };
+        const [b1, b2] = q.bins;
+        const bc = mk('', b1[1], b1[2]), bn = mk('pk', b2[1], b2[2]);
+        const pool = el('div', 'pool');
+        wrap.append(bc, pool, bn); body.appendChild(wrap);
+        const zPool = { el: pool, box: pool, cap: Infinity, pool: true };
+        const zones = [{ el: bc, box: bc.querySelector('.area'), cap: Infinity, key: b1[0] }, { el: bn, box: bn.querySelector('.area'), cap: Infinity, key: b2[0] }];
+        const D = dnd(zPool, zones, () => refresh());
+        shuffle(q.items).forEach(([t, k, h]) => { const tl = D.tile(t); tl.classList.add('sm'); tl.k = k; tl.h = h; pool.appendChild(tl); });
+        return {
+            instr: 'Drag each tile into a group (or tap a tile, then a group), then press <b>Check</b>.',
+            ready: () => !pool.querySelector('.tile'),
+            check() {
+                const wrong = [];
+                zones.forEach(z => z.box.querySelectorAll('.tile').forEach(t => {
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (t.k === z.key) t.classList.add('right'); else { t.classList.add('wrong'); wrong.push(t.h); }
+                }));
+                return wrong.length ? { ok: false, hint: (wrong.length > 1 ? `${wrong.length} tiles need moving. ` : '') + wrong[0] } : { ok: true };
+            }
+        };
+    }
+};
+
+/* ---------- drag and drop (drag, or tap a tile then tap a target) ---------- */
+function dnd(pool, zones, onChange) {
+    let sel = null;
+    const all = () => [pool, ...zones];
+    const zoneOf = t => all().find(z => z.box.contains(t));
+    const armAll = on => zones.forEach(z => z.el.classList.toggle('armed', on && !z.locked));
+    const deselect = () => { if (sel) sel.classList.remove('sel'); sel = null; armAll(false); };
+    function moveTo(t, z) {
+        const from = zoneOf(t);
+        t.style.transform = ''; t.classList.remove('wrong');
+        z.box.appendChild(t);
+        if (from && from !== z && from.onTake) from.onTake(t);
+        if (z.onPut) z.onPut(t);
+        deselect(); onChange();
+    }
+    function put(t, z) {
+        const from = zoneOf(t);
+        if (z.locked || from === z) { t.style.transform = ''; return; }
+        if (z.cap === 1) {
+            const ex = z.box.querySelector('.tile');
+            if (ex) { if (ex.classList.contains('right')) { t.style.transform = ''; return; } moveTo(ex, pool); }
+        }
+        moveTo(t, z);
+    }
+    const hit = (x, y) => all().find(z => { const r = z.el.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; });
+    all().forEach(z => {
+        const act = () => { if (sel && !z.locked) put(sel, z); };
+        z.el.addEventListener('click', act);
+        z.el.addEventListener('keydown', e => { if (e.target === z.el && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); act(); } });
+    });
+    function tile(text) {
+        const t = el('span', 'tile', text);
+        t.dataset.v = text;
+        t.tabIndex = 0; t.setAttribute('role', 'button');
+        const tap = () => {
+            if (t.classList.contains('right')) return;
+            t.style.transform = '';
+            const z = zoneOf(t);
+            if (z !== pool) { put(t, pool); return; }
+            if (sel === t) { deselect(); return; }
+            deselect(); sel = t; t.classList.add('sel'); armAll(true);
+        };
+        t.addEventListener('click', e => e.stopPropagation());
+        t.addEventListener('pointerdown', e => {
+            if (t.classList.contains('right') || e.button > 0) return;
+            e.preventDefault(); e.stopPropagation(); t.setPointerCapture(e.pointerId);
+            const sx = e.clientX, sy = e.clientY; let moved = false;
+            const move = ev => {
+                const dx = ev.clientX - sx, dy = ev.clientY - sy;
+                if (!moved && Math.hypot(dx, dy) > 6) { moved = true; t.classList.add('drag'); }
+                if (!moved) return;
+                t.style.transform = `translate(${dx / scaleK}px, ${dy / scaleK}px)`;
+                const h = hit(ev.clientX, ev.clientY);
+                all().forEach(z => z.el.classList.toggle('hover', z === h));
+            };
+            const up = ev => {
+                t.removeEventListener('pointermove', move); t.removeEventListener('pointerup', up); t.removeEventListener('pointercancel', up);
+                t.classList.remove('drag'); all().forEach(z => z.el.classList.remove('hover'));
+                if (!moved) { tap(); return; }
+                const h = hit(ev.clientX, ev.clientY);
+                if (h) put(t, h); else t.style.transform = '';
+            };
+            t.addEventListener('pointermove', move); t.addEventListener('pointerup', up); t.addEventListener('pointercancel', up);
+        });
+        t.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); tap(); } });
+        return t;
+    }
+    return { tile };
+}
+
+/* ---------- scale to window ---------- */
+function fit() {
+    const st = $('#stage');
+    scaleK = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    st.style.transform = `scale(${scaleK})`;
+    st.style.margin = `${(720 * scaleK - 720) / 2}px ${(1280 * scaleK - 1280) / 2}px`;
+}
+window.addEventListener('resize', fit);
+window.addEventListener('storage', e => { if (e.key === 'buckles-shared') refreshCount(); });
+fit(); refreshCount();
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(() => {
+    fit(); refreshCount();
+    const pos = Buckles.getPos();
+    if (pos >= TOTAL) { qi = TOTAL - 1; finish(); } else { qi = Math.max(0, pos); render(); }
+});
+</script>
+</body>
+</html>
