@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ramps and Effort Force Worksheet</title>
+<style>
+:root { --navy: #1b1f45; --pink: #ea008a; --grey: #5f637a; --mid: #9a9db0; --line: #d7dae2; --tint: #f2f3f7; --pinkt: #fde8f3; --navyt: #e7e8f1; }
+* { box-sizing: border-box; }
+html { scroll-padding-top: 80px; }
+body { margin: 0; background: #fff; color: var(--navy); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 17px; line-height: 1.5; font-kerning: normal; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 980px; margin: 0 auto; padding: 0 32px; }
+b, strong { font-weight: 700; }
+
+/* masthead */
+.mast { border-top: 14px solid var(--navy); padding-bottom: 28px; }
+.mast .top { display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; flex-wrap: wrap; padding-top: 40px; border-bottom: 3px solid var(--navy); padding-bottom: 20px; }
+h1 { margin: 0; font-size: clamp(38px, 6vw, 62px); font-weight: 700; line-height: 0.98; letter-spacing: -0.025em; }
+h1 span { color: var(--pink); }
+.kicker { font-size: 15px; font-weight: 700; color: var(--grey); margin: 0 0 10px; }
+.who { display: grid; grid-template-columns: auto 200px; gap: 10px 12px; align-items: center; font-weight: 700; font-size: 15px; }
+.who input { font: inherit; font-weight: 400; color: var(--navy); border: 0; border-bottom: 2px solid var(--navy); padding: 4px 2px; background: transparent; border-radius: 0; }
+.who input:focus { outline: none; border-bottom-color: var(--pink); }
+.sclist { display: grid; grid-template-columns: 1fr 1fr; gap: 0 32px; margin-top: 20px; }
+.sclist div { display: grid; grid-template-columns: 58px 1fr; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 16px; }
+.sclist b { color: var(--pink); }
+.howto { margin: 18px 0 0; font-size: 15px; color: var(--grey); max-width: 70ch; }
+
+/* sticky bar */
+.bar { position: sticky; top: 0; z-index: 20; background: #fff; border-bottom: 1px solid var(--line); }
+.bar .wrap { display: flex; align-items: center; gap: 20px; height: 64px; }
+.bar .ttl { font-weight: 700; font-size: 15px; white-space: nowrap; }
+.prog { flex: 1; display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--grey); font-weight: 700; min-width: 0; }
+.prog .trk { flex: 1; height: 6px; background: var(--tint); max-width: 260px; }
+.prog .trk i { display: block; height: 100%; width: 0; background: var(--navy); transition: width .3s; }
+.msg { font-size: 14px; font-weight: 700; color: var(--pink); }
+.btn { font: inherit; font-size: 15px; font-weight: 700; padding: 10px 18px; border: 2px solid var(--navy); background: #fff; color: var(--navy); cursor: pointer; border-radius: 0; white-space: nowrap; }
+.btn:hover { background: var(--tint); }
+.btn.pri { background: var(--pink); border-color: var(--pink); color: #fff; }
+.btn.pri:hover { background: #c90077; border-color: #c90077; }
+.btn:focus-visible, .pill:focus-within, select:focus-visible, input[type=range]:focus-visible { outline: 3px solid var(--pink); outline-offset: 2px; }
+.btn:disabled { opacity: .45; cursor: default; }
+
+/* activities */
+.act { display: grid; grid-template-columns: 96px 1fr; border-top: 3px solid var(--navy); padding: 30px 0 48px; }
+.act > div { min-width: 0; }
+.act > .n { font-size: 64px; font-weight: 700; line-height: .85; color: var(--pink); letter-spacing: -0.04em; }
+.act h2 { margin: 0; font-size: 30px; font-weight: 700; letter-spacing: -0.015em; line-height: 1.1; }
+.act .sc { display: inline-block; font-size: 13px; font-weight: 700; color: #fff; background: var(--navy); padding: 2px 8px; margin-left: 10px; vertical-align: 5px; letter-spacing: .01em; }
+.task { margin: 8px 0 22px; color: var(--grey); font-size: 16px; max-width: 68ch; }
+.blk { margin-top: 26px; }
+.blk:first-of-type { margin-top: 0; }
+.qh { font-weight: 700; font-size: 17px; margin: 0 0 10px; display: flex; gap: 10px; }
+.qh .l { color: var(--pink); min-width: 22px; }
+.hint { font-size: 14px; color: var(--grey); margin: -4px 0 10px 32px; }
+.ind { margin-left: 32px; }
+
+/* fields */
+select, .fld, textarea { font: inherit; color: var(--navy); background: #fff; border: 2px solid var(--line); border-radius: 0; }
+select { padding: 6px 30px 6px 10px; appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--navy) 50%), linear-gradient(135deg, var(--navy) 50%, transparent 50%); background-position: calc(100% - 15px) 55%, calc(100% - 10px) 55%; background-size: 5px 5px; background-repeat: no-repeat; cursor: pointer; }
+.fld { padding: 7px 10px; width: 100%; }
+.fld.sm { width: 92px; text-align: center; }
+textarea { width: 100%; min-height: 84px; padding: 10px 12px; resize: vertical; line-height: 1.5; display: block; }
+select:focus, .fld:focus, textarea:focus { outline: none; border-color: var(--pink); }
+.ok { border-color: var(--navy) !important; background-color: var(--navyt) !important; }
+.no { border-color: var(--pink) !important; background-color: var(--pinkt) !important; }
+.pv { display: none; }
+.stem { font-weight: 700; margin-bottom: 6px; }
+
+/* cloze */
+.cloze { font-size: 18px; line-height: 2.5; max-width: 72ch; }
+.cloze select { font-size: 16px; padding: 3px 30px 3px 8px; margin: 0 2px; }
+.bank { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+.bank span { border: 2px solid var(--navy); padding: 3px 12px; font-size: 15px; font-weight: 700; }
+
+/* pills */
+.pills { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px; border: 2px solid transparent; }
+.pills.ind { margin-left: 26px; }
+.pill { position: relative; display: inline-flex; align-items: center; border: 2px solid var(--navy); padding: 7px 14px; font-size: 15px; font-weight: 700; cursor: pointer; user-select: none; background: #fff; }
+.pill input { position: absolute; opacity: 0; pointer-events: none; }
+.pill:has(input:checked) { background: var(--navy); color: #fff; }
+.pills.v { flex-direction: column; align-items: flex-start; }
+.pills.v .pill { font-weight: 400; }
+
+/* label diagram */
+.lab { display: grid; grid-template-columns: 1.5fr 1fr; gap: 28px; align-items: center; }
+.lab ol { list-style: none; margin: 0; padding: 0; }
+.lab li { display: grid; grid-template-columns: 34px 1fr; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--line); }
+.lab li span:not(.pv) { display: inline-flex; width: 30px; height: 30px; border-radius: 50%; border: 2.5px solid var(--navy); align-items: center; justify-content: center; font-weight: 700; font-size: 15px; }
+.lab select { width: 100%; }
+svg { display: block; width: 100%; height: auto; }
+svg text { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
+
+/* simulator */
+.sim { border: 2px solid var(--navy); }
+.simstage { display: grid; grid-template-columns: 1fr; }
+.simview { padding: 18px 16px 8px; border-bottom: 2px solid var(--navy); }
+.simctl { padding: 16px 18px; display: grid; grid-template-columns: 1.3fr auto 1fr 1fr; gap: 24px; align-items: center; }
+.simctl label { font-size: 14px; font-weight: 700; color: var(--grey); display: block; }
+.angv { font-size: 40px; font-weight: 700; letter-spacing: -0.02em; line-height: 1; margin-top: 4px; }
+input[type=range] { width: 100%; accent-color: var(--pink); margin: 8px 0 0; }
+.read { border-left: 1px solid var(--line); padding-left: 20px; }
+.read .v { font-size: 26px; font-weight: 700; letter-spacing: -0.01em; }
+.read .v.pk { color: var(--pink); }
+.read .v.wait { font-size: 15px; color: var(--mid); font-weight: 700; padding: 6px 0; }
+.simnote { font-size: 14px; color: var(--grey); padding: 10px 16px; border-top: 2px solid var(--navy); background: var(--tint); }
+
+/* table */
+table { border-collapse: collapse; width: 100%; font-size: 16px; }
+th { text-align: left; font-size: 14px; color: var(--grey); font-weight: 700; padding: 8px 10px; border-bottom: 2px solid var(--navy); vertical-align: bottom; line-height: 1.3; }
+th.ch { color: var(--pink); }
+td { padding: 6px 10px; border-bottom: 1px solid var(--line); }
+td:first-child { font-weight: 700; font-size: 18px; width: 90px; }
+td .fld { width: 120px; text-align: center; }
+.tw { overflow-x: auto; }
+
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.graphbox { border: 2px solid var(--line); padding: 10px 8px 4px; max-width: 660px; }
+.leg { display: flex; gap: 18px; font-size: 13px; color: var(--grey); font-weight: 700; padding: 4px 8px 6px; }
+.leg i { display: inline-block; width: 11px; height: 11px; border-radius: 50%; background: var(--navy); margin-right: 6px; vertical-align: -1px; }
+.leg i.p { background: #fff; border: 2.5px solid var(--pink); }
+.row3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.row3 label, .inl label { display: block; font-size: 14px; font-weight: 700; color: var(--grey); margin-bottom: 6px; }
+.row3 select { width: 100%; }
+.inl { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-end; }
+.unit { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; }
+
+/* cards */
+.rrow { display: grid; grid-template-columns: 250px 1fr; gap: 20px; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--line); }
+.rrow:first-child { border-top: 2px solid var(--navy); }
+.rrow h3 { margin: 0; font-size: 18px; font-weight: 700; }
+.rrow p { margin: 2px 0 10px; font-size: 15px; color: var(--grey); }
+.rrow .unit { font-size: 14px; color: var(--grey); white-space: nowrap; }
+.rrow .fld.sm { width: 70px; }
+.scen { border-left: 6px solid var(--navy); padding: 4px 0 4px 20px; }
+.scen + .scen { margin-top: 34px; }
+.scen .ctx { font-size: 17px; margin: 0 0 12px; max-width: 70ch; }
+.screws { max-width: 440px; margin: 4px 0 12px; }
+
+/* claims */
+.claim { display: grid; grid-template-columns: 1fr; gap: 10px; padding: 18px 0; border-bottom: 1px solid var(--line); }
+.claim:first-child { padding-top: 0; }
+.claim q { quotes: "\201C" "\201D"; font-size: 18px; font-weight: 700; display: block; max-width: 68ch; }
+.claim .who2 { font-size: 14px; color: var(--grey); font-weight: 700; }
+.claim .cr { display: grid; grid-template-columns: 220px 1fr; gap: 16px; align-items: start; }
+
+/* efficiency */
+.formula { display: inline-block; border: 2px solid var(--navy); padding: 10px 16px; font-weight: 700; font-size: 17px; margin-bottom: 18px; }
+.formula span { color: var(--pink); }
+.rank { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.rank label { display: block; font-size: 14px; font-weight: 700; color: var(--grey); margin-bottom: 6px; }
+.rank select { width: 100%; }
+
+/* rating */
+.rate { display: grid; grid-template-columns: 70px 1fr auto; gap: 14px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.rate b { color: var(--pink); }
+.rate .pills { flex-wrap: nowrap; }
+.rate .pill { width: 44px; justify-content: center; padding: 7px 0; }
+.scale { font-size: 13px; color: var(--grey); font-weight: 700; margin-top: 8px; }
+
+/* check */
+.actfoot { display: flex; align-items: center; gap: 16px; margin-top: 28px; flex-wrap: wrap; }
+.res { font-weight: 700; font-size: 15px; }
+.res.all { color: var(--navy); }
+.res.some { color: var(--pink); }
+
+footer { border-top: 14px solid var(--navy); margin-top: 10px; padding: 18px 0 40px; font-size: 14px; color: var(--grey); }
+footer .wrap { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+
+@media screen and (max-width: 860px) {
+    .act { grid-template-columns: 1fr; }
+    .act > .n { font-size: 48px; margin-bottom: 10px; }
+    .lab, .two, .simstage, .claim .cr, .rrow { grid-template-columns: 1fr; }
+    .simctl { grid-template-columns: 1fr 1fr; }
+    .read { border-left: 0; padding-left: 0; border-top: 1px solid var(--line); padding-top: 8px; }
+    .row3, .rank { grid-template-columns: 1fr 1fr; }
+    .sclist { grid-template-columns: 1fr; }
+    .bar .ttl { display: none; }
+}
+@media screen and (max-width: 560px) {
+    .wrap { padding: 0 18px; }
+    .row3, .rank { grid-template-columns: 1fr; }
+    .prog .trk { display: none; }
+    .ind, .hint { margin-left: 0; }
+}
+
+@media print {
+    @page { size: A4; margin: 12mm 13mm; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { font-size: 10pt; line-height: 1.4; }
+    .wrap { max-width: none; padding: 0; }
+    .bar, .actfoot .btn, .simstage, .simnote, footer .noprint { display: none !important; }
+    .mast { border-top-width: 3mm; padding-bottom: 4mm; }
+    .mast .top { padding-top: 4mm; padding-bottom: 3mm; }
+    h1 { font-size: 26pt; }
+    .who { grid-template-columns: auto 55mm; font-size: 10pt; }
+    .sclist div { font-size: 9.5pt; padding: 1.5mm 0; }
+    .howto { display: none; }
+    .act { grid-template-columns: 14mm 1fr; padding: 5mm 0 7mm; border-top-width: 0.8mm; break-inside: auto; }
+    .act > .n { font-size: 26pt; }
+    .act h2 { font-size: 15pt; }
+    .act .sc { font-size: 8pt; vertical-align: 2px; }
+    .task { font-size: 9.5pt; margin-bottom: 4mm; }
+    .blk, .rrow, .claim, .scen, .graphbox, tr, .lab, .rate { break-inside: avoid; }
+    .lab { grid-template-columns: 1.3fr 1fr; gap: 6mm; }
+    .rrow { grid-template-columns: 48mm 1fr; padding: 2mm 0; gap: 4mm; }
+    .rrow h3 { font-size: 11pt; }
+    .rrow p, .rrow .unit { font-size: 9pt; }
+    .row3 { grid-template-columns: repeat(3, 1fr); gap: 4mm; }
+    .rank { grid-template-columns: repeat(4, 1fr); gap: 4mm; }
+    .claim { padding: 2.5mm 0; }
+    .claim q { font-size: 10.5pt; }
+    .claim .cr { grid-template-columns: 48mm 1fr; gap: 4mm; }
+    .claim .pills { flex-wrap: nowrap; }
+    .scen + .scen { margin-top: 5mm; }
+    .scen .ctx { font-size: 10pt; }
+    .blk { margin-top: 5mm; }
+    .actfoot { margin-top: 3mm; }
+    .bank span { font-size: 8.5pt; padding: 0.5mm 2mm; border-width: 0.3mm; }
+    .formula { font-size: 10pt; padding: 1.5mm 3mm; border-width: 0.4mm; margin-bottom: 3mm; }
+    .scale { font-size: 8.5pt; }
+    .rate { padding: 1.5mm 0; grid-template-columns: 14mm 1fr auto; }
+    .lab svg { max-height: 55mm; }
+    .qh { font-size: 10.5pt; break-after: avoid; }
+    .hint { font-size: 9pt; }
+    textarea, select { display: none !important; }
+    .pv { display: inline-block; min-width: 24mm; border-bottom: 0.3mm solid var(--navy); padding: 0 1mm; font-weight: 700; min-height: 1.3em; line-height: 1.3; vertical-align: baseline; }
+    .pv.box { display: block; min-height: 14mm; border: 0.3mm solid var(--line); padding: 2mm 3mm; font-weight: 400; white-space: pre-wrap; }
+    .pv.ok, .pv.no { border-width: 0.5mm; }
+    .cloze { font-size: 10.5pt; line-height: 2.1; }
+    .fld { border-width: 0.3mm; padding: 1mm 2mm; }
+    .fld.sm, td .fld { width: 24mm; }
+    .pill { padding: 1mm 3mm; font-size: 9pt; border-width: 0.3mm; }
+    .rate .pill { width: 9mm; }
+    .lab ol li { padding: 1mm 0; }
+    .lab li span:not(.pv) { width: 6mm; height: 6mm; font-size: 9pt; }
+    .lab .pv { min-width: 40mm; }
+    .row3 .pv, .rank .pv { display: block; }
+    td, th { padding: 1mm 2mm; font-size: 9.5pt; }
+    td:first-child { font-size: 10.5pt; }
+    .graphbox svg { max-height: 70mm; width: auto; margin: 0 auto; }
+    .screws { max-width: 70mm; }
+    .two { grid-template-columns: 1fr 1fr; gap: 5mm; }
+    footer { border-top-width: 1.5mm; padding: 3mm 0 0; font-size: 8.5pt; }
+}
+</style>
+</head>
+<body>
+
+<header class="mast">
+    <div class="wrap">
+        <div class="top">
+            <div>
+                <p class="kicker">Year 7 Science &nbsp;|&nbsp; Forces and simple machines</p>
+                <h1>Ramps and<br><span>effort force</span></h1>
+            </div>
+            <div class="who">
+                <label for="nm">Name</label><input id="nm" name="nm" autocomplete="name">
+                <label for="dt">Date</label><input id="dt" name="dt">
+            </div>
+        </div>
+        <div class="sclist">
+            <div><b>SC10</b><span>I can <b>describe</b> the relationship between angle of inclination and effort force.</span></div>
+            <div><b>SC11</b><span>I can <b>compare</b> the efficiency of different simple machines.</span></div>
+        </div>
+        <p class="howto">Work through each activity. Use the check buttons to test your answers, fix anything marked in pink, then export a PDF to submit.</p>
+    </div>
+</header>
+
+<div class="bar">
+    <div class="wrap">
+        <span class="ttl">Ramps and effort force</span>
+        <div class="prog"><div class="trk"><i id="pbar"></i></div><span id="ptxt"></span><span class="msg" id="msg"></span></div>
+        <button class="btn" id="clearbtn" type="button">Clear answers</button>
+        <button class="btn pri" id="exportbtn" type="button">Export PDF</button>
+    </div>
+</div>
+
+<form id="ws" class="wrap" autocomplete="off" onsubmit="return false">
+
+<!-- 1 -->
+<section class="act">
+    <div class="n">1</div>
+    <div>
+        <h2>Key terms<span class="sc">SC10</span></h2>
+        <p class="task">Choose the correct term for each gap. Each word is used once, and two are not used at all.</p>
+        <div class="bank"><span>ramp</span><span>load</span><span>angle of inclination</span><span>effort force</span><span>height</span><span>smaller</span><span>larger</span><span>longer</span><span>shorter</span></div>
+        <div class="cloze" id="cloze"></div>
+        <div class="actfoot"><button class="btn chk" type="button">Check answers</button><span class="res"></span></div>
+    </div>
+</section>
+
+<!-- 2 -->
+<section class="act">
+    <div class="n">2</div>
+    <div>
+        <h2>Label the ramp<span class="sc">SC10</span></h2>
+        <p class="task">Match each letter on the diagram to the correct label.</p>
+        <div class="lab">
+            <div id="labsvg"></div>
+            <ol id="labsel"></ol>
+        </div>
+        <div class="actfoot"><button class="btn chk" type="button">Check answers</button><span class="res"></span></div>
+    </div>
+</section>
+
+<!-- 3 -->
+<section class="act">
+    <div class="n">3</div>
+    <div>
+        <h2>Ramp investigation<span class="sc">SC10</span></h2>
+        <p class="task">Use the simulator to pull a trolley up ramps with different angles of inclination. Record your results, then analyse them.</p>
+
+        <div class="blk sim">
+            <div class="simstage">
+                <div class="simview" id="simsvg"></div>
+                <div class="simctl">
+                    <div>
+                        <label for="ang">Angle of inclination</label>
+                        <div class="angv" id="angv">30&deg;</div>
+                        <input type="range" id="ang" min="10" max="70" step="5" value="30" aria-label="Angle of inclination">
+                    </div>
+                    <button class="btn pri" type="button" id="pull">Pull the trolley</button>
+                    <div class="read"><label>Effort force</label><div class="v pk wait" id="rf">Pull to measure</div></div>
+                    <div class="read"><label>Distance along the ramp</label><div class="v wait" id="rd">Pull to measure</div></div>
+                </div>
+            </div>
+            <div class="simnote">The trolley always weighs 60 N and the platform is always 0.5 m high.</div>
+        </div>
+
+        <div class="blk">
+            <div class="qh"><span class="l">a</span><span>Record your results for each angle.</span></div>
+            <p class="hint">The pink column is a challenge. Multiply the effort force by the distance for each row.</p>
+            <div class="tw"><table>
+                <thead><tr><th>Angle of inclination</th><th>Effort force (N)</th><th>Distance along the ramp (m)</th><th class="ch">Challenge: effort &times; distance</th></tr></thead>
+                <tbody id="tbody"></tbody>
+            </table></div>
+        </div>
+
+        <div class="blk">
+            <div class="qh"><span class="l">b</span><span>Your results are plotted as you type. Use the graph to answer the questions below.</span></div>
+            <div class="graphbox"><div id="graph"></div><div class="leg"><span><i></i>My results</span><span><i class="p"></i>My 70&deg; prediction</span></div></div>
+        </div>
+
+        <div class="blk">
+            <div class="qh"><span class="l">c</span><span>Identify the variables in this investigation.</span></div>
+            <div class="row3 ind">
+                <div><label for="iv">Independent (what I changed)</label><select class="q" id="iv" name="iv" data-ans="angle"></select></div>
+                <div><label for="dv">Dependent (what I measured)</label><select class="q" id="dv" name="dv" data-ans="effort"></select></div>
+                <div><label for="cv">One controlled variable</label><select class="q" id="cv" name="cv" data-ans="weight|height"></select></div>
+            </div>
+        </div>
+
+        <div class="blk">
+            <div class="qh"><span class="l">d</span><span>Describe the relationship between angle of inclination and effort force.</span></div>
+            <div class="ind">
+                <div class="stem">As the angle of inclination increases, the effort force
+                    <select class="q" name="rel" data-ans="inc"><option value=""></option><option value="inc">increases</option><option value="dec">decreases</option><option value="same">stays the same</option></select>.
+                </div>
+                <textarea class="q" name="relev" placeholder="Use two results from your table as evidence. For example: At __&deg; the effort force was __ N, but at __&deg;..."></textarea>
+            </div>
+        </div>
+
+        <div class="blk">
+            <div class="qh"><span class="l">e</span><span>What is the trade-off?</span></div>
+            <div class="ind">
+                <div class="stem">As the angle of inclination increases, the distance along the ramp
+                    <select class="q" name="dist" data-ans="dec"><option value=""></option><option value="inc">increases</option><option value="dec">decreases</option><option value="same">stays the same</option></select>.
+                </div>
+                <textarea class="q" name="tradeev" placeholder="Explain why a gentle ramp needs less effort force but a longer distance."></textarea>
+            </div>
+        </div>
+
+        <div class="blk">
+            <div class="qh"><span class="l">f</span><span>Predict, then test.</span></div>
+            <div class="inl ind">
+                <div><label for="pred">My prediction for 70&deg;</label><span class="unit"><input class="fld sm q" id="pred" name="pred" inputmode="decimal"> N</span></div>
+                <div><label for="meas">Measured in the simulator</label><span class="unit"><input class="fld sm q" id="meas" name="meas" inputmode="decimal" data-num="56.4,0.3"> N</span></div>
+            </div>
+            <p class="hint" style="margin-top:10px">Use the pattern in your graph to predict first. Then set the simulator to 70&deg; and test it.</p>
+        </div>
+
+        <div class="blk">
+            <div class="qh"><span class="l">g</span><span>Challenge: look at your effort &times; distance column. What do you notice? What does this tell you about using a ramp?</span></div>
+            <div class="ind"><textarea class="q" name="chal"></textarea></div>
+        </div>
+
+        <div class="actfoot"><button class="btn chk" type="button">Check answers</button><span class="res"></span></div>
+    </div>
+</section>
+
+<!-- 4 -->
+<section class="act">
+    <div class="n">4</div>
+    <div>
+        <h2>Compare the ramps<span class="sc">SC10</span></h2>
+        <p class="task">The same box is pushed up each ramp. The diagrams are drawn to scale. Work out how many metres of ground each ramp covers for every 1 m it rises.</p>
+        <div id="rcards"></div>
+        <div class="blk" style="margin-top:26px">
+            <div class="qh"><span class="l">a</span><span>Which ramp needs the most effort force?</span></div>
+            <div class="ind"><select class="q" name="rmost" data-ans="B"><option value=""></option><option value="A">Ramp A</option><option value="B">Ramp B</option><option value="C">Ramp C</option><option value="D">Ramp D</option></select></div>
+        </div>
+        <div class="blk">
+            <div class="qh"><span class="l">b</span><span>Two ramps need the same effort force. Which two?</span></div>
+            <div class="ind"><select class="q" name="rsame" data-ans="CD"><option value=""></option><option value="AB">Ramps A and B</option><option value="AC">Ramps A and C</option><option value="BD">Ramps B and D</option><option value="CD">Ramps C and D</option></select></div>
+        </div>
+        <div class="blk">
+            <div class="qh"><span class="l">c</span><span>Ramp D is twice as high as ramp C. Explain why it does not need more effort force.</span></div>
+            <div class="ind"><textarea class="q" name="rexp" placeholder="Use the term angle of inclination."></textarea></div>
+        </div>
+        <div class="actfoot"><button class="btn chk" type="button">Check answers</button><span class="res"></span></div>
+    </div>
+</section>
+
+<!-- 5 -->
+<section class="act">
+    <div class="n">5</div>
+    <div>
+        <h2>Ramps in real life<span class="sc">SC10</span></h2>
+        <p class="task">Choose the best answer for each situation, then explain your thinking.</p>
+
+        <div class="scen">
+            <p class="ctx"><b>Moving day.</b> Two removalists need to roll a heavy washing machine into a truck. The truck floor is 1 m off the ground. They have a 2 m plank and a 5 m plank.</p>
+            <div class="qh"><span class="l">a</span><span>Which plank should they use?</span></div>
+            <div class="pills ind q" data-ans="5" data-name="s1">
+                <label class="pill"><input type="radio" name="s1" value="2">The 2 m plank</label>
+                <label class="pill"><input type="radio" name="s1" value="5">The 5 m plank</label>
+                <label class="pill"><input type="radio" name="s1" value="e">Either, the effort is the same</label>
+            </div>
+            <div class="ind" style="margin-top:10px"><textarea class="q" name="s1x" placeholder="Explain using angle of inclination and effort force."></textarea></div>
+        </div>
+
+        <div class="scen">
+            <p class="ctx"><b>Mountain roads.</b> Roads up steep mountains often zig-zag back and forth instead of going straight up the slope.</p>
+            <div class="qh"><span class="l">b</span><span>Why are the roads built this way?</span></div>
+            <div class="pills v ind q" data-ans="angle" data-name="s2">
+                <label class="pill"><input type="radio" name="s2" value="height">It makes the top of the mountain lower</label>
+                <label class="pill"><input type="radio" name="s2" value="angle">It makes the angle of inclination smaller, so less effort force is needed</label>
+                <label class="pill"><input type="radio" name="s2" value="short">It makes the road shorter, so cars arrive sooner</label>
+                <label class="pill"><input type="radio" name="s2" value="light">It makes the cars lighter as they climb</label>
+            </div>
+            <div class="qh" style="margin-top:16px"><span class="l">c</span><span>What is the trade-off for drivers?</span></div>
+            <div class="ind"><textarea class="q" name="s2x"></textarea></div>
+        </div>
+
+        <div class="scen">
+            <p class="ctx"><b>Screws.</b> A screw is an inclined plane wrapped around a rod. The thread is the ramp.</p>
+            <div class="screws" id="screws"></div>
+            <div class="qh"><span class="l">d</span><span>Which screw needs less effort force to turn into wood?</span></div>
+            <div class="pills ind q" data-ans="A" data-name="s3">
+                <label class="pill"><input type="radio" name="s3" value="A">Screw A</label>
+                <label class="pill"><input type="radio" name="s3" value="B">Screw B</label>
+            </div>
+            <div class="qh" style="margin-top:16px"><span class="l">e</span><span>What is the trade-off when using this screw?</span></div>
+            <div class="ind"><textarea class="q" name="s3x"></textarea></div>
+        </div>
+        <div class="actfoot"><button class="btn chk" type="button">Check answers</button><span class="res"></span></div>
+    </div>
+</section>
+
+<!-- 6 -->
+<section class="act">
+    <div class="n">6</div>
+    <div>
+        <h2>Agree or disagree?<span class="sc">SC10, SC11</span></h2>
+        <p class="task">Decide whether you agree with each student. If you disagree, rewrite the statement so it is correct.</p>
+        <div id="claims"></div>
+        <div class="actfoot"><button class="btn chk" type="button">Check answers</button><span class="res"></span></div>
+    </div>
+</section>
+
+<!-- 7 -->
+<section class="act">
+    <div class="n">7</div>
+    <div>
+        <h2>Compare efficiency<span class="sc">SC11</span></h2>
+        <p class="task">Four machines each lift the same box onto the same shelf, so each gives out 45 J of useful energy. Calculate the efficiency and the wasted energy for each machine.</p>
+        <div class="formula">Efficiency = <span>useful energy out</span> &divide; energy in &times; 100</div>
+        <div class="blk tw" style="margin-top:0">
+            <table>
+                <thead><tr><th>Machine</th><th>Energy in (J)</th><th>Useful energy out (J)</th><th>Efficiency (%)</th><th>Wasted energy (J)</th></tr></thead>
+                <tbody id="effbody"></tbody>
+            </table>
+        </div>
+        <div class="blk">
+            <div class="qh"><span class="l">a</span><span>Rank the machines from most to least efficient.</span></div>
+            <div class="rank ind" id="rank"></div>
+        </div>
+        <div class="blk">
+            <div class="qh"><span class="l">b</span><span>Why does the ramp with a trolley waste the least energy?</span></div>
+            <div class="ind"><textarea class="q" name="ex1" placeholder="Use the terms friction and heat."></textarea></div>
+        </div>
+        <div class="blk">
+            <div class="qh"><span class="l">c</span><span>Suggest one change that would make the carpet ramp more efficient. Explain why it would work.</span></div>
+            <div class="ind"><textarea class="q" name="ex2"></textarea></div>
+        </div>
+        <div class="actfoot"><button class="btn chk" type="button">Check answers</button><span class="res"></span></div>
+    </div>
+</section>
+
+<!-- 8 -->
+<section class="act">
+    <div class="n">8</div>
+    <div>
+        <h2>Sum it up</h2>
+        <p class="task">Show what you now know, then rate your confidence.</p>
+        <div class="blk">
+            <div class="qh"><span class="l">a</span><span>A Year 5 student asks you why wheelchair ramps are long and gentle instead of short and steep. Write your answer.</span></div>
+            <p class="hint">Use: angle of inclination, effort force, distance, trade-off</p>
+            <div class="ind"><textarea class="q" name="sum" style="min-height:130px"></textarea></div>
+        </div>
+        <div class="blk">
+            <div class="qh"><span class="l">b</span><span>How confident am I?</span></div>
+            <div class="ind">
+                <div class="rate"><b>SC10</b><span>Describe the relationship between angle of inclination and effort force</span>
+                    <div class="pills q" data-name="c10"><label class="pill"><input type="radio" name="c10" value="1">1</label><label class="pill"><input type="radio" name="c10" value="2">2</label><label class="pill"><input type="radio" name="c10" value="3">3</label><label class="pill"><input type="radio" name="c10" value="4">4</label></div></div>
+                <div class="rate"><b>SC11</b><span>Compare the efficiency of different simple machines</span>
+                    <div class="pills q" data-name="c11"><label class="pill"><input type="radio" name="c11" value="1">1</label><label class="pill"><input type="radio" name="c11" value="2">2</label><label class="pill"><input type="radio" name="c11" value="3">3</label><label class="pill"><input type="radio" name="c11" value="4">4</label></div></div>
+                <div class="scale">1 = not yet &nbsp;|&nbsp; 2 = getting there &nbsp;|&nbsp; 3 = I can do it &nbsp;|&nbsp; 4 = I could teach it</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+</form>
+
+<footer>
+    <div class="wrap"><span>Ramps and effort force &nbsp;|&nbsp; Consolidation worksheet</span><span class="noprint">Your answers save automatically on this device.</span></div>
+</footer>
+
+<script>
+const NV = '#1b1f45', PK = '#ea008a', GR = '#c9ccd6', LT = '#eef0f5', MID = '#9a9db0';
+const $ = s => document.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const deg = a => a * Math.PI / 180, f1 = v => (Math.round(v * 10) / 10).toString();
+const T = (x, y, s, o = '') => `<text x="${f1(x)}" y="${f1(y)}" ${o}>${s}</text>`;
+function onSlope(x0, gy, a, s, h = 0) { const r = deg(a); return { x: x0 + s * Math.cos(r) - h * Math.sin(r), y: gy - s * Math.sin(r) - h * Math.cos(r) }; }
+function arrow(x1, y1, x2, y2, c = PK, sw = 5, hw = 10) {
+    const a = Math.atan2(y2 - y1, x2 - x1), L = Math.hypot(x2 - x1, y2 - y1), hl = Math.min(hw * 1.7, L * .7);
+    const bx = x2 - Math.cos(a) * hl, by = y2 - Math.sin(a) * hl, px = Math.sin(a) * hw, py = -Math.cos(a) * hw;
+    return `<line x1="${f1(x1)}" y1="${f1(y1)}" x2="${f1(bx)}" y2="${f1(by)}" stroke="${c}" stroke-width="${sw}"/><polygon points="${f1(x2)},${f1(y2)} ${f1(bx + px)},${f1(by + py)} ${f1(bx - px)},${f1(by - py)}" fill="${c}"/>`;
+}
+const marker = (x, y, t) => `<circle cx="${f1(x)}" cy="${f1(y)}" r="16" fill="#fff" stroke="${NV}" stroke-width="3"/>${T(x, y + 6, t, `text-anchor="middle" font-size="17" font-weight="700" fill="${NV}"`)}`;
+const opts = (list) => '<option value=""></option>' + list.map(([v, t]) => `<option value="${v}">${t}</option>`).join('');
+
+/* ---------- 1 cloze ---------- */
+(() => {
+    const W = [['ramp', 'ramp'], ['load', 'load'], ['angle', 'angle of inclination'], ['effort', 'effort force'], ['height', 'height'], ['smaller', 'smaller'], ['larger', 'larger'], ['longer', 'longer'], ['shorter', 'shorter']];
+    const g = (n, a) => `<select class="q" name="k${n}" data-ans="${a}">${opts(W)}</select>`;
+    $('#cloze').innerHTML = `An inclined plane is a flat, sloping surface such as a ${g(1, 'ramp')}. It lets us raise a ${g(2, 'load')} to a higher place without lifting it straight up. The angle between the ramp and the ground is called the ${g(3, 'angle')}. The push or pull we use to move the load up the ramp is the ${g(4, 'effort')}. A gentle ramp needs a ${g(5, 'smaller')} effort force than a steep ramp, but the load must travel a ${g(6, 'longer')} distance to reach the same ${g(7, 'height')}.`;
+})();
+
+/* ---------- 2 label the ramp ---------- */
+(() => {
+    const gy = 290, x0 = 70, xr = 500, ty = 120, a = Math.atan2(gy - ty, xr - x0) * 180 / Math.PI, L = Math.hypot(xr - x0, gy - ty);
+    const bc = onSlope(x0, gy, a, L * .52);
+    const d0 = onSlope(x0, gy, a, 0, 92), d1 = onSlope(x0, gy, a, L, 92);
+    const tk = (p) => { const q = onSlope(0, 0, a, 0, 9); return `<line x1="${f1(p.x - q.x)}" y1="${f1(p.y - q.y)}" x2="${f1(p.x + q.x)}" y2="${f1(p.y + q.y)}" stroke="${NV}" stroke-width="2.5"/>`; };
+    const e0 = onSlope(x0, gy, a, L * .52 - 160, 25), e1 = onSlope(x0, gy, a, L * .52 - 42, 25);
+    const r = 66, arc = `M${x0 + r} ${gy} A${r} ${r} 0 0 0 ${f1(x0 + r * Math.cos(deg(a)))} ${f1(gy - r * Math.sin(deg(a)))}`;
+    const mA = onSlope(x0, gy, a, L * .52 - 100, 62), mC = onSlope(x0, gy, a, L * .78, 116), mE = { x: x0 + 104 * Math.cos(deg(a / 2)), y: gy - 104 * Math.sin(deg(a / 2)) + 4 };
+    $('#labsvg').innerHTML = `<svg viewBox="0 0 660 320" role="img" aria-label="Ramp diagram with labels A to E">
+        <line x1="10" x2="650" y1="${gy + 2}" y2="${gy + 2}" stroke="${GR}" stroke-width="3"/>
+        <polygon points="${x0},${gy} ${xr},${gy} ${xr},${ty}" fill="${LT}" stroke="${NV}" stroke-width="3.5" stroke-linejoin="round"/>
+        <rect x="${xr}" y="${ty}" width="70" height="${gy - ty}" fill="${GR}" stroke="${NV}" stroke-width="3.5"/>
+        <path d="${arc}" fill="none" stroke="${PK}" stroke-width="3.5"/>
+        <line x1="${f1(d0.x)}" y1="${f1(d0.y)}" x2="${f1(d1.x)}" y2="${f1(d1.y)}" stroke="${NV}" stroke-width="2.5" stroke-dasharray="7 6"/>${tk(d0)}${tk(d1)}
+        <line x1="604" x2="604" y1="${ty}" y2="${gy}" stroke="${NV}" stroke-width="2.5" stroke-dasharray="7 6"/><line x1="595" x2="613" y1="${ty}" y2="${ty}" stroke="${NV}" stroke-width="2.5"/><line x1="595" x2="613" y1="${gy}" y2="${gy}" stroke="${NV}" stroke-width="2.5"/>
+        ${arrow(e0.x, e0.y, e1.x, e1.y, PK, 7, 13)}
+        <g transform="translate(${f1(bc.x)} ${f1(bc.y)}) rotate(${f1(-a)})"><rect x="-38" y="-52" width="76" height="52" fill="${NV}"/></g>
+        ${marker(mA.x, mA.y, 'A')}${marker(bc.x - 26 * Math.sin(deg(a)), bc.y - 26 * Math.cos(deg(a)), 'B')}${marker(mC.x, mC.y, 'C')}${marker(632, (ty + gy) / 2, 'D')}${marker(mE.x, mE.y, 'E')}
+    </svg>`;
+    const L2 = [['load', 'Load'], ['effort', 'Effort force'], ['angle', 'Angle of inclination'], ['height', 'Height'], ['dist', 'Distance along the ramp'], ['friction', 'Friction']];
+    const ans = { A: 'effort', B: 'load', C: 'dist', D: 'height', E: 'angle' };
+    $('#labsel').innerHTML = Object.keys(ans).map(k => `<li><span>${k}</span><select class="q" name="lab${k}" data-ans="${ans[k]}" aria-label="Label ${k}">${opts(L2)}</select></li>`).join('');
+})();
+
+/* ---------- 3 simulator ---------- */
+const SIM = (() => {
+    const W = 60, H = 0.5, S = 175, gy = 168, xr = 520, hp = H * S;
+    const box = $('#simsvg');
+    let ang = 30, running = false;
+    box.innerHTML = `<svg viewBox="0 0 640 196" role="img" aria-label="Ramp simulator">
+        <line x1="0" x2="640" y1="${gy + 2}" y2="${gy + 2}" stroke="${GR}" stroke-width="3"/>
+        <polygon class="rp" fill="${LT}" stroke="${NV}" stroke-width="3.5" stroke-linejoin="round"/>
+        <rect x="${xr}" y="${gy - hp}" width="76" height="${hp}" fill="${GR}" stroke="${NV}" stroke-width="3.5"/>
+        ${T(xr + 38, gy - hp / 2 + 6, '0.5 m', `text-anchor="middle" font-size="16" font-weight="700" fill="${NV}"`)}
+        <path class="arc" fill="none" stroke="${PK}" stroke-width="3"/><text class="at" font-size="17" font-weight="700" fill="${PK}"></text>
+        <g class="tr"></g>
+    </svg>`;
+    const rp = box.querySelector('.rp'), arc = box.querySelector('.arc'), at = box.querySelector('.at'), tr = box.querySelector('.tr');
+    const effort = a => W * Math.sin(deg(a)), dist = a => H / Math.sin(deg(a));
+    function draw(s, showF) {
+        const run = hp / Math.tan(deg(ang)), x0 = xr - run;
+        rp.setAttribute('points', `${f1(x0)},${gy} ${xr},${gy} ${xr},${gy - hp}`);
+        const r = Math.min(42, run * 0.7); arc.setAttribute('d', `M${f1(x0 + r)} ${gy} A${r} ${r} 0 0 0 ${f1(x0 + r * Math.cos(deg(ang)))} ${f1(gy - r * Math.sin(deg(ang)))}`);
+        at.setAttribute('x', f1(x0 + r - 2)); at.setAttribute('y', gy + 21); at.setAttribute('text-anchor', 'middle'); at.textContent = ang + '°';
+        const p = onSlope(x0, gy, ang, s), F = effort(ang);
+        tr.innerHTML = `<g transform="translate(${f1(p.x)} ${f1(p.y)}) rotate(${-ang})">
+            <rect x="0" y="-34" width="50" height="24" fill="${NV}"/>${T(25, -17, '60 N', `text-anchor="middle" font-size="12" font-weight="700" fill="#fff"`)}
+            <circle cx="11" cy="-6" r="6" fill="#fff" stroke="${NV}" stroke-width="3"/><circle cx="39" cy="-6" r="6" fill="#fff" stroke="${NV}" stroke-width="3"/>
+            ${showF ? arrow(52, -22, 56 + F * 1.2, -22, PK, 5, 9) + T(56 + F * .6, -32, 'Effort', `text-anchor="middle" font-size="13" font-weight="700" fill="${PK}"`) : ''}
+        </g>`;
+    }
+    const rf = $('#rf'), rd = $('#rd'), pull = $('#pull'), sl = $('#ang'), angv = $('#angv');
+    function resetRead() { [rf, rd].forEach(e => { e.textContent = 'Pull to measure'; e.classList.add('wait'); }); }
+    function set(a) { ang = a; angv.textContent = a + '°'; resetRead(); draw(4, false); }
+    sl.addEventListener('input', () => { if (!running) set(+sl.value); });
+    pull.addEventListener('click', () => {
+        if (running) return;
+        running = true; pull.disabled = true; sl.disabled = true; resetRead();
+        const L = hp / Math.sin(deg(ang)), s0 = 4, s1 = L - 54, dur = 1900, st = performance.now();
+        rf.textContent = effort(ang).toFixed(1) + ' N'; rf.classList.remove('wait');
+        const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        const step = n => {
+            const t = Math.min(1, (n - st) / dur);
+            draw(s0 + (s1 - s0) * ease(t), true);
+            if (t < 1) requestAnimationFrame(step);
+            else { rd.textContent = dist(ang).toFixed(2) + ' m'; rd.classList.remove('wait'); running = false; pull.disabled = false; sl.disabled = false; }
+        };
+        requestAnimationFrame(step);
+    });
+    set(30);
+    return { effort, dist };
+})();
+
+/* results table */
+const ANGLES = [10, 20, 30, 40, 50, 60];
+$('#tbody').innerHTML = ANGLES.map(a => `<tr><td>${a}&deg;</td>
+    <td><input class="fld q tv" name="e${a}" inputmode="decimal" data-num="${SIM.effort(a).toFixed(1)},0.3" aria-label="Effort force at ${a} degrees"></td>
+    <td><input class="fld q" name="d${a}" inputmode="decimal" data-num="${SIM.dist(a).toFixed(2)},0.03" aria-label="Distance at ${a} degrees"></td>
+    <td><input class="fld q" name="p${a}" inputmode="decimal" data-num="30,1.2" aria-label="Effort times distance at ${a} degrees"></td></tr>`).join('');
+
+/* variable selects */
+(() => {
+    const V = [['angle', 'Angle of inclination'], ['effort', 'Effort force'], ['weight', 'Weight of the trolley'], ['height', 'Height of the platform']];
+    ['iv', 'dv', 'cv'].forEach(id => $('#' + id).innerHTML = opts(V));
+})();
+
+/* graph */
+const num = v => { const n = parseFloat(String(v).replace(',', '.')); return isFinite(n) ? n : null; };
+function drawGraph() {
+    const X0 = 64, X1 = 540, Y0 = 280, Y1 = 26, GX = a => X0 + a / 70 * (X1 - X0), GY = e => Y0 - e / 60 * (Y0 - Y1);
+    let s = '';
+    for (let a = 10; a <= 70; a += 10) s += `<line x1="${f1(GX(a))}" x2="${f1(GX(a))}" y1="${Y0}" y2="${Y1}" stroke="${LT}" stroke-width="1.5"/>`;
+    for (let e = 10; e <= 60; e += 10) s += `<line x1="${X0}" x2="${X1}" y1="${f1(GY(e))}" y2="${f1(GY(e))}" stroke="${LT}" stroke-width="1.5"/>`;
+    s += `<line x1="${X0}" x2="${X0}" y1="${Y1 - 6}" y2="${Y0}" stroke="${NV}" stroke-width="2.5"/><line x1="${X0}" x2="${X1 + 6}" y1="${Y0}" y2="${Y0}" stroke="${NV}" stroke-width="2.5"/>`;
+    for (let a = 0; a <= 70; a += 10) s += `<line x1="${f1(GX(a))}" x2="${f1(GX(a))}" y1="${Y0}" y2="${Y0 + 6}" stroke="${NV}" stroke-width="2"/>${T(GX(a), Y0 + 24, a, `text-anchor="middle" font-size="14" fill="${NV}"`)}`;
+    for (let e = 0; e <= 60; e += 10) s += `<line x1="${X0 - 6}" x2="${X0}" y1="${f1(GY(e))}" y2="${f1(GY(e))}" stroke="${NV}" stroke-width="2"/>${T(X0 - 12, GY(e) + 5, e, `text-anchor="end" font-size="14" fill="${NV}"`)}`;
+    s += T((X0 + X1) / 2, Y0 + 50, 'Angle of inclination (&deg;)', `text-anchor="middle" font-size="15" font-weight="700" fill="${NV}"`);
+    s += `<text transform="translate(18 ${(Y0 + Y1) / 2}) rotate(-90)" text-anchor="middle" font-size="15" font-weight="700" fill="${NV}">Effort force (N)</text>`;
+    const pts = ANGLES.map(a => [a, num(document.querySelector(`[name=e${a}]`).value)]).filter(([, e]) => e !== null && e >= 0 && e <= 65);
+    if (pts.length > 1) s += `<polyline points="${pts.map(([a, e]) => f1(GX(a)) + ',' + f1(GY(e))).join(' ')}" fill="none" stroke="${NV}" stroke-width="2.5" stroke-linejoin="round"/>`;
+    pts.forEach(([a, e]) => s += `<circle cx="${f1(GX(a))}" cy="${f1(GY(e))}" r="6" fill="${NV}"/>`);
+    const pr = num($('#pred').value);
+    if (pr !== null && pr >= 0 && pr <= 65) s += `<circle cx="${f1(GX(70))}" cy="${f1(GY(pr))}" r="7" fill="#fff" stroke="${PK}" stroke-width="3"/>`;
+    if (!pts.length) s += T((X0 + X1) / 2, (Y0 + Y1) / 2, 'Enter your effort forces to plot them', `text-anchor="middle" font-size="16" font-weight="700" fill="${MID}"`);
+    $('#graph').innerHTML = `<svg viewBox="0 0 560 345" role="img" aria-label="Graph of effort force against angle of inclination">${s}</svg>`;
+}
+
+/* ---------- 4 ramp rows ---------- */
+(() => {
+    const R = [['A', 1, 4], ['B', 2, 4], ['C', 1, 10], ['D', 2, 20]], k = 29;
+    $('#rcards').innerHTML = R.map(([n, rise, run]) => {
+        const gy = 78, x0 = 10, xr = x0 + run * k, ty = gy - rise * k;
+        const svg = `<svg viewBox="0 0 640 104" aria-hidden="true"><line x1="0" x2="640" y1="${gy + 2}" y2="${gy + 2}" stroke="${GR}" stroke-width="2.5"/>
+            <polygon points="${x0},${gy} ${xr},${gy} ${xr},${ty}" fill="${LT}" stroke="${NV}" stroke-width="3" stroke-linejoin="round"/>
+            ${T(xr + 8, (gy + ty) / 2 + 5, rise + ' m', `font-size="15" font-weight="700" fill="${PK}"`)}
+            ${T((x0 + xr) / 2, gy + 23, run + ' m', `text-anchor="middle" font-size="15" font-weight="700" fill="${NV}"`)}</svg>`;
+        return `<div class="rrow"><div><h3>Ramp ${n}</h3><p>Rises ${rise} m over ${run} m of ground</p>
+            <div class="unit"><input class="fld sm q" name="r${n}" inputmode="decimal" data-num="${run / rise},0.01" aria-label="Ramp ${n} metres of ground per metre up"> m of ground per 1 m up</div></div>${svg}</div>`;
+    }).join('');
+})();
+
+/* ---------- 5 screws ---------- */
+(() => {
+    const screw = (cx, p, lbl) => {
+        let th = '';
+        for (let y = 50; y < 150; y += p) th += `<line x1="${cx - 18}" y1="${y + p * .4}" x2="${cx + 18}" y2="${y - p * .4}" stroke="${PK}" stroke-width="4" stroke-linecap="round"/>`;
+        return `<rect x="${cx - 34}" y="18" width="68" height="20" fill="${LT}" stroke="${NV}" stroke-width="3"/><line x1="${cx - 18}" x2="${cx + 18}" y1="28" y2="28" stroke="${NV}" stroke-width="3"/>
+            <path d="M${cx - 15} 38 V150 L${cx} 172 L${cx + 15} 150 V38" fill="${LT}" stroke="${NV}" stroke-width="3" stroke-linejoin="round"/>${th}
+            ${T(cx, 200, lbl, `text-anchor="middle" font-size="16" font-weight="700" fill="${NV}"`)}`;
+    };
+    $('#screws').innerHTML = `<svg viewBox="0 0 360 210" role="img" aria-label="Screw A has threads close together. Screw B has threads far apart.">${screw(100, 10, 'Screw A')}${screw(260, 26, 'Screw B')}</svg>`;
+})();
+
+/* ---------- 6 claims ---------- */
+(() => {
+    const C = [
+        ['Mia', 'A steep ramp needs less effort force because the load does not have to travel as far.', 'dis'],
+        ['Priya', 'A gentle ramp and a steep ramp can raise a box to the same height. The gentle ramp just takes a longer path.', 'agr'],
+        ['Leo', 'A ramp makes the load lighter, so it is easier to push.', 'dis'],
+        ['Sam', 'A 40&deg; ramp needs more effort force than a 20&deg; ramp, even when both raise the box to the same height.', 'agr'],
+        ['Ruby', 'My ramp is 120% efficient because I used a trolley with really smooth wheels.', 'dis']
+    ];
+    $('#claims').innerHTML = C.map(([n, t, a], i) => `<div class="claim"><div><span class="who2">${n} says</span><q>${t}</q></div>
+        <div class="cr"><div class="pills q" data-ans="${a}" data-name="cl${i}"><label class="pill"><input type="radio" name="cl${i}" value="agr">Agree</label><label class="pill"><input type="radio" name="cl${i}" value="dis">Disagree</label></div>
+        <textarea class="q" name="cl${i}x" placeholder="Explain your choice. If you disagree, rewrite the statement so it is correct." style="min-height:70px"></textarea></div></div>`).join('');
+})();
+
+/* ---------- 7 efficiency ---------- */
+(() => {
+    const M = [['carpet', 'Carpet-covered ramp', 90], ['timber', 'Smooth timber ramp', 60], ['trolley', 'Ramp with a wheeled trolley', 50], ['pulley', 'Rusty pulley', 75]];
+    $('#effbody').innerHTML = M.map(([k, n, e]) => `<tr><td style="font-size:16px;width:auto">${n}</td><td>${e}</td><td>45</td>
+        <td><input class="fld q" name="ef_${k}" inputmode="decimal" data-num="${45 / e * 100},0.5" aria-label="${n} efficiency"></td>
+        <td><input class="fld q" name="w_${k}" inputmode="decimal" data-num="${e - 45},0.01" aria-label="${n} wasted energy"></td></tr>`).join('');
+    const order = ['trolley', 'timber', 'pulley', 'carpet'], lbl = ['Most efficient', 'Second', 'Third', 'Least efficient'];
+    $('#rank').innerHTML = lbl.map((l, i) => `<div><label>${l}</label><select class="q" name="rk${i}" data-ans="${order[i]}">${opts(M.map(([k, n]) => [k, n]))}</select></div>`).join('');
+})();
+
+/* ---------- checking ---------- */
+function fieldOK(f) {
+    if (f.dataset.num) { const [t, tol] = f.dataset.num.split(',').map(Number), v = num(f.value); return v !== null && Math.abs(v - t) <= tol + 1e-9; }
+    if (f.classList.contains('pills')) { const c = f.querySelector('input:checked'); return !!c && f.dataset.ans.split('|').includes(c.value); }
+    return f.dataset.ans.split('|').includes(f.value);
+}
+function checkAct(sec) {
+    const fs = $$('[data-ans],[data-num]', sec);
+    let ok = 0;
+    fs.forEach(f => { const g = fieldOK(f); f.classList.toggle('ok', g); f.classList.toggle('no', !g); if (g) ok++; });
+    const r = sec.querySelector('.res');
+    r.className = 'res ' + (ok === fs.length ? 'all' : 'some');
+    r.textContent = ok === fs.length ? `${ok} of ${fs.length} correct. Well done.` : `${ok} of ${fs.length} correct. Have another go at the ones marked in pink.`;
+}
+$$('.chk').forEach(b => b.addEventListener('click', () => checkAct(b.closest('.act'))));
+
+/* ---------- save, progress, export ---------- */
+const KEY = 'ramps-effort-force-ws-v1', form = $('#ws');
+const allFields = () => [$('#nm'), $('#dt'), ...$$('input, select, textarea', form)];
+function save() {
+    const d = {};
+    allFields().forEach(f => { if (f.type === 'radio') { if (f.checked) d[f.name] = f.value; } else if (f.name) d[f.name] = f.value; });
+    try { localStorage.setItem(KEY, JSON.stringify(d)); } catch (e) {}
+}
+function load() {
+    let d = null;
+    try { d = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) {}
+    if (!d) return;
+    allFields().forEach(f => { if (!(f.name in d)) return; if (f.type === 'radio') f.checked = d[f.name] === f.value; else f.value = d[f.name]; });
+}
+function progress() {
+    const items = $$('.q', form); let done = 0;
+    items.forEach(q => { if (q.classList.contains('pills')) { if (q.querySelector('input:checked')) done++; } else if (String(q.value).trim()) done++; });
+    $('#pbar').style.width = (done / items.length * 100) + '%';
+    $('#ptxt').textContent = `${done} of ${items.length} answered`;
+}
+function changed(e) {
+    const t = e.target, holder = t.type === 'radio' ? t.closest('.pills') : t;
+    if (holder) holder.classList.remove('ok', 'no');
+    if (t.name && (/^e\d+$/.test(t.name) || t.name === 'pred')) drawGraph();
+    if (t.id === 'nm') $('#msg').textContent = '';
+    save(); progress();
+}
+form.addEventListener('input', changed); form.addEventListener('change', changed);
+$('#nm').addEventListener('input', changed); $('#dt').addEventListener('input', changed);
+
+function mirror() {
+    $$('textarea, select', form).forEach(f => {
+        let p = f.nextElementSibling;
+        if (!p || !p.classList.contains('pv')) { p = document.createElement('span'); p.className = 'pv'; f.after(p); }
+        p.className = 'pv' + (f.tagName === 'TEXTAREA' ? ' box' : '') + (f.classList.contains('ok') ? ' ok' : '') + (f.classList.contains('no') ? ' no' : '');
+        p.textContent = f.tagName === 'SELECT' ? (f.selectedIndex > 0 ? f.options[f.selectedIndex].text : '') : f.value;
+    });
+}
+window.addEventListener('beforeprint', mirror);
+const baseTitle = document.title;
+window.addEventListener('afterprint', () => document.title = baseTitle);
+$('#exportbtn').addEventListener('click', () => {
+    const nm = $('#nm').value.trim();
+    if (!nm) { $('#msg').textContent = 'Add your name before exporting.'; window.scrollTo(0, 0); $('#nm').focus(); return; }
+    mirror();
+    document.title = `Ramps and effort force worksheet ${nm}`;
+    window.print();
+});
+$('#clearbtn').addEventListener('click', () => {
+    if (!confirm('Clear all of your answers? This cannot be undone.')) return;
+    allFields().forEach(f => { if (f.type === 'radio') f.checked = false; else f.value = ''; });
+    $$('.ok, .no').forEach(e => e.classList.remove('ok', 'no'));
+    $$('.res').forEach(r => r.textContent = '');
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    $('#dt').value = new Date().toLocaleDateString('en-AU');
+    save(); drawGraph(); progress();
+});
+
+load();
+if (!$('#dt').value) $('#dt').value = new Date().toLocaleDateString('en-AU');
+drawGraph(); progress();
+</script>
+</body>
+</html>
