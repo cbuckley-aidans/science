@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Levers and Multipliers Worksheet</title>
+<style>
+:root { --navy: #1b1f45; --pink: #ea008a; --grey: #5f637a; --mid: #9a9db0; --line: #d7dae2; --tint: #f2f3f7; --pinkt: #fde8f3; --navyt: #e7e8f1; }
+* { box-sizing: border-box; }
+html { scroll-padding-top: 80px; }
+body { margin: 0; background: #fff; color: var(--navy); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 17px; line-height: 1.5; font-kerning: normal; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 980px; margin: 0 auto; padding: 0 32px; }
+b, strong { font-weight: 700; }
+
+/* masthead */
+.mast { border-top: 14px solid var(--navy); padding-bottom: 28px; }
+.mast .top { display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; flex-wrap: wrap; padding-top: 40px; border-bottom: 3px solid var(--navy); padding-bottom: 20px; }
+h1 { margin: 0; font-size: clamp(38px, 6vw, 62px); font-weight: 700; line-height: 0.98; letter-spacing: -0.025em; }
+h1 span { color: var(--pink); }
+.kicker { font-size: 15px; font-weight: 700; color: var(--grey); margin: 0 0 10px; }
+.who { display: grid; grid-template-columns: auto 200px; gap: 10px 12px; align-items: center; font-weight: 700; font-size: 15px; }
+.who input { font: inherit; font-weight: 400; color: var(--navy); border: 0; border-bottom: 2px solid var(--navy); padding: 4px 2px; background: transparent; border-radius: 0; }
+.who input:focus { outline: none; border-bottom-color: var(--pink); }
+.sclist { display: grid; grid-template-columns: 1fr 1fr; gap: 0 32px; margin-top: 20px; }
+.sclist div { display: grid; grid-template-columns: 58px 1fr; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 16px; }
+.sclist b { color: var(--pink); }
+.howto { margin: 18px 0 0; font-size: 15px; color: var(--grey); max-width: 70ch; }
+
+/* sticky bar */
+.bar { position: sticky; top: 0; z-index: 20; background: #fff; border-bottom: 1px solid var(--line); }
+.bar .wrap { display: flex; align-items: center; gap: 20px; height: 64px; }
+.bar .ttl { font-weight: 700; font-size: 15px; white-space: nowrap; }
+.prog { flex: 1; display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--grey); font-weight: 700; min-width: 0; }
+.prog .trk { flex: 1; height: 6px; background: var(--tint); max-width: 260px; }
+.prog .trk i { display: block; height: 100%; width: 0; background: var(--navy); transition: width .3s; }
+.msg { font-size: 14px; font-weight: 700; color: var(--pink); }
+.btn { font: inherit; font-size: 15px; font-weight: 700; padding: 10px 18px; border: 2px solid var(--navy); background: #fff; color: var(--navy); cursor: pointer; border-radius: 0; white-space: nowrap; }
+.btn:hover { background: var(--tint); }
+.btn.pri { background: var(--pink); border-color: var(--pink); color: #fff; }
+.btn.pri:hover { background: #c90077; border-color: #c90077; }
+.btn:focus-visible, .pill:focus-within, select:focus-visible, input[type=range]:focus-visible { outline: 3px solid var(--pink); outline-offset: 2px; }
+.btn:disabled { opacity: .45; cursor: default; }
+
+/* activities */
+.act { display: grid; grid-template-columns: 96px 1fr; border-top: 3px solid var(--navy); padding: 30px 0 48px; }
+.act > div { min-width: 0; }
+.act > .n { font-size: 64px; font-weight: 700; line-height: .85; color: var(--pink); letter-spacing: -0.04em; }
+.act h2 { margin: 0; font-size: 30px; font-weight: 700; letter-spacing: -0.015em; line-height: 1.1; }
+.act .sc { display: inline-block; font-size: 13px; font-weight: 700; color: #fff; background: var(--navy); padding: 2px 8px; margin-left: 10px; vertical-align: 5px; letter-spacing: .01em; }
+.task { margin: 8px 0 22px; color: var(--grey); font-size: 16px; max-width: 68ch; }
+.blk { margin-top: 26px; }
+.blk:first-of-type { margin-top: 0; }
+.qh { font-weight: 700; font-size: 17px; margin: 0 0 10px; display: flex; gap: 10px; }
+.qh .l { color: var(--pink); min-width: 22px; }
+.hint { font-size: 14px; color: var(--grey); margin: -4px 0 10px 32px; }
+.ind { margin-left: 32px; }
+
+/* fields */
+select, .fld, textarea { font: inherit; color: var(--navy); background: #fff; border: 2px solid var(--line); border-radius: 0; }
+select { padding: 6px 30px 6px 10px; appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--navy) 50%), linear-gradient(135deg, var(--navy) 50%, transparent 50%); background-position: calc(100% - 15px) 55%, calc(100% - 10px) 55%; background-size: 5px 5px; background-repeat: no-repeat; cursor: pointer; }
+.fld { padding: 7px 10px; width: 100%; }
+.fld.sm { width: 92px; text-align: center; }
+textarea { width: 100%; min-height: 84px; padding: 10px 12px; resize: vertical; line-height: 1.5; display: block; }
+select:focus, .fld:focus, textarea:focus { outline: none; border-color: var(--pink); }
+.ok { border-color: var(--navy) !important; background-color: var(--navyt) !important; }
+.no { border-color: var(--pink) !important; background-color: var(--pinkt) !important; }
+.pv { display: none; }
+.stem { font-weight: 700; margin-bottom: 6px; }
+
+/* cloze */
+.cloze { font-size: 18px; line-height: 2.5; max-width: 72ch; }
+.cloze select { font-size: 16px; padding: 3px 30px 3px 8px; margin: 0 2px; }
+.bank { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+.bank span { border: 2px solid var(--navy); padding: 3px 12px; font-size: 15px; font-weight: 700; }
+
+/* pills */
+.pills { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px; border: 2px solid transparent; }
+.pills.ind { margin-left: 26px; }
+.pill { position: relative; display: inline-flex; align-items: center; border: 2px solid var(--navy); padding: 7px 14px; font-size: 15px; font-weight: 700; cursor: pointer; user-select: none; background: #fff; }
+.pill input { position: absolute; opacity: 0; pointer-events: none; }
+.pill:has(input:checked) { background: var(--navy); color: #fff; }
+.pills.v { flex-direction: column; align-items: flex-start; }
+.pills.v .pill { font-weight: 400; }
+
+/* label diagram */
+.lab { display: grid; grid-template-columns: 1.5fr 1fr; gap: 28px; align-items: center; }
+.lab ol { list-style: none; margin: 0; padding: 0; }
+.lab li { display: grid; grid-template-columns: 34px 1fr; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--line); }
+.lab li span:not(.pv) { display: inline-flex; width: 30px; height: 30px; border-radius: 50%; border: 2.5px solid var(--navy); align-items: center; justify-content: center; font-weight: 700; font-size: 15px; }
+.lab select { width: 100%; }
+svg { display: block; width: 100%; height: auto; }
+svg text { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
+
+/* simulator */
+.sim { border: 2px solid var(--navy); }
+.simstage { display: grid; grid-template-columns: 1fr; }
+.simview { padding: 18px 16px 8px; border-bottom: 2px solid var(--navy); }
+.simctl { padding: 16px 18px; display: grid; grid-template-columns: 1.3fr auto 1fr 1fr; gap: 24px; align-items: center; }
+.simctl label { font-size: 14px; font-weight: 700; color: var(--grey); display: block; }
+.angv { font-size: 40px; font-weight: 700; letter-spacing: -0.02em; line-height: 1; margin-top: 4px; }
+input[type=range] { width: 100%; accent-color: var(--pink); margin: 8px 0 0; }
+.read { border-left: 1px solid var(--line); padding-left: 20px; }
+.read .v { font-size: 26px; font-weight: 700; letter-spacing: -0.01em; }
+.read .v.pk { color: var(--pink); }
+.read .v.wait { font-size: 15px; color: var(--mid); font-weight: 700; padding: 6px 0; }
+.simnote { font-size: 14px; color: var(--grey); padding: 10px 16px; border-top: 2px solid var(--navy); background: var(--tint); }
+
+/* table */
+table { border-collapse: collapse; width: 100%; font-size: 16px; }
+th { text-align: left; font-size: 14px; color: var(--grey); font-weight: 700; padding: 8px 10px; border-bottom: 2px solid var(--navy); vertical-align: bottom; line-height: 1.3; }
+th.ch { color: var(--pink); }
+td { padding: 6px 10px; border-bottom: 1px solid var(--line); }
+td:first-child { font-weight: 700; font-size: 18px; width: 90px; }
+td .fld { width: 120px; text-align: center; }
+.tw { overflow-x: auto; }
+
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.graphbox { border: 2px solid var(--line); padding: 10px 8px 4px; max-width: 660px; }
+.leg { display: flex; gap: 18px; font-size: 13px; color: var(--grey); font-weight: 700; padding: 4px 8px 6px; }
+.leg i { display: inline-block; width: 11px; height: 11px; border-radius: 50%; background: var(--navy); margin-right: 6px; vertical-align: -1px; }
+.leg i.p { background: #fff; border: 2.5px solid var(--pink); }
+.row3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.row3 label, .inl label { display: block; font-size: 14px; font-weight: 700; color: var(--grey); margin-bottom: 6px; }
+.row3 select { width: 100%; }
+.inl { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-end; }
+.unit { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; }
+
+/* cards */
+.rrow { display: grid; grid-template-columns: 250px 1fr; gap: 20px; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--line); }
+.rrow:first-child { border-top: 2px solid var(--navy); }
+.rrow h3 { margin: 0; font-size: 18px; font-weight: 700; }
+.rrow p { margin: 2px 0 10px; font-size: 15px; color: var(--grey); }
+.rrow .unit { font-size: 14px; color: var(--grey); white-space: nowrap; }
+.rrow .fld.sm { width: 70px; }
+.scen { border-left: 6px solid var(--navy); padding: 4px 0 4px 20px; }
+.scen + .scen { margin-top: 34px; }
+.scen .ctx { font-size: 17px; margin: 0 0 12px; max-width: 70ch; }
+.screws { max-width: 440px; margin: 4px 0 12px; }
+
+/* claims */
+.claim { display: grid; grid-template-columns: 1fr; gap: 10px; padding: 18px 0; border-bottom: 1px solid var(--line); }
+.claim:first-child { padding-top: 0; }
+.claim q { quotes: "\201C" "\201D"; font-size: 18px; font-weight: 700; display: block; max-width: 68ch; }
+.claim .who2 { font-size: 14px; color: var(--grey); font-weight: 700; }
+.claim .cr { display: grid; grid-template-columns: 220px 1fr; gap: 16px; align-items: start; }
+
+/* efficiency */
+.formula { display: inline-block; border: 2px solid var(--navy); padding: 10px 16px; font-weight: 700; font-size: 17px; margin-bottom: 18px; }
+.formula span { color: var(--pink); }
+.rank { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.rank label { display: block; font-size: 14px; font-weight: 700; color: var(--grey); margin-bottom: 6px; }
+.rank select { width: 100%; }
+
+/* rating */
+.rate { display: grid; grid-template-columns: 70px 1fr auto; gap: 14px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.rate b { color: var(--pink); }
+.rate .pills { flex-wrap: nowrap; }
+.rate .pill { width: 44px; justify-content: center; padding: 7px 0; }
+.scale { font-size: 13px; color: var(--grey); font-weight: 700; margin-top: 8px; }
+
+/* check */
+.actfoot { display: flex; align-items: center; gap: 16px; margin-top: 28px; flex-wrap: wrap; }
+.res { font-weight: 700; font-size: 15px; }
+.res.all { color: var(--navy); }
+.res.some { color: var(--pink); }
+
+footer { border-top: 14px solid var(--navy); margin-top: 10px; padding: 18px 0 40px; font-size: 14px; color: var(--grey); }
+footer .wrap { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+
+@media screen and (max-width: 860px) {
+    .act { grid-template-columns: 1fr; }
+    .act > .n { font-size: 48px; margin-bottom: 10px; }
+    .lab, .two, .simstage, .claim .cr, .rrow { grid-template-columns: 1fr; }
+    .simctl { grid-template-columns: 1fr 1fr; }
+    .read { border-left: 0; padding-left: 0; border-top: 1px solid var(--line); padding-top: 8px; }
+    .row3, .rank { grid-template-columns: 1fr 1fr; }
+    .sclist { grid-template-columns: 1fr; }
+    .bar .ttl { display: none; }
+}
+@media screen and (max-width: 560px) {
+    .wrap { padding: 0 18px; }
+    .row3, .rank { grid-template-columns: 1fr; }
+    .prog .trk { display: none; }
+    .ind, .hint { margin-left: 0; }
+}
+
+@media print {
+    @page { size: A4; margin: 12mm 13mm; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { font-size: 10pt; line-height: 1.4; }
+    .wrap { max-width: none; padding: 0; }
+    .bar, .actfoot .btn, .simstage, .simnote, footer .noprint { display: none !important; }
+    .mast { border-top-width: 3mm; padding-bottom: 4mm; }
+    .mast .top { padding-top: 4mm; padding-bottom: 3mm; }
+    h1 { font-size: 26pt; }
+    .who { grid-template-columns: auto 55mm; font-size: 10pt; }
+    .sclist div { font-size: 9.5pt; padding: 1.5mm 0; }
+    .howto { display: none; }
+    .act { grid-template-columns: 14mm 1fr; padding: 5mm 0 7mm; border-top-width: 0.8mm; break-inside: auto; }
+    .act > .n { font-size: 26pt; }
+    .act h2 { font-size: 15pt; }
+    .act .sc { font-size: 8pt; vertical-align: 2px; }
+    .task { font-size: 9.5pt; margin-bottom: 4mm; }
+    .blk, .rrow, .claim, .scen, .graphbox, tr, .lab, .rate { break-inside: avoid; }
+    .lab { grid-template-columns: 1.3fr 1fr; gap: 6mm; }
+    .rrow { grid-template-columns: 48mm 1fr; padding: 2mm 0; gap: 4mm; }
+    .rrow h3 { font-size: 11pt; }
+    .rrow p, .rrow .unit { font-size: 9pt; }
+    .row3 { grid-template-columns: repeat(3, 1fr); gap: 4mm; }
+    .rank { grid-template-columns: repeat(4, 1fr); gap: 4mm; }
+    .claim { padding: 2.5mm 0; }
+    .claim q { font-size: 10.5pt; }
+    .claim .cr { grid-template-columns: 48mm 1fr; gap: 4mm; }
+    .claim .pills { flex-wrap: nowrap; }
+    .scen + .scen { margin-top: 5mm; }
+    .scen .ctx { font-size: 10pt; }
+    .blk { margin-top: 5mm; }
+    .actfoot { margin-top: 3mm; }
+    .bank span { font-size: 8.5pt; padding: 0.5mm 2mm; border-width: 0.3mm; }
+    .formula { font-size: 10pt; padding: 1.5mm 3mm; border-width: 0.4mm; margin-bottom: 3mm; }
+    .scale { font-size: 8.5pt; }
+    .rate { padding: 1.5mm 0; grid-template-columns: 14mm 1fr auto; }
+    .lab svg { max-height: 55mm; }
+    .qh { font-size: 10.5pt; break-after: avoid; }
+    .hint { font-size: 9pt; }
+    textarea, select { display: none !important; }
+    .pv { display: inline-block; min-width: 24mm; border-bottom: 0.3mm solid var(--navy); padding: 0 1mm; font-weight: 700; min-height: 1.3em; line-height: 1.3; vertical-align: baseline; }
+    .pv.box { display: block; min-height: 14mm; border: 0.3mm solid var(--line); padding: 2mm 3mm; font-weight: 400; white-space: pre-wrap; }
+    .pv.ok, .pv.no { border-width: 0.5mm; }
+    .cloze { font-size: 10.5pt; line-height: 2.1; }
+    .fld { border-width: 0.3mm; padding: 1mm 2mm; }
+    .fld.sm, td .fld { width: 24mm; }
+    .pill { padding: 1mm 3mm; font-size: 9pt; border-width: 0.3mm; }
+    .rate .pill { width: 9mm; }
+    .lab ol li { padding: 1mm 0; }
+    .lab li span:not(.pv) { width: 6mm; height: 6mm; font-size: 9pt; }
+    .lab .pv { min-width: 40mm; }
+    .row3 .pv, .rank .pv { display: block; }
+    td, th { padding: 1mm 2mm; font-size: 9.5pt; }
+    td:first-child { font-size: 10.5pt; }
+    .graphbox svg { max-height: 70mm; width: auto; margin: 0 auto; }
+    .screws { max-width: 70mm; }
+    .two { grid-template-columns: 1fr 1fr; gap: 5mm; }
+    footer { border-top-width: 1.5mm; padding: 3mm 0 0; font-size: 8.5pt; }
+}
+
+/* levers additions */
+.remind { display: grid; grid-template-columns: repeat(3, 1fr); border: 2px solid var(--navy); margin-bottom: 18px; }
+.remind div { padding: 9px 14px; font-size: 15px; }
+.remind div + div { border-left: 1px solid var(--line); }
+.remind b { color: var(--pink); }
+.obj { display: grid; grid-template-columns: 1fr 160px 130px; gap: 16px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.obj:first-of-type { border-top: 2px solid var(--navy); }
+.obj h3, .lv h3 { margin: 0; font-size: 17px; font-weight: 700; }
+.obj p { margin: 2px 0 0; font-size: 15px; color: var(--grey); max-width: 52ch; }
+.obj label, .lvf label { display: block; font-size: 13px; font-weight: 700; color: var(--grey); margin-bottom: 4px; }
+.obj select { width: 100%; }
+.lv { padding: 18px 0 20px; border-bottom: 1px solid var(--line); }
+.lv:first-of-type { border-top: 2px solid var(--navy); }
+.lv svg { max-width: 640px; margin: 6px 0 10px; }
+.lvf { display: flex; flex-wrap: wrap; gap: 18px 22px; align-items: flex-end; }
+.lvf .pills { padding: 2px; }
+.sort { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.sort:first-of-type { border-top: 2px solid var(--navy); }
+.sort > span { font-weight: 700; }
+.sort > span small { display: block; font-weight: 400; color: var(--grey); font-size: 14px; }
+td select { font-size: 15px; padding: 5px 28px 5px 8px; min-width: 112px; }
+.leg i.d { width: 18px; height: 0; border-radius: 0; background: none; border-top: 3px dashed var(--pink); vertical-align: 3px; }
+.simctl .angv { font-size: 34px; }
+@media screen and (max-width: 860px) {
+    .obj { grid-template-columns: 1fr 1fr; }
+    .obj > div:first-child { grid-column: 1 / -1; }
+    .remind { grid-template-columns: 1fr; }
+    .remind div + div { border-left: 0; border-top: 1px solid var(--line); }
+}
+@media screen and (max-width: 560px) { .sort { grid-template-columns: 1fr; } }
+@media print {
+    .obj, .lv, .sort { break-inside: avoid; }
+    .obj { grid-template-columns: 1fr 38mm 30mm; padding: 2mm 0; gap: 3mm; }
+    .obj h3, .lv h3 { font-size: 10.5pt; }
+    .obj p { font-size: 9pt; }
+    .obj .pv, .lvf .pv { display: block; }
+    .lv { padding: 2.5mm 0; }
+    .lv svg { max-height: 38mm; width: auto; margin: 1mm 0 2mm; }
+    .remind div { font-size: 9pt; padding: 1.5mm 3mm; }
+    .remind { border-width: 0.4mm; margin-bottom: 3mm; }
+    .sort { padding: 1.5mm 0; }
+    .sort > span { font-size: 10pt; }
+    .sort > span small { font-size: 8.5pt; }
+    td .fld { width: 18mm; }
+}
+</style>
+</head>
+<body>
+
+<header class="mast">
+    <div class="wrap">
+        <div class="top">
+            <div>
+                <p class="kicker">Year 7 Science &nbsp;|&nbsp; Forces and simple machines</p>
+                <h1>Levers and<br><span>multipliers</span></h1>
+            </div>
+            <div class="who">
+                <label for="nm">Name</label><input id="nm" name="nm" autocomplete="name">
+                <label for="dt">Date</label><input id="dt" name="dt">
+            </div>
+        </div>
+        <div class="sclist">
+            <div><b>SC12</b><span>I can <b>recognise</b> the location of the fulcrum, resistance arm and effort arm of different levers.</span></div>
+            <div><b>SC13</b><span>I can <b>contrast</b> force multipliers and speed multipliers.</span></div>
+        </div>
+        <p class="howto">Work through each activity. Use the check buttons to test your answers, fix anything marked in pink, then export a PDF to submit.</p>
+    </div>
+</header>
+
+<div class="bar">
+    <div class="wrap">
+        <span class="ttl">Levers and multipliers</span>
+        <div class="prog"><div class="trk"><i id="pbar"></i></div><span id="ptxt"></span><span class="msg" id="msg"></span></div>
+        <button class="btn" id="clearbtn" type="button">Clear answers</button>
+        <button class="btn pri" id="exportbtn" type="button">Export PDF</button>
+    </div>
+</div>
+
+<form id="ws" class="wrap" autocomplete="off" onsubmit="return false">
+
+<!-- 1 -->
+<section class="act">
+    <div class="n">1</div>
+    <div>
+        <h2>Key terms<span class="sc">SC12</span></h2>
+        <p class="task">Choose the correct term for each gap. Each word is used once, and two are not used at all.</p>
+        <div class="bank"><span>bar</span><span>fulcrum</span><span>load</span><span>effort</span><span>resistance arm</span><span>effort arm</span><span>classes</span><span>wheel</span><span>friction</span></div>
+        <div class="cloze" id="cloze"></div>
+        <div class="actfoot"><button class="btn chk" type="button">Check answers</button><span class="res"></span></div>
+    </div>
+</section>
+
+<!-- 2 -->
+<section class="act">
+    <div class="n">2</div>
+    <div>
+        <h2>Label the lever<span class="sc">SC12</span></h2>
+        <p class="task">Match each letter on the diagram to the correct label.</p>
+        <div class="lab">
+            <div id="labsvg"></div>
+            <ol id="labsel"></ol>
+        </div>
+        <div class="actfoot"><button class="btn chk" type="button">Check answers</button><span class="res"></span></div>
+    </div>
+</section>
+
+<!-- 3 -->
+<section class="act">
+    <div class="n">3</div>
+    <div>
+        <h2>What is in the middle?<span class="sc">SC12</span></h2>
+        <p class="task">Read where each part is found. Decide what is in the middle, then choose the class of lever.</p>
+        <div class="remind"><div><b>Class 1</b> &nbsp;Fulcrum in the middle</div><div><b>Class 2</b> &nbsp;Load in the middle</div><div><b>Class 3</b> &nbsp;Effort in the middle</div></div>
+        <div id="objs"></div>
+        <div class="actfoot"><button class="btn chk" type="button">Check answers</button><span class="res"></span></div>
+    </div>
+</section>
+
+<!-- 4 -->
+<section class="act">
+    <div class="n">4</div>
+    <div>
+        <h2>Measure the arms<span class="sc">SC12, SC13</span></h2>
+        <p class="task">Use the ruler under each lever. Remember that both arms are measured <b>from the fulcrum</b>. Then decide whether each lever is a force multiplier or a speed multiplier.</p>
+        <div id="levers"></div>
+        <div class="blk" style="margin-top:26px">
+            <div class="qh"><span class="l">a</span><span>Why is a class 2 lever always a force multiplier?</span></div>
+            <div class="ind"><textarea class="q" name="c2why" placeholder="Compare where the load and the effort are, measured from the fulcrum."></textarea></div>
+        </div>
+        <div class="blk">
+            <div class="qh"><span class="l">b</span><span>Why is a class 3 lever always a speed multiplier?</span></div>
+            <div class="ind"><textarea class="q" name="c3why"></textarea></div>
+        </div>
+        <div class="actfoot"><button class="btn chk" type="button">Check answers</button><span class="res"></span></div>
+    </div>
+</section>
+
+<!-- 5 -->
+<section class="act">
+    <div class="n">5</div>
+    <div>
+        <h2>Lever investigation<span class="sc">SC13</span></h2>
+        <p class="task">Use the simulator to move the fulcrum and push down on the lever. Record your results, then analyse them.</p>
+
+        <div class="blk sim">
+            <div class="simstage">
+                <div class="simview" id="simsvg"></div>
+                <div class="simctl">
+                    <div>
+                        <label for="fpos">Fulcrum distance from the load</label>
+                        <div class="angv" id="fposv">0.8 m</div>
+                        <input type="range" id="fpos" min="0.4" max="2" step="0.2" value="0.8" aria-label="Fulcrum distance from the load">
+                    </div>
+                    <button class="btn pri" type="button" id="push">Push down</button>
+                    <div class="read"><label>Effort force needed</label><div class="v pk wait" id="rf">Push to measure</div></div>
+                    <div class="read"><label>Load rises</label><div class="v wait" id="rd">Push to measure</div></div>
+                </div>
+            </div>
+            <div class="simnote">The load always weighs 240 N, the bar is 2.4 m long and your hands always push down 30 cm.</div>
+        </div>
+
+        <div class="blk">
+            <div class="qh"><span class="l">a</span><span>Record your results for each fulcrum position.</span></div>
+            <p class="hint">The pink column is a challenge. Mechanical advantage = load &divide; effort force.</p>
+            <div class="tw"><table>
+                <thead><tr><th>Resistance arm (m)</th><th>Effort arm (m)</th><th>Effort force (N)</th><th>Load rises (cm)</th><th>Force or speed?</th><th class="ch">Challenge: mechanical advantage</th></tr></thead>
+                <tbody id="tbody"></tbody>
+            </table></div>
+        </div>
+
+        <div class="blk">
+            <div class="qh"><span class="l">b</span><span>Your effort forces are plotted as you type. Points below the dashed line need less effort than the load.</span></div>
+            <div class="graphbox"><div id="graph"></div><div class="leg"><span><i></i>My results</span><span><i class="d"></i>Weight of the load (240 N)</span></div></div>
+        </div>
+
+        <div class="blk">
+            <div class="qh"><span class="l">c</span><span>Complete the sentences.</span></div>
+            <div class="ind">
+                <div class="stem">When the effort arm is longer than the resistance arm, the effort force is
+                    <select class="q" name="s1" data-ans="smaller"><option value=""></option><option value="smaller">smaller than</option><option value="larger">larger than</option><option value="equal">equal to</option></select> the load.</div>
+                <div class="stem" style="margin-top:12px">When the effort arm is shorter than the resistance arm, the load moves
+                    <select class="q" name="s2" data-ans="further"><option value=""></option><option value="shorter">a shorter distance</option><option value="further">a longer distance</option><option value="same">the same distance</option></select> than your hands.</div>
+                <div class="stem" style="margin-top:12px">When both arms are the same length, the lever is
+                    <select class="q" name="s3" data-ans="neither"><option value=""></option><option value="force">a force multiplier</option><option value="speed">a speed multiplier</option><option value="neither">neither</option></select>.</div>
+            </div>
+        </div>
+
+        <div class="blk">
+            <div class="qh"><span class="l">d</span><span>Describe the trade-off. Use two results from your table as evidence.</span></div>
+            <div class="ind"><textarea class="q" name="trade" placeholder="When the effort arm was __ m, the effort force was __ N and the load rose __ cm. But when..."></textarea></div>
+        </div>
+
+        <div class="blk">
+            <div class="qh"><span class="l">e</span><span>Challenge: a force multiplier has a mechanical advantage that is</span></div>
+            <div class="ind"><select class="q" name="ma" data-ans="gt"><option value=""></option><option value="gt">greater than 1</option><option value="lt">less than 1</option><option value="eq">equal to 1</option></select></div>
+        </div>
+
+        <div class="actfoot"><button class="btn chk" type="button">Check answers</button><span class="res"></span></div>
+    </div>
+</section>
+
+<!-- 6 -->
+<section class="act">
+    <div class="n">6</div>
+    <div>
+        <h2>Force or speed?<span class="sc">SC13</span></h2>
+        <p class="task">Decide whether each lever is used as a force multiplier or a speed multiplier.</p>
+        <div id="sorts"></div>
+        <div class="blk" style="margin-top:26px">
+            <div class="qh"><span class="l">a</span><span>Choose one force multiplier and one speed multiplier from the list. Contrast them.</span></div>
+            <p class="hint">Use: effort arm, resistance arm, effort force, distance</p>
+            <div class="ind"><textarea class="q" name="contrast" style="min-height:110px"></textarea></div>
+        </div>
+        <div class="actfoot"><button class="btn chk" type="button">Check answers</button><span class="res"></span></div>
+    </div>
+</section>
+
+<!-- 7 -->
+<section class="act">
+    <div class="n">7</div>
+    <div>
+        <h2>Agree or disagree?<span class="sc">SC12, SC13</span></h2>
+        <p class="task">Decide whether you agree with each student. If you disagree, rewrite the statement so it is correct.</p>
+        <div id="claims"></div>
+        <div class="actfoot"><button class="btn chk" type="button">Check answers</button><span class="res"></span></div>
+    </div>
+</section>
+
+<!-- 8 -->
+<section class="act">
+    <div class="n">8</div>
+    <div>
+        <h2>Sum it up</h2>
+        <p class="task">Apply what you know, then rate your confidence.</p>
+        <div class="scen">
+            <p class="ctx"><b>Shift the boulder.</b> You need to lift one edge of a very heavy boulder using a long metal pole and a small rock as the fulcrum.</p>
+            <div class="qh"><span class="l">a</span><span>Where should you place the small rock?</span></div>
+            <div class="pills ind q" data-ans="near" data-name="bld">
+                <label class="pill"><input type="radio" name="bld" value="near">Close to the boulder</label>
+                <label class="pill"><input type="radio" name="bld" value="mid">In the middle of the pole</label>
+                <label class="pill"><input type="radio" name="bld" value="far">Close to your hands</label>
+            </div>
+            <div class="qh" style="margin-top:16px"><span class="l">b</span><span>Explain your choice and describe the trade-off.</span></div>
+            <div class="ind"><textarea class="q" name="bldx" placeholder="Use: fulcrum, effort arm, resistance arm, force multiplier"></textarea></div>
+        </div>
+        <div class="blk" style="margin-top:30px">
+            <div class="qh"><span class="l">c</span><span>How confident am I?</span></div>
+            <div class="ind">
+                <div class="rate"><b>SC12</b><span>Recognise the fulcrum, resistance arm and effort arm of different levers</span>
+                    <div class="pills q" data-name="c12"><label class="pill"><input type="radio" name="c12" value="1">1</label><label class="pill"><input type="radio" name="c12" value="2">2</label><label class="pill"><input type="radio" name="c12" value="3">3</label><label class="pill"><input type="radio" name="c12" value="4">4</label></div></div>
+                <div class="rate"><b>SC13</b><span>Contrast force multipliers and speed multipliers</span>
+                    <div class="pills q" data-name="c13"><label class="pill"><input type="radio" name="c13" value="1">1</label><label class="pill"><input type="radio" name="c13" value="2">2</label><label class="pill"><input type="radio" name="c13" value="3">3</label><label class="pill"><input type="radio" name="c13" value="4">4</label></div></div>
+                <div class="scale">1 = not yet &nbsp;|&nbsp; 2 = getting there &nbsp;|&nbsp; 3 = I can do it &nbsp;|&nbsp; 4 = I could teach it</div>
+            </div>
+        </div>
+        <div class="actfoot"><button class="btn chk" type="button">Check answers</button><span class="res"></span></div>
+    </div>
+</section>
+
+</form>
+
+<footer>
+    <div class="wrap"><span>Levers and multipliers &nbsp;|&nbsp; Consolidation worksheet</span><span class="noprint">Your answers save automatically on this device.</span></div>
+</footer>
+
+<script>
+const NV = '#1b1f45', PK = '#ea008a', GR = '#c9ccd6', LT = '#eef0f5', MID = '#9a9db0';
+const $ = s => document.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const f1 = v => (Math.round(v * 10) / 10).toString();
+const T = (x, y, s, o = '') => `<text x="${f1(x)}" y="${f1(y)}" ${o}>${s}</text>`;
+function arrow(x1, y1, x2, y2, c = PK, sw = 5, hw = 10) {
+    const a = Math.atan2(y2 - y1, x2 - x1), L = Math.hypot(x2 - x1, y2 - y1), hl = Math.min(hw * 1.7, L * .7);
+    const bx = x2 - Math.cos(a) * hl, by = y2 - Math.sin(a) * hl, px = Math.sin(a) * hw, py = -Math.cos(a) * hw;
+    return `<line x1="${f1(x1)}" y1="${f1(y1)}" x2="${f1(bx)}" y2="${f1(by)}" stroke="${c}" stroke-width="${sw}"/><polygon points="${f1(x2)},${f1(y2)} ${f1(bx + px)},${f1(by + py)} ${f1(bx - px)},${f1(by - py)}" fill="${c}"/>`;
+}
+const marker = (x, y, t) => `<circle cx="${f1(x)}" cy="${f1(y)}" r="16" fill="#fff" stroke="${NV}" stroke-width="3"/>${T(x, y + 6, t, `text-anchor="middle" font-size="17" font-weight="700" fill="${NV}"`)}`;
+const opts = list => '<option value=""></option>' + list.map(([v, t]) => `<option value="${v}">${t}</option>`).join('');
+const dim = (x1, x2, y, c = NV) => `<line x1="${x1}" x2="${x2}" y1="${y}" y2="${y}" stroke="${c}" stroke-width="2.5"/><line x1="${x1}" x2="${x1}" y1="${y - 9}" y2="${y + 9}" stroke="${c}" stroke-width="2.5"/><line x1="${x2}" x2="${x2}" y1="${y - 9}" y2="${y + 9}" stroke="${c}" stroke-width="2.5"/>`;
+const pillset = (name, ans, list, cls = '') => `<div class="pills q ${cls}" data-ans="${ans}" data-name="${name}">${list.map(([v, t]) => `<label class="pill"><input type="radio" name="${name}" value="${v}">${t}</label>`).join('')}</div>`;
+const FS = [['f', 'Force multiplier'], ['s', 'Speed multiplier']];
+
+/* ---------- 1 cloze ---------- */
+(() => {
+    const W = [['bar', 'bar'], ['fulcrum', 'fulcrum'], ['load', 'load'], ['effort', 'effort'], ['rarm', 'resistance arm'], ['earm', 'effort arm'], ['classes', 'classes'], ['wheel', 'wheel'], ['friction', 'friction']];
+    const g = (n, a) => `<select class="q" name="k${n}" data-ans="${a}">${opts(W)}</select>`;
+    $('#cloze').innerHTML = `A lever is a rigid ${g(1, 'bar')} that turns around a fixed point called the ${g(2, 'fulcrum')}. The object being moved is the ${g(3, 'load')}, and the force we apply is the ${g(4, 'effort')}. The distance from the fulcrum to the load is the ${g(5, 'rarm')}. The distance from the fulcrum to where we push or pull is the ${g(6, 'earm')}. Levers are sorted into three ${g(7, 'classes')}, depending on which part is in the middle.`;
+})();
+
+/* ---------- 2 label the lever ---------- */
+(() => {
+    const gy = 210, fx = 260, lx = 120, ex = 570;
+    $('#labsvg').innerHTML = `<svg viewBox="0 0 660 296" role="img" aria-label="Lever diagram with labels A to E">
+        <line x1="20" x2="640" y1="${gy + 2}" y2="${gy + 2}" stroke="${GR}" stroke-width="3"/>
+        <polygon points="${fx},150 ${fx - 34},${gy} ${fx + 34},${gy}" fill="${PK}"/>
+        <rect x="60" y="136" width="560" height="14" fill="${LT}" stroke="${NV}" stroke-width="3"/>
+        <rect x="${lx - 38}" y="82" width="76" height="54" fill="${NV}"/>
+        ${arrow(ex, 30, ex, 130, PK, 7, 13)}
+        <line x1="${lx}" x2="${lx}" y1="152" y2="230" stroke="${MID}" stroke-width="1.5" stroke-dasharray="4 5"/><line x1="${ex}" x2="${ex}" y1="152" y2="230" stroke="${MID}" stroke-width="1.5" stroke-dasharray="4 5"/>
+        ${dim(lx, fx, 246)}${dim(fx, ex, 246)}
+        ${marker((lx + fx) / 2, 274, 'E')}${marker((fx + ex) / 2, 274, 'A')}${marker(lx, 109, 'B')}${marker(fx + 58, 190, 'C')}${marker(ex - 36, 60, 'D')}
+    </svg>`;
+    const L = [['fulcrum', 'Fulcrum'], ['load', 'Load'], ['effort', 'Effort'], ['rarm', 'Resistance arm'], ['earm', 'Effort arm'], ['friction', 'Friction']];
+    const ans = { A: 'earm', B: 'load', C: 'fulcrum', D: 'effort', E: 'rarm' };
+    $('#labsel').innerHTML = Object.keys(ans).map(k => `<li><span>${k}</span><select class="q" name="lab${k}" data-ans="${ans[k]}" aria-label="Label ${k}">${opts(L)}</select></li>`).join('');
+})();
+
+/* ---------- 3 objects ---------- */
+(() => {
+    const O = [
+        ['Nutcracker', 'The hinge is at one end. The nut sits between the arms close to the hinge, and you squeeze the far ends of the arms.', 'load', '2'],
+        ['Kitchen tongs', 'The arms are joined at one end. You squeeze near the middle of the arms, and the food is gripped at the far ends.', 'effort', '3'],
+        ['Pliers', 'A pivot joins the two arms. The wire is gripped in the jaws on one side, and you squeeze the handles on the other side.', 'fulcrum', '1'],
+        ['Fishing rod', 'One hand holds the bottom of the rod still. The other hand lifts near the middle, and the fish hangs from the tip.', 'effort', '3'],
+        ['Bottle opener', 'The end of the opener rests on top of the cap. The hook catches the edge of the cap, and you lift the handle.', 'load', '2'],
+        ['Claw hammer pulling a nail', 'The head rocks on the wood. The nail is caught in the claw on one side, and you pull the end of the handle on the other side.', 'fulcrum', '1']
+    ];
+    const M = [['fulcrum', 'Fulcrum'], ['load', 'Load'], ['effort', 'Effort']], C = [['1', 'Class 1'], ['2', 'Class 2'], ['3', 'Class 3']];
+    $('#objs').innerHTML = O.map(([n, d, m, c], i) => `<div class="obj"><div><h3>${n}</h3><p>${d}</p></div>
+        <div><label for="om${i}">In the middle</label><select class="q" id="om${i}" name="om${i}" data-ans="${m}">${opts(M)}</select></div>
+        <div><label for="oc${i}">Class</label><select class="q" id="oc${i}" name="oc${i}" data-ans="${c}">${opts(C)}</select></div></div>`).join('');
+})();
+
+/* ---------- 4 measure the arms ---------- */
+(() => {
+    const X = cm => 40 + cm * 5.6;
+    const lever = o => {
+        let s = '';
+        const fx = X(o.f), lx = X(o.l), ex = X(o.e);
+        s += `<line x1="${fx - 36}" x2="${fx + 36}" y1="112" y2="112" stroke="${GR}" stroke-width="3"/>`;
+        s += [[fx, 112], [lx, 76], [ex, o.up ? 132 : 76]].map(([x, y]) => `<line x1="${f1(x)}" x2="${f1(x)}" y1="${y}" y2="148" stroke="${MID}" stroke-width="1.5" stroke-dasharray="4 5"/>`).join('');
+        s += `<polygon points="${f1(fx)},74 ${f1(fx - 20)},110 ${f1(fx + 20)},110" fill="${PK}"/>`;
+        s += `<rect x="${X(0) - 6}" y="64" width="${X(100) - X(0) + 12}" height="10" fill="${LT}" stroke="${NV}" stroke-width="2.5"/>`;
+        s += `<rect x="${f1(lx - 24)}" y="30" width="48" height="34" fill="${NV}"/>${T(lx, 52, 'Load', `text-anchor="middle" font-size="13" font-weight="700" fill="#fff"`)}`;
+        s += o.up ? arrow(ex, 136, ex, 78, PK, 5, 10) + T(ex - 10, 128, 'Effort', `text-anchor="end" font-size="13" font-weight="700" fill="${PK}"`)
+                  : arrow(ex, 4, ex, 60, PK, 5, 10) + T(ex - 10, 22, 'Effort', `text-anchor="end" font-size="13" font-weight="700" fill="${PK}"`);
+        s += `<line x1="${X(0)}" x2="${X(100)}" y1="150" y2="150" stroke="${NV}" stroke-width="2"/>`;
+        for (let c = 0; c <= 100; c += 5) s += `<line x1="${f1(X(c))}" x2="${f1(X(c))}" y1="150" y2="${c % 10 ? 156 : 160}" stroke="${NV}" stroke-width="${c % 10 ? 1.2 : 2}"/>` + (c % 10 ? '' : T(X(c), 176, c, `text-anchor="middle" font-size="13" fill="${NV}"`));
+        s += T(X(100) + 14, 176, 'cm', `font-size="13" fill="${NV}"`);
+        return `<svg viewBox="0 0 640 186" role="img" aria-label="Lever on a centimetre ruler">${s}</svg>`;
+    };
+    const Lv = [
+        { f: 40, l: 10, e: 100, up: false, ea: 60, ra: 30, k: '1', t: 'f' },
+        { f: 0, l: 25, e: 100, up: true, ea: 100, ra: 25, k: '2', t: 'f' },
+        { f: 0, l: 100, e: 30, up: true, ea: 30, ra: 100, k: '3', t: 's' },
+        { f: 30, l: 100, e: 10, up: false, ea: 20, ra: 70, k: '1', t: 's' }
+    ];
+    const C = [['1', 'Class 1'], ['2', 'Class 2'], ['3', 'Class 3']];
+    $('#levers').innerHTML = Lv.map((o, i) => `<div class="lv"><h3>Lever ${'ABCD'[i]}</h3>${lever(o)}
+        <div class="lvf">
+            <div><label for="ea${i}">Effort arm</label><span class="unit"><input class="fld sm q" id="ea${i}" name="ea${i}" inputmode="decimal" data-num="${o.ea},0.5"> cm</span></div>
+            <div><label for="ra${i}">Resistance arm</label><span class="unit"><input class="fld sm q" id="ra${i}" name="ra${i}" inputmode="decimal" data-num="${o.ra},0.5"> cm</span></div>
+            <div><label for="lc${i}">Class</label><select class="q" id="lc${i}" name="lc${i}" data-ans="${o.k}">${opts(C)}</select></div>
+            ${pillset('lt' + i, o.t, FS)}
+        </div></div>`).join('');
+})();
+
+/* ---------- 5 simulator ---------- */
+const LOAD = 240, BAR = 2.4, PUSH = 30;
+const effortF = r => LOAD * r / (BAR - r), riseCm = r => PUSH * r / (BAR - r);
+(() => {
+    const LX = 100, EX = 580, S = 200, BY = 190, gy = 262;
+    let r = 0.8, running = false;
+    const box = $('#simsvg');
+    box.innerHTML = `<svg viewBox="0 0 680 318" role="img" aria-label="Lever simulator">
+        <line x1="0" x2="680" y1="${gy + 2}" y2="${gy + 2}" stroke="${GR}" stroke-width="3"/>
+        <polygon class="fu" fill="${PK}"/>
+        <g class="bar">
+            <rect x="${LX - 34}" y="${BY - 14}" width="${EX - LX + 64}" height="14" fill="${LT}" stroke="${NV}" stroke-width="3"/>
+            <rect x="${LX - 34}" y="${BY - 66}" width="68" height="52" fill="${NV}"/>${T(LX, BY - 34, '240 N', `text-anchor="middle" font-size="15" font-weight="700" fill="#fff"`)}
+            ${arrow(EX, BY - 96, EX, BY - 18, PK, 6, 12)}${T(EX - 14, BY - 70, 'Effort', `text-anchor="end" font-size="15" font-weight="700" fill="${PK}"`)}
+        </g>
+        <g class="dims"></g>
+    </svg>`;
+    const fu = box.querySelector('.fu'), bar = box.querySelector('.bar'), dims = box.querySelector('.dims');
+    const rf = $('#rf'), rd = $('#rd'), btn = $('#push'), sl = $('#fpos'), sv = $('#fposv');
+    function resetRead() { [rf, rd].forEach(e => { e.textContent = 'Push to measure'; e.classList.add('wait'); }); }
+    function draw(rot) {
+        const fx = LX + r * S;
+        fu.setAttribute('points', `${f1(fx)},${BY} ${f1(fx - 30)},${gy} ${f1(fx + 30)},${gy}`);
+        bar.setAttribute('transform', `rotate(${f1(rot * 100) / 100} ${f1(fx)} ${BY})`);
+        dims.innerHTML = dim(LX, fx, 284) + dim(fx, EX, 284, PK) + T((LX + fx) / 2, 309, r.toFixed(1) + ' m', `text-anchor="middle" font-size="14" font-weight="700" fill="${NV}"`) + T((fx + EX) / 2, 309, (BAR - r).toFixed(1) + ' m', `text-anchor="middle" font-size="14" font-weight="700" fill="${PK}"`);
+    }
+    function set(v) { r = Math.round(v * 10) / 10; sv.textContent = r.toFixed(1) + ' m'; resetRead(); draw(0); }
+    sl.addEventListener('input', () => { if (!running) set(+sl.value); });
+    btn.addEventListener('click', () => {
+        if (running) return;
+        running = true; btn.disabled = true; sl.disabled = true; resetRead();
+        const fx = LX + r * S, target = Math.atan(24 / (EX - fx)) * 180 / Math.PI, dur = 1300, st = performance.now();
+        const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        draw(0);
+        const step = n => {
+            const t = Math.min(1, (n - st) / dur);
+            draw(target * ease(t));
+            if (t < 1) requestAnimationFrame(step);
+            else {
+                rf.textContent = Math.round(effortF(r)) + ' N'; rf.classList.remove('wait');
+                rd.textContent = f1(riseCm(r)) + ' cm'; rd.classList.remove('wait');
+                setTimeout(() => { running = false; btn.disabled = false; sl.disabled = false; }, 300);
+            }
+        };
+        requestAnimationFrame(step);
+    });
+    set(0.8);
+})();
+
+/* results table */
+const RS = [0.4, 0.8, 1.2, 1.6, 2.0];
+$('#tbody').innerHTML = RS.map((r, i) => {
+    const e = effortF(r), t = r < 1.2 - 1e-9 ? 'f' : r > 1.2 + 1e-9 ? 's' : 'n';
+    return `<tr><td>${r.toFixed(1)}</td>
+    <td><input class="fld q" name="ea_${i}" inputmode="decimal" data-num="${(BAR - r).toFixed(1)},0.01" aria-label="Effort arm for row ${i + 1}"></td>
+    <td><input class="fld q" name="e${i}" inputmode="decimal" data-num="${e},1" aria-label="Effort force for row ${i + 1}"></td>
+    <td><input class="fld q" name="h${i}" inputmode="decimal" data-num="${riseCm(r)},0.2" aria-label="Load rise for row ${i + 1}"></td>
+    <td><select class="q" name="t${i}" data-ans="${t}" aria-label="Force or speed for row ${i + 1}">${opts([['f', 'Force'], ['s', 'Speed'], ['n', 'Neither']])}</select></td>
+    <td><input class="fld q" name="m${i}" inputmode="decimal" data-num="${LOAD / e},0.05" aria-label="Mechanical advantage for row ${i + 1}"></td></tr>`;
+}).join('');
+
+/* graph */
+const num = v => { const n = parseFloat(String(v).replace(',', '.')); return isFinite(n) ? n : null; };
+function drawGraph() {
+    const X0 = 78, X1 = 540, Y0 = 280, Y1 = 26, GX = a => X0 + a / 2.4 * (X1 - X0), GY = e => Y0 - e / 1200 * (Y0 - Y1);
+    let s = '';
+    for (let a = 0.4; a <= 2.41; a += 0.4) s += `<line x1="${f1(GX(a))}" x2="${f1(GX(a))}" y1="${Y0}" y2="${Y1}" stroke="${LT}" stroke-width="1.5"/>`;
+    for (let e = 200; e <= 1200; e += 200) s += `<line x1="${X0}" x2="${X1}" y1="${f1(GY(e))}" y2="${f1(GY(e))}" stroke="${LT}" stroke-width="1.5"/>`;
+    s += `<line x1="${X0}" x2="${X1}" y1="${f1(GY(240))}" y2="${f1(GY(240))}" stroke="${PK}" stroke-width="2.5" stroke-dasharray="9 7"/>`;
+    s += `<line x1="${X0}" x2="${X0}" y1="${Y1 - 6}" y2="${Y0}" stroke="${NV}" stroke-width="2.5"/><line x1="${X0}" x2="${X1 + 6}" y1="${Y0}" y2="${Y0}" stroke="${NV}" stroke-width="2.5"/>`;
+    for (let i = 0; i <= 6; i++) { const a = i * 0.4; s += `<line x1="${f1(GX(a))}" x2="${f1(GX(a))}" y1="${Y0}" y2="${Y0 + 6}" stroke="${NV}" stroke-width="2"/>${T(GX(a), Y0 + 24, a.toFixed(1), `text-anchor="middle" font-size="14" fill="${NV}"`)}`; }
+    for (let e = 0; e <= 1200; e += 200) s += `<line x1="${X0 - 6}" x2="${X0}" y1="${f1(GY(e))}" y2="${f1(GY(e))}" stroke="${NV}" stroke-width="2"/>${T(X0 - 12, GY(e) + 5, e, `text-anchor="end" font-size="14" fill="${NV}"`)}`;
+    s += T((X0 + X1) / 2, Y0 + 50, 'Effort arm (m)', `text-anchor="middle" font-size="15" font-weight="700" fill="${NV}"`);
+    s += `<text transform="translate(18 ${(Y0 + Y1) / 2}) rotate(-90)" text-anchor="middle" font-size="15" font-weight="700" fill="${NV}">Effort force (N)</text>`;
+    const pts = RS.map((r, i) => [BAR - r, num(document.querySelector(`[name=e${i}]`).value)]).filter(([, e]) => e !== null && e >= 0 && e <= 1300).sort((a, b) => a[0] - b[0]);
+    if (pts.length > 1) s += `<polyline points="${pts.map(([a, e]) => f1(GX(a)) + ',' + f1(GY(e))).join(' ')}" fill="none" stroke="${NV}" stroke-width="2.5" stroke-linejoin="round"/>`;
+    pts.forEach(([a, e]) => s += `<circle cx="${f1(GX(a))}" cy="${f1(GY(e))}" r="6" fill="${NV}"/>`);
+    if (!pts.length) s += T((X0 + X1) / 2, (Y0 + Y1) / 2 - 20, 'Enter your effort forces to plot them', `text-anchor="middle" font-size="16" font-weight="700" fill="${MID}"`);
+    $('#graph').innerHTML = `<svg viewBox="0 0 560 345" role="img" aria-label="Graph of effort force against effort arm">${s}</svg>`;
+}
+
+/* ---------- 6 sort ---------- */
+(() => {
+    const S = [
+        ['Car jack handle', 'A long handle lifts a heavy car a small distance', 'f'],
+        ['Hockey stick', 'Hands near the top, ball struck at the far end', 's'],
+        ['Long-handled garden loppers', 'Long handles, blades close to the pivot', 'f'],
+        ['Your forearm lifting a cup', 'Elbow is the fulcrum, muscle attaches close to the elbow', 's'],
+        ['Screwdriver levering open a paint tin', 'Tip under the lid, handle pushed down', 'f'],
+        ['Tennis racquet', 'Swung from the wrist, ball struck far from the hand', 's']
+    ];
+    $('#sorts').innerHTML = S.map(([n, d, a], i) => `<div class="sort"><span>${n}<small>${d}</small></span>${pillset('so' + i, a, FS)}</div>`).join('');
+})();
+
+/* ---------- 7 claims ---------- */
+(() => {
+    const C = [
+        ['Mia', 'The fulcrum of a lever is always in the middle.', 'dis'],
+        ['Leo', 'The effort arm is measured from the end of the lever to where you push.', 'dis'],
+        ['Priya', 'Moving the fulcrum closer to the load makes a class 1 lever a better force multiplier.', 'agr'],
+        ['Sam', 'A fishing rod is a speed multiplier, so the effort force needed is bigger than the weight of the fish.', 'agr'],
+        ['Ruby', 'A well-designed lever can make the effort force smaller and make the load move further at the same time.', 'dis']
+    ];
+    $('#claims').innerHTML = C.map(([n, t, a], i) => `<div class="claim"><div><span class="who2">${n} says</span><q>${t}</q></div>
+        <div class="cr">${pillset('cl' + i, a, [['agr', 'Agree'], ['dis', 'Disagree']])}
+        <textarea class="q" name="cl${i}x" placeholder="Explain your choice. If you disagree, rewrite the statement so it is correct." style="min-height:70px"></textarea></div></div>`).join('');
+})();
+
+/* ---------- checking ---------- */
+function fieldOK(f) {
+    if (f.dataset.num) { const [t, tol] = f.dataset.num.split(',').map(Number), v = num(f.value); return v !== null && Math.abs(v - t) <= tol + 1e-9; }
+    if (f.classList.contains('pills')) { const c = f.querySelector('input:checked'); return !!c && f.dataset.ans.split('|').includes(c.value); }
+    return f.dataset.ans.split('|').includes(f.value);
+}
+function checkAct(sec) {
+    const fs = $$('[data-ans],[data-num]', sec);
+    let ok = 0;
+    fs.forEach(f => { const g = fieldOK(f); f.classList.toggle('ok', g); f.classList.toggle('no', !g); if (g) ok++; });
+    const r = sec.querySelector('.res');
+    r.className = 'res ' + (ok === fs.length ? 'all' : 'some');
+    r.textContent = ok === fs.length ? `${ok} of ${fs.length} correct. Well done.` : `${ok} of ${fs.length} correct. Have another go at the ones marked in pink.`;
+}
+$$('.chk').forEach(b => b.addEventListener('click', () => checkAct(b.closest('.act'))));
+
+/* ---------- save, progress, export ---------- */
+const KEY = 'levers-multipliers-ws-v1', form = $('#ws');
+const allFields = () => [$('#nm'), $('#dt'), ...$$('input, select, textarea', form)];
+function save() {
+    const d = {};
+    allFields().forEach(f => { if (f.type === 'radio') { if (f.checked) d[f.name] = f.value; } else if (f.name) d[f.name] = f.value; });
+    try { localStorage.setItem(KEY, JSON.stringify(d)); } catch (e) {}
+}
+function load() {
+    let d = null;
+    try { d = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) {}
+    if (!d) return;
+    allFields().forEach(f => { if (!(f.name in d)) return; if (f.type === 'radio') f.checked = d[f.name] === f.value; else f.value = d[f.name]; });
+}
+function progress() {
+    const items = $$('.q', form); let done = 0;
+    items.forEach(q => { if (q.classList.contains('pills')) { if (q.querySelector('input:checked')) done++; } else if (String(q.value).trim()) done++; });
+    $('#pbar').style.width = (done / items.length * 100) + '%';
+    $('#ptxt').textContent = `${done} of ${items.length} answered`;
+}
+function changed(e) {
+    const t = e.target, holder = t.type === 'radio' ? t.closest('.pills') : t;
+    if (holder) holder.classList.remove('ok', 'no');
+    if (t.name && /^e\d+$/.test(t.name)) drawGraph();
+    if (t.id === 'nm') $('#msg').textContent = '';
+    save(); progress();
+}
+form.addEventListener('input', changed); form.addEventListener('change', changed);
+$('#nm').addEventListener('input', changed); $('#dt').addEventListener('input', changed);
+
+function mirror() {
+    $$('textarea, select', form).forEach(f => {
+        let p = f.nextElementSibling;
+        if (!p || !p.classList.contains('pv')) { p = document.createElement('span'); p.className = 'pv'; f.after(p); }
+        p.className = 'pv' + (f.tagName === 'TEXTAREA' ? ' box' : '') + (f.classList.contains('ok') ? ' ok' : '') + (f.classList.contains('no') ? ' no' : '');
+        p.textContent = f.tagName === 'SELECT' ? (f.selectedIndex > 0 ? f.options[f.selectedIndex].text : '') : f.value;
+    });
+}
+window.addEventListener('beforeprint', mirror);
+const baseTitle = document.title;
+window.addEventListener('afterprint', () => document.title = baseTitle);
+$('#exportbtn').addEventListener('click', () => {
+    const nm = $('#nm').value.trim();
+    if (!nm) { $('#msg').textContent = 'Add your name before exporting.'; window.scrollTo(0, 0); $('#nm').focus(); return; }
+    mirror();
+    document.title = `Levers and multipliers worksheet ${nm}`;
+    window.print();
+});
+$('#clearbtn').addEventListener('click', () => {
+    if (!confirm('Clear all of your answers? This cannot be undone.')) return;
+    allFields().forEach(f => { if (f.type === 'radio') f.checked = false; else f.value = ''; });
+    $$('.ok, .no').forEach(e => e.classList.remove('ok', 'no'));
+    $$('.res').forEach(r => r.textContent = '');
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    $('#dt').value = new Date().toLocaleDateString('en-AU');
+    save(); drawGraph(); progress();
+});
+
+load();
+if (!$('#dt').value) $('#dt').value = new Date().toLocaleDateString('en-AU');
+drawGraph(); progress();
+</script>
+</body>
+</html>
