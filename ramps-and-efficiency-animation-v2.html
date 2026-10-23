@@ -1,0 +1,2161 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ramps and Efficiency</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231b1f45'/%3E%3Cpath d='M24 13L46 27L24 41Z' fill='%23fff'/%3E%3Crect x='12' y='50' width='40' height='5' rx='2.5' fill='%23fff' fill-opacity='.25'/%3E%3Crect x='12' y='50' width='26' height='5' rx='2.5' fill='%23ea008a'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --navy: #1b1f45;
+        --pink: #ea008a;
+        --white: #ffffff;
+        --off-white: #f5f5f5;
+        --light-grey: #e8e8e8;
+        --mid-grey: #9a9a9a;
+        --blank: #f0f3f6;
+        --ease: cubic-bezier(.2,.8,.2,1);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+        font-family: 'Barlow', Helvetica Neue, Helvetica, Arial, sans-serif;
+        margin: 0; background: #eaeaea; color: var(--navy);
+        display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden;
+    }
+    .viewport { flex: 1; width: 100%; display: flex; align-items: center; justify-content: center; min-height: 0; }
+    .stage {
+        width: 1280px; height: 720px; background: var(--white); border-top: 6px solid var(--navy);
+        position: relative; padding: 0; transform-origin: center center; flex-shrink: 0; overflow: hidden;
+    }
+    .ui-zoomer { position: absolute; left: 0; top: 0; width: 1280px; height: 714px; padding: 36px 64px 0 64px; transform-origin: 0 0; }
+    .ui-spot { position: absolute; left: 0; top: 0; width: 1280px; height: 714px; z-index: 6; pointer-events: none; opacity: 0; transition: opacity .35s var(--ease); }
+    .ui-spot.on { opacity: 1; }
+    .top { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 4px solid var(--navy); padding-bottom: 12px; }
+    .sheet-title { font-family: 'Barlow Condensed', sans-serif; font-size: 44px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.01em; margin: 0; line-height: 1; }
+    .sheet-title span { color: var(--pink); }
+    .counter { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: 0.08em; color: var(--mid-grey); }
+    .counter b { color: var(--navy); }
+    .content { position: absolute; left: 64px; right: 64px; top: 130px; bottom: 110px; }
+    .caption {
+        position: absolute; left: 64px; right: 64px; bottom: 30px;
+        font-size: 27px; font-weight: 500; line-height: 1.35;
+        display: flex; align-items: center; gap: 16px; min-height: 60px;
+    }
+    .caption::before { content: ''; width: 10px; height: 10px; background: var(--pink); flex-shrink: 0; }
+    .caption b { font-weight: 800; color: var(--pink); }
+    .caption.in { animation: capIn .45s var(--ease); }
+    @keyframes capIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .progress { position: absolute; left: 0; bottom: 0; height: 6px; background: var(--pink); width: 0; }
+
+    .hide { opacity: 0; transform: translateY(14px); }
+    .rev { transition: opacity .45s var(--ease), transform .45s var(--ease), background-color .35s, color .35s, border-color .35s; }
+    .center { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+    .hint { margin-top: 22px; font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid-grey); }
+    .dlbl { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid-grey); }
+
+    /* svg basics */
+    .t { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: .03em; fill: var(--navy); }
+    .t.mid { text-anchor: middle; } .t.end { text-anchor: end; }
+    .t.pk { fill: var(--pink); } .t.gr { fill: var(--mid-grey); } .t.wh { fill: #fff; }
+    .t.sm { font-size: 19px; } .t.lg { font-size: 34px; font-weight: 900; }
+    .t.up2 { font-size: 18px; text-transform: uppercase; letter-spacing: .12em; }
+    .gnd { stroke: var(--navy); stroke-width: 4; }
+    .solid { fill: var(--navy); }
+    .load { fill: var(--blank); stroke: var(--navy); stroke-width: 3; }
+    .rampp { fill: var(--blank); stroke: var(--navy); stroke-width: 4; stroke-linejoin: round; transition: fill .35s, stroke .35s; }
+    .fa line { stroke: var(--pink); stroke-width: 7; } .fa polygon { fill: var(--pink); }
+    .fn line { stroke: var(--navy); stroke-width: 7; } .fn polygon { fill: var(--navy); }
+    .ti line { stroke-width: 4; }
+    .ln { fill: none; stroke: var(--navy); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+    .lnp { fill: none; stroke: var(--pink); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+    .heat { fill: none; stroke: var(--pink); stroke-width: 3.5; stroke-linecap: round; }
+    .angarc { fill: none; stroke: var(--pink); stroke-width: 3; }
+    svg .rev.hide { transform: translateY(10px); }
+
+    /* shared blocks */
+    .card { border: 3px solid var(--navy); border-radius: 8px; padding: 18px 28px; }
+    .card.pink { border-color: var(--pink); }
+    .prompt { font-size: 30px; font-weight: 600; line-height: 1.3; text-align: center; max-width: 1060px; margin-bottom: 22px; }
+    .prompt b { color: var(--pink); font-weight: 800; }
+    .ans { margin-top: 14px; border-left: 6px solid var(--pink); padding: 4px 0 4px 16px; font-size: 22px; font-weight: 600; line-height: 1.35; }
+    .ans b { color: var(--pink); font-weight: 800; }
+    .atext { font-size: 27px; font-weight: 600; line-height: 1.3; margin-top: 6px; }
+    .atext b { color: var(--pink); font-weight: 800; }
+    .aex { font-size: 22px; color: var(--mid-grey); font-weight: 700; margin-top: 10px; line-height: 1.3; }
+    .aex b { color: var(--navy); }
+    .dex { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; text-transform: uppercase; line-height: 1.05; }
+    .qn { flex-shrink: 0; width: 38px; height: 38px; border-radius: 50%; background: var(--navy); color: #fff; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 24px; display: flex; align-items: center; justify-content: center; }
+    .qn.p { background: var(--pink); }
+    .feq { font-family: 'Barlow Condensed', sans-serif; font-size: 34px; font-weight: 900; letter-spacing: .02em; }
+    .feq b { color: var(--pink); }
+    .fnote { font-family: 'Barlow Condensed', sans-serif; font-size: 17px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--mid-grey); }
+
+    /* title + SC list */
+    .lg { margin-top: 18px; border-left: 8px solid var(--pink); padding: 4px 0 4px 22px; max-width: 980px; }
+    .lgt { font-size: 30px; font-weight: 700; margin-top: 4px; line-height: 1.25; }
+    .sclist { display: flex; flex-direction: column; gap: 14px; width: 1020px; }
+    .scrow { display: flex; align-items: center; gap: 22px; font-size: 30px; font-weight: 500; border-bottom: 2px solid var(--light-grey); padding-bottom: 14px; }
+    .scrow .code { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 32px; color: var(--pink); width: 74px; flex-shrink: 0; }
+    .scrow b { font-weight: 800; }
+
+    /* incline (reused) */
+    .ipl { display: flex; gap: 40px; align-items: flex-start; }
+    .ipl svg { display: block; overflow: visible; }
+    .srow { display: flex; align-items: center; gap: 18px; margin-top: 14px; font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+    .srow input { flex: 1; accent-color: var(--pink); height: 28px; cursor: pointer; }
+    .srow .av { color: var(--pink); min-width: 52px; }
+    .stats { display: flex; gap: 20px; }
+    .stat { flex: 1; border: 3px solid var(--navy); border-radius: 8px; padding: 8px 18px; }
+    .stat.pink { border-color: var(--pink); }
+    .stat .num { font-family: 'Barlow Condensed', sans-serif; font-size: 52px; font-weight: 900; line-height: 1.05; font-variant-numeric: tabular-nums; }
+    .stat.pink .num { color: var(--pink); }
+    .graph { margin-top: 14px; }
+    .axis { stroke: var(--navy); stroke-width: 2.5; }
+    .curve { fill: none; stroke: var(--pink); stroke-width: 4; }
+    .gdot { fill: var(--pink); stroke: #fff; stroke-width: 3; }
+    .note { font-family: 'Barlow Condensed', sans-serif; font-size: 17px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--mid-grey); margin-top: 8px; }
+
+    /* same job, different paths */
+    .jpanels { display: flex; gap: 24px; }
+    .jpanel { width: 368px; border: 3px solid var(--navy); border-radius: 8px; padding: 12px 20px 16px; }
+    .jpanel svg { display: block; margin: 4px auto 8px; overflow: visible; }
+    .jstats { display: flex; gap: 12px; }
+    .jstat { flex: 1; border-top: 3px solid var(--light-grey); padding-top: 6px; }
+    .jstat .dlbl { font-size: 17px; }
+    .jstat .v { font-family: 'Barlow Condensed', sans-serif; font-size: 44px; font-weight: 900; line-height: 1.05; font-variant-numeric: tabular-nums; color: #c3c6d0; transition: color .3s; }
+    .jstat.f .v.on2 { color: var(--pink); }
+    .jstat.d .v.on2 { color: var(--navy); }
+    .jnote { margin-top: 16px; }
+
+    /* work trade-off */
+    .wtile { fill: #fde3f2; stroke: var(--pink); stroke-width: 3; }
+    .wtile.rev.hide { transform: scale(.6); transform-box: fill-box; transform-origin: center; }
+    .wfrm { fill: none; stroke: var(--navy); stroke-width: 4; }
+    .wrow { display: flex; gap: 24px; width: 1060px; margin-bottom: 14px; }
+    .wrow .card { display: flex; align-items: center; justify-content: center; }
+    .wsum { font-size: 26px; font-weight: 700; line-height: 1.3; }
+    .wsum b { color: var(--pink); font-weight: 800; }
+
+    /* predict */
+    .rz .rampp { fill: var(--blank); }
+    .rz.hl .rampp { fill: #fde3f2; stroke: var(--pink); }
+    .rz .rnum circle { fill: var(--navy); transition: fill .35s; }
+    .rz.hl .rnum circle { fill: var(--pink); }
+    .qcards { display: flex; gap: 24px; margin-top: 14px; }
+    .qcard { width: 368px; border: 3px solid var(--navy); border-radius: 8px; padding: 12px 18px; }
+    .qcard .qh { display: flex; gap: 12px; align-items: flex-start; font-size: 22px; font-weight: 600; line-height: 1.3; }
+    .qcard .qh b { color: var(--pink); font-weight: 800; }
+    .qcard .qa { margin-top: 10px; font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; color: var(--pink); }
+
+    /* zigzag */
+    .zq { font-size: 30px; font-weight: 600; line-height: 1.3; text-align: center; }
+    .zq b { color: var(--pink); font-weight: 800; }
+    .zterms { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin: 10px 0 4px; }
+    .zterms span { font-family: 'Barlow Condensed', sans-serif; font-size: 21px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; border: 3px solid var(--navy); border-radius: 30px; padding: 2px 16px; }
+    .road { stroke: var(--navy); stroke-width: 8; stroke-linecap: round; fill: none; }
+    .gd { stroke: #b4b8c4; stroke-width: 2.5; stroke-dasharray: 6 6; fill: none; }
+    .fg line { stroke: #b4b8c4; stroke-width: 4; } .fg polygon { fill: #b4b8c4; }
+
+    /* efficiency formula */
+    .frm { display: flex; align-items: center; gap: 16px; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 40px; line-height: 1.1; white-space: nowrap; }
+    .frm.sm { font-size: 32px; gap: 12px; }
+    .frm.xs { font-size: 17px; gap: 6px; font-weight: 800; }
+    .frac { display: inline-flex; flex-direction: column; align-items: center; }
+    .frac > span { padding: 2px 10px; }
+    .frac .nu { border-bottom: 4px solid var(--navy); }
+    .frm.xs .frac .nu { border-bottom-width: 2px; }
+    .frm.xs .frac > span { padding: 1px 4px; }
+    .frm b { font-weight: 900; }
+    .w0 { color: var(--navy); } .w1 { color: var(--pink); }
+    .fbig { margin: 18px 0 14px; }
+    .exrow { display: flex; gap: 24px; align-items: center; }
+    .expan { border: 3px solid var(--navy); border-radius: 8px; padding: 8px 14px 8px; display: flex; flex-direction: column; align-items: center; }
+    .expan svg { display: block; overflow: visible; }
+    .exv { font-family: 'Barlow Condensed', sans-serif; font-size: 34px; font-weight: 900; line-height: 1; margin-top: 2px; }
+    .excalc { padding-left: 10px; }
+    .jpanel.best { border-color: var(--pink); }
+    .jstats.three .dlbl { font-size: 15px; letter-spacing: .1em; }
+    .jstats.three .v { font-size: 40px; }
+    .jstat.e .v.on2 { color: var(--pink); }
+    .jstat .v.pk2 { color: var(--pink); }
+    .wrow .card .frm { justify-content: center; }
+
+    /* lever */
+    .lvw { display: flex; gap: 30px; align-items: center; }
+    .lvw svg { display: block; overflow: visible; }
+    .lvcol { width: 440px; display: flex; flex-direction: column; gap: 16px; }
+    .lvst { display: flex; gap: 16px; }
+    .lvcol .card { padding: 14px 22px; }
+    .lvcol .wsum { font-size: 23px; }
+    .ghost2 { fill: none; stroke: #b4b8c4; stroke-width: 2.5; stroke-dasharray: 6 5; }
+
+    /* calculate and compare */
+    .cstrip { display: flex; gap: 22px; align-items: flex-start; width: 1152px; margin-bottom: 16px; }
+    .fmini { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; border: 2px solid var(--pink); border-radius: 6px; padding: 6px 12px; flex-shrink: 0; width: 250px; line-height: 1.2; }
+    .qitem { flex: 1; display: flex; gap: 12px; font-size: 21px; font-weight: 600; line-height: 1.3; }
+    .qitem b { color: var(--pink); font-weight: 800; }
+    .mcards { display: flex; gap: 24px; }
+    .mcard { position: relative; width: 368px; border: 3px solid var(--navy); border-radius: 8px; padding: 12px 22px 16px; transition: border-color .35s; }
+    .mcard.best { border-color: var(--pink); }
+    .mhead { display: flex; align-items: center; gap: 14px; }
+    .mhead .dex { font-size: 30px; }
+    .mhead svg { flex-shrink: 0; overflow: visible; }
+    .pline { display: flex; justify-content: space-between; align-items: baseline; font-size: 21px; font-weight: 600; border-bottom: 2px solid var(--light-grey); padding: 5px 0; }
+    .pline b { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 900; }
+    .pres { margin-top: 10px; }
+    .pcalc { font-size: 20px; font-weight: 600; color: var(--mid-grey); }
+    .pbigp { font-family: 'Barlow Condensed', sans-serif; font-size: 50px; font-weight: 900; color: var(--pink); line-height: 1.05; }
+    .mbar-unused { height: 14px; background: var(--light-grey); border-radius: 3px; margin-top: 4px; overflow: hidden; }
+    .mbar i { display: block; height: 100%; width: 0; background: var(--pink); transition: width 1.4s var(--ease); }
+    .rank { position: absolute; top: -18px; right: 16px; width: 44px; height: 44px; border-radius: 50%; background: var(--navy); color: #fff;
+        font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+    .mcard.best .rank { background: var(--pink); }
+    .cans { width: 1152px; }
+
+    /* summary */
+    .sumgrid { display: grid; grid-template-columns: repeat(2, 540px); gap: 24px 32px; }
+    .scard { border: 3px solid var(--navy); border-radius: 8px; padding: 18px 28px; }
+    .scard.pink { border-color: var(--pink); }
+    .scard .dex { font-size: 40px; margin-bottom: 6px; }
+    .scard.pink .dex { color: var(--pink); }
+    .scard .dhow { font-size: 23px; font-weight: 600; line-height: 1.3; }
+    .scard .tagsc { float: right; font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 800; letter-spacing: .08em; color: var(--mid-grey); margin-top: 8px; }
+
+
+    /* controls */
+    .controls { position: relative; z-index: 25; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px 24px; padding: 12px 20px 16px; width: 100%; font-family: 'Barlow Condensed', sans-serif; }
+    .grp { display: flex; align-items: center; gap: 8px; }
+    .controls [hidden] { display: none !important; }
+    .controls button {
+        font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; line-height: 1.2;
+        display: inline-flex; align-items: center; gap: 8px; background: var(--white); color: var(--navy); border: none; border-radius: 6px; padding: 9px 13px; cursor: pointer;
+    }
+    .controls button:focus-visible { outline: 3px solid var(--pink); outline-offset: 2px; }
+    .controls button.on { background: var(--pink); color: var(--white); }
+    .controls button.ui-pri { background: var(--navy); color: var(--white); }
+    .controls button.ui-fs { background: var(--pink); color: var(--white); }
+    .controls button.ui-fs.ui-isfs { background: var(--white); color: var(--navy); }
+    .controls button.ui-fs.ui-nudge { animation: nudge 1.6s ease-out 1s 4; }
+    @keyframes nudge { 0% { box-shadow: 0 0 0 0 rgba(234,0,138,.55); } 70%, 100% { box-shadow: 0 0 0 14px rgba(234,0,138,0); } }
+    .controls svg.ui-ic { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .controls svg.ui-chev { width: 13px; height: 13px; stroke-width: 3; opacity: .6; transition: transform .2s var(--ease); }
+    .ui-menu.ui-open > .ui-mt svg.ui-chev { transform: rotate(180deg); }
+    .ui-mt .ui-pdot { width: 11px; height: 11px; border-radius: 50%; box-shadow: 0 0 0 2px var(--white); }
+    .controls .dots { display: flex; gap: 8px; margin: 0 8px 0 12px; }
+    .controls .dots button { width: 14px; height: 14px; padding: 0; border-radius: 50%; background: #c9ccd6; }
+    .controls .dots button.cur { background: var(--pink); }
+    .steplbl { font-size: 18px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mid-grey); margin-left: 6px; min-width: 110px; }
+    .controls kbd { margin-left: 2px; }
+
+    /* menus */
+    .ui-menu { position: relative; }
+    .ui-pop { display: none; position: absolute; left: 0; bottom: calc(100% + 10px); min-width: 260px; flex-direction: column; gap: 2px; padding: 4px 8px 8px;
+        background: var(--white); border-top: 6px solid var(--navy); border-radius: 10px; box-shadow: 0 10px 30px rgba(27,31,69,.25), 0 0 0 1px rgba(27,31,69,.08); }
+    .ui-menu.ui-r .ui-pop { left: auto; right: 0; }
+    .ui-menu.ui-open .ui-pop { display: flex; animation: popIn .18s var(--ease); }
+    @keyframes popIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    .ui-ph { font-size: 15px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mid-grey); padding: 10px 10px 6px; }
+    .ui-pop .ui-mi { width: 100%; padding: 9px 10px; background: transparent; white-space: nowrap; }
+    .ui-pop .ui-mi:hover { background: var(--off-white); }
+    .ui-pop .ui-mi kbd { margin-left: auto; padding-left: 5px; }
+    .ui-pop .ui-mi .ui-ind { width: 14px; height: 14px; border: 2.5px solid var(--navy); border-radius: 3px; flex-shrink: 0; margin-right: 4px; }
+    .ui-pop .ui-mi .ui-ind.ui-no { border-color: transparent; }
+    .ui-pop .ui-mi.on { background: transparent; color: var(--pink); }
+    .ui-pop .ui-mi.on:hover { background: var(--off-white); }
+    .ui-pop .ui-mi.on .ui-ind { background: var(--pink); border-color: var(--pink); }
+    .ui-pop .ui-mi:disabled { opacity: .35; cursor: default; background: transparent; }
+    .ui-pop .ui-mi.ui-eng .ui-ind { border: none; border-radius: 50%; }
+    .ui-pop .ui-mi.ui-eng .ui-ind.ui-pk { background: var(--pink); }
+    .ui-pop .ui-mi.ui-eng .ui-ind.ui-nv { background: var(--navy); }
+    .ui-pop .ui-swrow { display: flex; gap: 8px; padding: 4px 10px 10px 38px; }
+    .ui-pop .swatch { width: 26px; height: 26px; padding: 0; border-radius: 50%; border: 3px solid var(--white); box-shadow: 0 0 0 1px #c9ccd6; }
+    .ui-pop .swatch.cur { box-shadow: 0 0 0 3px var(--navy); }
+    .ui-pop .ui-div { height: 1.5px; background: var(--light-grey); margin: 4px 6px; }
+
+
+
+    /* highlighter and whiteboard surfaces */
+    .ui-hlc { position: absolute; inset: 0; width: 1280px; height: 720px; pointer-events: none; z-index: 4; mix-blend-mode: multiply; }
+    .ui-wboard { display: none; position: absolute; left: 0; top: 0; width: 1280px; height: 714px; background: var(--white); z-index: 3; }
+    body.ui-wb .ui-wboard { display: block; }
+    .ui-wbl { position: absolute; right: 64px; top: 40px; font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mid-grey); }
+    .ui-wbl b { color: var(--navy); }
+    .ui-wbg { display: none; }
+    body.ui-wb .ui-wbg { display: flex; }
+    body.ui-wb .grp.ui-nav { display: none; }
+    .ui-wbtag { font-size: 18px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--white); background: var(--pink); border-radius: 6px; padding: 9px 13px; line-height: 1.2; }
+    .controls button:disabled { opacity: .35; cursor: default; }
+    #ovbtn { padding: 9px 11px; }
+
+    /* overlays */
+    .ui-ovw[hidden], .ui-keys[hidden], .ui-blk[hidden] { display: none !important; }
+    .ui-ovw { position: fixed; inset: 0; z-index: 45; background: rgba(27,31,69,.96); overflow-y: auto; padding: 40px 48px 60px; opacity: 0; transition: opacity .2s; }
+    .ui-ovw.on, .ui-keys.on, .ui-blk.on { opacity: 1; }
+    .ui-ovh { display: flex; justify-content: space-between; align-items: flex-end; max-width: 1296px; margin: 0 auto 28px; padding-bottom: 12px; border-bottom: 4px solid var(--white); color: var(--white); }
+    .ui-ovh h2 { margin: 0; font-family: 'Barlow Condensed', sans-serif; font-size: 44px; font-weight: 900; text-transform: uppercase; line-height: 1; }
+    .ui-ovh h2 span { color: var(--pink); }
+    .ui-ovh .ui-hint, .ui-blk .ui-bh { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.6); }
+    .ui-ovh kbd { display: inline-block; padding: 0 6px; border: 1.5px solid currentColor; border-radius: 4px; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; line-height: 17px; }
+    .ui-ovg { display: grid; grid-template-columns: repeat(auto-fill, 300px); gap: 30px 24px; justify-content: center; max-width: 1296px; margin: 0 auto; }
+    .ui-ovc { background: none; border: none; padding: 0; margin: 0; cursor: pointer; text-align: left; color: var(--white); font-family: 'Barlow Condensed', sans-serif; }
+    .ui-ovc:focus-visible { outline: none; }
+    .ui-ovc .ui-thw { position: relative; width: 300px; height: 168.75px; overflow: hidden; border-radius: 6px; background: var(--white); transition: box-shadow .15s, transform .15s var(--ease); }
+    .ui-ovc:hover .ui-thw, .ui-ovc:focus-visible .ui-thw { box-shadow: 0 0 0 3px var(--white); transform: translateY(-3px); }
+    .ui-ovc.cur .ui-thw { box-shadow: 0 0 0 4px var(--pink); }
+    .ui-ovc .ui-thw .stage { color: var(--navy); position: absolute; left: 0; top: 0; margin: 0; transform: scale(.234375); transform-origin: 0 0; pointer-events: none; }
+    .ui-ovc .ui-thw *, .ui-ovc .ui-thw *::before { animation: none !important; transition: none !important; }
+    .ui-ovc .ui-lb { display: flex; gap: 10px; margin-top: 10px; font-size: 19px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; line-height: 1.15; }
+    .ui-ovc .ui-lb .ui-n { color: var(--pink); min-width: 18px; }
+    .ui-ovc .ui-lb .ui-t span { color: var(--pink); }
+
+    .ui-keys { position: fixed; inset: 0; z-index: 45; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(27,31,69,.55); opacity: 0; transition: opacity .2s; }
+    .ui-kcard { width: min(1080px, 100%); max-height: 100%; overflow: auto; background: var(--white); border-top: 6px solid var(--navy); border-radius: 10px; padding: 22px 36px 30px;
+        box-shadow: 0 10px 30px rgba(27,31,69,.25); color: var(--navy); font-family: 'Barlow Condensed', sans-serif; }
+    .ui-kh { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; margin-bottom: 20px; border-bottom: 4px solid var(--navy); }
+    .ui-kh h2 { margin: 0; font-size: 38px; font-weight: 900; text-transform: uppercase; line-height: 1; }
+    .ui-kh h2 span { color: var(--pink); }
+    .ui-kh button { width: 36px; height: 36px; border: none; background: none; border-radius: 6px; cursor: pointer; color: var(--navy); display: flex; align-items: center; justify-content: center; }
+    .ui-kh button:hover { background: var(--light-grey); }
+    .ui-kh svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; }
+    .ui-kgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px 40px; }
+    .ui-kgrp h3 { margin: 0 0 6px; font-size: 16px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--pink); }
+    .ui-krow { display: flex; align-items: center; gap: 12px; padding: 6px 0; border-bottom: 1.5px solid var(--light-grey); font-family: 'Barlow', Helvetica Neue, Helvetica, Arial, sans-serif; font-size: 17px; font-weight: 600; }
+    .ui-krow .ui-ks { display: flex; align-items: center; gap: 4px; min-width: 128px; flex-shrink: 0; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 800; color: var(--mid-grey); }
+    .ui-krow kbd { display: inline-block; min-width: 28px; padding: 1px 7px; border: 2px solid var(--navy); border-radius: 5px; text-align: center; color: var(--navy);
+        font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 800; letter-spacing: .04em; line-height: 18px; }
+
+    .ui-blk { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; background: var(--navy); cursor: pointer; opacity: 0; transition: opacity .3s; }
+    .ui-blk .ui-msg { display: flex; align-items: center; color: var(--white); font-family: 'Barlow Condensed', sans-serif; font-size: clamp(48px, 8vw, 150px); font-weight: 900; text-transform: uppercase; letter-spacing: .01em; line-height: 1; }
+    .ui-blk .ui-msg::before { content: ''; width: .2em; height: .2em; margin-right: .35em; background: var(--pink); flex-shrink: 0; }
+    .ui-blk .ui-msg span { color: var(--pink); }
+    .ui-blk .ui-bh { position: absolute; bottom: 28px; color: rgba(255,255,255,.28); }
+
+
+    /* pasted images */
+    .ui-ilayer { position: absolute; left: 0; top: 0; width: 1280px; height: 714px; z-index: 4; pointer-events: none; }
+    .ui-img { position: absolute; pointer-events: auto; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+    .ui-img img { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; -webkit-user-drag: none; }
+    .ui-img.ui-dragging { cursor: grabbing; }
+    .ui-img.ui-sel { outline: 3px solid var(--pink); outline-offset: 3px; }
+    .ui-img.ui-in { animation: fbIn .45s var(--ease); }
+    .ui-imx { position: absolute; top: -16px; right: -16px; width: 30px; height: 30px; padding: 0; border-radius: 50%; border: 2.5px solid var(--navy); background: var(--white);
+        display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transition: opacity .15s; }
+    .ui-imx svg { width: 14px; height: 14px; fill: none; stroke: var(--navy); stroke-width: 3; stroke-linecap: round; }
+    .ui-imr { position: absolute; right: -11px; bottom: -11px; width: 20px; height: 20px; border-radius: 4px; border: 3px solid var(--pink); background: var(--white); cursor: nwse-resize; opacity: 0; transition: opacity .15s; }
+    .ui-img:hover .ui-imx, .ui-img.ui-sel .ui-imx, .ui-img:hover .ui-imr, .ui-img.ui-sel .ui-imr { opacity: 1; }
+    .ui-drop { position: absolute; inset: 0; z-index: 7; pointer-events: none; opacity: 0; transition: opacity .15s; box-shadow: inset 0 0 0 6px var(--pink); background: rgba(234,0,138,.06); }
+    .ui-drop.on { opacity: 1; }
+    /* floating text boxes */
+    .ui-tbox { position: absolute; pointer-events: auto; max-width: 560px; padding: 12px 20px; border-radius: 8px; border: 3px solid var(--navy);
+        background: var(--white); color: var(--navy); cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; box-shadow: 0 6px 18px rgba(27,31,69,.14); }
+    .ui-tbox.ui-nv { background: var(--navy); color: var(--white); }
+    .ui-tbox.ui-pk { background: var(--pink); border-color: var(--pink); color: var(--white); }
+    .ui-tbox.ui-dragging { cursor: grabbing; box-shadow: 0 12px 28px rgba(27,31,69,.24); }
+    .ui-tbox.ui-in { animation: fbIn .45s var(--ease); }
+    .ui-tbt { font-family: 'Barlow', Helvetica Neue, Helvetica, Arial, sans-serif; font-weight: 600; line-height: 1.25; letter-spacing: 0.005em;
+        white-space: pre-wrap; overflow-wrap: break-word; outline: none; min-width: 2ch; }
+    .ui-tbt:empty::before { content: attr(data-ph); opacity: .45; }
+    .ui-tbox.ui-editing { cursor: text; outline: 3px dashed var(--pink); outline-offset: 6px; }
+    .ui-tbox.ui-pk.ui-editing { outline-color: var(--navy); }
+    .ui-tbox.ui-editing .ui-tbt { user-select: text; -webkit-user-select: text; cursor: text; }
+    .ui-tbbar { position: absolute; top: -17px; right: -13px; display: flex; gap: 5px; opacity: 0; transition: opacity .15s; }
+    .ui-tbox:hover .ui-tbbar, .ui-tbox.ui-editing .ui-tbbar { opacity: 1; }
+    .ui-tbb { width: 28px; height: 28px; padding: 0; border-radius: 50%; border: 2.5px solid var(--navy); background: var(--white); color: var(--navy); cursor: pointer;
+        display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 900; line-height: 1; }
+    .ui-tbb svg { width: 14px; height: 14px; fill: none; stroke: var(--navy); stroke-width: 3; stroke-linecap: round; }
+    .ui-tbb.ui-sty span { width: 14px; height: 14px; border-radius: 50%; background: linear-gradient(135deg, var(--navy) 50%, var(--pink) 50%); }
+
+    /* header CFU badge and success criteria tags */
+    .ui-topr { display: flex; align-items: baseline; gap: 20px; }
+    .ui-cfu, .ui-sctags { margin: -14px 0; }
+    .ui-sctags { display: flex; gap: 8px; }
+    .ui-sctags span { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; line-height: 1;
+        padding: 9px 12px 8px; border-radius: 6px; box-shadow: inset 0 0 0 3px var(--navy); color: var(--navy); }
+    .ui-cfu { display: none; align-items: center; gap: 9px; height: 46px; padding: 0 18px; border-radius: 23px; color: var(--white); white-space: nowrap; user-select: none;
+        font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+    .ui-cfu.ui-pk { display: flex; background: var(--pink); }
+    .ui-cfu.ui-nv { display: flex; background: var(--navy); }
+    .ui-cfu.ui-click { cursor: pointer; }
+    .ui-cfu.ui-click:hover { filter: brightness(1.12); }
+    .ui-cfu:focus-visible { outline: 3px solid var(--pink); outline-offset: 3px; }
+    .ui-cfu.ui-pk:focus-visible { outline-color: var(--navy); }
+    .ui-cfu svg { width: 24px; height: 24px; fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .ui-cfu .ui-ar { opacity: .75; width: 20px; }
+    .ui-cfu .ui-ct { display: inline-flex; align-items: center; gap: 5px; margin-left: 4px; padding: 3px 10px 3px 7px; border-radius: 14px; background: rgba(255,255,255,.22); font-variant-numeric: tabular-nums; }
+    .ui-cfu .ui-ct svg { width: 18px; height: 18px; }
+    .ui-cfu.ui-cfuin { animation: uiCfuIn .6s var(--ease); }
+    @keyframes uiCfuIn { 0% { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.08); opacity: 1; } 100% { transform: none; } }
+
+    /* floating engagement badges */
+    .ui-blayer { position: absolute; left: 0; top: 0; width: 1280px; height: 714px; z-index: 8; pointer-events: none; }
+    .ui-fb { position: absolute; display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 22px; border-radius: 28px; color: var(--white);
+        font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap;
+        pointer-events: auto; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; box-shadow: 0 6px 18px rgba(27,31,69,.18); }
+    .ui-fb.ui-pk { background: var(--pink); }
+    .ui-fb.ui-nv { background: var(--navy); }
+    .ui-fb.ui-dragging { cursor: grabbing; box-shadow: 0 12px 28px rgba(27,31,69,.28); }
+    .ui-fb svg { width: 28px; height: 28px; fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .ui-fb .ui-ar { opacity: .75; width: 22px; }
+    .ui-fb.ui-big { height: 78px; border-radius: 39px; padding: 0 32px; gap: 14px; font-size: 34px; }
+    .ui-fb.ui-big svg { width: 40px; height: 40px; }
+    .ui-fb.ui-big .ui-ar { width: 30px; }
+    .ui-fb .ui-x { position: absolute; top: -9px; right: -9px; width: 28px; height: 28px; padding: 0; border-radius: 50%; border: 2.5px solid var(--navy); background: var(--white);
+        display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transition: opacity .15s; }
+    .ui-fb .ui-x svg { width: 14px; height: 14px; stroke: var(--navy); stroke-width: 3; }
+    .ui-fb:hover .ui-x, .ui-fb .ui-x:focus-visible { opacity: 1; }
+    .ui-fb.ui-in { animation: fbIn .55s var(--ease); }
+    @keyframes fbIn { 0% { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.08); opacity: 1; } 100% { transform: none; } }
+    .ink { position: absolute; inset: 0; width: 1280px; height: 720px; pointer-events: none; z-index: 5; touch-action: none; }
+    .ink.active { pointer-events: auto; cursor: crosshair; }
+    .stage.instant *, .stage.instant *::before { transition: none !important; animation: none !important; }
+
+    .controls kbd, .showui kbd { display: inline-block; margin-left: 7px; padding: 0 5px; min-width: 18px; text-align: center; border: 1.5px solid currentColor; border-radius: 4px;
+        font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 800; letter-spacing: 0.04em; line-height: 16px; opacity: .6; vertical-align: 1px; }
+
+    /* floating timer */
+    .ftimer { position: fixed; z-index: 20; left: 24px; top: 24px; width: 250px; background: #fff; border-top: 6px solid var(--navy); border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(27,31,69,.25), 0 0 0 1px rgba(27,31,69,.08); padding: 0 16px 16px; font-family: 'Barlow Condensed', sans-serif; color: var(--navy); user-select: none; }
+    .ftimer[hidden] { display: none; }
+    .fth { display: flex; justify-content: space-between; align-items: center; height: 40px; cursor: grab; touch-action: none; }
+    .fth:active { cursor: grabbing; }
+    .fth span { font-size: 16px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mid-grey); }
+    .fth button { width: 30px; height: 30px; border: none; background: none; color: var(--navy); cursor: pointer; border-radius: 6px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+    .fth button:hover { background: var(--light-grey); }
+    .fth svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; }
+    .ftring { position: relative; width: 150px; height: 150px; margin: 2px auto 12px; }
+    .ftring svg { width: 100%; height: 100%; transform: rotate(-90deg); display: block; }
+    .ftring .tb { fill: none; stroke: var(--light-grey); stroke-width: 8; }
+    .ftring .tf { fill: none; stroke: var(--pink); stroke-width: 8; stroke-dasharray: 1; stroke-dashoffset: 0; transition: stroke-dashoffset .25s linear; }
+    .ftv { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 46px; font-weight: 900; font-variant-numeric: tabular-nums; }
+    .ftimer.done .ftring { animation: ftflash .6s ease-in-out 6 alternate; }
+    .ftimer.done .ftv { color: var(--pink); }
+    @keyframes ftflash { to { transform: scale(1.06); opacity: .55; } }
+    .ftrow { display: flex; gap: 6px; justify-content: center; margin-top: 6px; }
+    .ftrow button { flex: 1; font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; border: 2px solid var(--navy);
+        background: #fff; color: var(--navy); border-radius: 6px; padding: 6px 0; cursor: pointer; }
+    .ftrow button.pri { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .ftrow button:focus-visible, .fth button:focus-visible { outline: 3px solid var(--pink); outline-offset: 2px; }
+    .ftimer.big { width: 400px; }
+    .ftimer.big .ftring { width: 280px; height: 280px; }
+    .ftimer.big .ftv { font-size: 88px; }
+    .ftimer.big .ftrow button { font-size: 19px; padding: 8px 0; }
+
+    /* tools, hide UI, export */
+    .ink.erase { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30'%3E%3Ccircle cx='15' cy='15' r='13' fill='white' fill-opacity='.55' stroke='%231b1f45' stroke-width='2'/%3E%3C/svg%3E") 15 15, cell; }
+    .ui-ztip { position: fixed; z-index: 22; left: 50%; top: 16px; transform: translate(-50%, -8px); display: flex; align-items: center; gap: 16px;
+        background: var(--navy); color: var(--white); border-radius: 22px; padding: 8px 18px; pointer-events: none; opacity: 0;
+        font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap;
+        transition: opacity .25s var(--ease), transform .25s var(--ease); }
+    .ui-ztip.on { opacity: 1; transform: translate(-50%, 0); }
+    .ui-ztip kbd { display: inline-block; margin-right: 6px; padding: 0 5px; min-width: 18px; text-align: center; border: 1.5px solid currentColor; border-radius: 4px;
+        font-family: 'Barlow Condensed', sans-serif; font-size: 13px; line-height: 16px; vertical-align: 1px; opacity: .8; }
+    .ui-ztip .ui-lv { color: var(--pink); font-variant-numeric: tabular-nums; }
+    .ui-ztip .ui-dim { opacity: .6; }
+    body.noui .controls { display: none; }
+    body.nosubs .caption { visibility: hidden; }
+    .showui {
+        display: none; position: fixed; right: 14px; bottom: 14px; z-index: 10;
+        font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+        background: var(--navy); color: var(--white); border: none; border-radius: 6px; padding: 8px 14px; cursor: pointer;
+        opacity: 0; transition: opacity .2s;
+    }
+    body.noui .showui { display: block; }
+    .showui:hover, .showui:focus-visible { opacity: 1; }
+    #print { display: none; }
+    @media print {
+        @page { size: 1280px 720px; margin: 0; }
+        * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        html, body { height: auto; overflow: visible; display: block; margin: 0; background: #fff; }
+        body > .viewport, body > .controls, .showui, .ftimer { display: none !important; }
+        #print { display: block; }
+        #print .stage { transform: none !important; margin: 0 !important; break-after: page; page-break-after: always; }
+        #print .stage:last-child { break-after: auto; page-break-after: auto; }
+        #print *, #print *::before { animation: none !important; transition: none !important; }
+        #print .ui-zoomer { transform: none !important; }
+        #print .ui-spot { display: none !important; }
+        #print .ui-fb .ui-x, #print .ui-tbbar { display: none !important; }
+        #print .ui-tbox { outline: none !important; }
+        #print .ui-tbt:empty::before { content: none; }
+        #print .ui-imx, #print .ui-imr { display: none !important; }
+        #print .ui-img { outline: none !important; animation: none !important; }
+        #print .ui-hlc { mix-blend-mode: multiply; }
+    }
+
+</style>
+</head>
+<body>
+
+<div class="viewport">
+    <div class="stage" id="stage">
+        <div class="ui-zoomer" id="zoomer">
+        <div class="top">
+            <div><h1 class="sheet-title" id="title"></h1></div>
+            <div class="ui-topr"><div class="ui-sctags" id="ui-sctags"></div><div class="ui-cfu" id="ui-cfu" role="button"></div><div class="counter" id="counter"></div></div>
+        </div>
+        <div class="content" id="content"></div>
+        <div class="caption" id="caption"></div>
+        <div class="progress" id="progress"></div>
+        <div class="ui-wboard" id="wboard"><div class="ui-wbl" id="wbl"></div></div>
+        <div class="ui-ilayer" id="ilayer"></div>
+        <canvas class="ui-hlc hlmain" id="hl" width="2560" height="1440"></canvas>
+        <canvas class="ui-hlc hllive" id="hllive" width="2560" height="1440"></canvas>
+        <canvas class="ink" id="ink" width="2560" height="1440"></canvas>
+        </div>
+        <div class="ui-spot" id="spot"></div>
+        <div class="ui-blayer" id="blayer"></div>
+    </div>
+</div>
+
+<div class="controls">
+    <div class="grp ui-nav">
+        <div class="ui-menu" id="playmenu">
+            <button class="ui-mt" title="Playback" aria-haspopup="true" aria-expanded="false"><svg class="ui-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z"/></svg><span>Playback</span><svg class="ui-ic ui-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
+            <div class="ui-pop">
+                <div class="ui-ph">Playback</div>
+                <button class="ui-mi" id="back"><span class="ui-ind ui-no"></span><span class="bl">Previous</span><kbd>&larr;</kbd></button>
+                <button class="ui-mi" id="next"><span class="ui-ind ui-no"></span><span class="bl">Next</span><kbd>&rarr;</kbd></button>
+                <button class="ui-mi" id="replay"><span class="ui-ind ui-no"></span><span class="bl">Replay</span><kbd>R</kbd></button>
+                <div class="ui-div"></div>
+                <button class="ui-mi tg" id="auto" aria-pressed="false"><span class="ui-ind"></span><span class="bl">Autoplay</span><kbd>Space</kbd></button>
+            </div>
+        </div>
+        <button id="ovbtn" aria-label="Slide overview" title="Slide overview (G)"><svg class="ui-ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4" width="7.5" height="7" rx="1"/><rect x="13" y="4" width="7.5" height="7" rx="1"/><rect x="3.5" y="13" width="7.5" height="7" rx="1"/><rect x="13" y="13" width="7.5" height="7" rx="1"/></svg></button>
+        <div class="dots" id="dots"></div>
+        <span class="steplbl" id="steplbl"></span>
+    </div>
+    <div class="grp ui-wbg">
+        <button id="wbprev" aria-label="Previous page" title="Previous page (&larr;)"><svg class="ui-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+        <span class="steplbl" id="wbpg">Page 1 of 1</span>
+        <button id="wbnext" aria-label="Next page" title="Next page (&rarr;)"><svg class="ui-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+        <button id="wbnew"><svg class="ui-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>New page</span><kbd>N</kbd></button>
+        <button id="wbpdf"><svg class="ui-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span>Export PDF</span></button>
+    </div>
+    <div class="grp">
+        <div class="ui-menu" id="drawmenu">
+            <button class="ui-mt" title="Draw" aria-haspopup="true" aria-expanded="false"><svg class="ui-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1.2-4.8L16 4.4l3.6 3.6L8.8 18.8z"/><path d="M13.6 6.8l3.6 3.6"/></svg><span>Draw</span><span class="ui-pdot" id="pdot" style="background:#ea008a"></span><svg class="ui-ic ui-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
+            <div class="ui-pop">
+                <div class="ui-ph">Draw</div>
+                <button class="ui-mi tg" id="pen" aria-pressed="false"><span class="ui-ind"></span><span class="bl">Pen</span><kbd>P</kbd></button>
+                <button class="ui-mi tg" id="hlbtn" aria-pressed="false"><span class="ui-ind"></span><span class="bl">Highlighter</span><kbd>Y</kbd></button>
+                <div class="ui-swrow"><button class="swatch cur" data-c="#ea008a" style="background:#ea008a" aria-label="Pink pen"></button><button class="swatch" data-c="#1b1f45" style="background:#1b1f45" aria-label="Navy pen"></button><button class="swatch" data-c="#111111" style="background:#111111" aria-label="Black pen"></button><button class="swatch" data-c="#0a7bd6" style="background:#0a7bd6" aria-label="Blue pen"></button><button class="swatch" data-c="#12a150" style="background:#12a150" aria-label="Green pen"></button><button class="swatch" data-c="#f28c00" style="background:#f28c00" aria-label="Orange pen"></button><button class="swatch" data-c="#ffd60a" style="background:#ffd60a" aria-label="Yellow"></button></div>
+                <button class="ui-mi tg" id="eraser" aria-pressed="false"><span class="ui-ind"></span><span class="bl">Eraser</span><kbd>E</kbd></button>
+                <button class="ui-mi" id="textbtn"><span class="ui-ind ui-no"></span><span class="bl">Text box</span><kbd>B</kbd></button>
+                <button class="ui-mi" id="imgbtn"><span class="ui-ind ui-no"></span><span class="bl">Image</span><kbd>Ctrl+V</kbd></button>
+                <div class="ui-div"></div>
+                <button class="ui-mi" id="clear"><span class="ui-ind ui-no"></span><span class="bl">Clear ink</span><kbd>C</kbd></button>
+            </div>
+        </div>
+        <div class="ui-menu" id="focusmenu">
+            <button class="ui-mt" title="Focus" aria-haspopup="true" aria-expanded="false"><svg class="ui-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg><span>Focus</span><svg class="ui-ic ui-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
+            <div class="ui-pop">
+                <div class="ui-ph">Focus</div>
+                <button class="ui-mi tg" id="zoombtn" aria-pressed="false"><span class="ui-ind"></span><span class="bl">Zoom</span><kbd>Z</kbd></button>
+                <button class="ui-mi tg" id="lockbtn" aria-pressed="false" disabled><span class="ui-ind"></span><span class="bl">Lock zoom</span><kbd>L</kbd></button>
+                <div class="ui-div"></div>
+                <button class="ui-mi tg" id="spotbtn" aria-pressed="false"><span class="ui-ind"></span><span class="bl">Spotlight</span><kbd>H</kbd></button>
+                <button class="ui-mi" id="blkbtn"><span class="ui-ind ui-no"></span><span class="bl">Blackout</span><kbd>K</kbd></button>
+            </div>
+        </div>
+        <div class="ui-menu" id="engmenu">
+            <button class="ui-mt" title="Engagement methods (M)" aria-haspopup="true" aria-expanded="false"><svg class="ui-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 4h12v8H8l-4 3v-3H2z"/><path d="M17 8h5v8h-2v3l-3-3h-6v-2"/></svg><span>Engage</span><svg class="ui-ic ui-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
+            <div class="ui-pop">
+                <div class="ui-ph">Engagement method</div>
+                <button class="ui-mi ui-eng" data-k="tt"><span class="ui-ind ui-pk"></span><span>Turn &amp; talk</span><kbd>1</kbd></button>
+                <button class="ui-mi ui-eng" data-k="cc"><span class="ui-ind ui-pk"></span><span>Turn &amp; talk + cold call</span><kbd>2</kbd></button>
+                <button class="ui-mi ui-eng" data-k="sj"><span class="ui-ind ui-nv"></span><span>Stop &amp; jot</span><kbd>3</kbd></button>
+                <button class="ui-mi ui-eng" data-k="fv"><span class="ui-ind ui-nv"></span><span>Finger vote</span><kbd>4</kbd></button>
+                <button class="ui-mi ui-eng" data-k="vs"><span class="ui-ind ui-pk"></span><span>Volunteer to share</span><kbd>5</kbd></button>
+                <div class="ui-div"></div>
+                <button class="ui-mi" id="engclear"><span class="ui-ind ui-no"></span><span class="bl">Clear from slide</span></button>
+            </div>
+        </div>
+        <button id="timerbtn" aria-pressed="false" title="Timer (T)"><svg class="ui-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 10v3.5l2.5 2M9.5 2.5h5"/></svg><span>Timer</span></button>
+        <button id="wbbtn" aria-pressed="false" title="Whiteboard (W)"><svg class="ui-ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20l4-4 4 4"/></svg><span>Whiteboard</span></button>
+    </div>
+    <div class="grp">
+        <div class="ui-menu ui-r" id="moremenu">
+            <button class="ui-mt" title="More" aria-haspopup="true" aria-expanded="false"><svg class="ui-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h.01M12 12h.01M19 12h.01" stroke-width="4"/></svg><span>More</span><svg class="ui-ic ui-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
+            <div class="ui-pop">
+                <div class="ui-ph">More</div>
+                <button class="ui-mi tg on" id="subs" aria-pressed="true"><span class="ui-ind"></span><span class="bl">Subtitles</span><kbd>S</kbd></button>
+                <button class="ui-mi" id="pdf"><span class="ui-ind ui-no"></span><span class="bl">Export PDF</span></button>
+                <div class="ui-div"></div>
+                <button class="ui-mi" id="keysbtn"><span class="ui-ind ui-no"></span><span class="bl">Keyboard shortcuts</span><kbd>?</kbd></button>
+            </div>
+        </div>
+        <button class="ui-fs" id="fsbtn" title="Fullscreen (F)"><svg class="ui-ic" viewBox="0 0 24 24" aria-hidden="true"><path id="fsic" d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg><span class="bl">Fullscreen</span></button>
+        <button class="ui-pri" id="hideui" title="Hide UI (U)"><svg class="ui-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10 10 0 0 1 12 5c5 0 9 4.5 10 7a12.5 12.5 0 0 1-3 4.2M6.6 6.6C4.3 8 2.7 10.2 2 12c1 2.5 5 7 10 7a9.8 9.8 0 0 0 4.4-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg><span>Hide UI</span></button>
+    </div>
+</div>
+<button class="showui" id="showui">Show UI<kbd>U</kbd></button>
+<div class="ftimer" id="ftimer" hidden role="dialog" aria-label="Timer">
+    <div class="fth" id="fth"><span>Timer</span><div>
+        <button id="ftsize" aria-label="Toggle timer size"><svg viewBox="0 0 24 24"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
+        <button id="ftclose" aria-label="Close timer"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div></div>
+    <div class="ftring"><svg viewBox="0 0 100 100"><circle class="tb" cx="50" cy="50" r="44"/><circle class="tf" id="ftf" cx="50" cy="50" r="44" pathLength="1"/></svg><div class="ftv" id="ftv">1:00</div></div>
+    <div class="ftrow"><button data-set="30">0:30</button><button data-set="60">1:00</button><button data-set="120">2:00</button><button data-set="180">3:00</button><button data-set="300">5:00</button></div>
+    <div class="ftrow"><button data-adj="-30">&minus;30s</button><button data-adj="30">+30s</button><button data-adj="60">+1 min</button></div>
+    <div class="ftrow"><button class="pri" id="ftstart">Start</button><button id="ftreset">Reset</button></div>
+</div>
+<div class="ui-ztip" id="ztip" aria-live="polite"></div>
+<div class="ui-ovw" id="ovw" hidden role="dialog" aria-label="Slide overview">
+    <div class="ui-ovh"><h2>Slide <span>overview</span></h2><div class="ui-hint"><kbd>G</kbd> or <kbd>Esc</kbd> to close</div></div>
+    <div class="ui-ovg" id="ovg"></div>
+</div>
+<div class="ui-keys" id="keys" hidden role="dialog" aria-label="Keyboard shortcuts">
+    <div class="ui-kcard">
+        <div class="ui-kh"><h2>Keyboard <span>shortcuts</span></h2><button id="keysclose" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+        <div class="ui-kgrid" id="kgrid"></div>
+    </div>
+</div>
+<div class="ui-blk" id="blk" hidden role="dialog" aria-label="Blackout">
+    <div class="ui-msg">Eyes on me,&nbsp;<span>please</span></div>
+    <div class="ui-bh">Click or press K to return</div>
+</div>
+<div id="print"></div>
+<input type="file" id="imgfile" accept="image/*" multiple hidden>
+
+<script>
+const $ = s => document.querySelector(s);
+const content = $('#content'), caption = $('#caption'), titleEl = $('#title'), counter = $('#counter'), progress = $('#progress');
+let timers = [], events = [], beats = [], idx = 0, beat = 0, autoplay = false;
+let segFrom = 0, segTo = 0, segStart = 0;
+let ptimers = [], cleanups = [];
+const stage = document.getElementById('stage');
+
+function at(ms, fn) { events.push({ t: ms, fn, done: false }); }
+function beatAt(ms, html) { beats.push(ms); at(ms, () => say(html)); }
+function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
+function show(e) { e.classList.remove('hide'); }
+function say(html) { caption.innerHTML = '<span>' + html + '</span>'; caption.classList.remove('in'); void caption.offsetWidth; caption.classList.add('in'); }
+function stopInteractive() { ptimers.forEach(clearTimeout); ptimers = []; cleanups.forEach(f => f()); cleanups = []; }
+
+/* ---------- deck helpers ---------- */
+const deg = a => a * Math.PI / 180;
+const f1 = n => String(Math.round(n * 10) / 10);
+const svgBox = (w, h, inner, cls = '') => el('div', cls, `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" aria-hidden="true">${inner}</svg>`);
+const tx = (x, y, s, cls = '') => `<text class="t ${cls}" x="${f1(x)}" y="${f1(y)}">${s}</text>`;
+const heat = (x, y) => `<path class="heat" d="M${x} ${y} q6 -7 0 -14 q-6 -7 0 -14 q6 -7 0 -14"/>`;
+const q1 = (r, s) => r.querySelector(s), qa = (r, s) => [...r.querySelectorAll(s)];
+function arrow(x1, y1, x2, y2, cls = 'fa', hw = 12) {
+    const a = Math.atan2(y2 - y1, x2 - x1), L = Math.hypot(x2 - x1, y2 - y1), hl = Math.min(hw * 1.6, L * 0.6);
+    const bx = x2 - Math.cos(a) * hl, by = y2 - Math.sin(a) * hl, px = Math.sin(a) * hw, py = -Math.cos(a) * hw;
+    return `<g class="${cls}"><line x1="${f1(x1)}" y1="${f1(y1)}" x2="${f1(bx + Math.cos(a))}" y2="${f1(by + Math.sin(a))}"/><polygon points="${f1(x2)},${f1(y2)} ${f1(bx + px)},${f1(by + py)} ${f1(bx - px)},${f1(by - py)}"/></g>`;
+}
+const easeIO = p => p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+/* frame-driven motion that snaps to its end state when skipping, building thumbnails or exporting */
+function mkTween() {
+    let raf = 0;
+    cleanups.push(() => cancelAnimationFrame(raf));
+    return (D, fn, done) => {
+        cancelAnimationFrame(raf);
+        if (exporting || stage.classList.contains('instant')) { fn(1, false); if (done) done(); return; }
+        const st = performance.now();
+        const f = n => { const p = Math.min(1, (n - st) / D); fn(p, true); if (p < 1) raf = requestAnimationFrame(f); else if (done) done(); };
+        raf = requestAnimationFrame(f);
+    };
+}
+
+/* wheelchair, drawn with its wheels touching y = 0 */
+const CHAIR = `<circle cx="-4" cy="-20" r="19" fill="#fff" stroke="#1b1f45" stroke-width="4"/><circle cx="-4" cy="-20" r="3" class="solid"/><circle cx="22" cy="-5" r="5" fill="#fff" stroke="#1b1f45" stroke-width="3"/><path class="ln" style="stroke-width:4" d="M-18 -64 L-14 -34 H14 L22 -10"/><circle cx="-8" cy="-80" r="8" style="fill:var(--pink)"/><path class="lnp" style="stroke-width:7" d="M-10 -68 L-6 -40 H12 L16 -20"/>`;
+
+const MI = {
+    lever: `<line class="ln" x1="8" y1="58" x2="112" y2="74"/><polygon points="62,69 48,92 76,92" style="fill:var(--pink)"/><rect class="load" x="14" y="36" width="26" height="22"/>${arrow(102, 20, 102, 66, 'fa ti', 7)}`,
+    pulley: `<line class="ln" x1="28" y1="6" x2="92" y2="6"/><line class="ln" x1="60" y1="6" x2="60" y2="24"/><line class="ln" style="stroke-width:3" x1="43" y1="40" x2="43" y2="68"/><line class="ln" style="stroke-width:3" x1="77" y1="40" x2="77" y2="74"/><circle cx="60" cy="40" r="17" fill="#fff" stroke="#1b1f45" stroke-width="5"/><circle cx="60" cy="40" r="4" class="solid"/><rect class="load" x="31" y="68" width="24" height="22"/>${arrow(77, 72, 77, 98, 'fa ti', 7)}`,
+    trolley: `<rect class="load" x="22" y="28" width="70" height="44" rx="3"/><rect class="solid" x="12" y="72" width="90" height="8" rx="2"/><circle cx="28" cy="88" r="9" fill="#fff" stroke="#1b1f45" stroke-width="4"/><circle cx="86" cy="88" r="9" fill="#fff" stroke="#1b1f45" stroke-width="4"/><line class="ln" style="stroke-width:4" x1="102" y1="76" x2="112" y2="26"/>`,
+    incline: `<polygon class="rampp" points="8,92 112,92 112,32"/><g transform="rotate(-30 60 62)"><rect class="solid" x="47" y="40" width="26" height="22" rx="2"/></g>`
+};
+
+/* same job, different paths panel: lift straight up or a ramp, 1 m high, 100 N box */
+function jobPanel(name, len, force, effPct) {
+    const M = 60, GY = 178, PX = 252, BW = 36, BH = 30;
+    const p = el('div', 'jpanel rev hide', `<div class="dlbl">${name}</div>`);
+    let inner = `<line class="gnd" x1="0" y1="${GY}" x2="320" y2="${GY}"/><rect class="load" x="${PX}" y="${GY - M}" width="64" height="${M}"/>${tx(PX + 32, GY - M / 2 + 7, '1 m', 'mid sm')}`;
+    let rb = null;
+    const AL = force * 0.62;
+    if (len > 1) {
+        const base = Math.sqrt(len * len - 1) * M, x0 = PX - base;
+        rb = rampBox(x0, GY, base, M);
+        inner += `<polygon class="rampp" points="${f1(x0)},${GY} ${PX},${GY} ${PX},${GY - M}"/>
+            <path class="angarc" d="M${f1(x0 + 34)} ${GY} A34 34 0 0 0 ${f1(x0 + 34 * Math.cos(rb.a))} ${f1(GY - 34 * Math.sin(rb.a))}"/>`;
+    }
+    const arr = len > 1 ? arrow(BW / 2 + 4, -BH / 2, BW / 2 + 4 + AL, -BH / 2, 'fa', 9) : arrow(0, -BH - 4, 0, -BH - 4 - AL, 'fa', 9);
+    inner += `<g class="bx"><rect class="solid" x="${-BW / 2}" y="${-BH}" width="${BW}" height="${BH}" rx="3"/><g class="ea" style="opacity:0;transition:opacity .3s">${arr}</g></g>`;
+    const svg = svgBox(320, 196, inner);
+    const three = effPct !== undefined;
+    const st = el('div', 'jstats' + (three ? ' three' : ''), `<div class="jstat f"><div class="dlbl">${three ? 'Effort' : 'Effort force'}</div><div class="v">? N</div></div><div class="jstat d"><div class="dlbl">Distance</div><div class="v">? m</div></div>` +
+        (three ? `<div class="jstat e"><div class="dlbl">Efficiency</div><div class="v">? %</div></div>` : ''));
+    p.append(svg, st);
+    const bx = q1(svg, '.bx'), ea = q1(svg, '.ea'), [fv, dv, evv] = qa(st, '.v'), tw = mkTween();
+    const place = q => {
+        if (rb) bx.setAttribute('transform', rb.pos((BW / 2 + 2 + q * (rb.L - BW - 4)) / rb.L));
+        else bx.setAttribute('transform', `translate(${PX - BW / 2 - 4} ${f1(GY - q * M)})`);
+    };
+    place(0);
+    const on = () => { ea.style.opacity = 1; fv.textContent = force + ' N'; fv.classList.add('on2'); dv.classList.add('on2'); };
+    return {
+        p, svg, dv,
+        run() { on(); tw(len * 1100 + 900, p => { const q = easeIO(p); place(q); dv.textContent = (q * len).toFixed(1) + ' m'; }, () => { dv.textContent = len + ' m'; }); },
+        done() { on(); place(1); dv.textContent = len + ' m'; },
+        eff() { evv.textContent = effPct + '%'; evv.classList.add('on2'); }
+    };
+}
+/* efficiency formula as a stacked fraction */
+const frm = (a, b, tail = '&times; 100', cls = '') => `<div class="frm ${cls}"><span>Efficiency =</span><span class="frac"><span class="nu">${a}</span><span class="de">${b}</span></span><span>${tail}</span></div>`;
+
+/* a box that slides along a ramp: returns svg and a setter for progress 0 to 1 */
+function rampBox(x0, gy, base, h, bw, bh) {
+    const a = Math.atan2(h, base), L = Math.hypot(base, h);
+    return {
+        a, L,
+        pos: p => `translate(${f1(x0 + p * L * Math.cos(a))} ${f1(gy - p * L * Math.sin(a))}) rotate(${f1(-a * 180 / Math.PI)})`
+    };
+}
+
+/* ---------- scenes ---------- */
+const scenes = [
+{
+    title: 'Ramps and <span>efficiency</span>',
+    dur: 10500,
+    run() {
+        const c = el('div', 'center');
+        const GY = 230, X0 = 120, B = 470, H = 150;
+        const rb = rampBox(X0, GY, B, H);
+        const s = svgBox(760, 250, `
+            <line class="gnd" x1="40" y1="${GY}" x2="720" y2="${GY}"/>
+            <polygon class="rampp" points="${X0},${GY} ${X0 + B},${GY} ${X0 + B},${GY - H}"/>
+            <rect class="load" x="${X0 + B}" y="${GY - H}" width="110" height="${H}"/>
+            <path class="angarc" d="M${X0 + 70} ${GY} A70 70 0 0 0 ${f1(X0 + 70 * Math.cos(rb.a))} ${f1(GY - 70 * Math.sin(rb.a))}"/>
+            <g class="bx" transform="${rb.pos(0.12)}"><rect class="solid" x="-34" y="-50" width="68" height="50" rx="4"/>${arrow(40, -25, 110, -25, 'fa', 11)}${tx(75, -42, 'Effort', 'mid pk sm')}</g>`, 'rev hide');
+        const lg = el('div', 'lg rev hide', '<div class="dlbl">Learning intention</div><div class="lgt">To investigate how the angle of a ramp affects effort force and distance, and how efficient different simple machines are.</div>');
+        c.append(s, lg); content.appendChild(c);
+        const bx = q1(s, '.bx'), tw = mkTween();
+        beatAt(0, 'Today we are taking a closer look at <b>ramps</b> and the <b>efficiency</b> of simple machines.');
+        at(400, () => show(s));
+        at(1400, () => tw(3000, p => bx.setAttribute('transform', rb.pos(0.12 + easeIO(p) * 0.56))));
+        beatAt(5000, 'We will find out why a gentle ramp makes a job easier, and how to calculate the efficiency of a simple machine.');
+        at(5500, () => show(lg));
+    }
+},
+{
+    title: 'Success <span>criteria</span>',
+    sc: ['SC10', 'SC11'],
+    dur: 10000,
+    run() {
+        const c = el('div', 'center');
+        const list = el('div', 'sclist');
+        const SC = [
+            ['SC10', 'I can <b>describe</b> the relationship between angle of inclination and effort force.'],
+            ['SC11', 'I can <b>compare</b> the efficiency of different simple machines.']
+        ];
+        const rows = SC.map(([k, t]) => { const r = el('div', 'scrow rev hide', `<span class="code">${k}</span><span>${t}</span>`); list.appendChild(r); return r; });
+        c.appendChild(list); content.appendChild(c);
+        beatAt(0, 'Here are our <b>success criteria</b>. SC10 is about ramps and effort force.');
+        at(500, () => show(rows[0]));
+        beatAt(5000, 'SC11 is about comparing how <b>efficient</b> different simple machines are.');
+        at(5400, () => show(rows[1]));
+    }
+},
+{
+    title: 'Same job, <span>different paths</span>',
+    sc: ['SC10'],
+    dur: 28500,
+    run() {
+        const c = el('div', 'center'), w = el('div', 'jpanels');
+        const P = [jobPanel('Lift straight up', 1, 100), jobPanel('Steep ramp', 2, 50), jobPanel('Gentle ramp', 4, 25)];
+        P.forEach(x => w.appendChild(x.p));
+        const nt = el('div', 'fnote jnote rev hide', 'Load weight 100 N &middot; Height 1 m &middot; Assumes no friction');
+        c.append(w, nt); content.appendChild(c);
+        beatAt(0, 'Imagine you need to raise a <b>100 N box</b> onto a platform <b>1 metre</b> high. There is more than one way to do it.');
+        P.forEach((x, i) => at(400 + i * 250, () => show(x.p)));
+        beatAt(5500, 'You could <b>lift it straight up</b>. That needs an effort force of 100 N, over a distance of just 1 metre.');
+        at(6200, P[0].run);
+        beatAt(11500, 'Or you could push it up a <b>steep ramp</b>. The effort force halves to 50 N, but the box travels 2 metres.');
+        at(12200, P[1].run);
+        beatAt(17500, 'A <b>gentle ramp</b> needs only 25 N of effort force, but now the box travels 4 metres.');
+        at(18200, P[2].run);
+        beatAt(24000, 'Every path raises the box to the same height. A ramp <b>reduces the effort force</b>, but the load travels <b>further</b>.');
+        at(24500, () => show(nt));
+    }
+},
+{
+    title: 'The <span>trade-off</span>',
+    sc: ['SC10'],
+    dur: 27000,
+    run() {
+        const c = el('div', 'center');
+        const top = el('div', 'wrow');
+        const fc = el('div', 'card rev hide', '<div class="feq">Work = effort force &times; distance</div>'); fc.style.flex = '1';
+        const tc = el('div', 'card pink rev hide', '<div class="wsum"><b>Less force</b> means <b>more distance</b></div>'); tc.style.flex = '1';
+        top.append(fc, tc);
+        const BY = 236, XS = 100, YS = 1.8;
+        const sets = [[40, 1, 100], [250, 2, 50], [560, 4, 25]];
+        let inner = `<line class="gnd" x1="0" y1="${BY}" x2="1060" y2="${BY}"/>`;
+        sets.forEach(([x, d, f], k) => {
+            const w = d * XS, h = f * YS, cols = d, rows = 4 / d;
+            inner += `<g class="wg${k}">`;
+            for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++)
+                inner += `<rect class="wtile rev hide" x="${x + i * XS + 3}" y="${BY - (j + 1) * 45 + 3}" width="${XS - 6}" height="39" rx="3"/>`;
+            inner += `<rect class="wfrm rev hide" x="${x}" y="${BY - h}" width="${w}" height="${h}"/>
+                <g class="rev hide wl">${tx(x + w / 2, BY - h - 14, f + ' N &times; ' + d + ' m', 'mid')}${tx(x + w / 2, BY + 32, '= 100 J', 'mid pk lg')}</g></g>`;
+        });
+        const s = svgBox(1060, 280, inner);
+        const nt = el('div', 'fnote rev hide', 'Each square is 25 J of work &middot; Assumes no friction');
+        nt.style.marginTop = '10px';
+        c.append(top, s, nt); content.appendChild(c);
+        const grow = (k, t0) => {
+            const g = q1(s, '.wg' + k);
+            at(t0, () => show(q1(g, '.wfrm')));
+            qa(g, '.wtile').forEach((r, i) => at(t0 + 300 + i * 220, () => show(r)));
+            at(t0 + 1300, () => show(q1(g, '.wl')));
+        };
+        beatAt(0, 'Remember, <b>work</b> is done when a force makes an object move. Work equals effort force times distance.');
+        at(400, () => show(fc));
+        beatAt(5000, 'Lifting straight up: 100 N times 1 m is <b>100 joules</b> of work.');
+        grow(0, 5500);
+        beatAt(10000, 'The steep ramp: 50 N times 2 m is also <b>100 joules</b>. Half the force, but double the distance.');
+        grow(1, 10500);
+        beatAt(15500, 'The gentle ramp: 25 N times 4 m is <b>100 joules</b> again. Even less force, but even more distance.');
+        grow(2, 16000);
+        at(17800, () => show(nt));
+        beatAt(21500, 'A ramp does not save work. It <b>trades</b> a smaller force for a longer distance.');
+        at(22000, () => show(tc));
+    }
+},
+{
+    title: 'Angle and <span>effort force</span>',
+    sc: ['SC10'],
+    dur: 27000,
+    run() {
+        const H = 100, TX = 600, GY = 262;
+        const rs = svgBox(640, 300, `
+            <line class="gnd" x1="0" y1="${GY}" x2="640" y2="${GY}"/>
+            <polygon class="rampp" points=""/>
+            <rect class="load" x="${TX}" y="${GY - H}" width="40" height="${H}"/>${tx(620, GY - H - 12, '1 m', 'mid sm')}
+            <path class="angarc" d=""/>
+            <g class="rgrp"><rect class="solid" x="-20" y="-32" width="40" height="32" rx="3"/><g class="rarr"></g></g>`);
+        const range = el('input'); range.type = 'range'; range.min = 10; range.max = 60; range.value = 30; range.setAttribute('aria-label', 'Angle of inclination');
+        const srow = el('div', 'srow', '<span>Angle</span><span class="av">30&deg;</span>'); srow.appendChild(range);
+        const note = el('div', 'note', 'Load weight 100 N &middot; Height 1 m &middot; Assumes no friction');
+        const left = el('div'); left.append(rs, srow, note);
+        const stats = el('div', 'stats', '<div class="stat pink"><div class="dlbl">Effort force</div><div class="num en">50 N</div></div><div class="stat"><div class="dlbl">Distance along ramp</div><div class="num ln2">2.00 m</div></div>');
+        const GX = a => 50 + a / 70 * 370, GP = e => 180 - e * 1.5;
+        let cur = '';
+        for (let a = 10; a <= 60; a++) cur += (a === 10 ? 'M' : 'L') + f1(GX(a)) + ' ' + f1(GP(100 * Math.sin(deg(a))));
+        let ticks = '';
+        for (let a = 0; a <= 70; a += 10) ticks += `<line class="axis" x1="${f1(GX(a))}" y1="180" x2="${f1(GX(a))}" y2="187"/>${tx(GX(a), 206, a, 'mid sm')}`;
+        [0, 50, 100].forEach(e => ticks += `<line class="axis" x1="43" y1="${GP(e)}" x2="50" y2="${GP(e)}"/>${tx(38, GP(e) + 6, e, 'end sm')}`);
+        const graph = svgBox(440, 240, `<line class="axis" x1="50" y1="20" x2="50" y2="180"/><line class="axis" x1="50" y1="180" x2="425" y2="180"/>${ticks}
+            <path class="curve" d="${cur}"/><circle class="gdot" r="9" cx="0" cy="0"/>
+            ${tx(237, 234, 'Angle of inclination (&deg;)', 'mid sm gr')}<text class="t sm gr mid" transform="translate(6 100) rotate(-90)">Effort force (N)</text>`, 'graph rev hide');
+        const right = el('div'); right.append(stats, graph);
+        const wrap = el('div', 'ipl rev hide'); wrap.append(left, right);
+        content.appendChild(el('div', 'center')).appendChild(wrap);
+        const poly = q1(rs, '.rampp'), arcp = q1(rs, '.angarc'), grp = q1(rs, '.rgrp'), rarr = q1(rs, '.rarr');
+        const av = q1(srow, '.av'), en = q1(stats, '.en'), ln = q1(stats, '.ln2'), dot = q1(graph, '.gdot');
+        function setA(a) {
+            a = Math.round(a);
+            const r = deg(a), len = H / Math.sin(r), x0 = TX - H / Math.tan(r), R = 46;
+            poly.setAttribute('points', `${f1(x0)},${GY} ${TX},${GY} ${TX},${GY - H}`);
+            arcp.setAttribute('d', `M${f1(x0 + R)} ${GY} A${R} ${R} 0 0 0 ${f1(x0 + R * Math.cos(r))} ${f1(GY - R * Math.sin(r))}`);
+            const s = len * 0.35;
+            grp.setAttribute('transform', `translate(${f1(x0 + s * Math.cos(r))} ${f1(GY - s * Math.sin(r))}) rotate(${-a})`);
+            const eff = 100 * Math.sin(r), L = Math.max(24, eff * 1.2);
+            rarr.innerHTML = arrow(24, -16, 24 + L, -16, 'fa', 11) + tx(24 + L / 2, -32, 'Effort', 'mid pk sm');
+            av.textContent = a + '°'; en.textContent = Math.round(eff) + ' N'; ln.textContent = (1 / Math.sin(r)).toFixed(2) + ' m';
+            dot.setAttribute('cx', f1(GX(a))); dot.setAttribute('cy', f1(GP(eff)));
+            range.value = a;
+        }
+        range.addEventListener('input', () => setA(+range.value));
+        range.addEventListener('change', () => range.blur());
+        setA(30);
+        const sweep = (from, to, t0, step) => { const d = Math.sign(to - from); for (let k = 1; k <= Math.abs(to - from); k++) at(t0 + k * step, () => setA(from + d * k)); };
+        beatAt(0, 'An <b>inclined plane</b> is a ramp. It lets us raise a load by pushing it along a slope instead of lifting it straight up.');
+        at(400, () => show(wrap));
+        beatAt(5500, 'Watch the <b>effort force</b> as the angle of inclination increases.');
+        sweep(30, 60, 6200, 80);
+        beatAt(10500, 'Now watch as the angle decreases and the ramp becomes gentler.');
+        sweep(60, 10, 11200, 60);
+        beatAt(15500, 'The <b>greater</b> the angle of inclination, the <b>greater</b> the effort force needed. The graph shows this relationship.');
+        at(16000, () => show(graph));
+        beatAt(21000, 'A gentle ramp needs less effort, but the load travels a <b>longer distance</b>. Try the slider to test it yourself.');
+        sweep(10, 30, 21500, 50);
+    }
+},
+{
+    title: 'Predict: <span>which ramp?</span>',
+    sc: ['SC10'], cfu: 'fv', time: 60,
+    dur: 35500,
+    run() {
+        const c = el('div', 'center');
+        const GY = 190, H = 110;
+        const R = [[1, 40, 70], [2, 15, 300], [3, 65, 840]];
+        let inner = `<line class="gnd" x1="0" y1="${GY}" x2="1060" y2="${GY}"/>`;
+        R.forEach(([n, a, x0]) => {
+            const base = H / Math.tan(deg(a)), tx0 = x0 + base, r = 42, rb = rampBox(x0, GY, base, H);
+            const lx = x0 + 4, ly = GY + 28;
+            inner += `<g class="rz r${n}"><polygon class="rampp" points="${f1(x0)},${GY} ${f1(tx0)},${GY} ${f1(tx0)},${GY - H}"/>
+                <rect class="load" x="${f1(tx0)}" y="${GY - H}" width="56" height="${H}"/>
+                <path class="angarc" d="M${f1(x0 + r)} ${GY} A${r} ${r} 0 0 0 ${f1(x0 + r * Math.cos(deg(a)))} ${f1(GY - r * Math.sin(deg(a)))}"/>
+                ${tx(lx, ly, a + '&deg;', 'pk sm mid')}
+                <g transform="${rb.pos(0.3)}"><rect class="solid" x="-16" y="-28" width="32" height="28" rx="3"/></g>
+                <g class="rnum"><circle cx="${f1((x0 + tx0 + 56) / 2)}" cy="${GY + 34}" r="21"/>${tx((x0 + tx0 + 56) / 2, GY + 42, n, 'mid wh')}</g></g>`;
+        });
+        const s = svgBox(1060, 250, inner, 'rev hide');
+        const qs = el('div', 'qcards');
+        const Q = [
+            ['Which ramp needs the <b>least effort force</b>?', 'Ramp 2'],
+            ['Which ramp makes the box travel the <b>longest distance</b>?', 'Ramp 2'],
+            ['Which ramp needs the <b>greatest effort force</b>?', 'Ramp 3']
+        ].map(([q, a], i) => {
+            const k = el('div', 'qcard rev hide', `<div class="qh"><div class="qn">${i + 1}</div><div>${q}</div></div>`);
+            const ans = el('div', 'qa rev hide', a); k.appendChild(ans); qs.appendChild(k);
+            return { k, ans };
+        });
+        c.append(s, qs); content.appendChild(c);
+        const hl = n => qa(s, '.rz').forEach(g => g.classList.toggle('hl', g.classList.contains('r' + n)));
+        beatAt(0, 'Finger vote. Each ramp raises the same box to the same height. Hold up 1, 2 or 3 fingers to answer.');
+        at(400, () => show(s));
+        beatAt(4500, 'Question 1: which ramp needs the <b>least effort force</b>?');
+        at(5000, () => show(Q[0].k));
+        beatAt(9500, 'Ramp <b>2</b>. It has the smallest angle of inclination, so it needs the least effort force.');
+        at(10000, () => { show(Q[0].ans); hl(2); });
+        beatAt(15000, 'Question 2: which ramp makes the box travel the <b>longest distance</b>?');
+        at(15400, () => { hl(0); show(Q[1].k); });
+        beatAt(20000, 'Ramp <b>2</b> again. The gentlest ramp needs the least force, but the box travels the furthest.');
+        at(20500, () => { show(Q[1].ans); hl(2); });
+        beatAt(25500, 'Question 3: which ramp needs the <b>greatest effort force</b>?');
+        at(25900, () => { hl(0); show(Q[2].k); });
+        beatAt(30500, 'Ramp <b>3</b>. It has the largest angle of inclination, so it needs the most force, but over the shortest distance.');
+        at(31000, () => { show(Q[2].ans); hl(3); });
+    }
+},
+{
+    title: 'Why do ramps <span>zigzag</span>?',
+    sc: ['SC10'], cfu: 'tt', time: 120,
+    dur: 32500,
+    run() {
+        const c = el('div', 'center');
+        const q = el('div', 'zq rev hide', 'Why are some ramps and mountain tracks built in a <b>zigzag</b>?');
+        const terms = el('div', 'zterms rev hide', '<span>Angle of inclination</span><span>Effort force</span><span>Distance</span>');
+        const GY = 222, H = 150, RUN = 170, N = 3, BX = 940, XL = BX - RUN, X0 = BX - N * RUN;
+        const SA = Math.atan2(H, 120), GA = Math.atan2(H / N, RUN);
+        const arc = (x, y, r, a, dir = 1) => `<path class="angarc" d="M${f1(x + dir * r)} ${y} A${r} ${r} 0 0 ${dir > 0 ? 0 : 1} ${f1(x + dir * r * Math.cos(a))} ${f1(y - r * Math.sin(a))}"/>`;
+        const s = svgBox(1080, 262, `
+            <line class="gnd" x1="0" y1="${GY}" x2="1080" y2="${GY}"/>
+            <g class="zl rev hide"><line class="road" x1="60" y1="${GY}" x2="180" y2="${GY - H}"/><rect class="load" x="180" y="${GY - H}" width="70" height="${H}"/>
+                ${arc(60, GY, 40, SA)}${tx(112, GY - 12, Math.round(SA * 180 / Math.PI) + '&deg;', 'pk sm')}
+                ${tx(155, GY + 34, 'Steep ramp', 'mid')}</g>
+            <g class="zb rev hide"><rect class="load" x="${BX}" y="${GY - H}" width="80" height="${H}"/>
+                <line class="gd" x1="${XL - 10}" y1="${GY - H - 30}" x2="${XL - 10}" y2="${GY}"/>
+                ${tx(XL - 18, GY - H - 12, 'Edge of the space', 'end sm gr')}</g>
+            <line class="gd zgh" style="opacity:0;transition:opacity .6s" x1="${X0}" y1="${GY}" x2="${BX}" y2="${GY - H}"/>
+            <g class="zgl rev hide">${tx(X0 + 190, GY - 76, 'Same ramp, unfolded', 'mid sm gr')}</g>
+            <g class="zr"></g>
+            <g class="glab rev hide">${tx(X0 + 150, GY - 70, 'Too long to fit!', 'mid pk')}</g>
+            <g class="zang rev hide">${arc(XL, GY, 46, GA)}${tx(XL + 92, GY - 6, Math.round(GA * 180 / Math.PI) + '&deg;', 'pk sm')}</g>
+            <circle class="zw" r="11" cx="${XL}" cy="${GY}" fill="#fff" stroke="#ea008a" stroke-width="5" style="opacity:0"/>
+            <g class="zlab rev hide">${tx(XL + 85, GY + 34, 'Zigzag ramp', 'mid pk')}</g>`);
+        const ac = el('div', 'card pink rev hide', '<div class="atext">A zigzag is a <b>long, gentle ramp folded up</b> to fit the space. The small angle of inclination means <b>less effort force</b>. The trade-off is a <b>longer distance</b>.</div>');
+        const ex = el('div', 'aex rev hide', 'Look for this on access ramps, car parks, mountain roads and bushwalking tracks.');
+        ac.appendChild(ex); ac.style.width = '1080px';
+        c.append(q, terms, s, ac); content.appendChild(c);
+        const zr = q1(s, '.zr'), zw = q1(s, '.zw');
+        const segs = [];
+        for (let i = 0; i < N; i++) {
+            const l = document.createElementNS('http://www.w3.org/2000/svg', 'line'); l.setAttribute('class', 'road'); zr.appendChild(l); segs.push(l);
+        }
+        const flat = i => [X0 + i * RUN, GY - i * H / N, X0 + (i + 1) * RUN, GY - (i + 1) * H / N];
+        const fold = i => { const y0 = GY - i * H / N, y1 = y0 - H / N; return i % 2 === 0 ? [XL, y0, BX, y1] : [BX, y0, XL, y1]; };
+        const setF = (p, upto = N) => segs.forEach((l, i) => {
+            const a = flat(i), b = fold(i), k = easeIO(p), v = a.map((x, j) => x + (b[j] - x) * k);
+            let [x1, y1, x2, y2] = v;
+            if (i >= upto) { x2 = x1; y2 = y1; }
+            l.setAttribute('x1', f1(x1)); l.setAttribute('y1', f1(y1)); l.setAttribute('x2', f1(x2)); l.setAttribute('y2', f1(y2));
+        });
+        setF(0, 0);
+        const twD = mkTween(), twF = twD, twW = mkTween();
+        const draw = () => twD(1800, p => segs.forEach((l, i) => {
+            const a = flat(i), t = Math.max(0, Math.min(1, p * N - i));
+            l.setAttribute('x1', f1(a[0])); l.setAttribute('y1', f1(a[1]));
+            l.setAttribute('x2', f1(a[0] + (a[2] - a[0]) * t)); l.setAttribute('y2', f1(a[1] + (a[3] - a[1]) * t));
+        }));
+        const walk = () => { zw.style.opacity = 1; twW(4200, p => { const L = p * N, i = Math.min(N - 1, Math.floor(L)), t = L - i, b = fold(i); zw.setAttribute('cx', f1(b[0] + (b[2] - b[0]) * t)); zw.setAttribute('cy', f1(b[1] + (b[3] - b[1]) * t - 12)); }); };
+        beatAt(0, 'Turn and talk. Why are some ramps and mountain tracks built in a <b>zigzag</b>? Use the three terms in your answer.');
+        at(400, () => show(q)); at(800, () => show(terms));
+        beatAt(5500, 'A <b>steep ramp</b> fits in a small space, but it needs a lot of effort force.');
+        at(6000, () => show(q1(s, '.zl')));
+        beatAt(10500, 'A <b>gentle ramp</b> needs less effort force, but it is much longer. Often there is not enough room for it.');
+        at(11000, () => show(q1(s, '.zb'))); at(11600, draw); at(13600, () => show(q1(s, '.glab')));
+        beatAt(16500, "So we <b>fold</b> the gentle ramp into a zigzag. Each section has the same small angle, but now it fits.");
+        at(17000, () => { q1(s, '.glab').classList.add('hide'); q1(s, '.zgh').style.opacity = 1; });
+        at(17300, () => twF(2600, p => setF(p)));
+        at(20000, () => { show(q1(s, '.zang')); show(q1(s, '.zlab')); show(q1(s, '.zgl')); });
+        at(20600, walk);
+        beatAt(25000, 'A zigzag keeps a small angle of inclination, so <b>less effort force</b> is needed. The trade-off is a <b>longer distance</b>.');
+        at(25500, () => show(ac));
+        beatAt(29000, 'Look for this on access ramps, car parks, mountain roads and bushwalking tracks.');
+        at(29400, () => show(ex));
+    }
+},
+{
+    title: 'Ramps in <span>real life</span>',
+    sc: ['SC10'], cfu: 'tt', time: 120,
+    dur: 19500,
+    run() {
+        const c = el('div', 'center');
+        const p = el('div', 'prompt rev hide', 'Wheelchair ramps are built with a <b>gentle slope</b>. Explain why, using the terms <b>angle of inclination</b> and <b>effort force</b>.');
+        const gy = 180;
+        const ramp = (x0, base, h, label) => {
+            const a = Math.atan2(h, base), s = Math.hypot(base, h) * 0.5, tx0 = x0 + base, R = 40;
+            return `<polygon class="rampp" points="${x0},${gy} ${tx0},${gy} ${tx0},${gy - h}"/><rect class="load" x="${tx0}" y="${gy - h}" width="60" height="${h}"/>
+                <path class="angarc" d="M${x0 + R} ${gy} A${R} ${R} 0 0 0 ${f1(x0 + R * Math.cos(a))} ${f1(gy - R * Math.sin(a))}"/>
+                <g transform="translate(${f1(x0 + s * Math.cos(a))} ${f1(gy - s * Math.sin(a))}) rotate(${f1(-a * 180 / Math.PI)})">${CHAIR}</g>
+                ${tx(x0 + base / 2 + 30, gy + 28, label, 'mid')}`;
+        };
+        const s = svgBox(1000, 215, `<line class="gnd" x1="0" y1="${gy}" x2="1000" y2="${gy}"/>${ramp(40, 380, 90, 'Gentle ramp: smaller angle')}${ramp(640, 120, 90, 'Steep ramp: larger angle')}`, 'rev hide');
+        const ac = el('div', 'card pink rev hide', '<div class="atext">A smaller angle of inclination means <b>less effort force</b> is needed to push the wheelchair up. The trade-off is a <b>longer</b> ramp.</div>');
+        const fact = el('div', 'aex rev hide', 'In Australia, access ramps are usually no steeper than <b>1 in 14</b>: they rise 1 metre for every 14 metres along the ground.');
+        ac.appendChild(fact);
+        ac.style.width = '1000px'; ac.style.marginTop = '4px';
+        p.style.fontSize = '28px'; p.style.marginBottom = '10px';
+        const sv = q1(s, 'svg'); sv.setAttribute('width', 880); sv.setAttribute('height', 189);
+        c.append(p, s, ac); content.appendChild(c);
+        beatAt(0, 'Turn and talk. Why are wheelchair ramps built with a <b>gentle slope</b>? Use the terms angle of inclination and effort force.');
+        at(400, () => show(p)); at(800, () => show(s));
+        beatAt(8000, 'A smaller angle of inclination means <b>less effort force</b> is needed. The trade-off is a <b>longer</b> ramp.');
+        at(8500, () => show(ac));
+        beatAt(13500, 'In Australia, access ramps are usually no steeper than <b>1 in 14</b>: they rise 1 metre for every 14 metres along the ground.');
+        at(14000, () => show(fact));
+    }
+},
+{
+    title: 'The efficiency <span>formula</span>',
+    sc: ['SC11'],
+    dur: 28500,
+    run() {
+        const c = el('div', 'center');
+        const st = el('div', 'card rev hide', '<div class="atext" style="margin:0;font-size:25px">A <b>more efficient machine</b> needs <b>less extra effort</b> to overcome friction or wasted energy.</div>');
+        st.style.width = '1060px';
+        const f = el('div', 'fbig rev hide', frm('force <b class="w0">without</b> simple machine', 'force <b class="w1">with</b> simple machine'));
+        const row = el('div', 'exrow');
+        const mini = (lab, ramp, n) => {
+            const GY = 92, M = 56, PX = 150;
+            let inner = `<line class="gnd" x1="0" y1="${GY}" x2="230" y2="${GY}"/><rect class="load" x="${PX}" y="${GY - M}" width="50" height="${M}"/>`;
+            if (ramp) inner += `<polygon class="rampp" points="${f1(PX - M / Math.tan(Math.PI / 6))},${GY} ${PX},${GY} ${PX},${GY - M}"/><g transform="translate(${PX - 60} ${f1(GY - 44 * Math.tan(Math.PI / 6))}) rotate(-30)"><rect class="solid" x="-15" y="-26" width="30" height="26" rx="3"/>${arrow(19, -13, 50, -13, 'fa', 8)}</g>`;
+            else inner += `<g transform="translate(${PX - 22} ${GY - 24})"><rect class="solid" x="-15" y="-26" width="30" height="26" rx="3"/>${arrow(0, -30, 0, -72, 'fa', 8)}</g>`;
+            const k = el('div', 'expan rev hide', `<div class="dlbl">${lab}</div>`);
+            k.appendChild(svgBox(230, 98, inner));
+            k.appendChild(el('div', 'exv ' + (ramp ? 'w1' : 'w0'), n + ' N'));
+            row.appendChild(k); return k;
+        };
+        const A = mini('Without: lift it', false, 100), B = mini('With: steep ramp', true, 50);
+        const calc = el('div', 'excalc rev hide', frm('100 N', '50 N', '&times; 100 = <b class="w1">200%</b>', 'sm'));
+        row.appendChild(calc);
+        const nt = el('div', 'ans rev hide', 'The <b>higher</b> the percentage, the <b>less effort force</b> is needed. Over 100% means the machine makes the job easier.');
+        nt.style.width = '1060px'; nt.style.marginTop = '14px';
+        c.append(st, f, row, nt); content.appendChild(c);
+        beatAt(0, 'We can compare simple machines using <b>efficiency</b>. A more efficient machine needs less extra effort.');
+        at(400, () => show(st));
+        beatAt(5500, 'To calculate efficiency, we compare the force needed <b>without</b> a simple machine to the force needed <b>with</b> one.');
+        at(6000, () => show(f));
+        beatAt(11500, 'Lifting our 100 N box straight up takes <b>100 N</b>. Using the steep ramp, it takes only <b>50 N</b>.');
+        at(12000, () => show(A)); at(12600, () => show(B));
+        beatAt(17000, 'Efficiency equals 100 divided by 50, times 100, which is <b>200%</b>.');
+        at(17500, () => show(calc));
+        beatAt(22500, 'The <b>higher</b> the percentage, the <b>less effort force</b> the machine needs.');
+        at(23000, () => show(nt));
+    }
+},
+{
+    title: 'Which ramp is most <span>efficient</span>?',
+    sc: ['SC10', 'SC11'], cfu: 'sj', time: 180,
+    dur: 25000,
+    run() {
+        const c = el('div', 'center');
+        const strip = el('div', 'cstrip rev hide', `<div class="fmini">${frm('force without', 'force with', '&times; 100', 'xs')}</div>` +
+            '<div class="qitem"><div class="qn">1</div><div>Calculate the <b>efficiency</b> of each ramp.</div></div>' +
+            '<div class="qitem"><div class="qn">2</div><div>Which ramp is <b>most efficient</b> in terms of effort force?</div></div>' +
+            '<div class="qitem"><div class="qn">3</div><div>What is the <b>trade-off</b>?</div></div>');
+        const w = el('div', 'jpanels');
+        const P = [jobPanel('Without a machine', 1, 100, 100), jobPanel('Steep ramp', 2, 50, 200), jobPanel('Gentle ramp', 4, 25, 400)];
+        P.forEach(x => { w.appendChild(x.p); x.done(); qa(x.svg, 'svg')[0].setAttribute('height', 150); qa(x.svg, 'svg')[0].setAttribute('width', 245); });
+        const ans = el('div', 'ans cans rev hide', 'The gentle ramp is most efficient, but the box travels <b>4 m</b> instead of 2 m, and the ramp takes up more space.');
+        c.append(strip, w, ans); content.appendChild(c);
+        beatAt(0, 'Stop and jot. Lifting the box without a machine takes 100 N. Calculate the efficiency of each ramp.');
+        at(400, () => show(strip));
+        P.forEach((x, i) => at(800 + i * 250, () => show(x.p)));
+        beatAt(7000, 'Steep ramp: 100 divided by 50, times 100, is <b>200%</b>. Gentle ramp: 100 divided by 25, times 100, is <b>400%</b>.');
+        at(7500, () => P[0].eff()); at(8100, () => P[1].eff()); at(8700, () => P[2].eff());
+        beatAt(13000, 'The <b>gentle ramp</b> is the most efficient in terms of effort force. It needs the least effort.');
+        at(13500, () => P[2].p.classList.add('best'));
+        beatAt(18500, 'The trade-off: the box travels <b>4 metres</b> on the gentle ramp, instead of 2 metres on the steep ramp.');
+        at(19000, () => { show(ans); P[2].dv.classList.add('pk2'); });
+    }
+},
+{
+    title: 'Wheels and <span>efficiency</span>',
+    sc: ['SC11'],
+    dur: 24000,
+    run() {
+        const c = el('div', 'center');
+        const G1 = 112, G2 = 262, X0 = 110, D = 560, K = 2.4;
+        const crate = `<rect class="load" x="0" y="-70" width="100" height="70" rx="3"/><path d="M0 -70 L100 0 M100 -70 L0 0" stroke="#1b1f45" stroke-width="2.5"/>`;
+        const s = svgBox(1100, 290, `
+            <line class="gnd" x1="0" y1="${G1}" x2="1100" y2="${G1}"/>${tx(0, 26, 'Sliding: no machine')}
+            <g class="l1"><g class="hz" style="opacity:0"><g transform="translate(0 ${G1 - 16}) scale(.8)">${heat(-24, 0)}${heat(-48, 0)}${heat(-72, 0)}</g></g>
+                <g transform="translate(0 ${G1})">${crate}</g>
+                ${arrow(106, G1 - 35, 106 + 50 * K, G1 - 35, 'fa', 11)}${tx(106 + 25 * K, G1 - 50, '50 N', 'mid pk')}
+                <g class="fr" style="opacity:0">${arrow(-8, G1 - 10, -60, G1 - 10, 'fn ti', 7)}${tx(-34, G1 + 24, 'Friction', 'mid sm')}</g></g>
+            <line class="gnd" x1="0" y1="${G2}" x2="1100" y2="${G2}"/>${tx(0, G2 - 108, 'On wheels', 'pk')}
+            <g class="l2w rev hide"><g class="l2"><g transform="translate(0 ${G2 - 34})">${crate}</g>
+                <rect class="solid" x="-6" y="${G2 - 34}" width="112" height="10" rx="2"/>
+                <circle cx="16" cy="${G2 - 13}" r="13" fill="#fff" stroke="#1b1f45" stroke-width="5"/><circle cx="84" cy="${G2 - 13}" r="13" fill="#fff" stroke="#1b1f45" stroke-width="5"/>
+                ${arrow(106, G2 - 69, 106 + 20 * K, G2 - 69, 'fa', 11)}${tx(106 + 10 * K, G2 - 84, '20 N', 'mid pk')}</g></g>`);
+        const row = el('div', 'wrow');
+        const nc = el('div', 'card rev hide', '<div class="wsum">Wheels <b>reduce friction</b>, because only a small part of each wheel touches the ground.</div>'); nc.style.flex = '1';
+        const cc = el('div', 'card pink rev hide', frm('50 N', '20 N', '&times; 100 = <b class="w1">250%</b>', 'sm')); cc.style.flex = '1';
+        row.append(nc, cc); row.style.marginTop = '8px';
+        c.append(s, row); content.appendChild(c);
+        const l1 = q1(s, '.l1'), l2 = q1(s, '.l2'), hz = q1(s, '.hz'), fr = q1(s, '.fr'), t1 = mkTween(), t2 = mkTween();
+        l1.setAttribute('transform', `translate(${X0} 0)`); l2.setAttribute('transform', `translate(${X0} 0)`);
+        beatAt(0, 'Dragging this crate across the floor takes <b>50 N</b> of effort force, because friction pushes back.');
+        at(800, () => { fr.style.opacity = 1; hz.style.opacity = 1; t1(3600, p => l1.setAttribute('transform', `translate(${f1(X0 + easeIO(p) * D)} 0)`)); });
+        beatAt(6000, 'Put the same crate on <b>wheels</b> and it only takes <b>20 N</b> to move it the same distance.');
+        at(6400, () => show(q1(s, '.l2w')));
+        at(7000, () => t2(3000, p => l2.setAttribute('transform', `translate(${f1(X0 + easeIO(p) * D)} 0)`)));
+        beatAt(11500, 'Wheels <b>reduce friction</b>, because only a small part of each wheel touches the ground.');
+        at(12000, () => show(nc));
+        beatAt(17000, 'Efficiency: 50 divided by 20, times 100, is <b>250%</b>. The wheels make the job much easier.');
+        at(17500, () => show(cc));
+    }
+},
+{
+    title: 'Levers and <span>efficiency</span>',
+    sc: ['SC11'], cfu: 'sj', time: 90,
+    dur: 26000,
+    run() {
+        const c = el('div', 'center'), w = el('div', 'lvw');
+        const FX = 240, FY = 200, A0 = -10, A1 = 6, LA = 80, EA = 320;
+        const rock = `<rect class="solid" x="${FX - LA - 36}" y="${FY - 70}" width="72" height="58" rx="4"/>${tx(FX - LA, FY - 34, '100 N', 'mid wh')}`;
+        const P = a => [FX + EA * Math.cos(deg(a)), FY + EA * Math.sin(deg(a))], Q = a => [FX - LA * Math.cos(deg(a)), FY - LA * Math.sin(deg(a))];
+        const [e0x, e0y] = P(A0), [e1x, e1y] = P(A1), [l0x, l0y] = Q(A0), [l1x, l1y] = Q(A1);
+        const s = svgBox(650, 330, `
+            <line class="gnd" x1="20" y1="${FY + 60}" x2="640" y2="${FY + 60}"/>
+            <rect class="ghost2" x="${FX - LA - 30}" y="${FY - 12}" width="${LA + EA + 50}" height="12" transform="rotate(${A0} ${FX} ${FY})"/>
+            <polygon class="solid" points="${FX},${FY} ${FX - 30},${FY + 60} ${FX + 30},${FY + 60}" style="fill:var(--pink)"/>
+            <g class="arm"><rect class="solid" x="${FX - LA - 30}" y="${FY - 12}" width="${LA + EA + 50}" height="12" rx="2"/>${rock}
+                ${arrow(FX + EA, FY - 104, FX + EA, FY - 18, 'fa', 11)}${tx(FX + EA - 16, FY - 64, '25 N', 'end pk')}</g>
+            <g class="dist rev hide">
+                <line class="lnp" style="stroke-width:3" x1="${f1(e0x + 46)}" y1="${f1(e0y)}" x2="${f1(e1x + 46)}" y2="${f1(e1y)}"/>
+                <line class="lnp" style="stroke-width:3" x1="${f1(e0x + 38)}" y1="${f1(e0y)}" x2="${f1(e0x + 54)}" y2="${f1(e0y)}"/><line class="lnp" style="stroke-width:3" x1="${f1(e1x + 38)}" y1="${f1(e1y)}" x2="${f1(e1x + 54)}" y2="${f1(e1y)}"/>
+                ${tx(640, FY + 88, 'Hand moves further', 'end sm pk')}
+                <line class="ln" style="stroke-width:3" x1="${f1(l0x - 58)}" y1="${f1(l0y)}" x2="${f1(l1x - 58)}" y2="${f1(l1y)}"/>
+                <line class="ln" style="stroke-width:3" x1="${f1(l0x - 66)}" y1="${f1(l0y)}" x2="${f1(l0x - 50)}" y2="${f1(l0y)}"/><line class="ln" style="stroke-width:3" x1="${f1(l1x - 66)}" y1="${f1(l1y)}" x2="${f1(l1x - 50)}" y2="${f1(l1y)}"/>
+                ${tx(l1x - 68, l1y + 4, 'Load rises', 'end sm')}${tx(l1x - 68, l1y + 26, 'a little', 'end sm')}</g>
+            ${tx(FX, FY + 88, 'Fulcrum', 'mid sm gr')}`);
+        const left = el('div', 'rev hide'); left.appendChild(s);
+        const col = el('div', 'lvcol');
+        const vs = el('div', 'lvst rev hide', '<div class="stat"><div class="dlbl">Without</div><div class="num">100 N</div></div><div class="stat pink"><div class="dlbl">With a lever</div><div class="num">25 N</div></div>');
+        const cc = el('div', 'card pink rev hide', frm('100 N', '25 N', '&times; 100 = <b class="w1 lq">?</b>', 'sm'));
+        const fm = el('div', 'card rev hide', '<div class="wsum">This lever is a <b>force multiplier</b>: a small input force (25 N) lifts a much bigger load (100 N).</div>');
+        col.append(vs, cc, fm); w.append(left, col); c.appendChild(w); content.appendChild(c);
+        const arm = q1(s, '.arm'), tw = mkTween(), lq = q1(cc, '.lq');
+        const setA = a => arm.setAttribute('transform', `rotate(${f1(a)} ${FX} ${FY})`);
+        setA(A0);
+        const push = () => { setA(A0); tw(2600, p => setA(A0 + (A1 - A0) * easeIO(p))); };
+        beatAt(0, 'Stop and jot. Lifting this load straight up takes <b>100 N</b>. With a lever, it takes just <b>25 N</b>. Calculate the efficiency.');
+        at(400, () => show(left)); at(800, () => show(vs)); at(1200, () => show(cc)); at(1800, push);
+        beatAt(8000, '100 divided by 25, times 100, is <b>400%</b>. The lever makes this job much easier.');
+        at(8500, () => { lq.textContent = '400%'; });
+        beatAt(13500, 'This lever is a <b>force multiplier</b>: a small input force lifts a much bigger load. We will learn more about these next.');
+        at(14000, () => show(fm));
+        beatAt(19500, 'The trade-off: your hand pushes the lever <b>four times further</b> than the load rises.');
+        at(19800, push); at(22400, () => show(q1(s, '.dist')));
+    }
+},
+{
+    title: 'Calculate and <span>compare</span>',
+    sc: ['SC11'], cfu: 'sj', time: 240,
+    dur: 24000,
+    run() {
+        const c = el('div', 'center');
+        const strip = el('div', 'cstrip rev hide', `<div class="fmini">${frm('force without', 'force with', '&times; 100', 'xs')}</div>` +
+            '<div class="qitem"><div class="qn">1</div><div>Calculate the <b>efficiency</b> of each machine.</div></div>' +
+            '<div class="qitem"><div class="qn">2</div><div><b>Rank</b> them from most to least efficient.</div></div>' +
+            '<div class="qitem"><div class="qn">3</div><div>A single pulley needs <b>50&nbsp;N</b> to lift a 50&nbsp;N load. What is its efficiency?</div></div>');
+        const row = el('div', 'mcards');
+        const card = (name, icon, wo, wi, rk) => {
+            const pct = Math.round(wo / wi * 100);
+            const k = el('div', 'mcard rev hide', `<div class="mhead"><svg viewBox="0 0 120 100" width="72" height="60" aria-hidden="true">${icon}</svg><div class="dex">${name}</div></div>
+                <div class="pline">Force without machine <b>${wo} N</b></div><div class="pline">Force with machine <b>${wi} N</b></div>`);
+            const res = el('div', 'pres rev hide', `<div class="pcalc">${wo} &divide; ${wi} &times; 100</div><div class="pbigp">${pct}%</div>`);
+            const rb = el('div', 'rank rev hide', rk);
+            k.append(res, rb); row.appendChild(k);
+            return { k, res, rb };
+        };
+        const M = [card('Ramp', MI.incline, 150, 75, '3rd'), card('Trolley', MI.trolley, 240, 80, '2nd'), card('Pulley system', MI.pulley, 200, 50, '1st')];
+        const ans = el('div', 'ans cans rev hide', 'The single pulley is <b>100%</b> efficient. It does not reduce the effort force: it only changes its <b>direction</b>.');
+        c.append(strip, row, ans); content.appendChild(c);
+        beatAt(0, 'Stop and jot. Calculate the efficiency of each machine, then answer questions 2 and 3.');
+        at(400, () => show(strip));
+        M.forEach((m, i) => at(800 + i * 300, () => show(m.k)));
+        beatAt(8000, 'Ramp: 150 divided by 75, times 100, is <b>200%</b>. The trolley is <b>300%</b> and the pulley system is <b>400%</b>.');
+        M.forEach((m, i) => at(8500 + i * 700, () => show(m.res)));
+        beatAt(14000, 'From most to least efficient: the <b>pulley system</b>, then the <b>trolley</b>, then the <b>ramp</b>.');
+        M.forEach((m, i) => at(14400 + i * 300, () => show(m.rb)));
+        at(14600, () => M[2].k.classList.add('best'));
+        beatAt(18500, 'A single pulley is <b>100%</b> efficient. It does not reduce the effort force. It only changes its direction.');
+        at(19000, () => show(ans));
+    }
+},
+{
+    title: '<span>Summary</span>',
+    sc: ['SC10', 'SC11'],
+    dur: 21000,
+    run() {
+        const c = el('div', 'center'), g = el('div', 'sumgrid');
+        const data = [
+            ['Angle of inclination', 'The greater the angle of a ramp, the greater the effort force needed.', false, 'SC10'],
+            ['The trade-off', 'A gentle ramp needs less effort force, but the load travels a longer distance.', true, 'SC10'],
+            ['Efficiency', 'Force without a simple machine &divide; force with it &times; 100. The higher the percentage, the less effort needed.', true, 'SC11'],
+            ['Easier jobs', 'Gentle ramps, wheels and levers all reduce the effort force. Wheels do this by reducing friction.', false, 'SC11']
+        ];
+        const cards = data.map(([t, d, p, sc]) => { const k = el('div', 'scard rev hide' + (p ? ' pink' : ''), `<span class="tagsc">${sc}</span><div class="dex">${t}</div><div class="dhow">${d}</div>`); g.appendChild(k); return k; });
+        c.appendChild(g); content.appendChild(c);
+        beatAt(0, 'The <b>greater</b> the angle of inclination, the <b>greater</b> the effort force needed.');
+        at(400, () => show(cards[0]));
+        beatAt(5000, 'A gentle ramp needs less effort force, but the load travels a <b>longer distance</b>.');
+        at(5400, () => show(cards[1]));
+        beatAt(10000, '<b>Efficiency</b> compares the force needed without a simple machine to the force needed with one.');
+        at(10400, () => show(cards[2]));
+        beatAt(15000, 'Gentle ramps, wheels and levers all <b>reduce the effort force</b>. Wheels do this by reducing friction.');
+        at(15400, () => show(cards[3]));
+    }
+}
+];
+
+/* ---------- player ---------- */
+const dots = $('#dots');
+scenes.forEach((_, i) => { const d = el('button'); d.setAttribute('aria-label', 'Scene ' + (i + 1)); d.onclick = () => go(i); dots.appendChild(d); });
+
+const stepLbl = $('#steplbl');
+const dur = () => scenes[idx].dur;
+const beatEnd = b => (b + 1 < beats.length ? beats[b + 1] : dur());
+function label() { stepLbl.textContent = `Step ${beat + 1} of ${beats.length}`; }
+
+function build(i) {
+    clearTimers();
+    stopInteractive();
+    const ni = Math.max(0, Math.min(scenes.length - 1, i));
+    if (ni !== idx) { saveInk(); idx = ni; loadInk(); zoomReset(); renderBadges(); }
+    events = []; beats = [];
+    const sc = scenes[idx];
+    content.innerHTML = ''; caption.innerHTML = '';
+    titleEl.innerHTML = sc.title;
+    counter.innerHTML = `<b>${idx + 1}</b> / ${scenes.length}`;
+    uiSetCfu(sc.cfu, sc.time); uiSetSC(sc.sc);
+    [...dots.children].forEach((d, j) => d.classList.toggle('cur', j === idx));
+    sc.run();
+    beats = [...new Set(beats)].sort((a, b) => a - b);
+}
+
+function jumpTo(to) {
+    stage.classList.add('instant');
+    events.filter(e => !e.done && e.t < to).sort((a, b) => a.t - b.t).forEach(e => { e.done = true; e.fn(); });
+    void stage.offsetWidth;
+    requestAnimationFrame(() => requestAnimationFrame(() => stage.classList.remove('instant')));
+}
+
+function setProgress(from, to) {
+    progress.style.transition = 'none';
+    progress.style.width = (from / dur() * 100) + '%';
+    void progress.offsetWidth;
+    progress.style.transition = `width ${Math.max(0, to - from)}ms linear`;
+    progress.style.width = (to / dur() * 100) + '%';
+}
+
+function play(from, to, onEnd) {
+    clearTimers();
+    segFrom = from; segTo = to; segStart = performance.now();
+    events.filter(e => !e.done && e.t >= from && e.t < to)
+        .forEach(e => timers.push(setTimeout(() => { e.done = true; e.fn(); }, e.t - from)));
+    beats.forEach((bt, k) => { if (bt > from && bt < to) timers.push(setTimeout(() => { beat = k; label(); }, bt - from)); });
+    if (onEnd) timers.push(setTimeout(onEnd, to - from));
+    setProgress(from, to);
+}
+
+function now() { return Math.min(segTo, segFrom + performance.now() - segStart); }
+
+function startBeat(b) {
+    beat = b; label();
+    jumpTo(beats[b]);
+    if (autoplay) play(beats[b], dur(), () => { if (idx < scenes.length - 1) go(idx + 1); });
+    else play(beats[b], beatEnd(b));
+}
+
+function go(i, b = 0) {
+    build(i);
+    startBeat(b === 'last' ? beats.length - 1 : b);
+}
+
+function next() {
+    if (autoplay) { if (idx < scenes.length - 1) go(idx + 1); return; }
+    clearTimers();
+    if (beat < beats.length - 1) { jumpTo(beatEnd(beat)); startBeat(beat + 1); }
+    else if (idx < scenes.length - 1) go(idx + 1);
+    else { jumpTo(dur()); setProgress(dur(), dur()); }
+}
+
+function back() {
+    if (autoplay) { go(idx - 1); return; }
+    if (beat > 0) go(idx, beat - 1);
+    else if (idx > 0) go(idx - 1, 'last');
+    else go(0);
+}
+
+function toggleAuto() {
+    autoplay = !autoplay;
+    autoBtn.classList.toggle('on', autoplay); autoBtn.setAttribute('aria-pressed', autoplay);
+    const cur = now();
+    clearTimers();
+    if (autoplay) {
+        play(cur, dur(), () => { if (idx < scenes.length - 1) go(idx + 1); });
+    } else {
+        let b = 0; beats.forEach((bt, k) => { if (bt <= cur) b = k; });
+        beat = b; label();
+        jumpTo(beatEnd(b));
+        setProgress(beatEnd(b), beatEnd(b));
+    }
+}
+
+const autoBtn = $('#auto');
+$('#next').onclick = next;
+$('#back').onclick = back;
+$('#replay').onclick = () => { zoomReset(); go(idx); };
+autoBtn.onclick = toggleAuto;
+const typing = e => e.target && (e.target.tagName === 'INPUT' || e.target.isContentEditable);
+document.addEventListener('keydown', e => {
+    if (typing(e) || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (wbOpen) {
+        if (e.key === 'ArrowRight') wbGo(wbPage + 1);
+        if (e.key === 'ArrowLeft') wbGo(wbPage - 1);
+        if (e.key === 'n' || e.key === 'N') wbNew();
+        if (e.key === ' ') e.preventDefault();
+        return;
+    }
+    if (e.key === 'ArrowRight') next();
+    if (e.key === 'ArrowLeft') back();
+    if (e.key === 'r' || e.key === 'R') { zoomReset(); go(idx); }
+    if (e.key === ' ') { e.preventDefault(); toggleAuto(); }
+});
+
+/* ---------- pen, highlighter and eraser ---------- */
+const ink = $('#ink'), ctx = ink.getContext('2d'), hlc = $('#hl'), hctx = hlc.getContext('2d'), livec = $('#hllive'), lctx = livec.getContext('2d');
+const penBtn = $('#pen'), hlBtn = $('#hlbtn'), eraserBtn = $('#eraser');
+let tool = null, penColour = '#ea008a', hlColour = '#ffd60a', drawing = false, inkMarked = false, hlMarked = false, scaleK = 1, exporting = false;
+const HL_ALPHA = 0.42, HL_W = 26;
+const inkOps = {}, inkRedo = {};
+const isTyping = e => e.target && (e.target.tagName === 'INPUT' || e.target.isContentEditable);
+[ctx, hctx, lctx].forEach(c => { c.scale(2, 2); c.lineCap = 'round'; c.lineJoin = 'round'; });
+let wbOpen = false, wbPage = 0, wbPages = 1;
+const curKey = () => wbOpen ? 'wb' + wbPage : idx;
+const opsOf = k => (inkOps[k] = inkOps[k] || []), redoOf = k => (inkRedo[k] = inkRedo[k] || []);
+let curStroke = null;
+
+function setTool(t) {
+    tool = t;
+    ink.classList.toggle('active', !!t);
+    ink.classList.toggle('erase', t === 'eraser');
+    [[penBtn, 'pen'], [hlBtn, 'hl'], [eraserBtn, 'eraser']].forEach(([b, n]) => { b.classList.toggle('on', t === n); b.setAttribute('aria-pressed', t === n); });
+    syncSwatches(); syncMenus();
+}
+function syncSwatches() {
+    const c = tool === 'hl' ? hlColour : penColour;
+    document.querySelectorAll('.swatch').forEach(x => x.classList.toggle('cur', x.dataset.c === c));
+}
+const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+const targetsOf = op => op.t === 'eraser' ? [ctx, hctx] : op.t === 'hl' ? [hctx] : [ctx];
+function brush(c, op) {
+    const er = op.t === 'eraser';
+    c.globalCompositeOperation = er ? 'destination-out' : 'source-over';
+    c.globalAlpha = op.t === 'hl' ? HL_ALPHA : 1;
+    c.strokeStyle = c.fillStyle = er ? '#000' : op.c;
+    c.lineWidth = op.w;
+}
+function unbrush(c) { c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1; }
+function dotOn(c, op) { const p = op.pts[0]; c.beginPath(); c.arc(p.x, p.y, op.w / 2, 0, Math.PI * 2); c.fill(); }
+function segOn(c, op, i) {
+    const P = op.pts, a = P[i - 1], m0 = i > 1 ? mid(P[i - 2], a) : a, m1 = mid(a, P[i]);
+    c.beginPath(); c.moveTo(m0.x, m0.y); c.quadraticCurveTo(a.x, a.y, m1.x, m1.y); c.stroke();
+}
+function tailOn(c, op) {
+    const P = op.pts, n = P.length; if (n < 2) return;
+    const m = mid(P[n - 2], P[n - 1]);
+    c.beginPath(); c.moveTo(m.x, m.y); c.lineTo(P[n - 1].x, P[n - 1].y); c.stroke();
+}
+function pathOn(c, op) {
+    const P = op.pts;
+    if (P.length < 2) { dotOn(c, op); return; }
+    c.beginPath(); c.moveTo(P[0].x, P[0].y);
+    for (let i = 1; i < P.length; i++) { const m = mid(P[i - 1], P[i]); c.quadraticCurveTo(P[i - 1].x, P[i - 1].y, m.x, m.y); }
+    c.lineTo(P[P.length - 1].x, P[P.length - 1].y); c.stroke();
+}
+function redrawInk() {
+    [ctx, hctx, lctx].forEach(c => { unbrush(c); c.clearRect(0, 0, 1280, 720); });
+    let mi = false, mh = false;
+    opsOf(curKey()).forEach(op => {
+        if (op.t === 'clear') { ctx.clearRect(0, 0, 1280, 720); hctx.clearRect(0, 0, 1280, 720); mi = mh = false; return; }
+        targetsOf(op).forEach(c => { brush(c, op); pathOn(c, op); unbrush(c); });
+        if (op.t === 'pen') mi = true;
+        if (op.t === 'hl') mh = true;
+    });
+    inkMarked = mi; hlMarked = mh;
+}
+function commit(op) { opsOf(curKey()).push(op); redoOf(curKey()).length = 0; }
+function clearInk() { if (!inkMarked && !hlMarked) return; commit({ t: 'clear' }); redrawInk(); }
+function saveInk() {}
+function loadInk() { redrawInk(); }
+function undoInk() { if (drawing) return; const o = opsOf(curKey()); if (!o.length) return; redoOf(curKey()).push(o.pop()); redrawInk(); }
+function redoInk() { if (drawing) return; const r = redoOf(curKey()); if (!r.length) return; opsOf(curKey()).push(r.pop()); redrawInk(); }
+function liveHL() { lctx.clearRect(0, 0, 1280, 720); brush(lctx, curStroke); pathOn(lctx, curStroke); unbrush(lctx); }
+function pt(e) { const r = ink.getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * 1280, y: (e.clientY - r.top) / r.height * 720 }; }
+ink.addEventListener('pointerdown', e => {
+    if (!tool) return;
+    drawing = true; ink.setPointerCapture(e.pointerId);
+    const w = tool === 'eraser' ? 26 / (scaleK * Z.z) : tool === 'hl' ? HL_W : 5;
+    curStroke = { t: tool, c: tool === 'hl' ? hlColour : penColour, w, pts: [pt(e)] };
+    if (tool === 'hl') { liveHL(); hlMarked = true; return; }
+    targetsOf(curStroke).forEach(c => { brush(c, curStroke); dotOn(c, curStroke); unbrush(c); });
+    if (tool === 'pen') inkMarked = true;
+});
+ink.addEventListener('pointermove', e => {
+    if (!drawing) return;
+    curStroke.pts.push(pt(e));
+    if (curStroke.t === 'hl') { liveHL(); return; }
+    targetsOf(curStroke).forEach(c => { brush(c, curStroke); segOn(c, curStroke, curStroke.pts.length - 1); unbrush(c); });
+});
+['pointerup', 'pointercancel'].forEach(t => ink.addEventListener(t, () => {
+    if (!drawing) return;
+    if (curStroke.t === 'hl') { lctx.clearRect(0, 0, 1280, 720); brush(hctx, curStroke); pathOn(hctx, curStroke); unbrush(hctx); }
+    else targetsOf(curStroke).forEach(c => { brush(c, curStroke); tailOn(c, curStroke); unbrush(c); });
+    commit(curStroke); curStroke = null; drawing = false;
+}));
+penBtn.onclick = () => setTool(tool === 'pen' ? null : 'pen');
+hlBtn.onclick = () => setTool(tool === 'hl' ? null : 'hl');
+eraserBtn.onclick = () => setTool(tool === 'eraser' ? null : 'eraser');
+$('#clear').onclick = clearInk;
+document.querySelectorAll('.swatch').forEach(b => b.onclick = () => {
+    if (tool === 'hl') hlColour = b.dataset.c; else { penColour = b.dataset.c; setTool('pen'); }
+    syncSwatches(); syncMenus();
+});
+
+/* ---------- hide UI ---------- */
+function setUI(hidden) { document.body.classList.toggle('noui', hidden); if (document.activeElement) document.activeElement.blur(); fit(); }
+$('#hideui').onclick = () => setUI(true);
+$('#showui').onclick = () => setUI(false);
+
+/* ---------- subtitles ---------- */
+const subsBtn = $('#subs');
+function toggleSubs() {
+    const off = document.body.classList.toggle('nosubs');
+    subsBtn.classList.toggle('on', !off);
+    subsBtn.setAttribute('aria-pressed', !off);
+    subsBtn.blur();
+}
+subsBtn.onclick = toggleSubs;
+
+
+/* ---------- floating timer ---------- */
+const ftEl = $('#ftimer'), ftV = $('#ftv'), ftF = $('#ftf'), ftStart = $('#ftstart'), ftBtn = $('#timerbtn');
+const FT = { total: 60, left: 60, iv: null, end: 0 };
+const ftFmt = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+function ftDraw() { ftV.textContent = ftFmt(Math.ceil(FT.left)); ftF.style.strokeDashoffset = (1 - FT.left / FT.total).toFixed(4); }
+function ftStop() { clearInterval(FT.iv); FT.iv = null; ftStart.textContent = 'Start'; }
+function ftBeep() {
+    try {
+        const ac = new (window.AudioContext || window.webkitAudioContext)();
+        [0, .35, .7].forEach(t => { const o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = 880; o.connect(g); g.connect(ac.destination);
+            g.gain.setValueAtTime(.0001, ac.currentTime + t); g.gain.exponentialRampToValueAtTime(.25, ac.currentTime + t + .02); g.gain.exponentialRampToValueAtTime(.0001, ac.currentTime + t + .25);
+            o.start(ac.currentTime + t); o.stop(ac.currentTime + t + .3); });
+    } catch (e) {}
+}
+function ftTick() {
+    FT.left = Math.max(0, (FT.end - performance.now()) / 1000);
+    ftDraw();
+    if (FT.left <= 0) { ftStop(); ftEl.classList.add('done'); ftBeep(); }
+}
+function ftSet(sec) { ftStop(); ftEl.classList.remove('done'); FT.total = FT.left = sec; ftDraw(); }
+function ftToggleRun() {
+    if (FT.iv) { ftTick(); ftStop(); return; }
+    if (FT.left <= 0) ftSet(FT.total);
+    ftEl.classList.remove('done');
+    FT.end = performance.now() + FT.left * 1000;
+    FT.iv = setInterval(ftTick, 200); ftStart.textContent = 'Pause';
+}
+function ftAdj(d) {
+    const nl = Math.max(10, Math.round(FT.left) + d);
+    const diff = nl - FT.left;
+    FT.left = nl; FT.total = Math.max(nl, FT.total + d, 10);
+    if (FT.iv) FT.end += diff * 1000;
+    ftEl.classList.remove('done'); ftDraw();
+}
+function ftShow(on) {
+    ftEl.hidden = !on; ftBtn.setAttribute('aria-pressed', on); ftBtn.classList.toggle('on', on);
+    if (!on) ftStop();
+}
+ftEl.querySelectorAll('[data-set]').forEach(b => b.onclick = () => ftSet(+b.dataset.set));
+ftEl.querySelectorAll('[data-adj]').forEach(b => b.onclick = () => ftAdj(+b.dataset.adj));
+ftStart.onclick = ftToggleRun;
+$('#ftreset').onclick = () => ftSet(FT.total);
+$('#ftclose').onclick = () => ftShow(false);
+$('#ftsize').onclick = () => { ftEl.classList.toggle('big'); ftClamp(); };
+ftBtn.onclick = () => ftShow(ftEl.hidden);
+ftEl.addEventListener('click', e => { if (e.target.closest('button')) e.target.closest('button').blur(); });
+function ftClamp() {
+    const r = ftEl.getBoundingClientRect();
+    ftEl.style.left = Math.max(0, Math.min(window.innerWidth - r.width, r.left)) + 'px';
+    ftEl.style.top = Math.max(0, Math.min(window.innerHeight - r.height, r.top)) + 'px';
+}
+(() => {
+    const h = $('#fth'); let dx = 0, dy = 0, drag = false;
+    h.addEventListener('pointerdown', e => { if (e.target.closest('button')) return; drag = true; const r = ftEl.getBoundingClientRect(); dx = e.clientX - r.left; dy = e.clientY - r.top; h.setPointerCapture(e.pointerId); });
+    h.addEventListener('pointermove', e => { if (!drag) return; ftEl.style.left = (e.clientX - dx) + 'px'; ftEl.style.top = (e.clientY - dy) + 'px'; ftClamp(); });
+    ['pointerup', 'pointercancel'].forEach(t => h.addEventListener(t, () => drag = false));
+    window.addEventListener('resize', () => { if (!ftEl.hidden) ftClamp(); });
+})();
+ftDraw();
+
+
+/* ---------- zoom, lock and spotlight ---------- */
+const zoomer = $('#zoomer'), spotEl = $('#spot'), zoomBtn = $('#zoombtn'), lockBtn = $('#lockbtn'), spotBtn = $('#spotbtn');
+const ZW = 1280, ZH = 714;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const mouse = { x: ZW / 2, y: ZH / 2 };
+const Z = { on: false, locked: false, level: 2, z: 1, x: ZW / 2, y: ZH / 2, lx: 0, ly: 0 };
+const SP = { on: false, r: 150, cr: 150, x: ZW / 2, y: ZH / 2 };
+let zraf = 0, zlast = 0;
+
+function applyZoom() {
+    if (Z.z <= 1.0005) zoomer.style.transform = '';
+    else zoomer.style.transform = `translate(${(Z.x * (1 - Z.z)).toFixed(2)}px, ${(Z.y * (1 - Z.z)).toFixed(2)}px) scale(${Z.z.toFixed(4)})`;
+}
+function applySpot() {
+    const r = SP.cr;
+    spotEl.style.background = `radial-gradient(circle at ${SP.x.toFixed(1)}px ${SP.y.toFixed(1)}px, rgba(27,31,69,0) ${(r - 26).toFixed(1)}px, rgba(27,31,69,.74) ${(r + 26).toFixed(1)}px)`;
+}
+function zoomFrame(n) {
+    const dt = zlast ? Math.min(64, n - zlast) : 16; zlast = n;
+    const a = 1 - Math.exp(-dt / 90), b = 1 - Math.exp(-dt / 45);
+    const tz = Z.on ? Z.level : 1, tx = Z.locked ? Z.lx : mouse.x, ty = Z.locked ? Z.ly : mouse.y;
+    Z.z += (tz - Z.z) * a; Z.x += (tx - Z.x) * a; Z.y += (ty - Z.y) * a;
+    const zDone = Math.abs(tz - Z.z) < 0.0008 && Math.abs(tx - Z.x) < 0.08 && Math.abs(ty - Z.y) < 0.08;
+    if (zDone) { Z.z = tz; Z.x = tx; Z.y = ty; }
+    applyZoom();
+    let sDone = true;
+    if (SP.on) {
+        SP.x += (mouse.x - SP.x) * b; SP.y += (mouse.y - SP.y) * b; SP.cr += (SP.r - SP.cr) * a;
+        sDone = Math.abs(mouse.x - SP.x) < 0.08 && Math.abs(mouse.y - SP.y) < 0.08 && Math.abs(SP.r - SP.cr) < 0.08;
+        if (sDone) { SP.x = mouse.x; SP.y = mouse.y; SP.cr = SP.r; }
+        applySpot();
+    }
+    if (zDone && sDone) { zraf = 0; zlast = 0; } else zraf = requestAnimationFrame(zoomFrame);
+}
+function kick() { if (!zraf) { zlast = 0; zraf = requestAnimationFrame(zoomFrame); } }
+
+function setZoom(on) {
+    Z.on = on;
+    if (!on) setLock(false);
+    zoomBtn.classList.toggle('on', on); zoomBtn.setAttribute('aria-pressed', on);
+    lockBtn.disabled = !on;
+    syncMenus(); syncTip();
+    kick();
+}
+function setLock(on) {
+    if (on && !Z.on) return;
+    Z.locked = on;
+    if (on) { Z.lx = Z.x; Z.ly = Z.y; }
+    lockBtn.classList.toggle('on', on); lockBtn.setAttribute('aria-pressed', on);
+    syncTip();
+    kick();
+}
+const ztip = $('#ztip');
+function syncTip() {
+    ztip.classList.toggle('on', Z.on);
+    if (!Z.on) return;
+    ztip.innerHTML = `<span class="ui-lv">${Z.level.toFixed(1)}&times;</span><span><kbd>Z</kbd>Zoom out</span><span><kbd>L</kbd>${Z.locked ? 'Unlock' : 'Lock'}</span><span class="ui-dim">Scroll to adjust</span>`;
+}
+function zoomReset() {
+    Z.on = false; setLock(false); setZoom(false);
+    Z.z = 1; Z.x = mouse.x; Z.y = mouse.y; applyZoom();
+}
+function setSpot(on) {
+    if (on && !SP.on) { SP.x = mouse.x; SP.y = mouse.y; SP.cr = SP.r; applySpot(); }
+    SP.on = on;
+    spotEl.classList.toggle('on', on);
+    spotBtn.classList.toggle('on', on); spotBtn.setAttribute('aria-pressed', on);
+    syncMenus();
+    kick();
+}
+
+window.addEventListener('pointermove', e => {
+    const r = stage.getBoundingClientRect(), k = r.width / 1280;
+    mouse.x = clamp((e.clientX - r.left) / k, 0, ZW);
+    mouse.y = clamp((e.clientY - r.top) / k - 6, 0, ZH);
+    if (Z.on || SP.on || Z.z > 1) kick();
+});
+window.addEventListener('wheel', e => {
+    if (!Z.on && !SP.on) return;
+    e.preventDefault();
+    const d = clamp(e.deltaY || e.deltaX, -200, 200);
+    if (SP.on && (e.shiftKey || !Z.on)) SP.r = clamp(SP.r * Math.exp(-d * 0.0015), 60, 420);
+    else { Z.level = clamp(Z.level * Math.exp(-d * 0.0015), 1.25, 5); syncTip(); }
+    kick();
+}, { passive: false });
+zoomBtn.onclick = () => { setZoom(!Z.on); zoomBtn.blur(); };
+lockBtn.onclick = () => { setLock(!Z.locked); lockBtn.blur(); };
+spotBtn.onclick = () => { setSpot(!SP.on); spotBtn.blur(); };
+
+
+/* ---------- engagement badges ---------- */
+const UI_ICON = {
+    talk: '<svg viewBox="0 0 24 24"><path d="M2 4h12v8H8l-4 3v-3H2z"/><path d="M17 8h5v8h-2v3l-3-3h-6v-2"/></svg>',
+    arrow: '<svg class="ui-ar" viewBox="0 0 24 24"><path d="M3 12h16M13 6l6 6-6 6"/></svg>',
+    person: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>',
+    pencil: '<svg viewBox="0 0 24 24"><path d="M4 20l1.2-4.8L16 4.4l3.6 3.6L8.8 18.8z"/><path d="M13.6 6.8l3.6 3.6"/></svg>',
+    vol: '<svg viewBox="0 0 24 24"><circle cx="8.5" cy="7.5" r="3.2"/><path d="M2.5 21c0-3.7 2.7-6.6 6-6.6 1.5 0 2.8.5 3.8 1.4"/><path d="M12.3 15.8L18 6"/><path d="M16.4 5.2l2.2-2.7 1.7 3.3"/></svg>',
+    hand: '<svg viewBox="0 0 24 24"><path d="M18 11V6a2 2 0 0 0-4 0"/><path d="M14 10V4a2 2 0 0 0-4 0v2"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.9-6-2.3l-3.6-3.6a2 2 0 0 1 2.8-2.8L7 15"/></svg>'
+};
+const ENGAGE = {
+    tt: { cls: 'ui-pk', html: `${UI_ICON.talk}<span>Turn &amp; talk</span>` },
+    cc: { cls: 'ui-pk', html: `${UI_ICON.talk}<span>Turn &amp; talk</span>${UI_ICON.arrow}${UI_ICON.person}<span>Cold call</span>` },
+    sj: { cls: 'ui-nv', html: `${UI_ICON.pencil}<span>Stop &amp; jot</span>` },
+    fv: { cls: 'ui-nv', html: `${UI_ICON.hand}<span>Finger vote</span>` },
+    vs: { cls: 'ui-pk', html: `${UI_ICON.vol}<span>Volunteer to share</span>` }
+};
+const ENG_KEYS = ['tt', 'cc', 'sj', 'fv', 'vs'];
+
+/* header CFU badge: set cfu (tt, cc, sj, fv or vs), time (seconds) and sc (['SC1']) on a scene */
+const uiCfu = $('#ui-cfu'), UI_CLOCK = '<svg viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 10v3.5l2.5 2M9.5 2.5h5"/></svg>';
+let uiCfuTime = 0;
+function uiSetCfu(k, t) {
+    uiCfu.className = 'ui-cfu'; uiCfu.innerHTML = ''; uiCfuTime = 0;
+    uiCfu.removeAttribute('title'); uiCfu.removeAttribute('aria-label'); uiCfu.removeAttribute('tabindex');
+    if (!k || !ENGAGE[k]) return;
+    void uiCfu.offsetWidth;
+    uiCfuTime = t || 0;
+    uiCfu.className = 'ui-cfu ' + ENGAGE[k].cls + ' ui-cfuin' + (uiCfuTime ? ' ui-click' : '');
+    uiCfu.innerHTML = ENGAGE[k].html + (uiCfuTime ? `<span class="ui-ct">${UI_CLOCK}${ftFmt(uiCfuTime)}</span>` : '');
+    if (uiCfuTime) { uiCfu.tabIndex = 0; uiCfu.title = 'Start a ' + ftFmt(uiCfuTime) + ' timer'; uiCfu.setAttribute('aria-label', 'Open timer at ' + ftFmt(uiCfuTime)); }
+}
+function uiSetSC(list) { $('#ui-sctags').innerHTML = (list || []).map(x => `<span>${x}</span>`).join(''); }
+function uiCfuOpen() { if (!uiCfuTime) return; ftSet(uiCfuTime); ftShow(true); uiCfu.blur(); }
+uiCfu.addEventListener('click', uiCfuOpen);
+uiCfu.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); uiCfuOpen(); } });
+const blayer = $('#blayer'), badgeStore = {};
+const sceneBadges = () => { const k = curKey(); return (badgeStore[k] = badgeStore[k] || []); };
+
+function placeBadge(b, e) {
+    b.x = clamp(b.x, 0, 1280 - e.offsetWidth); b.y = clamp(b.y, 0, 714 - e.offsetHeight);
+    e.style.left = b.x + 'px'; e.style.top = b.y + 'px';
+}
+function uiBadgeEl(b, animate) {
+    const e = el('div', 'ui-fb ' + ENGAGE[b.k].cls + (b.big ? ' ui-big' : '') + (animate ? ' ui-in' : ''), ENGAGE[b.k].html);
+    const x = el('button', 'ui-x', '<svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg>');
+    x.type = 'button'; x.setAttribute('aria-label', 'Remove badge');
+    e.appendChild(x);
+    e.style.left = b.x + 'px'; e.style.top = b.y + 'px';
+    x.addEventListener('pointerdown', ev => ev.stopPropagation());
+    x.onclick = () => { const arr = sceneBadges(), i = arr.indexOf(b); if (i > -1) arr.splice(i, 1); e.remove(); };
+    let drag = false, sx = 0, sy = 0, ox = 0, oy = 0, lastTap = 0, moved = false;
+    e.addEventListener('pointerdown', ev => {
+        if (ev.button !== 0) return;
+        ev.preventDefault();
+        drag = true; moved = false; sx = ev.clientX; sy = ev.clientY; ox = b.x; oy = b.y;
+        e.setPointerCapture(ev.pointerId); e.classList.add('ui-dragging'); e.classList.remove('ui-in');
+    });
+    e.addEventListener('pointermove', ev => {
+        if (!drag) return;
+        if (Math.abs(ev.clientX - sx) + Math.abs(ev.clientY - sy) > 4) moved = true;
+        b.x = ox + (ev.clientX - sx) / scaleK; b.y = oy + (ev.clientY - sy) / scaleK; placeBadge(b, e);
+    });
+    ['pointerup', 'pointercancel'].forEach(t => e.addEventListener(t, ev => {
+        if (!drag) return;
+        drag = false; e.classList.remove('ui-dragging');
+        if (t === 'pointerup' && !moved) {
+            const n = performance.now();
+            if (n - lastTap < 350) {
+                const cx = b.x + e.offsetWidth / 2, cy = b.y + e.offsetHeight / 2;
+                b.big = !b.big; e.classList.toggle('ui-big', b.big);
+                b.x = cx - e.offsetWidth / 2; b.y = cy - e.offsetHeight / 2; placeBadge(b, e);
+                lastTap = 0;
+            } else lastTap = n;
+        }
+    }));
+    return e;
+}
+function renderBadges() {
+    if (blayer.contains(document.activeElement)) document.activeElement.blur();
+    blayer.innerHTML = '';
+    (badgeStore[curKey()] || []).forEach(b => blayer.appendChild(uiBadgeEl(b)));
+    (textStore[curKey()] || []).forEach(t => blayer.appendChild(textEl(t)));
+    renderImages();
+}
+function addBadge(k) {
+    const arr = sceneBadges(), b = { k, x: 0, y: 0, big: false }, e = uiBadgeEl(b, true);
+    blayer.appendChild(e);
+    b.x = 1216 - e.offsetWidth; b.y = 146 + (arr.length % 6) * 72;
+    placeBadge(b, e); arr.push(b);
+}
+function clearBadges() { badgeStore[curKey()] = []; blayer.querySelectorAll('.ui-fb').forEach(n => n.remove()); }
+document.querySelectorAll('.ui-mi.ui-eng').forEach(b => b.onclick = () => addBadge(b.dataset.k));
+$('#engclear').onclick = clearBadges;
+
+
+/* ---------- floating text boxes ---------- */
+const textStore = {};
+const sceneTexts = () => { const k = curKey(); return (textStore[k] = textStore[k] || []); };
+const TB_STY = ['ui-wt', 'ui-nv', 'ui-pk'], TB_SZ = [24, 32, 44];
+function textEl(t, fresh) {
+    const e = el('div', 'ui-tbox ' + TB_STY[t.sty] + (fresh ? ' ui-in' : ''));
+    const body = el('div', 'ui-tbt'); body.textContent = t.text; body.dataset.ph = 'Type a prompt';
+    body.style.fontSize = TB_SZ[t.sz] + 'px';
+    const bar = el('div', 'ui-tbbar');
+    const bSty = el('button', 'ui-tbb ui-sty', '<span></span>'), bSz = el('button', 'ui-tbb', 'A'),
+          bX = el('button', 'ui-tbb', '<svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg>');
+    [[bSty, 'Change colour'], [bSz, 'Change text size'], [bX, 'Remove text box']].forEach(([b, l]) => { b.type = 'button'; b.setAttribute('aria-label', l); b.addEventListener('pointerdown', ev => { ev.stopPropagation(); ev.preventDefault(); }); });
+    bar.append(bSty, bSz, bX); e.append(body, bar);
+    e.style.left = t.x + 'px'; e.style.top = t.y + 'px';
+    const place = () => placeBadge(t, e);
+    const remove = () => { const arr = sceneTexts(), i = arr.indexOf(t); if (i > -1) arr.splice(i, 1); e.remove(); };
+    bSty.onclick = () => { e.classList.remove(TB_STY[t.sty]); t.sty = (t.sty + 1) % TB_STY.length; e.classList.add(TB_STY[t.sty]); };
+    bSz.onclick = () => { t.sz = (t.sz + 1) % TB_SZ.length; body.style.fontSize = TB_SZ[t.sz] + 'px'; place(); };
+    bX.onclick = remove;
+    const edit = () => {
+        e.classList.add('ui-editing');
+        try { body.contentEditable = 'plaintext-only'; } catch (err) { body.contentEditable = 'true'; }
+        if (body.contentEditable !== 'plaintext-only') body.contentEditable = 'true';
+        body.focus();
+        const r = document.createRange(); r.selectNodeContents(body); r.collapse(false);
+        const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+    };
+    const finish = () => {
+        if (!e.classList.contains('ui-editing')) return;
+        e.classList.remove('ui-editing'); body.contentEditable = 'false';
+        t.text = body.innerText.replace(/^\s+|\s+$/g, '');
+        if (!t.text) { remove(); return; }
+        body.textContent = t.text; place();
+    };
+    e.edit = edit;
+    body.addEventListener('blur', finish);
+    body.addEventListener('input', () => { t.text = body.innerText; place(); });
+    body.addEventListener('keydown', ev => {
+        if (ev.key === 'Escape' || (ev.key === 'Enter' && !ev.shiftKey)) { ev.preventDefault(); body.blur(); }
+    });
+    body.addEventListener('paste', ev => {
+        ev.preventDefault();
+        document.execCommand('insertText', false, (ev.clipboardData || window.clipboardData).getData('text/plain'));
+    });
+    let drag = false, sx = 0, sy = 0, ox = 0, oy = 0, lastTap = 0, moved = false;
+    e.addEventListener('pointerdown', ev => {
+        if (ev.button !== 0 || e.classList.contains('ui-editing')) return;
+        ev.preventDefault();
+        drag = true; moved = false; sx = ev.clientX; sy = ev.clientY; ox = t.x; oy = t.y;
+        e.setPointerCapture(ev.pointerId); e.classList.add('ui-dragging'); e.classList.remove('ui-in');
+    });
+    e.addEventListener('pointermove', ev => {
+        if (!drag) return;
+        if (Math.abs(ev.clientX - sx) + Math.abs(ev.clientY - sy) > 4) moved = true;
+        t.x = ox + (ev.clientX - sx) / scaleK; t.y = oy + (ev.clientY - sy) / scaleK; place();
+    });
+    ['pointerup', 'pointercancel'].forEach(type => e.addEventListener(type, () => {
+        if (!drag) return;
+        drag = false; e.classList.remove('ui-dragging');
+        if (type === 'pointerup' && !moved) {
+            const n = performance.now();
+            if (n - lastTap < 350) { lastTap = 0; edit(); } else lastTap = n;
+        }
+    }));
+    return e;
+}
+function addText(atMouse) {
+    const t = { text: '', x: 0, y: 0, sty: 0, sz: 1 }, e = textEl(t, true);
+    blayer.appendChild(e);
+    if (atMouse) { t.x = mouse.x; t.y = mouse.y; }
+    else { const n = sceneTexts().length % 5; t.x = 640 - e.offsetWidth / 2 + n * 24; t.y = 300 - e.offsetHeight / 2 + n * 24; }
+    placeBadge(t, e); sceneTexts().push(t);
+    e.edit();
+}
+$('#textbtn').onclick = () => addText(false);
+
+/* ---------- pasted images ---------- */
+const ilayer = $('#ilayer'), imgStore = {}, imgFile = $('#imgfile');
+const sceneImgs = () => { const k = curKey(); return (imgStore[k] = imgStore[k] || []); };
+let imgSel = null, ptrIn = false, ptrX = 0, ptrY = 0;
+const IMG_MAX = 1920;
+stage.addEventListener('pointerenter', () => ptrIn = true);
+stage.addEventListener('pointerleave', () => ptrIn = false);
+window.addEventListener('pointermove', e => { ptrX = e.clientX; ptrY = e.clientY; }, true);
+function layerPt(cx, cy) { const r = ilayer.getBoundingClientRect(); return { x: (cx - r.left) / r.width * 1280, y: (cy - r.top) / r.height * 714, k: r.width / 1280 }; }
+function selectImg(o) {
+    imgSel = o;
+    ilayer.querySelectorAll('.ui-img').forEach(n => n.classList.toggle('ui-sel', !!o && n.img === o));
+}
+function placeImg(o, e) {
+    o.w = clamp(o.w, 40, 1280); o.h = o.w / o.r;
+    if (o.h > 714) { o.h = 714; o.w = o.h * o.r; }
+    o.x = clamp(o.x, -o.w + 40, 1240); o.y = clamp(o.y, -o.h + 40, 674);
+    Object.assign(e.style, { left: o.x + 'px', top: o.y + 'px', width: o.w + 'px', height: o.h + 'px' });
+}
+function removeImg(o) {
+    const arr = sceneImgs(), i = arr.indexOf(o); if (i > -1) arr.splice(i, 1);
+    const n = [...ilayer.children].find(n => n.img === o); if (n) n.remove();
+    if (imgSel === o) imgSel = null;
+}
+function imgEl(o, fresh) {
+    const e = el('div', 'ui-img' + (fresh ? ' ui-in' : '') + (imgSel === o ? ' ui-sel' : ''));
+    e.img = o;
+    const im = el('img'); im.src = o.src; im.alt = ''; im.draggable = false;
+    const x = el('button', 'ui-imx', '<svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg>');
+    x.type = 'button'; x.setAttribute('aria-label', 'Remove image');
+    const rz = el('span', 'ui-imr'); rz.setAttribute('aria-hidden', 'true');
+    e.append(im, x, rz); placeImg(o, e);
+    x.addEventListener('pointerdown', ev => ev.stopPropagation());
+    x.onclick = () => removeImg(o);
+    let mode = null, sx = 0, sy = 0, ox = 0, oy = 0, ow = 0, k = 1;
+    const start = (ev, m) => {
+        if (ev.button !== 0) return;
+        ev.preventDefault(); ev.stopPropagation();
+        mode = m; sx = ev.clientX; sy = ev.clientY; ox = o.x; oy = o.y; ow = o.w; k = layerPt(0, 0).k;
+        e.setPointerCapture(ev.pointerId); e.classList.remove('ui-in');
+        if (m === 'move') e.classList.add('ui-dragging');
+        const arr = sceneImgs(), i = arr.indexOf(o);
+        if (i > -1 && i < arr.length - 1) { arr.splice(i, 1); arr.push(o); ilayer.appendChild(e); }
+        selectImg(o);
+    };
+    e.addEventListener('pointerdown', ev => start(ev, 'move'));
+    rz.addEventListener('pointerdown', ev => start(ev, 'size'));
+    e.addEventListener('pointermove', ev => {
+        if (!mode) return;
+        const dx = (ev.clientX - sx) / k, dy = (ev.clientY - sy) / k;
+        if (mode === 'move') { o.x = ox + dx; o.y = oy + dy; }
+        else o.w = Math.max(ow + dx, ow + dy * o.r);
+        placeImg(o, e);
+    });
+    ['pointerup', 'pointercancel'].forEach(t => e.addEventListener(t, () => { mode = null; e.classList.remove('ui-dragging'); }));
+    return e;
+}
+function renderImages() {
+    ilayer.innerHTML = '';
+    if (imgSel && !sceneImgs().includes(imgSel)) imgSel = null;
+    (imgStore[curKey()] || []).forEach(o => ilayer.appendChild(imgEl(o)));
+}
+function readImage(file) {
+    return new Promise((res, rej) => {
+        const url = URL.createObjectURL(file), im = new Image();
+        im.onload = () => {
+            const nw = im.naturalWidth, nh = im.naturalHeight, sc = Math.min(1, IMG_MAX / Math.max(nw, nh));
+            const cv = document.createElement('canvas');
+            cv.width = Math.max(1, Math.round(nw * sc)); cv.height = Math.max(1, Math.round(nh * sc));
+            cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height);
+            URL.revokeObjectURL(url);
+            const keepAlpha = /png|gif|webp|svg/.test(file.type);
+            res({ src: cv.toDataURL(keepAlpha ? 'image/png' : 'image/jpeg', .92), nw, nh });
+        };
+        im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Could not read image')); };
+        im.src = url;
+    });
+}
+async function addImages(files, at) {
+    const list = [...files].filter(f => f && f.type && f.type.startsWith('image/'));
+    for (let n = 0; n < list.length; n++) {
+        let d; try { d = await readImage(list[n]); } catch (err) { continue; }
+        const r = d.nw / d.nh, w = Math.min(560, 380 * r, d.nw), h = w / r;
+        const c = at || { x: 640, y: 357 }, off = n * 28 + (at ? 0 : (sceneImgs().length % 5) * 24);
+        const o = { src: d.src, r, w, h, x: c.x - w / 2 + off, y: c.y - h / 2 + off };
+        sceneImgs().push(o);
+        const e = imgEl(o, true); ilayer.appendChild(e); selectImg(o);
+    }
+}
+document.addEventListener('paste', e => {
+    if (isTyping(e) || modal) return;
+    const files = [...((e.clipboardData && e.clipboardData.items) || [])].filter(i => i.kind === 'file' && i.type.startsWith('image/')).map(i => i.getAsFile());
+    if (!files.length) return;
+    e.preventDefault();
+    closeMenus(); setTool(null);
+    addImages(files, ptrIn ? layerPt(ptrX, ptrY) : null);
+});
+const dropEl = el('div', 'ui-drop'); stage.appendChild(dropEl);
+const hasFiles = e => e.dataTransfer && [...e.dataTransfer.types].includes('Files');
+let dragDepth = 0;
+window.addEventListener('dragenter', e => { if (!hasFiles(e)) return; dragDepth++; dropEl.classList.add('on'); });
+window.addEventListener('dragleave', e => { if (!hasFiles(e)) return; if (--dragDepth <= 0) { dragDepth = 0; dropEl.classList.remove('on'); } });
+window.addEventListener('dragover', e => { if (hasFiles(e)) e.preventDefault(); });
+window.addEventListener('drop', e => {
+    if (!hasFiles(e)) return;
+    e.preventDefault(); dragDepth = 0; dropEl.classList.remove('on');
+    if (modal) return;
+    setTool(null);
+    addImages(e.dataTransfer.files, stage.contains(e.target) ? layerPt(e.clientX, e.clientY) : null);
+});
+$('#imgbtn').onclick = () => imgFile.click();
+imgFile.addEventListener('change', () => { addImages(imgFile.files); imgFile.value = ''; });
+document.addEventListener('pointerdown', e => { if (imgSel && !e.target.closest('.ui-img')) selectImg(null); });
+document.addEventListener('keydown', e => {
+    if (!imgSel || isTyping(e) || modal) return;
+    if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); removeImg(imgSel); }
+    if (e.key === 'Escape') selectImg(null);
+});
+
+/* ---------- menus ---------- */
+const menus = [...document.querySelectorAll('.ui-menu')], engMenu = $('#engmenu');
+function closeMenus(except) {
+    menus.forEach(m => { if (m !== except) { m.classList.remove('ui-open'); m.querySelector('.ui-mt').setAttribute('aria-expanded', 'false'); } });
+}
+function toggleMenu(m, force) {
+    const open = force !== undefined ? force : !m.classList.contains('ui-open');
+    closeMenus(m); m.classList.toggle('ui-open', open); m.querySelector('.ui-mt').setAttribute('aria-expanded', open);
+}
+menus.forEach(m => {
+    m.querySelector('.ui-mt').addEventListener('click', e => { toggleMenu(m); e.currentTarget.blur(); });
+    m.querySelector('.ui-pop').addEventListener('click', e => { const b = e.target.closest('button'); if (b && !b.disabled) { b.blur(); closeMenus(); } });
+});
+document.addEventListener('pointerdown', e => { if (!e.target.closest('.ui-menu')) closeMenus(); });
+function syncMenus() {
+    $('#drawmenu .ui-mt').classList.toggle('on', !!tool);
+    $('#focusmenu .ui-mt').classList.toggle('on', Z.on || SP.on);
+    $('#pdot').style.background = tool === 'hl' ? hlColour : penColour;
+}
+
+/* ---------- fullscreen ---------- */
+const fsBtn = $('#fsbtn'), fsIc = $('#fsic');
+const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
+function toggleFS() {
+    if (fsEl()) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); return; }
+    const r = document.documentElement, f = r.requestFullscreen || r.webkitRequestFullscreen;
+    if (!f) return;
+    const p = f.call(r); if (p && p.catch) p.catch(() => {});
+}
+function syncFS() {
+    const on = !!fsEl();
+    fsBtn.classList.toggle('ui-isfs', on); fsBtn.classList.remove('ui-nudge');
+    fsBtn.querySelector('.bl').textContent = on ? 'Exit fullscreen' : 'Fullscreen';
+    fsIc.setAttribute('d', on ? 'M9 4v5H4M15 4v5h5M20 15h-5v5M4 15h5v5' : 'M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5');
+    setUI(on);
+    requestAnimationFrame(fit);
+}
+['fullscreenchange', 'webkitfullscreenchange'].forEach(t => document.addEventListener(t, syncFS));
+if (!(document.fullscreenEnabled || document.webkitFullscreenEnabled)) fsBtn.hidden = true;
+else fsBtn.classList.add('ui-nudge');
+fsBtn.onclick = () => { toggleFS(); fsBtn.blur(); };
+
+/* ---------- whiteboard ---------- */
+const wbBtn = $('#wbbtn'), wbl = $('#wbl');
+let wbPausedAt = 0;
+function loadSurface() { redrawInk(); renderBadges(); }
+function syncWB() {
+    $('#wbpg').textContent = `Page ${wbPage + 1} of ${wbPages}`;
+    wbl.innerHTML = `Whiteboard&nbsp;&nbsp;<b>${wbPage + 1}</b> / ${wbPages}`;
+    $('#wbprev').disabled = wbPage === 0; $('#wbnext').disabled = wbPage >= wbPages - 1;
+    wbBtn.classList.toggle('on', wbOpen); wbBtn.setAttribute('aria-pressed', wbOpen);
+}
+function toggleWB() {
+    if (document.activeElement) document.activeElement.blur();
+    closeMenus(); zoomReset();
+    if (!wbOpen) {
+        wbPausedAt = now(); clearTimers(); setProgress(wbPausedAt, wbPausedAt);
+        wbOpen = true;
+    } else {
+        wbOpen = false;
+    }
+    document.body.classList.toggle('ui-wb', wbOpen);
+    loadSurface(); syncWB(); fit();
+    if (!wbOpen) {
+        if (autoplay) play(wbPausedAt, dur(), () => { if (idx < scenes.length - 1) go(idx + 1); });
+        else play(wbPausedAt, beatEnd(beat));
+    }
+}
+function wbGo(p) {
+    p = clamp(p, 0, wbPages - 1); if (p === wbPage) return;
+    if (document.activeElement) document.activeElement.blur();
+    zoomReset(); wbPage = p; loadSurface(); syncWB();
+}
+function wbNew() { wbPages++; wbGo(wbPages - 1); }
+wbBtn.onclick = () => { toggleWB(); wbBtn.blur(); };
+$('#wbprev').onclick = () => wbGo(wbPage - 1);
+$('#wbnext').onclick = () => wbGo(wbPage + 1);
+$('#wbnew').onclick = () => { wbNew(); $('#wbnew').blur(); };
+syncWB();
+
+/* ---------- overlays: overview, shortcuts, blackout ---------- */
+const modals = { ovw: $('#ovw'), keys: $('#keys'), blk: $('#blk') };
+let modal = null;
+function openModal(n) {
+    if (modal) closeModal();
+    closeMenus();
+    if (document.activeElement) document.activeElement.blur();
+    if (n === 'blk' && autoplay) toggleAuto();
+    if (n === 'ovw') renderOverview();
+    modal = n; modals[n].hidden = false;
+    requestAnimationFrame(() => requestAnimationFrame(() => modals[n].classList.add('on')));
+    if (n === 'ovw') { const c = modals.ovw.querySelector('.ui-ovc.cur'); if (c) c.scrollIntoView({ block: 'center' }); }
+}
+function closeModal() {
+    if (!modal) return;
+    const m = modals[modal]; m.classList.remove('on'); m.hidden = true; modal = null;
+}
+window.addEventListener('keydown', e => {
+    if (!modal || /^F\d+$/.test(e.key)) return;
+    const k = e.key.toLowerCase();
+    e.preventDefault(); e.stopImmediatePropagation();
+    if (k === 'escape' || (modal === 'blk' && k === 'k') || (modal === 'ovw' && k === 'g') || (modal === 'keys' && (k === '?' || k === '/'))) closeModal();
+}, true);
+modals.blk.onclick = closeModal;
+modals.keys.addEventListener('click', e => { if (!e.target.closest('.ui-kcard') || e.target.closest('#keysclose')) closeModal(); });
+modals.ovw.addEventListener('click', e => { if (!e.target.closest('.ui-ovc')) closeModal(); });
+$('#blkbtn').onclick = () => openModal('blk');
+$('#keysbtn').onclick = () => openModal('keys');
+$('#ovbtn').onclick = () => { openModal('ovw'); };
+
+const thumbs = [];
+function renderOverview() {
+    const g = $('#ovg'); g.innerHTML = '';
+    scenes.forEach((sc, i) => {
+        const c = el('button', 'ui-ovc' + (i === idx ? ' cur' : ''));
+        c.setAttribute('aria-label', 'Go to scene ' + (i + 1));
+        const w = el('div', 'ui-thw'); if (thumbs[i]) w.appendChild(thumbs[i].cloneNode(true));
+        c.append(w, el('div', 'ui-lb', `<span class="ui-n">${i + 1}</span><span class="ui-t">${sc.title}</span>`));
+        c.onclick = () => { closeModal(); if (i !== idx) go(i); };
+        g.appendChild(c);
+    });
+}
+
+const SHORTCUTS = [
+    ['Slides', [['&rarr;', 'Next'], ['&larr;', 'Previous'], ['R', 'Replay scene'], ['Space', 'Autoplay'], ['G', 'Slide overview']]],
+    ['Draw', [['P', 'Pen'], ['Y', 'Highlighter'], ['E', 'Eraser'], ['B', 'Text box'], ['C', 'Clear ink'], ['Ctrl|Z', 'Undo'], ['Ctrl|Shift|Z', 'Redo'], ['Ctrl|V', 'Paste image'], ['Del', 'Delete selected image']]],
+    ['Focus', [['Z', 'Zoom (scroll to adjust)'], ['L', 'Lock zoom'], ['H', 'Spotlight (scroll to resize)'], ['K', 'Blackout']]],
+    ['Engage', [['M', 'Engagement methods'], ['1|5', 'Choose a method'], ['T', 'Timer']]],
+    ['Whiteboard', [['W', 'Open or close'], ['&larr;|&rarr;', 'Change page'], ['N', 'New page']]],
+    ['View', [['F', 'Fullscreen'], ['U', 'Hide or show UI'], ['S', 'Subtitles'], ['?', 'Shortcuts'], ['Esc', 'Close or stop tool']]]
+];
+$('#kgrid').innerHTML = SHORTCUTS.map(([h, rows]) => `<div class="ui-kgrp"><h3>${h}</h3>${rows.map(([k, l]) => {
+    const keys = k === '1|5' ? '<kbd>1</kbd>to<kbd>5</kbd>' : k.split('|').map(x => `<kbd>${x}</kbd>`).join(k.includes('Ctrl') ? '+' : '');
+    return `<div class="ui-krow"><span class="ui-ks">${keys}</span><span>${l}</span></div>`;
+}).join('')}</div>`).join('');
+
+/* ---------- export PDF ---------- */
+const printBox = $('#print');
+let snapN = 0;
+function snapStage(boardOnly) {
+    stage.querySelectorAll('input').forEach(n => n.setAttribute('value', n.value));
+    const page = stage.cloneNode(true), imgs = [];
+    page.removeAttribute('id'); page.removeAttribute('style'); page.classList.remove('instant');
+    const sfx = '-s' + (++snapN), ren = {};
+    page.querySelectorAll('[id]').forEach(n => { if (n.closest('defs')) { ren[n.id] = n.id + sfx; n.id += sfx; } else n.removeAttribute('id'); });
+    if (Object.keys(ren).length) page.querySelectorAll('*').forEach(e => [...e.attributes].forEach(a => {
+        const v = a.value.replace(/url\(\s*['"]?#([^)'"\s]+)['"]?\s*\)/g, (m, k) => ren[k] ? `url(#${ren[k]})` : m).replace(/^#(.+)$/, (m, k) => ren[k] && /href$/.test(a.name) ? '#' + ren[k] : m);
+        if (v !== a.value) e.setAttribute(a.name, v);
+    }));
+    page.querySelectorAll('.ui-spot, canvas.hllive').forEach(n => n.remove());
+    [['canvas.ink', ink, inkMarked, 'ink'], ['canvas.hlmain', hlc, hlMarked, 'ui-hlc']].forEach(([sel, src, marked, cls]) => {
+        const cv = page.querySelector(sel); if (!cv) return;
+        if (marked) { const img = new Image(); img.className = cls; img.alt = ''; img.src = src.toDataURL(); cv.replaceWith(img); imgs.push(img); }
+        else cv.remove();
+    });
+    if (boardOnly) page.querySelectorAll('.top, .content, .caption, .progress').forEach(n => n.remove());
+    return { page, imgs };
+}
+function runScene(i) {
+    build(i);
+    events.slice().sort((a, b) => a.t - b.t).forEach(e => { if (!e.done) { e.done = true; e.fn(); } });
+    progress.style.transition = 'none'; progress.style.width = '100%';
+}
+function buildThumbs() {
+    exporting = true;
+    for (let i = 0; i < scenes.length; i++) {
+        runScene(i);
+        const { page } = snapStage(false);
+        page.querySelectorAll('canvas, img.ink, img.ui-hlc, .ui-blayer').forEach(n => n.remove());
+        thumbs[i] = page;
+    }
+    exporting = false;
+}
+async function exportPDF() {
+    if (document.activeElement) document.activeElement.blur();
+    zoomReset();
+    printBox.innerHTML = '';
+    const imgs = [];
+    if (wbOpen) {
+        const keep = wbPage;
+        for (let p = 0; p < wbPages; p++) {
+            wbPage = p; loadSurface(); syncWB();
+            const r = snapStage(true); imgs.push(...r.imgs); printBox.appendChild(r.page);
+        }
+        wbPage = keep; loadSurface(); syncWB();
+    } else {
+        const keepIdx = idx, keepBeat = beat;
+        exporting = true;
+        for (let i = 0; i < scenes.length; i++) {
+            runScene(i);
+            const r = snapStage(false); imgs.push(...r.imgs); printBox.appendChild(r.page);
+        }
+        exporting = false;
+        go(keepIdx, keepBeat);
+    }
+    await Promise.all([...imgs, ...printBox.querySelectorAll('img')].map(im => im.decode().catch(() => {})));
+    window.print();
+}
+$('#pdf').onclick = exportPDF;
+$('#wbpdf').onclick = () => { $('#wbpdf').blur(); exportPDF(); };
+window.addEventListener('afterprint', () => { printBox.innerHTML = ''; });
+
+document.addEventListener('keydown', e => {
+    if (isTyping(e)) return;
+    if (e.ctrlKey || e.metaKey) {
+        const k = e.key.toLowerCase();
+        if (k === 'z') { e.preventDefault(); e.shiftKey ? redoInk() : undoInk(); }
+        else if (k === 'y') { e.preventDefault(); redoInk(); }
+        return;
+    }
+    if (e.altKey) return;
+    if (e.key === 'p' || e.key === 'P') setTool(tool === 'pen' ? null : 'pen');
+    if (e.key === 'e' || e.key === 'E') setTool(tool === 'eraser' ? null : 'eraser');
+    if (e.key === 'c' || e.key === 'C') clearInk();
+    if (e.key === 's' || e.key === 'S') toggleSubs();
+    if (e.key === 't' || e.key === 'T') ftShow(ftEl.hidden);
+    if (e.key === 'u' || e.key === 'U') setUI(!document.body.classList.contains('noui'));
+    if (e.key === 'z' || e.key === 'Z') setZoom(!Z.on);
+    if (e.key === 'l' || e.key === 'L') setLock(!Z.locked);
+    if (e.key === 'h' || e.key === 'H') setSpot(!SP.on);
+    if (e.key === 'f' || e.key === 'F') toggleFS();
+    if (e.key === 'm' || e.key === 'M') toggleMenu(engMenu);
+    if (e.key === 'b' || e.key === 'B') { e.preventDefault(); closeMenus(); addText(true); }
+    if (e.key === 'y' || e.key === 'Y') setTool(tool === 'hl' ? null : 'hl');
+    if (e.key === 'w' || e.key === 'W') toggleWB();
+    if (e.key === 'k' || e.key === 'K') openModal('blk');
+    if ((e.key === 'g' || e.key === 'G') && !wbOpen) openModal('ovw');
+    if (e.key === '?' || e.key === '/') { e.preventDefault(); openModal('keys'); }
+    if (/^[1-5]$/.test(e.key) && engMenu.classList.contains('ui-open')) { addBadge(ENG_KEYS[+e.key - 1]); closeMenus(); }
+    if (e.key === 'Escape') closeMenus();
+    if (e.key === 'Escape') setTool(null);
+});
+
+const controlsEl = document.querySelector('.controls');
+function fit() {
+    const st = $('#stage'), noui = document.body.classList.contains('noui');
+    const vw = window.innerWidth - (noui ? 0 : 40), vh = window.innerHeight - (noui ? 0 : controlsEl.offsetHeight + 20);
+    const k = Math.min(vw / 1280, vh / 720);
+    scaleK = k;
+    st.style.transform = `scale(${k})`;
+    st.style.margin = `${(720 * k - 720) / 2}px ${(1280 * k - 1280) / 2}px`;
+}
+window.addEventListener('resize', fit);
+fit();
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { fit(); buildThumbs(); go(0); });
+</script>
+
+</body>
+</html>
