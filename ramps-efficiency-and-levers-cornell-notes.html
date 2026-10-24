@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ramps, efficiency and levers: Cornell notes</title>
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="%231b1f45"/><path d="M15 31 L27 43 L49 19" fill="none" stroke="%23ea008a" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><rect x="12" y="52" width="40" height="5" rx="2.5" fill="%23fff" opacity=".25"/><rect x="12" y="52" width="26" height="5" rx="2.5" fill="%23fff"/></svg>'>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+    :root {
+        --navy: #1b1f45; --pink: #ea008a; --grey: #9a9a9a; --rule: #d7dae2; --blank: #c3c6d0; --tint: #f3f4f8; --pinkT: rgba(234,0,138,.07);
+        --font: 'Helvetica Neue', Helvetica, Arial, sans-serif; --ease: cubic-bezier(.2,.8,.2,1);
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html { scroll-padding-top: 96px; }
+    body { margin: 0; font-family: var(--font); color: var(--navy); background: #e8e9ee; font-size: 18px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+    button, select { font-family: inherit; }
+    :focus-visible { outline: 3px solid var(--pink); outline-offset: 2px; }
+    @keyframes shake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+    @keyframes pop { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+    /* top bar */
+    .bar { position: sticky; top: 0; z-index: 20; background: #fff; border-bottom: 2px solid var(--navy); }
+    .bar-in { max-width: 1000px; margin: 0 auto; padding: 12px 28px; display: flex; align-items: center; gap: 14px; }
+    .bar-t { font-weight: 800; font-size: 17px; letter-spacing: -.01em; }
+    .bar-p { font-size: 15px; font-weight: 600; color: var(--grey); margin-left: auto; margin-right: 6px; white-space: nowrap; }
+    .bar-p b { color: var(--navy); }
+    .prog { position: absolute; left: 0; bottom: -2px; height: 4px; background: var(--pink); width: 0; transition: width .5s var(--ease); }
+    .btn { font-size: 16px; font-weight: 700; border-radius: 6px; padding: 9px 18px; cursor: pointer; border: 2px solid var(--navy); background: #fff; color: var(--navy); white-space: nowrap; transition: background-color .2s, color .2s, border-color .2s, opacity .2s; }
+    .btn:hover { background: var(--tint); }
+    .btn.pk { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .btn.pk:hover { background: #c90076; border-color: #c90076; }
+    .btn.sm { font-size: 15px; padding: 6px 14px; }
+    .btn[aria-pressed="true"] { background: var(--navy); color: #fff; }
+    .btn:disabled { opacity: .45; cursor: default; }
+    .btn:disabled:hover { background: #fff; }
+
+    /* sheet */
+    .sheet { max-width: 1000px; margin: 28px auto 60px; background: #fff; padding: 0 48px 48px; border-top: 12px solid var(--navy); }
+    .head { display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; padding: 30px 0 20px; border-bottom: 4px solid var(--navy); }
+    h1 { margin: 0; font-size: 42px; line-height: 1; font-weight: 800; letter-spacing: -.025em; }
+    h1 span { color: var(--pink); }
+    .sub { margin: 10px 0 0; font-size: 16px; font-weight: 600; color: var(--grey); }
+    .who { display: flex; gap: 14px; align-items: flex-end; flex-shrink: 0; }
+    .who label { font-weight: 800; font-size: 16px; }
+    .who input { width: 150px; font: inherit; font-size: 18px; font-weight: 700; color: var(--pink); border: 0; border-bottom: 2px solid var(--navy); padding: 2px 2px 3px; background: none; outline: none; border-radius: 0; }
+    .who input:focus { border-bottom-color: var(--pink); background: var(--pinkT); }
+    .scs { list-style: none; margin: 0; padding: 16px 0 14px; display: grid; grid-template-columns: repeat(3, auto); justify-content: space-between; gap: 6px 24px; font-size: 16px; font-weight: 500; }
+    .scs b { color: var(--pink); font-weight: 800; margin-right: 6px; }
+    .cnh { display: grid; grid-template-columns: 240px 1fr; border-bottom: 3px solid var(--navy); font-size: 14px; font-weight: 700; color: var(--grey); }
+    .cnh > div { padding: 6px 0; }
+    .cnh > div + div { border-left: 4px solid var(--navy); padding-left: 24px; }
+    .cnh b { color: var(--navy); margin-right: 10px; }
+
+    h2 { display: flex; align-items: center; gap: 14px; margin: 34px 0 0; padding-bottom: 10px; border-bottom: 2px solid var(--rule); font-size: 21px; font-weight: 800; letter-spacing: -.01em; line-height: 1.2; }
+    .chip { background: var(--navy); color: #fff; font-size: 15px; font-weight: 800; padding: 4px 10px; border-radius: 4px; flex-shrink: 0; }
+    .chip.pk { background: var(--pink); }
+
+    /* cornell rows */
+    .row { display: grid; grid-template-columns: 240px 1fr; border-bottom: 2px solid var(--rule); }
+    .cue { padding: 18px 20px 18px 0; border-right: 4px solid var(--navy); }
+    .cue strong { display: block; font-size: 18px; font-weight: 800; line-height: 1.25; }
+    .cue small { display: block; margin-top: 6px; font-size: 15px; font-weight: 600; color: var(--grey); line-height: 1.35; }
+    .cue.own strong { color: var(--pink); }
+    .cue.own textarea { margin-top: 12px; }
+    .notes { padding: 18px 0 20px 24px; min-width: 0; position: relative; }
+    .notes p { margin: 0; line-height: 2.05; }
+    .notes p + p { margin-top: 8px; }
+    .prompt { font-size: 16px; font-weight: 700; color: var(--grey); margin-bottom: 10px; line-height: 1.4; }
+    .q2 { font-size: 17px; font-weight: 700; margin: 16px 0 6px; }
+    .fig { border: 2px solid var(--rule); border-radius: 8px; padding: 8px 10px; margin-bottom: 12px; }
+    .fig svg { display: block; width: 100%; height: auto; }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: center; }
+    .split .fig { margin: 0; }
+
+    /* inputs */
+    input.b { font: inherit; font-weight: 700; color: var(--pink); border: 0; border-bottom: 2px solid var(--blank); background: none; padding: 0 4px; margin: 0 2px; outline: none; text-align: center; line-height: 1.3; border-radius: 0; transition: border-color .2s, background-color .2s; }
+    input.b.has { border-bottom-color: var(--navy); }
+    input.b:focus { border-bottom-color: var(--pink); background: var(--pinkT); }
+    select.b { -webkit-appearance: none; appearance: none; font: inherit; font-weight: 700; color: var(--pink); border: 0; border-bottom: 2px solid var(--blank); border-radius: 0; margin: 0 2px; padding: 0 24px 0 6px; line-height: 1.3; cursor: pointer; outline: none;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23ea008a' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 5px center / 12px 8px; transition: border-color .2s, background-color .2s; }
+    select.b.empty { color: #9ea2b3; font-weight: 600; }
+    select.b.has { border-bottom-color: var(--navy); }
+    select.b:focus { border-bottom-color: var(--pink); background-color: var(--pinkT); }
+    select.b option { color: var(--navy); font-weight: 600; }
+    .ln { display: block; width: 100%; font: inherit; font-size: 17px; font-weight: 600; color: var(--pink); line-height: 1.4; border: 0; border-bottom: 1.5px solid var(--rule); padding: 8px 2px; background: none; outline: none; border-radius: 0; }
+    .ln:focus { border-bottom-color: var(--pink); background: var(--pinkT); }
+    textarea { display: block; width: 100%; font: inherit; font-size: 17px; font-weight: 500; color: var(--pink); line-height: 1.5; border: 2px solid var(--rule); border-radius: 6px; padding: 9px 12px; resize: none; outline: none; overflow: hidden; background: #fff; }
+    textarea:focus { border-color: var(--pink); }
+    ::placeholder { color: #b9bccb; font-weight: 500; opacity: 1; }
+
+    /* toggles */
+    .tg { display: inline-flex; gap: 6px; flex-wrap: wrap; flex-shrink: 0; }
+    .tg button { font-size: 15px; font-weight: 700; color: var(--navy); background: #fff; border: 2px solid var(--navy); border-radius: 999px; padding: 3px 13px; cursor: pointer; line-height: 1.35; transition: background-color .2s, color .2s, border-color .2s; }
+    .tg button:hover { background: var(--tint); }
+    .tg button[aria-checked="true"] { background: var(--pink); border-color: var(--pink); color: #fff; }
+
+    .chg { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; }
+    .chg > div { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1.5px solid var(--rule); font-size: 17px; }
+
+    /* tables */
+    .tbl { width: 100%; border-collapse: collapse; font-size: 17px; }
+    .tbl th { text-align: left; font-size: 15px; font-weight: 800; padding: 0 8px 8px 0; border-bottom: 2px solid var(--navy); }
+    .tbl td { padding: 9px 8px 9px 0; border-bottom: 1.5px solid var(--rule); vertical-align: middle; }
+    .tbl.adv th:last-child, .tbl.adv td:last-child { text-align: right; padding-right: 0; }
+    .tbl.adv .tg { flex-wrap: nowrap; }
+    .tbl.adv .tg button { white-space: nowrap; padding: 3px 11px; }
+    .fig.ramp { max-width: 560px; }
+    .nb { display: inline-flex; width: 26px; height: 26px; border-radius: 50%; background: var(--pink); color: #fff; font-size: 14px; font-weight: 800; align-items: center; justify-content: center; margin-right: 10px; vertical-align: 1px; }
+
+    /* six machines */
+    .mach { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .mc { border: 2px solid var(--rule); border-radius: 8px; padding: 10px 12px 12px; display: grid; grid-template-columns: 52px 1fr; gap: 2px 12px; align-items: center; }
+    .mc > svg { grid-row: span 2; width: 52px; height: 52px; }
+    .mc label { display: flex; align-items: baseline; gap: 6px; font-size: 15px; font-weight: 600; color: var(--grey); }
+    .mc label span { width: 40px; flex-shrink: 0; }
+    .mc input.ln { flex: 1; min-width: 0; font-size: 16px; padding: 5px 2px; }
+
+    /* summary */
+    .sum { border: 3px solid var(--navy); border-radius: 8px; padding: 20px 24px 24px; margin-top: 30px; }
+    .sumh { display: flex; justify-content: space-between; align-items: baseline; gap: 10px 20px; flex-wrap: wrap; }
+    .sumh h3 { margin: 0; font-size: 21px; font-weight: 800; }
+    .use { font-size: 15px; font-weight: 600; color: var(--grey); }
+    .use span { display: inline-block; margin: 2px 0 2px 6px; padding: 1px 10px; border: 2px solid var(--rule); border-radius: 999px; color: var(--navy); font-weight: 700; transition: background-color .25s, border-color .25s, color .25s; }
+    .use span.on { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .sum .prompt { margin: 8px 0 12px; }
+    .st + .st { margin-top: 14px; }
+    .st label { display: block; font-weight: 700; font-size: 17px; margin-bottom: 6px; }
+
+    /* crowbar */
+    .playbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 6px; }
+    .playbar span { font-size: 15px; font-weight: 600; color: var(--grey); }
+    .playbar span b { color: var(--navy); }
+
+    /* confidence */
+    .conf { margin-top: 30px; padding-top: 16px; border-top: 4px solid var(--navy); }
+    .conf h3 { margin: 0; font-size: 19px; font-weight: 800; display: inline; }
+    .conf .lg { font-size: 15px; font-weight: 600; color: var(--grey); margin-left: 10px; }
+    .cfs { display: flex; flex-wrap: wrap; gap: 12px 34px; margin-top: 12px; }
+    .cf { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 16px; }
+    .cf .tg button { width: 36px; height: 36px; padding: 0; border-radius: 50%; }
+
+    .fin { margin-top: 34px; display: flex; align-items: center; justify-content: space-between; gap: 20px; background: var(--navy); color: #fff; padding: 22px 26px; border-radius: 8px; }
+    .fin p { margin: 0; font-size: 18px; font-weight: 700; }
+    .fin small { display: block; font-size: 15px; font-weight: 500; opacity: .75; margin-top: 2px; }
+
+    /* cover mode */
+    body.cover .row:not(.peek):not(.nocover) .notes > * { filter: blur(9px); pointer-events: none; user-select: none; }
+    body.cover .row:not(.peek):not(.nocover) .notes { cursor: pointer; }
+    body.cover .row:not(.peek):not(.nocover) .notes::after { content: 'Say it, then tap to check'; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: var(--navy); color: #fff; font-size: 15px; font-weight: 700; padding: 7px 14px; border-radius: 999px; white-space: nowrap; }
+
+    /* modal */
+    .ov { position: fixed; inset: 0; background: rgba(27,31,69,.55); display: none; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
+    .ov.show { display: flex; }
+    .md { background: #fff; border-top: 8px solid var(--pink); border-radius: 8px; max-width: 500px; width: 100%; padding: 26px 30px 28px; animation: pop .35s var(--ease); }
+    .md h3 { margin: 0 0 8px; font-size: 24px; font-weight: 800; letter-spacing: -.01em; }
+    .md p { margin: 0; font-size: 17px; font-weight: 500; }
+    .md .acts { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; flex-wrap: wrap; }
+
+    /* done screen */
+    .done { position: fixed; inset: 0; background: #fff; z-index: 60; display: none; overflow: auto; border-top: 12px solid var(--navy); }
+    .done.show { display: block; }
+    .done-in { max-width: 760px; margin: 0 auto; padding: 64px 28px 48px; animation: pop .45s var(--ease); }
+    .tick { width: 76px; height: 76px; }
+    .tick circle { fill: var(--pink); }
+    .tick path { fill: none; stroke: #fff; stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 60; stroke-dashoffset: 60; }
+    .done.show .tick path { animation: draw .5s .25s var(--ease) forwards; }
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+    .done h2 { border: 0; margin: 22px 0 6px; padding: 0; font-size: 44px; letter-spacing: -.025em; line-height: 1.05; display: block; }
+    .done h2 span { color: var(--pink); }
+    .done .lead { font-size: 19px; font-weight: 500; margin: 0 0 30px; }
+    .steps { list-style: none; margin: 0; padding: 0; border-top: 4px solid var(--navy); }
+    .steps li { display: grid; grid-template-columns: 56px 1fr; gap: 16px; padding: 18px 0; border-bottom: 2px solid var(--rule); }
+    .steps .n { width: 44px; height: 44px; border-radius: 50%; background: var(--navy); color: #fff; font-weight: 800; font-size: 21px; display: flex; align-items: center; justify-content: center; }
+    .steps li:last-child .n { background: var(--pink); }
+    .steps strong { display: block; font-size: 20px; font-weight: 800; }
+    .steps span { display: block; font-size: 17px; font-weight: 500; margin-top: 2px; }
+    .file { display: inline-flex; align-items: center; gap: 10px; margin-top: 10px; border: 2px solid var(--navy); border-radius: 6px; padding: 7px 14px 7px 10px; font-size: 16px; font-weight: 700; word-break: break-all; }
+    .file svg { width: 22px; height: 26px; flex-shrink: 0; }
+    .dacts { display: flex; gap: 10px; margin-top: 30px; flex-wrap: wrap; }
+
+    @media (max-width: 820px) {
+        .sheet { padding: 0 20px 32px; margin-top: 16px; }
+        .head { flex-direction: column; align-items: flex-start; }
+        h1 { font-size: 34px; }
+        .row, .cnh { grid-template-columns: 1fr; }
+        .cue { border-right: 0; padding-bottom: 0; }
+        .notes, .cnh > div + div { padding-left: 0; border-left: 0; }
+        .chg, .scs, .split, .mach { grid-template-columns: 1fr; }
+        .bar-t { display: none; }
+        .fin { flex-direction: column; align-items: flex-start; }
+        .tbl { font-size: 16px; }
+    }
+
+    /* claims */
+    .claim + .claim { margin-top: 14px; padding-top: 14px; border-top: 1.5px solid var(--rule); }
+    .claim .who2 { font-size: 17px; font-weight: 500; line-height: 1.4; }
+    .claim .who2 b { font-weight: 800; }
+    .claim .ctl { display: flex; align-items: center; gap: 12px; margin: 8px 0 2px; font-size: 16px; font-weight: 700; flex-wrap: wrap; }
+    .claim .ctl .lb { color: var(--grey); }
+    /* identify cards */
+    .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .card { border: 2px solid var(--rule); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; }
+    .card strong { font-size: 17px; font-weight: 800; }
+    .card span.cl { font-size: 15px; font-weight: 500; color: #5c6080; line-height: 1.35; flex: 1; }
+    .card select.b { align-self: flex-start; margin: 6px 0 0; }
+    .lbl { font-size: 15px; font-weight: 700; color: var(--grey); margin: 14px 0 4px; }
+    .ctx { font-size: 17px; font-weight: 500; line-height: 1.45; margin: 0 0 8px; padding: 10px 14px; background: var(--tint); border-left: 6px solid var(--navy); }
+    .ctx b { font-weight: 800; }
+    /* apply it */
+    .aq + .aq { margin-top: 18px; }
+    .aq .rq { display: flex; gap: 12px; font-size: 17px; font-weight: 700; margin-bottom: 8px; line-height: 1.35; }
+    .rn { flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--navy); color: #fff; font-size: 15px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin-top: -2px; }
+    .checks { margin-top: 22px; border-top: 2px solid var(--navy); padding-top: 12px; }
+    .checks h4 { margin: 0 0 8px; font-size: 17px; font-weight: 800; }
+    .ck { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: none; border: 0; border-bottom: 1.5px solid var(--rule); padding: 9px 2px; font-size: 16px; font-weight: 600; color: var(--navy); cursor: pointer; }
+    .ck .box { width: 24px; height: 24px; border: 2px solid var(--navy); border-radius: 5px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: background-color .2s, border-color .2s; }
+    .ck .box svg { width: 16px; height: 16px; opacity: 0; transition: opacity .2s; }
+    .ck[aria-pressed="true"] .box { background: var(--pink); border-color: var(--pink); }
+    .ck[aria-pressed="true"] .box svg { opacity: 1; }
+    .ck:hover { background: var(--tint); }
+    @media (max-width: 820px) { .cards { grid-template-columns: 1fr; } }
+
+    .scs { grid-template-columns: repeat(2, auto); justify-content: start; gap: 6px 56px; }
+    .tw { overflow-x: auto; }
+    .fx { display: inline-block; font-size: 20px; font-weight: 800; line-height: 1.7; padding: 10px 18px; border: 3px solid var(--navy); border-radius: 8px; margin: 0 0 14px; }
+    .nb.nv { background: var(--navy); }
+    .tbl .u { white-space: nowrap; }
+    .tbl.parts td, .tbl.parts th { padding-right: 10px; }
+    .tbl.cmp td:first-child { width: 34%; font-weight: 600; }
+    .tbl.cmp .tg { flex-wrap: nowrap; }
+    .tbl.cmp .tg button { white-space: nowrap; }
+    .rk .tg button { padding: 3px 10px; }
+    .gsp { grid-template-columns: 1.5fr 1fr; }
+    .cimg { display: block; margin: -2px 0 8px; }
+    .cimg svg { display: block; width: 100%; height: auto; }
+    .card .tg { margin-top: 8px; }
+    #fsCards .card strong { flex: 1; }
+    .pcards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .pcards .card { gap: 0; }
+    .pcards .pr { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 6px 0; border-top: 1.5px solid var(--rule); font-size: 15px; font-weight: 700; color: var(--grey); }
+    .pcards .pr select.b { font-size: 15px; margin: 0; padding-left: 4px; min-width: 0; max-width: 64%; }
+    .pcards .pr .tg { margin: 0; }
+    .pcards .pr .tg button { width: 30px; height: 30px; padding: 0; border-radius: 50%; }
+    .pcards strong { margin-bottom: 4px; }
+    @media (max-width: 820px) { .pcards { grid-template-columns: 1fr; } }
+    .parts5 > div { justify-content: flex-start; gap: 14px; }
+</style>
+</head>
+<body>
+
+<div class="bar">
+    <div class="bar-in">
+        <div class="bar-t">Cornell notes</div>
+        <div class="bar-p" id="count"></div>
+        <button class="btn" id="cover" aria-pressed="false">Cover notes</button>
+        <button class="btn pk" id="exportTop">Export PDF</button>
+    </div>
+    <div class="prog" id="prog"></div>
+</div>
+
+<main class="sheet">
+    <div class="head">
+        <div>
+            <h1>Ramps, efficiency and <span>levers</span></h1>
+            <p class="sub">Cornell notes | Consolidating SC10 to SC13</p>
+        </div>
+        <div class="who"><label for="date">Date</label><input id="date"></div>
+    </div>
+
+    <ul class="scs">
+        <li><b>SC10</b>Describe how angle affects effort force</li>
+        <li><b>SC11</b>Compare the efficiency of simple machines</li>
+        <li><b>SC12</b>Locate the parts of a lever</li>
+        <li><b>SC13</b>Contrast force and speed multipliers</li>
+    </ul>
+    <div class="cnh"><div>Cues</div><div><b>Notes</b>Complete the notes, then cover them and test yourself with the cues.</div></div>
+
+    <!-- SC10 -->
+    <h2><span class="chip">SC10</span>Describe the relationship between angle of inclination and effort force</h2>
+    <div class="row">
+        <div class="cue"><strong>What is an inclined plane?</strong><small>How does the angle change the effort force?</small></div>
+        <div class="notes">
+            <p>An inclined plane is a <i data-b="ip1" data-w="7" data-l="Inclined plane"></i>. It raises a load by moving it along a <i data-b="ip2" data-w="7" data-l="Along a"></i> instead of lifting it straight up.</p>
+            <div class="split gsp" style="margin-top:12px">
+                <div class="fig" id="graphFig"></div>
+                <div>
+                    <p>At 30°, the effort force is <i data-b="ip3" data-w="4" data-l="Effort force at 30 degrees"></i> N.</p>
+                    <p>The greater the angle of inclination, the <i data-s="ip4" data-o="greater|smaller" data-l="Angle and effort"></i> the effort force needed.</p>
+                    <p>A gentle ramp needs <i data-s="ip5" data-o="more|less" data-l="Gentle ramp effort"></i> effort force, but the load travels a <i data-s="ip6" data-o="longer|shorter" data-l="Gentle ramp distance"></i> distance.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="cue"><strong>Which ramp?</strong><small>Compare the angles of inclination.</small></div>
+        <div class="notes">
+            <div class="prompt">All three ramps raise the same box 1 m.</div>
+            <div class="fig" id="rampsFig"></div>
+            <div class="chg">
+                <div>Least effort force <span data-t="wc1" data-o="1|2|3" data-l="Least effort force"></span></div>
+                <div>Longest distance <span data-t="wc2" data-o="1|2|3" data-l="Longest distance"></span></div>
+                <div>Greatest effort force <span data-t="wc3" data-o="1|2|3" data-l="Greatest effort force"></span></div>
+                <div>Shortest distance <span data-t="wc4" data-o="1|2|3" data-l="Shortest distance"></span></div>
+            </div>
+            <div class="q2">Explain your choice for least effort force, using angle of inclination.</div>
+            <textarea class="ans" data-k="wc5" rows="2" aria-label="Least effort explanation"></textarea>
+        </div>
+    </div>
+    <div class="row">
+        <div class="cue"><strong>Why do some ramps zigzag?</strong><small>Think about space and effort.</small></div>
+        <div class="notes">
+            <p class="ctx">Some access ramps and mountain tracks are built in a <b>zigzag</b> instead of one straight ramp.</p>
+            <div class="fig" id="zigFig"></div>
+            <div class="q2">Explain why, using angle of inclination, effort force and distance.</div>
+            <textarea class="ans" data-k="zz1" rows="3" aria-label="Zigzag explanation"></textarea>
+        </div>
+    </div>
+
+    <!-- SC11 -->
+    <h2><span class="chip">SC11</span>Compare the efficiency of different simple machines</h2>
+    <div class="row">
+        <div class="cue"><strong>How do we calculate efficiency?</strong><small>What does the percentage tell us?</small></div>
+        <div class="notes">
+            <div class="fx">Efficiency (%) = force <i data-s="ef1" data-o="without|with" data-l="First force in formula"></i> a machine ÷ force <i data-s="ef2" data-o="without|with" data-l="Second force in formula"></i> a machine × 100</div>
+            <p>The higher the percentage, the <i data-s="ef3" data-o="less|more" data-l="Higher percentage"></i> effort force the machine needs.</p>
+            <p class="ctx" style="margin-top:14px">Lifting a 100 N box straight up takes <b>100 N</b>. Pushing it up a steep ramp takes <b>50 N</b>.</p>
+            <p>Efficiency = 100 ÷ <i data-b="ef4" data-w="4" data-l="Force with ramp"></i> × 100 = <i data-b="ef5" data-w="5" data-l="Ramp efficiency"></i>%</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="cue"><strong>Which machine is most efficient?</strong><small>Calculate, then rank from most to least efficient.</small></div>
+        <div class="notes">
+            <div class="tw"><table class="tbl adv rk" id="machTbl"></table></div>
+            <p style="margin-top:10px">A single pulley only changes the <i data-b="cp5" data-w="9" data-l="Pulley changes the"></i> of the force, so it does not reduce the effort.</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="cue"><strong>Is the claim correct?</strong><small>Agree or disagree with each student, then explain.</small></div>
+        <div class="notes" id="claims"></div>
+    </div>
+    <div class="row">
+        <div class="cue own"><strong>Your cue</strong><small>Write your own question.</small><textarea class="ans" data-k="cue1" rows="2" aria-label="Your own cue question"></textarea></div>
+        <div class="notes">
+            <div class="prompt">A lever lifts a 100 N rock with only 25 N of effort. Calculate its efficiency and explain what the trade-off is.</div>
+            <textarea class="ans" data-k="cue1a" rows="3" aria-label="Lever efficiency"></textarea>
+        </div>
+    </div>
+
+    <div class="sum">
+        <div class="sumh"><h3>Summary</h3><div class="use" id="use1">Use:<span>angle of inclination</span><span>effort force</span><span>distance</span><span>efficiency</span><span>trade-off</span></div></div>
+        <div class="prompt">Describe how the angle of a ramp affects the effort force, and explain how efficiency helps us compare simple machines.</div>
+        <textarea class="ans" data-k="sum1" rows="4" aria-label="Summary 1"></textarea>
+    </div>
+
+    <!-- SC12 -->
+    <h2><span class="chip">SC12</span>Recognise the fulcrum, resistance arm and effort arm of levers</h2>
+    <div class="row">
+        <div class="cue"><strong>What are the parts of a lever?</strong><small>Both arms are measured from the fulcrum.</small></div>
+        <div class="notes">
+            <p>A lever is a rigid bar that turns around a fixed point called the <i data-b="lp1" data-w="8" data-l="Fixed point"></i>.</p>
+            <div class="fig" id="partsFig" style="margin-top:10px"></div>
+            <div class="chg parts5">
+                <div><span class="nb nv">1</span><i data-s="pt1" data-o="Fulcrum|Load|Effort|Resistance arm|Effort arm" data-l="Part 1"></i></div>
+                <div><span class="nb nv">2</span><i data-s="pt2" data-o="Fulcrum|Load|Effort|Resistance arm|Effort arm" data-l="Part 2"></i></div>
+                <div><span class="nb nv">3</span><i data-s="pt3" data-o="Fulcrum|Load|Effort|Resistance arm|Effort arm" data-l="Part 3"></i></div>
+                <div><span class="nb nv">4</span><i data-s="pt4" data-o="Fulcrum|Load|Effort|Resistance arm|Effort arm" data-l="Part 4"></i></div>
+                <div><span class="nb nv">5</span><i data-s="pt5" data-o="Fulcrum|Load|Effort|Resistance arm|Effort arm" data-l="Part 5"></i></div>
+            </div>
+            <p style="margin-top:12px">The resistance arm is the distance from the fulcrum to the <i data-s="lp2" data-o="load|effort" data-l="Resistance arm to the"></i>.</p>
+            <p>The effort arm is the distance from the fulcrum to the <i data-s="lp3" data-o="load|effort" data-l="Effort arm to the"></i>.</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="cue"><strong>What class of lever is it?</strong><small>F L E = 1 2 3. What is in the middle?</small></div>
+        <div class="notes">
+            <p>In a class 1 lever, the <i data-s="mid1" data-o="fulcrum|load|effort" data-l="Class 1 middle"></i> is in the middle.</p>
+            <p>In a class 2 lever, the <i data-s="mid2" data-o="fulcrum|load|effort" data-l="Class 2 middle"></i> is in the middle.</p>
+            <p>In a class 3 lever, the <i data-s="mid3" data-o="fulcrum|load|effort" data-l="Class 3 middle"></i> is in the middle.</p>
+            <div class="cards" id="cards" style="margin-top:14px"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="cue"><strong>Where are the parts?</strong><small>Find the fulcrum, load and effort, then the class.</small></div>
+        <div class="notes"><div class="pcards" id="pcards"></div></div>
+    </div>
+
+    <!-- SC13 -->
+    <h2><span class="chip">SC13</span>Contrast force multipliers and speed multipliers</h2>
+    <div class="row">
+        <div class="cue"><strong>How are force and speed multipliers different?</strong><small>Compare each feature.</small></div>
+        <div class="notes"><div class="tw"><table class="tbl cmp" id="cmpTbl"></table></div></div>
+    </div>
+    <div class="row">
+        <div class="cue"><strong>What does the evidence show?</strong><small>Two 2 m levers lift the same 300 N load.</small></div>
+        <div class="notes">
+            <div class="fig">
+                <svg id="lvSvg" viewBox="0 0 640 405" aria-label="Two levers lifting the same load"></svg>
+                <div class="playbar"><span>Grey: start position. <b>Navy: end position.</b></span><button class="btn sm" id="lvPlay">Replay</button></div>
+            </div>
+            <p>Lever A is a <span data-t="la1" data-o="Force multiplier|Speed multiplier" data-l="Lever A type"></span></p>
+            <p>Lever B is a <span data-t="la2" data-o="Force multiplier|Speed multiplier" data-l="Lever B type"></span></p>
+            <p>In lever B, the load moves <i data-b="la3" data-w="4" data-l="How many times as far"></i> times as far as the effort.</p>
+            <p>Both ends move in the same time, so lever B’s load moves <i data-s="la4" data-o="faster|slower" data-l="Load speed"></i> than the effort.</p>
+            <div class="q2">Explain why lever A needs only 100 N to lift the 300 N load, but lever B needs 900 N. Use effort arm and distance.</div>
+            <textarea class="ans" data-k="la5" rows="3" aria-label="Lever explanation"></textarea>
+        </div>
+    </div>
+    <div class="row">
+        <div class="cue"><strong>Force or speed multiplier?</strong><small>Compare the effort arm to the resistance arm.</small></div>
+        <div class="notes">
+            <div class="prompt">The pink arrow shows where the effort is applied.</div>
+            <div class="cards" id="fsCards"></div>
+            <div class="q2">Choose one of the speed multipliers. Why is it useful, even though it needs more force?</div>
+            <textarea class="ans" data-k="fs6" rows="2" aria-label="Speed multiplier usefulness"></textarea>
+        </div>
+    </div>
+    <div class="row">
+        <div class="cue own"><strong>Your cue</strong><small>Write your own question.</small><textarea class="ans" data-k="cue2" rows="2" aria-label="Your own cue question"></textarea></div>
+        <div class="notes">
+            <div class="prompt">Your forearm is a speed multiplier. Explain why this helps you throw a ball, and what the trade-off is.</div>
+            <textarea class="ans" data-k="cue2a" rows="3" aria-label="Forearm explanation"></textarea>
+        </div>
+    </div>
+
+    <!-- Apply -->
+    <h2><span class="chip pk">SC10 to SC13</span>Put it all together</h2>
+    <div class="row nocover">
+        <div class="cue"><strong>Can I apply it?</strong><small>Use ramps, efficiency and levers to solve a new problem.</small></div>
+        <div class="notes">
+            <p class="ctx">The community garden team needs to move <b>200 N bags of soil</b> onto a raised garden bed <b>1 m high</b>.</p>
+            <div class="fig" id="gardenFig"></div>
+            <p class="ctx" style="margin-bottom:18px">Lifting a bag straight up takes <b>200 N</b>. Ramp A is <b>2 m</b> long and takes <b>100 N</b>. Ramp B is <b>4 m</b> long and takes <b>50 N</b>.</p>
+            <div class="aq"><div class="rq"><span class="rn">1</span><span>Calculate the efficiency of each ramp. Which ramp is most efficient in terms of effort force? Show your working.</span></div><textarea class="ans" data-k="ap1" rows="3" aria-label="Ramp efficiency"></textarea></div>
+            <div class="aq"><div class="rq"><span class="rn">2</span><span>What is the trade-off of using the more efficient ramp? Use angle of inclination and distance.</span></div><textarea class="ans" data-k="ap2" rows="2" aria-label="Trade-off"></textarea></div>
+            <div class="aq"><div class="rq"><span class="rn">3</span><span>The team carries the bags in a wheelbarrow. Identify the fulcrum, load and effort, and explain whether it is a force or speed multiplier.</span></div><textarea class="ans" data-k="ap3" rows="3" aria-label="Wheelbarrow lever"></textarea></div>
+            <div class="checks">
+                <h4>Check my answers include</h4>
+                <div id="checks"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sum">
+        <div class="sumh"><h3>Summary</h3><div class="use" id="use2">Use:<span>fulcrum</span><span>effort arm</span><span>force</span><span>distance</span><span>faster</span></div></div>
+        <div class="st" style="margin-top:14px"><label for="s2a">To recognise the class of a lever, I</label><textarea class="ans" id="s2a" data-k="s2a" rows="1"></textarea></div>
+        <div class="st"><label for="s2b">A force multiplier</label><textarea class="ans" id="s2b" data-k="s2b" rows="1"></textarea></div>
+        <div class="st"><label for="s2c">whereas a speed multiplier</label><textarea class="ans" id="s2c" data-k="s2c" rows="1"></textarea></div>
+    </div>
+
+    <div class="conf">
+        <h3>How confident am I?</h3><span class="lg">1 = not yet, 4 = I can teach it</span>
+        <div class="cfs">
+            <div class="cf">SC10 <span data-t="c10" data-o="1|2|3|4" data-l="SC10 confidence"></span></div>
+            <div class="cf">SC11 <span data-t="c11" data-o="1|2|3|4" data-l="SC11 confidence"></span></div>
+            <div class="cf">SC12 <span data-t="c12" data-o="1|2|3|4" data-l="SC12 confidence"></span></div>
+            <div class="cf">SC13 <span data-t="c13" data-o="1|2|3|4" data-l="SC13 confidence"></span></div>
+        </div>
+    </div>
+
+    <div class="fin">
+        <p>Finished?<small>Export your notes as a PDF, then upload it to the Stile lesson.</small></p>
+        <button class="btn pk" id="exportBottom">Export PDF</button>
+    </div>
+</main>
+
+<div class="ov" id="ov" role="dialog" aria-modal="true" aria-labelledby="mdh">
+    <div class="md"><h3 id="mdh"></h3><p id="mdp"></p><div class="acts" id="mda"></div></div>
+</div>
+
+<div class="done" id="done" role="dialog" aria-modal="true" aria-labelledby="doneh">
+    <div class="done-in">
+        <svg class="tick" viewBox="0 0 76 76"><circle cx="38" cy="38" r="38"/><path d="M22 39 L33 50 L55 27"/></svg>
+        <h2 id="doneh">PDF saved. Now <span>upload it to Stile.</span></h2>
+        <p class="lead">Your notes are not handed in until the PDF is in the Stile lesson.</p>
+        <ol class="steps">
+            <li><div class="n">1</div><div><strong>Find your PDF</strong><span>It saved to your Downloads folder.</span><div class="file"><svg viewBox="0 0 22 26"><path d="M2 1 H14 L20 7 V25 H2 Z" fill="#fff" stroke="#1b1f45" stroke-width="2" stroke-linejoin="round"/><rect x="0" y="13" width="17" height="8" fill="#ea008a"/><text x="8.5" y="19.4" fill="#fff" font-size="6" font-weight="800" text-anchor="middle" font-family="Helvetica, Arial, sans-serif">PDF</text></svg><span id="fname"></span></div></div></li>
+            <li><div class="n">2</div><div><strong>Go back to the Stile lesson</strong><span>Scroll to the Cornell Notes section at the end of the lesson.</span></div></li>
+            <li><div class="n">3</div><div><strong>Upload your PDF to the Cornell Notes question</strong><span>Add the file, then open it to check it worked.</span></div></li>
+        </ol>
+        <div class="dacts">
+            <button class="btn" id="again">Download again</button>
+            <button class="btn" id="back">Back to my notes</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const NV = '#1b1f45', PK = '#ea008a', GR = '#c9ccd6', LT = '#f0f3f6', FONT = 'Helvetica Neue, Helvetica, Arial, sans-serif';
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+let dirty = false, exported = false, lastDoc = null;
+const TITLE = 'Ramps, efficiency and levers: Cornell notes';
+const FILE = 'Ramps-efficiency-and-levers-Cornell-notes.pdf';
+const f1 = v => v.toFixed(1), rad = d => d * Math.PI / 180;
+
+function arrow(x, y, ang, len, c = PK, sw = 6) {
+    const hl = Math.min(18, len), hw = 10, ux = Math.cos(ang), uy = Math.sin(ang), ex = x + ux * len, ey = y + uy * len, bx = ex - ux * hl, by = ey - uy * hl, px = -uy * hw, py = ux * hw;
+    return (len > hl ? `<line x1="${f1(x)}" y1="${f1(y)}" x2="${f1(bx)}" y2="${f1(by)}" stroke="${c}" stroke-width="${sw}"/>` : '') +
+        `<polygon points="${f1(ex)},${f1(ey)} ${f1(bx + px)},${f1(by + py)} ${f1(bx - px)},${f1(by - py)}" fill="${c}" stroke="${c}" stroke-width="1.5" stroke-linejoin="round"/>`;
+}
+const wrapSvg = (vb, w, h, inner) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" width="${w}" height="${h}" font-family="${FONT}">${inner}</svg>`;
+const lab = (x, y, L) => `<circle cx="${f1(x)}" cy="${f1(y)}" r="16" fill="${NV}"/><text x="${f1(x)}" y="${f1(y + 6.5)}" font-size="19" font-weight="800" fill="#fff" text-anchor="middle">${L}</text>`;
+const txt = (x, y, s, o = {}) => `<text x="${f1(x)}" y="${f1(y)}" font-size="${o.fs || 16}" font-weight="${o.fw || 800}" fill="${o.c || NV}" text-anchor="${o.a || 'start'}">${s}</text>`;
+const gnd = (x1, x2, y) => `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${GR}" stroke-width="4"/>`;
+const arc = (x, y, r, a) => `<path d="M${f1(x + r)} ${y} A${r} ${r} 0 0 0 ${f1(x + r * Math.cos(rad(a)))} ${f1(y - r * Math.sin(rad(a)))}" fill="none" stroke="${PK}" stroke-width="3.5"/>`;
+const slopeBox = (x0, gy, a, d, w = 26, h = 24) => `<rect x="${-w / 2}" y="${-h}" width="${w}" height="${h}" rx="3" fill="${NV}" transform="translate(${f1(x0 + d * Math.cos(rad(a)))} ${f1(gy - d * Math.sin(rad(a)))}) rotate(${-a})"/>`;
+
+function taper(x1, y1, x2, y2, w1, w2, cls, r = true) {
+    const a = Math.atan2(y2 - y1, x2 - x1), nx = -Math.sin(a), ny = Math.cos(a);
+    const p = [[x1 + nx * w1 / 2, y1 + ny * w1 / 2], [x2 + nx * w2 / 2, y2 + ny * w2 / 2], [x2 - nx * w2 / 2, y2 - ny * w2 / 2], [x1 - nx * w1 / 2, y1 - ny * w1 / 2]];
+    if (!r) return `<polygon class="${cls}" points="${p.map(q => q.map(f1).join(',')).join(' ')}"/>`;
+    const c2 = w2 / 2, c1 = w1 / 2;
+    return `<path class="${cls}" d="M${f1(p[0][0])} ${f1(p[0][1])} L${f1(p[1][0])} ${f1(p[1][1])} A${f1(c2)} ${f1(c2)} 0 0 0 ${f1(p[2][0])} ${f1(p[2][1])} L${f1(p[3][0])} ${f1(p[3][1])} A${f1(c1)} ${f1(c1)} 0 0 0 ${f1(p[0][0])} ${f1(p[0][1])} Z"/>`;
+}
+/* effort arm and resistance arm drawn as thick lines from the fulcrum */
+const ART = {};
+
+ART.wheelbarrow = () => {
+    const ax = 78, ay = 164, R = 32;
+    const spokes = [0, 30, 60, 90, 120, 150].map(a => `<line class="il-thin" style="stroke-width:2.5" x1="${f1(ax + 20 * Math.cos(deg(a)))}" y1="${f1(ay + 20 * Math.sin(deg(a)))}" x2="${f1(ax - 20 * Math.cos(deg(a)))}" y2="${f1(ay - 20 * Math.sin(deg(a)))}"/>`).join('');
+    const hy = x => ay + (x - ax) * (-50 / 222);
+    const art = `
+        <line class="il-gnd" x1="14" y1="${ay + R + 2}" x2="330" y2="${ay + R + 2}"/>
+        <path class="il-o" style="fill:none;stroke-width:6" d="M${236} ${f1(hy(236))} L246 ${ay + R - 2} M234 ${ay + R} H258"/>
+        <path class="il-o il-metal" d="M84 70 L266 70 L238 128 L140 148 Z"/>
+        <path class="il-hi" d="M102 80 L146 136"/>
+        <path class="il-o il-soil" d="M92 72 C110 48 136 34 170 32 C206 30 236 44 258 72 Z"/>
+        <circle cx="132" cy="58" r="3.5" class="il-navy"/><circle cx="178" cy="46" r="3" class="il-navy"/><circle cx="214" cy="58" r="3.5" class="il-navy"/><circle cx="160" cy="62" r="2.5" class="il-navy"/>
+        <line class="il-o" style="stroke-width:8" x1="78" y1="70" x2="272" y2="70"/>
+        <path class="il-o" style="fill:none;stroke-width:4" d="M150 ${f1(hy(150))} L156 146 M220 ${f1(hy(220))} L226 130"/>
+        <line class="il-o" style="stroke-width:9" x1="${ax}" y1="${ay}" x2="292" y2="${f1(hy(292))}"/>
+        <line style="stroke:#fff;stroke-width:3;stroke-linecap:round;opacity:.5" x1="${ax + 30}" y1="${f1(hy(ax + 30) - 1)}" x2="286" y2="${f1(hy(286) - 1)}"/>
+        ${taper(288, hy(288), 326, hy(326), 16, 16, 'il-o il-grip')}
+        <circle cx="${ax}" cy="${ay}" r="${R}" class="il-navy"/>
+        <circle cx="${ax}" cy="${ay}" r="21" class="il-white" style="stroke:#1b1f45;stroke-width:2"/>
+        ${spokes}
+        <circle cx="${ax}" cy="${ay}" r="7" class="il-o il-metal"/>`;
+    const E = [308, hy(308)], L = [176, 98], F = [ax, ay];
+    const ans = `${armLines(F, E, L)}${arrowP(308, 196, 308, hy(308) + 14, 'fa', 9)}${mark(F[0], F[1], 'F')}${mark(L[0], L[1], 'L')}${mark(E[0], E[1] - 40, 'E')}`;
+    return { art, ans, F, L, E };
+};
+
+ART.tweezers = () => {
+    const ridges = (sgn) => [146, 158, 170, 182, 194].map(x => { const y = 110 + sgn * (38 - Math.abs(x - 172) * 0.05); return `<line class="il-thin" style="stroke:#fff;stroke-width:2.5" x1="${x - 2}" y1="${f1(y - 4)}" x2="${x + 2}" y2="${f1(y + 4)}"/>`; }).join('');
+    const arm = sgn => {
+        const y = v => f1(110 + sgn * v);
+        return `<path class="il-o il-metal" d="M30 ${y(7)} C110 ${y(36)} 200 ${y(48)} 262 ${y(28)} L305 ${y(4)} L300 ${y(-1)} L254 ${y(16)} C196 ${y(30)} 110 ${y(20)} 30 ${y(-6)} Z"/>
+            <path class="il-o il-grip" d="M134 ${y(36)} C160 ${y(43)} 186 ${y(44)} 210 ${y(41)} L210 ${y(32)} C186 ${y(35)} 160 ${y(34)} 134 ${y(27)} Z" style="stroke-width:2.5"/>
+            ${ridges(sgn)}`;
+    };
+    const art = `
+        ${arm(-1)}${arm(1)}
+        <path class="il-hi" d="M44 102 C100 86 150 80 200 78" style="opacity:.6"/>
+        <rect x="14" y="98" width="30" height="24" rx="8" class="il-o il-metal2"/>
+        <line class="il-thin" x1="22" y1="104" x2="22" y2="116"/>
+        <path class="il-o il-soil" d="M300 110 L330 100 L334 104 L304 114 Z" style="stroke-width:2.5"/>`;
+    const F = [28, 110], L = [306, 110], E = [170, 110];
+    const ans = `${armLines(F, E, L)}${arrowP(172, 14, 172, 62, 'fa', 9)}${arrowP(172, 206, 172, 158, 'fa', 9)}${mark(F[0], F[1], 'F')}${markAt(300, 160, 'L', L[0], L[1])}${mark(210, 36, 'E')}`;
+    return { art, ans, F, L, E };
+};
+
+ART.scissors = () => {
+    const px = 176, py = 110;
+    const blade = (tx2, ty2, side) => {
+        const a = Math.atan2(ty2 - py, tx2 - px), dx = Math.cos(a), dy = Math.sin(a), nx = -dy * side, ny = dx * side;
+        const P = (u, v) => `${f1(px + dx * u + nx * v)} ${f1(py + dy * u + ny * v)}`;
+        const L = Math.hypot(tx2 - px, ty2 - py);
+        return `<path class="il-o il-metal" d="M${P(-22, 12)} C${P(40, 18)} ${P(L - 50, 14)} ${f1(tx2)} ${f1(ty2)} L${P(-22, -3)} Z"/>
+            <path class="il-hi" d="M${P(4, 9)} C${P(40, 12)} ${P(L - 70, 9)} ${P(L - 34, 5)}"/>`;
+    };
+    const handle = (hx, hy) => {
+        const a = Math.atan2(hy - py, hx - px), ang = a * 180 / Math.PI;
+        return `${taper(px, py, hx - Math.cos(a) * 24, hy - Math.sin(a) * 24, 18, 12, 'il-o il-metal2', false)}
+            <ellipse cx="${hx}" cy="${hy}" rx="32" ry="22" transform="rotate(${f1(ang)} ${hx} ${hy})" class="il-o il-grip"/>
+            <ellipse cx="${hx}" cy="${hy}" rx="20" ry="11" transform="rotate(${f1(ang)} ${hx} ${hy})" class="il-o il-white" style="stroke-width:3"/>`;
+    };
+    const art = `
+        <path class="il-o" style="fill:#fbf7ef;stroke-width:2.5" d="M236 52 H336 V168 H236 Z"/>
+        <path class="il-thin" style="stroke:#ea008a;stroke-dasharray:6 6;stroke-width:2.5" d="M282 110 H336"/>
+        <path class="il-thin" style="stroke-width:2.5" d="M236 110 H280"/>
+        ${handle(68, 152)}${blade(324, 82, -1)}
+        ${handle(68, 68)}${blade(324, 138, 1)}
+        <circle cx="${px}" cy="${py}" r="9" class="il-o il-metal2" style="stroke-width:3"/>
+        <line class="il-thin" x1="${px - 5}" y1="${py - 5}" x2="${px + 5}" y2="${py + 5}"/>`;
+    const F = [px, py], L = [282, 110], E = [68, 110];
+    const ans = `${armLines(F, [68, 68], L)}${armLines(F, [68, 152], L)}${arrowP(68, 4, 68, 42, 'fa', 9)}${arrowP(68, 216, 68, 178, 'fa', 9)}${mark(F[0], F[1], 'F')}${mark(L[0], L[1], 'L')}${mark(22, 110, 'E')}`;
+    return { art, ans, F, L, E };
+};
+
+ART.hammer = () => {
+    /* claw hammer pulling a nail: head drawn in its own frame, eye at (0,0), handle along -y, claw towards -x */
+    const ex = 150, rot = -16;
+    const Rr = (x, y) => { const c = Math.cos(deg(rot)), s = Math.sin(deg(rot)); return [x * c - y * s, x * s + y * c]; };
+    const under = []; for (let i = 0; i <= 20; i++) { const t = i / 20, u = 1 - t; under.push([u * u * -60 + 2 * u * t * -50 + t * t * -16, u * u * -26 + 2 * u * t * 12 + t * t * 14]); }
+    const low = Math.max(...under.map(p => Rr(...p)[1]), Rr(16, 16)[1], Rr(46, 16)[1]);
+    const top = 158, ey = top - low;
+    const R = (x, y) => { const p = Rr(x, y); return [ex + p[0], ey + p[1]]; };
+    let cp = under[0], cy = -1e9; under.forEach(p => { const q = R(...p); if (q[1] > cy) { cy = q[1]; cp = q; } });
+    const head = `<g transform="translate(${ex} ${f1(ey)}) rotate(${rot})">
+        <path class="il-o il-wood" d="M-8 -10 L-10 -132 Q0 -140 10 -132 L8 -10 Z"/>
+        <path class="il-grain" d="M-2 -24 Q1 -54 -2 -80"/>
+        <rect x="-11" y="-136" width="22" height="56" rx="10" class="il-o il-grip"/>
+        ${[-124, -112, -100, -88].map(y => `<line class="il-thin" style="stroke:#fff;opacity:.6" x1="-5" y1="${y}" x2="5" y2="${y}"/>`).join('')}
+        <path class="il-o il-metal" d="M-16 -14 H14 Q20 -14 22 -10 H28 V-17 H46 V17 H28 V10 H22 Q20 14 14 14 H-16 Q-50 12 -60 -26 L-70 -36 Q-46 -16 -16 -14 Z"/>
+        <path class="il-hi" d="M-12 -8 H12"/>
+        <line class="il-thin" style="stroke-width:2" x1="28" y1="-17" x2="28" y2="17"/>
+        <path class="il-thin" style="stroke-width:2" d="M-58 -24 Q-44 -12 -24 -8"/>
+    </g>`;
+    const tip = R(-66, -32);
+    const art = `
+        <rect x="14" y="${top}" width="314" height="${204 - top}" class="il-o il-wood" style="stroke-width:3"/>
+        <path class="il-grain" d="M24 ${top + 14} Q120 ${top + 6} 220 ${top + 16} T320 ${top + 12} M40 ${top + 32} Q150 ${top + 26} 300 ${top + 34}"/>
+        <rect x="${f1(tip[0] - 3)}" y="${f1(tip[1] - 6)}" width="6" height="${f1(top - tip[1] + 6)}" class="il-o il-metal2" style="stroke-width:2.5"/>
+        <rect x="${f1(tip[0] - 11)}" y="${f1(tip[1] - 12)}" width="22" height="6" rx="2" class="il-o il-metal2" style="stroke-width:2.5"/>
+        ${head}`;
+    const F = cp, L = [tip[0], tip[1] - 8], E = R(0, -112);
+    const ans = `${armLines(F, E, L)}${arrowP(E[0] + 16, E[1] + 2, E[0] + 74, E[1] + 12, 'fa', 9)}${markAt(F[0] + 6, F[1] + 26, 'F', F[0], F[1])}${markAt(L[0] - 34, L[1] - 30, 'L', L[0], L[1])}${mark(E[0] + 48, E[1] - 26, 'E')}`;
+    return { art, ans, F, L, E };
+};
+
+ART.rod = () => {
+    const B = [38, 186], T = [312, 26];
+    const along = t => [B[0] + (T[0] - B[0]) * t, B[1] + (T[1] - B[1]) * t];
+    const a = Math.atan2(T[1] - B[1], T[0] - B[0]) * 180 / Math.PI;
+    const h1 = along(0.07), h2 = along(0.3);
+    const fist = ([x, y]) => `<g transform="translate(${f1(x)} ${f1(y)}) rotate(${f1(a)})"><rect x="-15" y="-15" width="30" height="30" rx="11" class="il-o il-skin"/><path class="il-thin" d="M-6 -15 V-3 M3 -15 V-3 M-12 6 Q-2 12 10 4"/></g>`;
+    const guides = [0.5, 0.7, 0.88].map(t => { const p = along(t); return `<circle cx="${f1(p[0])}" cy="${f1(p[1])}" r="3.5" class="il-white" style="stroke:#1b1f45;stroke-width:2"/>`; }).join('');
+    const reel = along(0.15);
+    const art = `
+        <path class="il-water" d="M150 168 Q170 162 190 168 T230 168 T270 168 T310 168 T340 168 V220 H150 Z"/>
+        <path class="il-thin" style="stroke-width:2.5" d="M150 168 Q170 162 190 168 T230 168 T270 168 T310 168 T340 168"/>
+        <line class="il-thin" style="stroke-width:1.6" x1="${T[0]}" y1="${T[1]}" x2="${T[0] - 4}" y2="186"/>
+        <g transform="translate(${T[0] - 4} 196) rotate(-12)">
+            <path class="il-o il-grip" d="M-24 0 Q-8 -14 14 -4 L28 -14 L26 14 L14 4 Q-8 14 -24 0 Z"/>
+            <circle cx="-14" cy="-2" r="2.6" class="il-white"/>
+        </g>
+        ${taper(B[0], B[1], T[0], T[1], 10, 3, 'il-o il-navy')}
+        ${taper(...along(0.0), ...along(0.22), 13, 12, 'il-o il-gripl')}
+        <g transform="translate(${f1(reel[0])} ${f1(reel[1])}) rotate(${f1(a)})"><line class="il-thin" style="stroke-width:3" x1="0" y1="6" x2="0" y2="14"/><circle cx="0" cy="24" r="11" class="il-o il-metal"/><circle cx="0" cy="24" r="3" class="il-navy"/></g>
+        ${guides}${fist(h1)}${fist(h2)}`;
+    const F = h1, E = h2, L = T;
+    const n = [Math.sin(deg(a)), -Math.cos(deg(a))];
+    const ans = `${armLines(F, E, L)}${arrowP(E[0] + 4, E[1] + 66, E[0] + 4, E[1] + 20, 'fa', 9)}${markAt(F[0] + 4, F[1] - 50, 'F', F[0], F[1])}${mark(L[0] - 36, L[1] + 2, 'L')}${mark(E[0] + 34, E[1] + 50, 'E')}`;
+    return { art, ans, F, L, E };
+};
+
+ART.nutcracker = () => {
+    const H = [40, 110], U = [312, 50], D = [312, 170], nx = 160;
+    const arm = P => `${taper(H[0], H[1], P[0], P[1], 14, 12, 'il-o il-metal')}${taper(H[0] + (P[0] - H[0]) * 0.64, H[1] + (P[1] - H[1]) * 0.64, P[0], P[1], 20, 20, 'il-o il-grip')}`;
+    const art = `
+        <g transform="translate(${nx} 110)">
+            <ellipse cx="0" cy="0" rx="21" ry="20" class="il-o il-soil"/>
+            <path class="il-thin" d="M0 -20 Q-5 -10 0 0 Q5 10 0 20"/>
+            <path class="il-thin" style="stroke-width:1.6" d="M-13 -9 Q-8 -3 -12 3 M-10 9 Q-6 12 -8 16 M11 -11 Q7 -5 12 1 M9 8 Q12 12 9 16"/>
+        </g>
+        ${arm(U)}${arm(D)}
+        <path class="il-hi" d="M64 101 L200 72"/>
+        <circle cx="${H[0]}" cy="${H[1]}" r="18" class="il-o il-metal2"/>
+        <circle cx="${H[0]}" cy="${H[1]}" r="6" class="il-o il-white" style="stroke-width:2.5"/>`;
+    const F = H, L = [nx, 110], E = [292, 110];
+    const ans = `${armLines(F, [292, 54], L)}${armLines(F, [292, 166], L)}${arrowP(292, 0, 292, 42, 'fa', 9)}${arrowP(292, 220, 292, 178, 'fa', 9)}${mark(F[0], F[1], 'F')}${mark(L[0], L[1], 'L')}${mark(E[0], E[1], 'E')}`;
+    return { art, ans, F, L, E };
+};
+
+ART.forearm = () => {
+    /* side view: upper arm vertical, forearm horizontal, palm up holding a dumbbell */
+    const skin = 'M50 -6 H100 C104 20 116 40 115 66 C114 92 104 104 104 120 Q106 134 124 134 C150 130 180 126 214 128 L258 132 Q264 133 264 140 V160 Q264 167 257 168 L120 182 C90 186 58 190 50 160 C46 120 48 40 50 -6 Z';
+    const art = `
+        <path class="il-skin" d="${skin}"/>
+        <line x1="74" y1="-6" x2="74" y2="148" stroke="#dde1ea" stroke-width="12" stroke-linecap="round"/>
+        <line x1="86" y1="160" x2="254" y2="150" stroke="#dde1ea" stroke-width="10" stroke-linecap="round"/>
+        <path d="M82 12 C104 30 112 52 110 74 C108 98 100 112 92 122 C84 116 80 96 79 74 C78 50 78 30 82 14 Z" fill="#f7b7da" stroke="#ea008a" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M88 34 Q100 62 96 102" fill="none" stroke="#ea008a" stroke-width="2" stroke-linecap="round" opacity=".5"/>
+        <path d="M92 120 Q102 140 124 146" fill="none" stroke="#ea008a" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="124" cy="146" r="4.5" fill="#ea008a"/>
+        <path class="il-o" style="fill:none" d="${skin}"/>
+        <circle cx="74" cy="158" r="9" class="il-o il-white" style="stroke-width:3"/>
+        <rect x="276" y="104" width="12" height="96" rx="3" class="il-o il-metal2" style="stroke-width:3"/>
+        <rect x="256" y="90" width="52" height="18" rx="5" class="il-o il-navy"/>
+        <rect x="256" y="196" width="52" height="18" rx="5" class="il-o il-navy"/>
+        <path class="il-hi" style="opacity:.35" d="M264 96 H300 M264 202 H300"/>
+        <path class="il-o il-skin" d="M258 134 Q258 124 268 124 H292 Q302 124 302 134 V164 Q302 174 292 174 H268 Q258 174 258 164 Z"/>
+        <path class="il-thin" d="M302 140 H291 M302 151 H291 M302 162 H291"/>
+        <path class="il-thin" style="stroke-width:2.5" d="M266 133 Q278 124 294 130"/>
+        <line x1="119" y1="72" x2="138" y2="72" class="il-thin" style="stroke:#ea008a;stroke-width:2"/>
+        <text class="t pk" x="144" y="78">Biceps</text>`;
+    return { art };
+};
+
+ART.painttin = () => {
+    const top = 112, C = [210, top + 1], T = [196, top + 7];
+    const a = Math.atan2(C[1] - T[1], C[0] - T[0]);
+    const P = d => [T[0] + Math.cos(a) * d, T[1] + Math.sin(a) * d];
+    const sEnd = P(80), hEnd = P(148);
+    const art = `
+        <line class="il-gnd" x1="14" y1="206" x2="330" y2="206"/>
+        <path class="il-o il-metal" d="M42 ${top} H206 V196 Q206 204 198 204 H50 Q42 204 42 196 Z"/>
+        <rect x="42" y="${top + 34}" width="164" height="44" class="il-grip"/>
+        <text class="t wh mid" x="124" y="${top + 64}" style="font-size:24px;letter-spacing:.18em">PAINT</text>
+        <path class="il-o" style="fill:none" d="M42 ${top} H206 V196 Q206 204 198 204 H50 Q42 204 42 196 Z"/>
+        <path class="il-hi" d="M58 ${top + 12} V${top + 26} M58 ${top + 88} V184"/>
+        <g transform="rotate(-6 46 ${top - 2})"><rect x="38" y="${top - 9}" width="168" height="10" rx="3" class="il-o il-metal2"/></g>
+        <line class="il-o" style="stroke-width:6" x1="38" y1="${top}" x2="210" y2="${top}"/>
+        ${taper(T[0], T[1], sEnd[0], sEnd[1], 6, 8, 'il-o il-metal2', false)}
+        ${taper(sEnd[0], sEnd[1], hEnd[0], hEnd[1], 22, 26, 'il-o il-grip')}
+        <path class="il-hi" d="M${f1(sEnd[0] + 10)} ${f1(sEnd[1] - 9)} L${f1(hEnd[0] - 8)} ${f1(hEnd[1] - 10)}" style="opacity:.6"/>`;
+    const F = C, L = [196, top - 8], E = P(136);
+    const ea = a * 180 / Math.PI + 90;
+    const ans = `${armLines(F, E, L)}${arrowTo(E[0] - 6, E[1] - 12, ea, 50, 'fa', 9)}${markAt(240, 160, 'F', F[0], F[1])}${markAt(162, 62, 'L', L[0], L[1])}${mark(E[0] - 38, E[1] - 30, 'E')}`;
+    return { art, ans, F, L, E };
+};
+
+ART.hockey = () => {
+    const A = [54, 22], B = [238, 176];
+    const along = t => [A[0] + (B[0] - A[0]) * t, A[1] + (B[1] - A[1]) * t];
+    const ang = Math.atan2(B[1] - A[1], B[0] - A[0]) * 180 / Math.PI;
+    const fist = ([x, y]) => `<g transform="translate(${f1(x)} ${f1(y)}) rotate(${f1(ang)})"><rect x="-15" y="-15" width="30" height="30" rx="11" class="il-o il-skin"/><path class="il-thin" d="M-6 -15 V-3 M3 -15 V-3 M-12 6 Q-2 12 10 4"/></g>`;
+    const h1 = along(0.06), h2 = along(0.34);
+    const art = `
+        <line class="il-gnd" x1="14" y1="206" x2="330" y2="206"/>
+        ${taper(A[0], A[1], B[0], B[1], 14, 16, 'il-o il-wood')}
+        ${taper(...along(0), ...along(0.24), 17, 17, 'il-o il-grip')}
+        ${[0.05, 0.1, 0.15, 0.2].map(t => { const p = along(t); return `<line class="il-thin" style="stroke:#fff;opacity:.55" transform="translate(${f1(p[0])} ${f1(p[1])}) rotate(${f1(ang)})" x1="0" y1="-6" x2="0" y2="6"/>`; }).join('')}
+        <path class="il-o il-navy" d="M230 166 Q240 186 254 200 Q264 208 278 202 Q284 198 280 190 Q268 192 260 184 L246 160 Z"/>
+        <path class="il-hi" style="opacity:.35" d="M248 182 Q256 194 268 196"/>
+        <circle cx="306" cy="194" r="11" class="il-o il-white" style="stroke-width:3"/>
+        <circle cx="303" cy="191" r="2" class="il-navy" style="opacity:.3"/><circle cx="309" cy="197" r="2" class="il-navy" style="opacity:.3"/>
+        <path class="il-thin" style="stroke:#c3c6d0;stroke-width:3" d="M320 186 H334 M322 194 H338 M320 202 H332"/>
+        ${fist(h1)}${fist(h2)}`;
+    const F = h1, E = h2, L = [266, 196];
+    const n = [Math.sin(deg(ang)), -Math.cos(deg(ang))];
+    const ans = `${armLines(F, E, L)}${arrowP(E[0] - n[0] * 60, E[1] - n[1] * 60, E[0] - n[0] * 18, E[1] - n[1] * 18, 'fa', 9)}${markAt(F[0] + 52, F[1] - 4, 'F', F[0], F[1])}${mark(L[0] - 10, L[1] - 50, 'L')}${mark(E[0] - 58, E[1] + 66, 'E')}`;
+    return { art, ans, F, L, E };
+};
+
+/* ---------- lever illustrations (340 x 220) ---------- */
+const deg = a => a * Math.PI / 180;
+function arrowP(x1, y1, x2, y2, cls = 'fa', hw = 12) {
+    const a = Math.atan2(y2 - y1, x2 - x1), hl = Math.min(hw * 1.6, Math.hypot(x2 - x1, y2 - y1) * 0.6);
+    const bx = x2 - Math.cos(a) * hl, by = y2 - Math.sin(a) * hl, px = Math.sin(a) * hw, py = -Math.cos(a) * hw;
+    return `<g class="${cls}"><line x1="${f1(x1)}" y1="${f1(y1)}" x2="${f1(bx + Math.cos(a))}" y2="${f1(by + Math.sin(a))}"/><polygon points="${f1(x2)},${f1(y2)} ${f1(bx + px)},${f1(by + py)} ${f1(bx - px)},${f1(by - py)}"/></g>`;
+}
+const arrowH = (x1, y1, x2, y2, hw = 9) => arrowP(x1, y1, x2, y2, 'fh', hw) + arrowP(x1, y1, x2, y2, 'fa', hw);
+const arrowTo = (x, y, a, len, cls = 'fa', hw = 10) => arrowP(x - Math.cos(deg(a)) * len, y - Math.sin(deg(a)) * len, x, y, cls, hw);
+const mark = (x, y, t) => `<g class="mkr m${t}"><circle cx="${f1(x)}" cy="${f1(y)}" r="17"/><text x="${f1(x)}" y="${f1(y + 7)}">${t}</text></g>`;
+const markAt = (x, y, t, ax, ay) => `<line class="mlead" x1="${f1(ax)}" y1="${f1(ay)}" x2="${f1(x)}" y2="${f1(y)}"/>${mark(x, y, t)}`;
+const armLines = () => '';
+const fistAt = ([x, y], ang) => `<g transform="translate(${f1(x)} ${f1(y)}) rotate(${f1(ang)})"><rect x="-15" y="-15" width="30" height="30" rx="11" class="il-o il-skin"/><path class="il-thin" d="M-6 -15 V-3 M3 -15 V-3 M-12 6 Q-2 12 10 4"/></g>`;
+
+const ILCSS = `<style>
+.il-o{stroke:#1b1f45;stroke-width:3.5;stroke-linejoin:round;stroke-linecap:round}
+.il-thin{fill:none;stroke:#1b1f45;stroke-width:2;stroke-linecap:round}
+.il-metal{fill:#dfe3ec}.il-metal2{fill:#c9cfdc}.il-hi{fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;opacity:.85}
+.il-wood{fill:#f1e6d4}.il-grain{fill:none;stroke:#d8c3a2;stroke-width:2;stroke-linecap:round}
+.il-grip{fill:#ea008a}.il-gripl{fill:#f7b7da}.il-navy{fill:#1b1f45}.il-white{fill:#fff}
+.il-skin{fill:#f3f0ee}.il-water{fill:#e4ecf6}.il-soil{fill:#e6d6bd}.il-rock{fill:#d5d9e3}
+.il-gnd{stroke:#1b1f45;stroke-width:4;stroke-linecap:round}
+.fa line{stroke:#ea008a;stroke-width:7}.fa polygon{fill:#ea008a}
+.fh line{stroke:#fff;stroke-width:13;stroke-linecap:round}.fh polygon{fill:#fff;stroke:#fff;stroke-width:7;stroke-linejoin:round}
+.t{font-family:Helvetica Neue,Helvetica,Arial,sans-serif;font-weight:800;font-size:17px;fill:#1b1f45}
+.t.mid{text-anchor:middle}.t.pk{fill:#ea008a}.t.wh{fill:#fff}.t.sm{font-size:15px}
+.mkr circle{stroke-width:3}.mkr text{font-family:Helvetica Neue,Helvetica,Arial,sans-serif;font-size:18px;font-weight:800;text-anchor:middle}
+.mF circle{fill:#1b1f45;stroke:#1b1f45}.mF text{fill:#fff}.mL circle{fill:#fff;stroke:#1b1f45}.mL text{fill:#1b1f45}.mE circle{fill:#ea008a;stroke:#ea008a}.mE text{fill:#fff}
+.mlead{stroke:#1b1f45;stroke-width:2;stroke-dasharray:3 4}
+</style>`;
+
+/* bottle opener: rests on top of the cap (fulcrum), hook lifts the cap edge (load), hand lifts the handle (effort) */
+ART.opener = () => {
+    const art = `
+        <line class="il-gnd" x1="14" y1="206" x2="330" y2="206"/>
+        <path class="il-o il-water" d="M62 106 V136 Q62 156 40 170 Q28 178 28 194 V204 H132 V194 Q132 178 120 170 Q98 156 98 136 V106 Z"/>
+        <rect x="28" y="178" width="104" height="20" class="il-grip"/>
+        <path class="il-o" style="fill:none" d="M62 106 V136 Q62 156 40 170 Q28 178 28 194 V204 H132 V194 Q132 178 120 170 Q98 156 98 136 V106 Z"/>
+        <path class="il-hi" d="M70 112 V138 M40 184 V192" style="opacity:.9"/>
+        <rect x="56" y="92" width="48" height="14" rx="2" class="il-o il-metal2"/>
+        <path class="il-thin" style="stroke-width:1.6" d="M64 94 V104 M72 94 V104 M80 94 V104 M88 94 V104 M96 94 V104"/>
+        <path class="il-o il-metal" d="M48 80 H128 L130 92 H116 V116 Q116 120 112 120 H96 V110 H108 V92 H48 Q44 86 48 80 Z"/>
+        <circle cx="86" cy="86" r="3" class="il-white" style="stroke:#1b1f45;stroke-width:2"/>
+        <path class="il-hi" d="M54 84 H120"/>
+        ${taper(128, 86, 318, 62, 12, 18, 'il-o il-grip')}
+        <path class="il-hi" d="M140 81 L300 61" style="opacity:.55"/>`;
+    return { art };
+};
+
+/* crowbar: claw under the rock, rests on a wooden block, hand pushes the long handle down */
+ART.crowbar = () => {
+    const A = [98, 190], B = [312, 110], ang = Math.atan2(B[1] - A[1], B[0] - A[0]) * 180 / Math.PI;
+    const art = `
+        <line class="il-gnd" x1="14" y1="206" x2="330" y2="206"/>
+        <path class="il-o il-rock" d="M20 204 Q10 160 36 136 Q70 112 104 132 Q124 150 114 184 Q106 192 94 188 Q62 204 20 204 Z"/>
+        <path class="il-hi" d="M40 146 Q60 130 84 132" style="opacity:.9"/>
+        <path class="il-thin" style="stroke:#9aa1b5;stroke-width:2.5" d="M58 172 Q70 166 80 172 M34 186 Q42 182 48 188"/>
+        <rect x="114" y="183" width="30" height="23" rx="3" class="il-o il-wood"/>
+        <path class="il-grain" d="M119 191 H138 M121 198 H140"/>
+        <path class="il-o il-metal2" d="M76 190 Q84 199 98 195 L108 191 L104 184 L94 187 Q86 189 82 185 Z"/>
+        ${taper(A[0] + 4, A[1] - 1.5, B[0], B[1], 10, 10, 'il-o il-grip')}
+        <path class="il-hi" d="M120 179.6 L290 116.4" style="opacity:.55"/>
+        ${fistAt([296, 116], ang)}`;
+    const eff = arrowP(296, 40, 296, 92, 'fa', 9);
+    return { art, eff };
+};
+
+/* long-handled garden shears cutting a branch near the pivot */
+ART.shears = () => {
+    const px = 112, py = 110;
+    const blade = (tx2, ty2, side) => {
+        const a = Math.atan2(ty2 - py, tx2 - px), dx = Math.cos(a), dy = Math.sin(a), nx = -dy * side, ny = dx * side;
+        const P = (u, v) => `${f1(px + dx * u + nx * v)} ${f1(py + dy * u + ny * v)}`, L = Math.hypot(tx2 - px, ty2 - py);
+        return `<path class="il-o il-metal" d="M${P(-16, 10)} C${P(30, 16)} ${P(L - 30, 12)} ${f1(tx2)} ${f1(ty2)} L${P(-16, -2)} Z"/>
+            <path class="il-hi" d="M${P(0, 7)} C${P(26, 10)} ${P(L - 40, 7)} ${P(L - 20, 4)}"/>`;
+    };
+    const handle = (hx, hy) => `${taper(px, py, px + (hx - px) * .38, py + (hy - py) * .38, 10, 10, 'il-o il-metal2', false)}${taper(px + (hx - px) * .36, py + (hy - py) * .36, hx, hy, 16, 18, 'il-o il-grip')}`;
+    const art = `
+        <circle cx="62" cy="110" r="18" class="il-o il-wood"/>
+        <circle cx="62" cy="110" r="10" class="il-grain"/><circle cx="62" cy="110" r="3" class="il-grain"/>
+        ${handle(322, 52)}${blade(22, 150, -1)}
+        ${handle(322, 168)}${blade(22, 70, 1)}
+        <circle cx="${px}" cy="${py}" r="9" class="il-o il-metal2" style="stroke-width:3"/>
+        <line class="il-thin" x1="${px - 5}" y1="${py - 5}" x2="${px + 5}" y2="${py + 5}"/>`;
+    const eff = arrowP(298, 4, 298, 44, 'fa', 9) + arrowP(298, 216, 298, 176, 'fa', 9);
+    return { art, eff };
+};
+
+/* broom: top hand holds still, lower hand pushes, bristles sweep leaves */
+ART.broom = () => {
+    const A = [70, 18], B = [232, 160];
+    const along = t => [A[0] + (B[0] - A[0]) * t, A[1] + (B[1] - A[1]) * t];
+    const ang = Math.atan2(B[1] - A[1], B[0] - A[0]) * 180 / Math.PI, h1 = along(0.05), h2 = along(0.36);
+    const leaf = (x, y, r) => `<g transform="translate(${x} ${y}) rotate(${r})"><path class="il-o il-soil" style="stroke-width:2.5" d="M-12 0 Q0 -9 12 0 Q0 9 -12 0 Z"/><line class="il-thin" style="stroke-width:1.6" x1="-10" y1="0" x2="10" y2="0"/></g>`;
+    const art = `
+        <line class="il-gnd" x1="14" y1="206" x2="330" y2="206"/>
+        ${leaf(286, 199, -10)}${leaf(310, 194, 24)}${leaf(300, 184, -36)}
+        <path class="il-thin" style="stroke:#c3c6d0;stroke-width:3" d="M268 176 H284 M272 186 H292"/>
+        ${taper(A[0], A[1], B[0], B[1], 12, 12, 'il-o il-wood')}
+        <g transform="translate(${B[0]} ${B[1]}) rotate(${f1(ang - 90)})">
+            <rect x="-30" y="-4" width="60" height="16" rx="4" class="il-o il-grip"/>
+            <path class="il-o il-soil" d="M-28 12 L-36 48 H36 L28 12 Z"/>
+            <path class="il-thin" style="stroke-width:1.8" d="M-20 16 L-25 46 M-10 16 L-12 46 M0 16 V46 M10 16 L12 46 M20 16 L25 46"/>
+        </g>
+        ${fistAt(h1, ang)}${fistAt(h2, ang)}`;
+    const n = [Math.sin(deg(ang)), -Math.cos(deg(ang))];
+    const eff = arrowP(h2[0] + n[0] * 64, h2[1] + n[1] * 64, h2[0] + n[0] * 22, h2[1] + n[1] * 22, 'fa', 9);
+    return { art, eff };
+};
+
+/* effort arrow for the hockey stick (lower hand pushes) */
+const hockeyEff = () => {
+    const A = [54, 22], B = [238, 176], ang = Math.atan2(B[1] - A[1], B[0] - A[0]);
+    const E = [A[0] + (B[0] - A[0]) * .34, A[1] + (B[1] - A[1]) * .34], n = [Math.sin(ang), -Math.cos(ang)];
+    return arrowP(E[0] - n[0] * 64, E[1] - n[1] * 64, E[0] - n[0] * 22, E[1] - n[1] * 22, 'fa', 9);
+};
+
+/* standalone SVG for a lever illustration; eff adds the effort arrow */
+function artSvg(key, eff) {
+    const a = ART[key]();
+    const e = eff ? (key === 'hockey' ? hockeyEff() : a.eff || '') : '';
+    return wrapSvg('0 0 340 220', 340, 220, ILCSS + a.art + e);
+}
+
+/* ---------- angle vs effort graph ---------- */
+function graphSvg() {
+    const GX = a => 66 + a * 354 / 70, GP = e => 214 - e * 1.8;
+    let s = txt(440, 20, '100 N load raised 1 m', { fs: 17, fw: 700, c: '#9a9a9a', a: 'end' });
+    for (let a = 0; a <= 70; a += 10) s += `<line x1="${f1(GX(a))}" x2="${f1(GX(a))}" y1="${GP(100)}" y2="${GP(0)}" stroke="#e3e5ec" stroke-width="1.5"/>` + txt(GX(a), GP(0) + 24, a, { fs: 17, fw: 700, c: '#9a9a9a', a: 'middle' });
+    [0, 25, 50, 75, 100].forEach(e => s += `<line x1="${GX(0)}" x2="${f1(GX(70))}" y1="${f1(GP(e))}" y2="${f1(GP(e))}" stroke="#e3e5ec" stroke-width="1.5"/>` + txt(GX(0) - 8, GP(e) + 5, e, { fs: 17, fw: 700, c: '#9a9a9a', a: 'end' }));
+    let d = '';
+    for (let a = 10; a <= 60; a++) d += (a === 10 ? 'M' : 'L') + f1(GX(a)) + ' ' + f1(GP(100 * Math.sin(rad(a))));
+    s += `<line x1="${GX(0)}" y1="${GP(0)}" x2="${f1(GX(70))}" y2="${GP(0)}" stroke="${NV}" stroke-width="3"/><line x1="${GX(0)}" y1="${GP(0)}" x2="${GX(0)}" y2="${GP(100) - 6}" stroke="${NV}" stroke-width="3"/>
+        <path d="${d}" fill="none" stroke="${PK}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        ${txt(GX(35), 266, 'Angle of inclination (°)', { fs: 17, fw: 700, c: '#9a9a9a', a: 'middle' })}
+        <text transform="translate(16 124) rotate(-90)" font-size="17" font-weight="700" fill="#9a9a9a" text-anchor="middle">Effort force (N)</text>`;
+    return wrapSvg('0 0 460 272', 460, 272, s);
+}
+
+/* ---------- three ramps, same height ---------- */
+function rampsSvg() {
+    const GY = 160, H = 90, R = [[1, 40, 14], [2, 15, 187], [3, 65, 589]];
+    let s = gnd(0, 700, GY + 2);
+    R.forEach(([n, a, x0]) => {
+        const base = H / Math.tan(rad(a)), tx0 = x0 + base, c = (x0 + tx0 + 36) / 2;
+        s += `<polygon points="${x0},${GY} ${f1(tx0)},${GY} ${f1(tx0)},${GY - H}" fill="${LT}" stroke="${NV}" stroke-width="4" stroke-linejoin="round"/>
+            <rect x="${f1(tx0)}" y="${GY - H}" width="36" height="${H}" fill="#fff" stroke="${NV}" stroke-width="4"/>
+            ${arc(x0, GY, 30, a)}${slopeBox(x0, GY, a, (H / Math.sin(rad(a))) * .42, 24, 22)}
+            ${lab(c, GY + 30, n)}${txt(c + 24, GY + 37, a + '°', { fs: 18, c: PK })}`;
+    });
+    return wrapSvg('0 56 700 156', 700, 156, s);
+}
+
+/* ---------- steep ramp vs zigzag ---------- */
+function zigSvg() {
+    const GY = 200, H = 130, seg = [[410, 200, 560, 156.7], [560, 156.7, 410, 113.3], [410, 113.3, 560, 70]];
+    let s = gnd(10, 630, GY + 2);
+    s += `<polygon points="40,${GY} 120,${GY} 120,${GY - H}" fill="${LT}" stroke="${NV}" stroke-width="4" stroke-linejoin="round"/>
+        <rect x="120" y="${GY - H}" width="50" height="${H}" fill="#fff" stroke="${NV}" stroke-width="4"/>${arc(40, GY, 34, 58)}
+        <rect x="560" y="${GY - H}" width="50" height="${H}" fill="#fff" stroke="${NV}" stroke-width="4"/>
+        ${seg.map(([a, b, c, d]) => `<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="${NV}" stroke-width="7" stroke-linecap="round"/>`).join('')}
+        ${arc(410, GY, 46, 16)}
+        <text x="105" y="232" font-size="16" font-weight="800" fill="${NV}" text-anchor="middle">Steep ramp: <tspan fill="${PK}">58°</tspan></text>
+        <text x="485" y="232" font-size="16" font-weight="800" fill="${NV}" text-anchor="middle">Zigzag ramp: <tspan fill="${PK}">16°</tspan> each section</text>`;
+    return wrapSvg('0 50 640 194', 640, 194, s);
+}
+
+/* ---------- parts of a lever ---------- */
+function partsSvg() {
+    const G = 214, dash = (x, y1) => `<line x1="${x}" y1="${y1}" x2="${x}" y2="244" stroke="${GR}" stroke-width="2.5" stroke-dasharray="6 5"/>`;
+    const tk = x => `<line x1="${x}" y1="232" x2="${x}" y2="248" stroke="${NV}" stroke-width="4"/>`;
+    let s = gnd(20, 620, G + 2);
+    s += `${dash(90, 136)}${dash(230, 218)}${dash(570, 136)}
+        <rect x="40" y="120" width="560" height="12" rx="3" fill="${NV}"/>
+        <polygon points="230,132 195,${G} 265,${G}" fill="${NV}"/>
+        <rect x="50" y="64" width="80" height="56" rx="4" fill="${LT}" stroke="${NV}" stroke-width="4"/>
+        ${arrow(570, 30, Math.PI / 2, 86, PK, 7)}
+        <line x1="90" y1="240" x2="570" y2="240" stroke="${NV}" stroke-width="4"/>${tk(90)}${tk(230)}${tk(570)}
+        <line x1="254" y1="180" x2="296" y2="172" stroke="${NV}" stroke-width="2.5"/>
+        ${lab(312, 170, 1)}${lab(90, 40, 2)}${lab(538, 62, 3)}${lab(160, 240, 4)}${lab(400, 240, 5)}`;
+    return wrapSvg('0 0 640 260', 640, 260, s);
+}
+
+/* ---------- two levers (animated) ---------- */
+const LV = [{ k: 'A', f: 50, G: 182, fe: 100 }, { k: 'B', f: 150, G: 392, fe: 900 }], LX = 110, LS = 2, LHt = 70, LTH = Math.asin(.2);
+function lvInner(th, ghost, labK) {
+    let s = '';
+    LV.forEach(({ k, f, G, fe }) => {
+        const py = G - LHt, px = LX + f * LS, rL = f * LS, rE = (200 - f) * LS;
+        const ends = a => ({ l: [px - rL * Math.cos(a), py - rL * Math.sin(a)], e: [px + rE * Math.cos(a), py + rE * Math.sin(a)] });
+        const p = ends(th), p0 = ends(0);
+        const box = ([x, y], g) => g ? `<rect x="${f1(x - 28)}" y="${f1(y - 50)}" width="56" height="44" rx="4" fill="none" stroke="${GR}" stroke-width="3" stroke-dasharray="7 6"/>`
+            : `<rect x="${f1(x - 28)}" y="${f1(y - 50)}" width="56" height="44" rx="4" fill="${NV}"/>${txt(x, y - 22, '300 N', { fs: 16, c: '#fff', a: 'middle' })}`;
+        s += gnd(10, 630, G + 2) + txt(630, G - 150, 'Lever ' + k, { fs: 20, a: 'end' });
+        if (ghost) s += `<line x1="${f1(p0.l[0])}" y1="${f1(p0.l[1])}" x2="${f1(p0.e[0])}" y2="${f1(p0.e[1])}" stroke="${GR}" stroke-width="10" stroke-linecap="round"/>${box(p0.l, true)}`;
+        s += `<polygon points="${px},${py + 5} ${px - 18},${G} ${px + 18},${G}" fill="${NV}"/>
+            <line x1="${f1(p.l[0])}" y1="${f1(p.l[1])}" x2="${f1(p.e[0])}" y2="${f1(p.e[1])}" stroke="${NV}" stroke-width="10" stroke-linecap="round"/>
+            ${box(p.l, false)}${arrow(p.e[0], p.e[1] - 86, Math.PI / 2, 76, PK, 6)}
+            ${txt(p.e[0] - 14, p.e[1] - 60, 'Effort', { fs: 15, c: PK, a: 'end' })}${txt(p.e[0] - 14, p.e[1] - 40, fe + ' N', { fs: 17, c: PK, a: 'end' })}`;
+        if (labK > 0) {
+            const dl = Math.round(f * .2), de = Math.round((200 - f) * .2), xl = p0.l[0] - 44, xe = p0.e[0] + 30;
+            const dim = (x, y0, y1, c) => `<line x1="${f1(x)}" y1="${f1(y0)}" x2="${f1(x)}" y2="${f1(y1)}" stroke="${c}" stroke-width="3"/><line x1="${f1(x - 7)}" y1="${f1(y0)}" x2="${f1(x + 7)}" y2="${f1(y0)}" stroke="${c}" stroke-width="3"/><line x1="${f1(x - 7)}" y1="${f1(y1)}" x2="${f1(x + 7)}" y2="${f1(y1)}" stroke="${c}" stroke-width="3"/>`;
+            s += `<g opacity="${labK.toFixed(2)}">${dim(xl, p0.l[1], p.l[1], NV)}${txt(xl - 10, (p0.l[1] + p.l[1]) / 2 + 6, dl + ' cm', { fs: 17, a: 'end' })}
+                ${dim(xe, p0.e[1], p.e[1], PK)}${txt(xe + 10, (p0.e[1] + p.e[1]) / 2 + 6, de + ' cm', { fs: 17, c: PK })}</g>`;
+        }
+    });
+    return s;
+}
+const lvSvg = () => wrapSvg('0 0 640 405', 640, 405, lvInner(LTH, true, 1));
+let lvTok = 0;
+function playLevers() {
+    const tok = ++lvTok, svg = $('#lvSvg'), ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    const run = (dur, step) => new Promise(res => { const st = performance.now(); const f = n => { if (tok !== lvTok) return; const k = Math.min(1, (n - st) / dur); step(k); k < 1 ? requestAnimationFrame(f) : res(); }; requestAnimationFrame(f); });
+    svg.innerHTML = lvInner(0, false, 0);
+    setTimeout(async () => {
+        if (tok !== lvTok) return;
+        await run(1800, k => svg.innerHTML = lvInner(LTH * ease(k), false, 0));
+        await run(450, k => svg.innerHTML = lvInner(LTH, true, k));
+    }, 500);
+}
+$('#lvPlay').onclick = playLevers;
+
+/* ---------- community garden ---------- */
+function gardenSvg() {
+    const G = 196;
+    return wrapSvg('0 92 640 122', 640, 122, `${gnd(10, 630, G + 2)}
+        <rect x="470" y="116" width="160" height="80" fill="${LT}" stroke="${NV}" stroke-width="4"/>
+        ${txt(540, 146, 'Garden bed', { fs: 16, a: 'middle' })}
+        <line x1="615" y1="122" x2="615" y2="190" stroke="#9a9a9a" stroke-width="2.5"/><line x1="608" y1="122" x2="622" y2="122" stroke="#9a9a9a" stroke-width="2.5"/><line x1="608" y1="190" x2="622" y2="190" stroke="#9a9a9a" stroke-width="2.5"/>
+        ${txt(605, 178, '1 m', { fs: 16, c: '#9a9a9a', a: 'end' })}
+        <line x1="160" y1="${G}" x2="470" y2="116" stroke="${NV}" stroke-width="6" stroke-linecap="round"/>
+        <line x1="331" y1="${G}" x2="470" y2="116" stroke="${NV}" stroke-width="6" stroke-linecap="round"/>
+        ${lab(432, 176, 'A')}${lab(286, 182, 'B')}
+        <rect x="60" y="110" width="62" height="32" rx="8" fill="${LT}" stroke="${NV}" stroke-width="3.5"/>${txt(91, 132, '200 N', { fs: 14, a: 'middle' })}
+        <polygon points="40,140 142,140 130,170 64,170" fill="#fff" stroke="${NV}" stroke-width="4" stroke-linejoin="round"/>
+        <line x1="132" y1="152" x2="196" y2="128" stroke="${NV}" stroke-width="6" stroke-linecap="round"/>
+        <line x1="124" y1="170" x2="128" y2="${G}" stroke="${NV}" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="58" cy="180" r="15" fill="#fff" stroke="${NV}" stroke-width="5"/><circle cx="58" cy="180" r="3" fill="${NV}"/>`);
+}
+
+$('#graphFig').innerHTML = graphSvg();
+$('#rampsFig').innerHTML = rampsSvg();
+$('#zigFig').innerHTML = zigSvg();
+$('#partsFig').innerHTML = partsSvg();
+$('#gardenFig').innerHTML = gardenSvg();
+playLevers();
+
+/* ---------- generated content ---------- */
+const MACH = [['Lever', 200, 100], ['Single pulley', 80, 80], ['Gentle ramp', 120, 30], ['Trolley', 90, 30]];
+$('#machTbl').innerHTML = '<tr><th>Machine</th><th>Force without</th><th>Force with</th><th>Efficiency</th><th>Rank</th></tr>' +
+    MACH.map(([n, wo, wi], i) => `<tr><td>${n}</td><td>${wo} N</td><td>${wi} N</td><td class="u"><i data-b="cp${i + 1}" data-w="5" data-l="${n} efficiency"></i>%</td><td><span data-t="rk${i + 1}" data-o="1st|2nd|3rd|4th" data-l="${n} rank"></span></td></tr>`).join('');
+
+const CLAIMS = [
+    ['Ana', '“A single pulley is 100% efficient, so it halves the effort force.”'],
+    ['Zoe', '“The gentle ramp is the most efficient, so it is the best choice for every job.”'],
+    ['Priya', '“Putting wheels on a heavy crate makes moving it more efficient, because wheels reduce friction.”']
+];
+$('#claims').innerHTML = CLAIMS.map(([n, q], i) => `<div class="claim"><div class="who2"><b>${n}:</b> ${q}</div>
+    <div class="ctl"><span data-t="cl${i + 1}" data-o="Agree|Disagree" data-l="${n}’s claim"></span><span class="lb">because</span></div>
+    <textarea class="ln ans" data-k="cw${i + 1}" rows="1" aria-label="Reason for ${n}’s claim"></textarea></div>`).join('');
+
+const LOPTS = 'Class 1|Class 2|Class 3';
+const CARDS = [
+    ['Claw hammer', 'The claw grips the nail. The curved head rocks on the wood, and your hand pulls the handle back.', 'hammer'],
+    ['Paint tin and screwdriver', 'The screwdriver rests on the rim of the tin. Its tip lifts the lid, and your hand pushes the handle down.', 'painttin'],
+    ['Nutcracker', 'The hinge is at one end, your hand squeezes the other end, and the nut sits in between.', 'nutcracker'],
+    ['Bottle opener', 'It rests on top of the cap. The hook lifts the edge of the cap, and your hand lifts the handle.', 'opener'],
+    ['Fishing rod', 'One hand holds the end still, the other pulls just above it, and the line moves at the tip.', 'rod'],
+    ['Your forearm', 'Your elbow is the pivot. Your biceps pulls just below the elbow, and your hand holds the weight.', 'forearm']
+];
+$('#cards').innerHTML = CARDS.map(([n, c, k], i) => `<div class="card"><div class="cimg" role="img" aria-label="${n}">${artSvg(k)}</div><strong>${n}</strong><span class="cl">${c}</span><i data-s="lc${i + 1}" data-o="${LOPTS}" data-l="${n} class"></i></div>`).join('');
+
+const PARTS = [['Wheelbarrow', 'Wheel|Soil|Handles', 'wheelbarrow'], ['Tweezers', 'Joined end|Tips|Middle', 'tweezers'], ['Scissors', 'Screw|Blades|Handles', 'scissors']];
+$('#pcards').innerHTML = PARTS.map(([n, o, k], i) => `<div class="card"><div class="cimg" role="img" aria-label="${n}">${artSvg(k)}</div><strong>${n}</strong>` +
+    ['Fulcrum', 'Load', 'Effort'].map((p, j) => `<div class="pr">${p}<i data-s="pk${i * 3 + j + 1}" data-o="${o}" data-l="${n} ${p.toLowerCase()}"></i></div>`).join('') +
+    `<div class="pr">Class<span data-t="pc${i + 1}" data-o="1|2|3" data-l="${n} class"></span></div></div>`).join('');
+
+const CMP = [['Effort arm compared to the resistance arm', 'Longer|Shorter'], ['Effort force compared to the load', 'Less|More'], ['Distance the effort moves compared to the load', 'Further|Less far'], ['How the load moves', 'Short, slow|Long, fast']];
+$('#cmpTbl').innerHTML = '<tr><th>Feature</th><th>Force multiplier</th><th>Speed multiplier</th></tr>' +
+    CMP.map(([t, o], i) => `<tr><td>${t}</td><td><span data-t="fm${i + 1}" data-o="${o}" data-l="Force multiplier: ${t}"></span></td><td><span data-t="sp${i + 1}" data-o="${o}" data-l="Speed multiplier: ${t}"></span></td></tr>`).join('');
+
+const FS = [['Lifting a rock with a crowbar', 'crowbar'], ['Hitting a ball with a hockey stick', 'hockey'], ['Cutting a branch with garden shears', 'shears'], ['Sweeping leaves with a broom', 'broom']];
+$('#fsCards').innerHTML = FS.map(([t, k], i) => `<div class="card"><div class="cimg" role="img" aria-label="${t}">${artSvg(k, true)}</div><strong>${t}</strong><span data-t="fs${i + 1}" data-o="Force|Speed" data-l="${t}"></span></div>`).join('');
+
+const CHECKS = ['Working for both efficiency calculations', 'The most efficient ramp, named', 'A trade-off that uses angle of inclination and distance', 'The fulcrum, load and effort of the wheelbarrow', 'Force or speed multiplier, explained using the effort arm'];
+const TICK = '<svg viewBox="0 0 16 16"><path d="M3 8.5 L6.5 12 L13 4.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+$('#checks').innerHTML = CHECKS.map((t, i) => `<button class="ck" data-c="k${i + 1}" aria-pressed="false"><span class="box">${TICK}</span>${t}</button>`).join('');
+$$('.ck').forEach(b => b.onclick = () => { b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true')); dirty = true; exported = false; });
+
+/* ---------- blanks, dropdowns, toggles, textareas ---------- */
+function size(inp) { inp.style.width = Math.max(+inp.dataset.w, inp.value.length + 2) + 'ch'; inp.classList.toggle('has', !!inp.value.trim()); }
+$$('i[data-b]').forEach(i => {
+    const inp = document.createElement('input');
+    inp.className = 'b ans'; inp.dataset.k = i.dataset.b; inp.dataset.w = i.dataset.w || 8;
+    inp.setAttribute('aria-label', i.dataset.l || 'Blank'); inp.autocomplete = 'off';
+    i.replaceWith(inp); size(inp);
+    inp.addEventListener('input', () => size(inp));
+});
+$$('i[data-s]').forEach(i => {
+    const sel = document.createElement('select');
+    sel.className = 'b ans empty'; sel.dataset.k = i.dataset.s; sel.setAttribute('aria-label', i.dataset.l || 'Choose');
+    sel.innerHTML = '<option value="">choose</option>' + i.dataset.o.split('|').map(o => `<option>${o}</option>`).join('');
+    sel.addEventListener('change', () => { sel.classList.toggle('empty', !sel.value); sel.classList.toggle('has', !!sel.value); changed(); });
+    i.replaceWith(sel);
+});
+$$('[data-t]').forEach(g => {
+    g.classList.add('tg', 'ans'); g.setAttribute('role', 'radiogroup'); g.setAttribute('aria-label', g.dataset.l || '');
+    g.dataset.k = g.dataset.t; g.dataset.v = '';
+    g.dataset.o.split('|').forEach(o => {
+        const b = document.createElement('button'); b.type = 'button'; b.textContent = o;
+        b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', 'false');
+        b.onclick = () => {
+            const off = g.dataset.v === o; g.dataset.v = off ? '' : o;
+            $$('button', g).forEach(x => x.setAttribute('aria-checked', String(!off && x === b)));
+            changed();
+        };
+        g.appendChild(b);
+    });
+});
+function grow(t) { if (!t.offsetParent) return; t.style.height = 'auto'; t.style.height = t.scrollHeight + 4 + 'px'; }
+$$('textarea').forEach(t => { t.addEventListener('input', () => grow(t)); grow(t); });
+window.addEventListener('resize', () => $$('textarea').forEach(grow));
+document.addEventListener('input', e => { if (e.target.matches('.ans, #date')) changed(); });
+
+const isTg = e => e.dataset.t !== undefined;
+const valOf = e => (isTg(e) ? e.dataset.v : e.value).trim();
+const V = k => { const e = $(`[data-k="${k}"]`); return e ? valOf(e) : ''; };
+const CK = k => $(`[data-c="${k}"]`).getAttribute('aria-pressed') === 'true';
+
+$('#date').value = new Date().toLocaleDateString('en-AU');
+
+/* ---------- progress ---------- */
+const unanswered = () => $$('.ans').filter(e => !valOf(e));
+function changed() {
+    dirty = true; exported = false;
+    const total = $$('.ans').length, n = total - unanswered().length;
+    $('#count').innerHTML = `<b>${n}</b> of ${total} answered`;
+    $('#prog').style.width = (n / total * 100) + '%';
+    useChips('#use1', [/\bangle/i, /effort force/i, /\bdistance/i, /\befficien/i, /trade.?off/i], V('sum1'));
+    useChips('#use2', [/\bfulcrum/i, /effort arm/i, /\bforce/i, /\bdistance/i, /\bfast/i], [V('s2a'), V('s2b'), V('s2c')].join(' '));
+}
+function useChips(sel, res, txt) { $$(sel + ' span').forEach((s, i) => s.classList.toggle('on', res[i].test(txt))); }
+
+/* ---------- cover mode ---------- */
+$('#cover').onclick = () => {
+    const on = !document.body.classList.contains('cover');
+    document.body.classList.toggle('cover', on);
+    $('#cover').setAttribute('aria-pressed', on); $('#cover').textContent = on ? 'Uncover notes' : 'Cover notes';
+    $$('.row').forEach(r => r.classList.remove('peek'));
+};
+$$('.row .notes').forEach(n => n.addEventListener('click', e => {
+    const r = n.parentNode;
+    if (document.body.classList.contains('cover') && !r.classList.contains('peek') && !r.classList.contains('nocover')) { e.preventDefault(); e.stopPropagation(); r.classList.add('peek'); }
+}, true));
+
+/* ---------- modal ---------- */
+function modal(h, p, acts) {
+    $('#mdh').textContent = h; $('#mdp').innerHTML = p;
+    const a = $('#mda'); a.innerHTML = '';
+    acts.forEach(([t, cls, fn]) => { const b = document.createElement('button'); b.className = 'btn ' + cls; b.textContent = t; b.onclick = () => { closeModal(); fn && fn(); }; a.appendChild(b); });
+    $('#ov').classList.add('show'); a.lastChild.focus();
+}
+const closeModal = () => $('#ov').classList.remove('show');
+$('#ov').addEventListener('click', e => { if (e.target.id === 'ov') closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+function jumpTo(e) {
+    const row = e.closest('.row'); if (row) row.classList.add('peek');
+    e.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const f = isTg(e) ? e.querySelector('button') : e;
+    setTimeout(() => f && f.focus({ preventScroll: true }), 450);
+}
+function startExport() {
+    const left = unanswered();
+    if (left.length) {
+        modal(`${left.length} ${left.length === 1 ? 'answer is' : 'answers are'} still blank`, 'You can export now, or go to the next blank and finish it first.',
+            [['Go to next blank', '', () => jumpTo(left[0])], ['Export anyway', 'pk', makePdf]]);
+        return;
+    }
+    makePdf();
+}
+$('#exportTop').onclick = startExport; $('#exportBottom').onclick = startExport;
+
+/* =========================================================
+   PDF EXPORT
+   ========================================================= */
+function svgPng(svg, w, h, k = 4) {
+    return new Promise((res, rej) => {
+        const img = new Image();
+        img.onload = () => { const c = document.createElement('canvas'); c.width = w * k; c.height = h * k; const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0, c.width, c.height); res(c.toDataURL('image/png')); };
+        img.onerror = rej;
+        img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    });
+}
+const C = { nv: [27, 31, 69], pk: [234, 0, 138], gr: [154, 154, 154], ru: [210, 214, 224], bl: [190, 193, 205], wh: [255, 255, 255], tn: [243, 244, 248] };
+const ML = 14, MR = 196, CW = 40, CX = 57, NX = 61, NW = MR - NX, BOT = 281;
+let doc, Y, DRY = false;
+const mm = pt => pt * .3528;
+const clean = s => String(s || '').replace(/[\u2018\u2019\u02bc]/g, "'").replace(/[\u201c\u201d]/g, '"').replace(/[\u2013\u2014]/g, '-').replace(/\u2026/g, '...').replace(/[^\x09\x0a\x0d\x20-\x7e\xa0-\xff]/g, '');
+function font(st, sz, col) { doc.setFont('helvetica', st); doc.setFontSize(sz); doc.setTextColor(...col); }
+function T(s, x, y, o) { if (!DRY) doc.text(s, x, y, o); }
+function Ln(x1, y1, x2, y2, col, w) { if (DRY) return; doc.setDrawColor(...col); doc.setLineWidth(w); doc.line(x1, y1, x2, y2); }
+function RR(x, y, w, h, r, fill, stroke, lw = .4) {
+    if (DRY) return;
+    if (fill) doc.setFillColor(...fill);
+    if (stroke) { doc.setDrawColor(...stroke); doc.setLineWidth(lw); }
+    doc.roundedRect(x, y, w, h, r, r, fill && stroke ? 'FD' : fill ? 'F' : 'S');
+}
+function IMG(d, x, y, w, h) { if (!DRY) doc.addImage(d, 'PNG', x, y, w, h); }
+function meas(fn) { const d = DRY; DRY = true; const r = fn(); DRY = d; return r; }
+
+function flow(segs, x, y, w, o = {}) {
+    const fs = o.fs || 9.5, lh = o.lh || mm(fs) * 1.65, col = o.col || C.nv, st = o.st || 'normal', plain = o.plain, ac = o.ac || C.pk;
+    const toks = [];
+    for (const s of segs) {
+        if (typeof s === 'string') s.split(/(\s+)/).forEach(p => p && toks.push(/^\s+$/.test(p) ? { sp: 1 } : { t: p }));
+        else {
+            const v = clean(s.a).replace(/\s+/g, ' ').trim();
+            if (!v) toks.push({ bk: s.min || 22 });
+            else v.split(/(\s+)/).forEach(p => p && toks.push(/^\s+$/.test(p) ? { sp: 1, a: 1 } : { t: p, a: 1 }));
+        }
+    }
+    let cx = x, by = y + mm(fs) * .78, pend = 0, prevA = false, prevEnd = x;
+    for (let i = 0; i < toks.length; i++) {
+        const k = toks[i];
+        if (k.sp) { if (cx > x) { font(st, fs, col); pend = doc.getTextWidth(' '); } continue; }
+        const aSt = plain ? 'normal' : 'bold';
+        let wd;
+        if (k.bk) wd = k.bk;
+        else { font(k.a ? aSt : st, fs, k.a ? ac : col); wd = doc.getTextWidth(k.t); }
+        if (!k.bk && wd > w) {
+            let j = k.t.length; while (j > 1 && doc.getTextWidth(k.t.slice(0, j)) > w) j--;
+            toks.splice(i + 1, 0, { t: k.t.slice(j), a: k.a }); k.t = k.t.slice(0, j); wd = doc.getTextWidth(k.t);
+        }
+        if (cx > x && cx + pend + wd > x + w) { cx = x; by += lh; prevA = false; }
+        else cx += pend;
+        pend = 0;
+        if (k.bk) { Ln(cx, by + 1, cx + wd, by + 1, C.bl, .35); prevA = false; }
+        else {
+            font(k.a ? aSt : st, fs, k.a ? ac : col); T(k.t, cx, by);
+            if (k.a && !plain) Ln(prevA ? prevEnd : cx, by + 1, cx + wd, by + 1, ac, .3);
+            prevA = !!k.a;
+        }
+        cx += wd; prevEnd = cx;
+    }
+    return by + mm(fs) * .45;
+}
+function longAns(v, x, y, w, lines = 3, fs = 9.5, ac) {
+    v = clean(v).trim();
+    const lh = mm(fs) * 1.7;
+    if (!v) { for (let i = 1; i <= lines; i++) Ln(x, y + lh * i, x + w, y + lh * i, C.ru, .3); return y + lh * lines + 1; }
+    let e = y;
+    v.split(/\n+/).forEach((p, i) => { if (p.trim()) e = flow([{ a: p }], x, e + (i ? 1 : 0), w, { fs, plain: true, ac }); });
+    return e;
+}
+function pills(opts, sel, xr, y, fs = 8.5, round = false) {
+    font('bold', fs, C.nv);
+    const ws = opts.map(o => round ? 5 : doc.getTextWidth(o) + 5), g = round ? 1.2 : 1.5, ph = round ? 5 : 5.4;
+    let x = xr - ws.reduce((a, b) => a + b, 0) - g * (opts.length - 1);
+    opts.forEach((o, i) => {
+        const on = o === sel;
+        RR(x, y, ws[i], ph, ph / 2, on ? C.pk : null, on ? C.pk : C.nv, .35);
+        font('bold', fs, on ? C.wh : C.nv); T(o, x + ws[i] / 2, y + ph / 2 + 1.1, { align: 'center' });
+        x += ws[i] + g;
+    });
+}
+function pillsW(opts, fs = 8.5) { font('bold', fs, C.nv); return opts.reduce((a, o) => a + doc.getTextWidth(o) + 5, 0) + 1.5 * (opts.length - 1); }
+function newPage() {
+    doc.addPage();
+    doc.setFillColor(...C.nv); doc.rect(ML, 10, MR - ML, 1.8, 'F');
+    font('bold', 9, C.nv); T(TITLE, ML, 17);
+    font('bold', 8, C.gr); T('Cues', ML, 23); T('Notes', NX, 23);
+    Ln(ML, 25, MR, 25, C.nv, .8); Ln(CX, 20, CX, 25, C.nv, .8);
+    Y = 25;
+}
+function ensure(h) { if (Y + h > BOT) newPage(); }
+function sec(code, title, pk) {
+    ensure(36);
+    Y += 5;
+    font('bold', 8.5, C.wh); const w = doc.getTextWidth(code) + 4.5;
+    RR(ML, Y, w, 6, 1, pk ? C.pk : C.nv); T(code, ML + w / 2, Y + 4.2, { align: 'center' });
+    font('bold', 11, C.nv); T(title, ML + w + 3, Y + 4.5);
+    Y += 8.5; Ln(ML, Y, MR, Y, C.ru, .3);
+}
+function cueBlock(c, y) {
+    let e = flow([c.q], ML, y, CW, { fs: 10, st: 'bold', lh: 4.6, col: c.own ? C.pk : C.nv });
+    if (c.s) e = flow([c.s], ML, e + .8, CW, { fs: 8.5, st: 'bold', col: C.gr, lh: 3.9 });
+    if (c.own) e = longAns(V(c.k), ML, e + 1.5, CW, 3, 9);
+    return e;
+}
+function row(cue, notes) {
+    DRY = true; const h = Math.max(cueBlock(cue, 0), notes(0)) + 6; DRY = false;
+    ensure(h);
+    const top = Y;
+    cueBlock(cue, top + 3); notes(top + 3);
+    Ln(CX, top, CX, top + h, C.nv, .8); Ln(ML, top + h, MR, top + h, C.ru, .3);
+    Y = top + h;
+}
+function sumBox(words, prompt, body) {
+    const inner = y => { let e = y; if (prompt) e = flow([prompt], ML + 5, e, MR - ML - 10, { fs: 8.5, st: 'bold', col: C.gr }); return body(e + 2); };
+    const h = meas(() => inner(0)) + 15;
+    ensure(h + 6); Y += 6;
+    RR(ML, Y, MR - ML, h, 2.5, null, C.nv, .6);
+    font('bold', 11, C.nv); T('Summary', ML + 5, Y + 7.5);
+    font('bold', 8.5, C.gr); T('Use: ' + words, MR - 5, Y + 7.5, { align: 'right' });
+    inner(Y + 10);
+    Y += h;
+}
+function twoCol(items, opts, y) {
+    const cw = (NW - 6) / 2, lw = cw - pillsW(opts) - 3, fo = { fs: 9, lh: 3.9 };
+    let yy = y;
+    for (let r = 0; r < items.length; r += 2) {
+        const pair = items.slice(r, r + 2);
+        const h = Math.max(7.6, ...pair.map(([t]) => meas(() => flow([t], 0, 0, lw, fo)) + 3.6));
+        pair.forEach(([t, k], j) => {
+            const x = NX + j * (cw + 6);
+            flow([t], x, yy + (h - meas(() => flow([t], 0, 0, lw, fo))) / 2, lw, fo);
+            pills(opts, V(k), x + cw, yy + (h - 5.4) / 2);
+            if (r + 2 < items.length) Ln(x, yy + h, x + cw, yy + h, C.ru, .25);
+        });
+        yy += h;
+    }
+    return yy;
+}
+
+/* generic table: rows of [label, toggleKey, opts, selectKey] */
+function tableRows(rows, y, cols) {
+    // cols: { lw: label width, pr: right edge for pills, ax: x of answer text (optional) }
+    let yy = y;
+    rows.forEach(([t, k, opts, sk], i) => {
+        const fo = { fs: 9, lh: 3.9 };
+        const th = meas(() => flow([t], 0, 0, cols.lw, fo)), ah = sk ? meas(() => flow([{ a: V(sk), min: 30 }], 0, 0, MR - (NX + cols.ax), fo)) : 0;
+        const h = Math.max(7.6, th + 3.6, ah + 3.6);
+        flow([t], NX, yy + (h - th) / 2, cols.lw, fo);
+        if (opts) pills(opts, V(k), NX + cols.pr, yy + (h - 5.4) / 2, 8);
+        if (sk) flow([{ a: V(sk), min: 30 }], NX + cols.ax, yy + (h - ah) / 2, MR - (NX + cols.ax), fo);
+        if (i < rows.length - 1) Ln(NX, yy + h, MR, yy + h, C.ru, .25);
+        yy += h;
+    });
+    return yy;
+}
+
+/* two-column cards: picture on the left, name, description and answer on the right */
+function imgCards(items, y) {
+    const bw = (NW - 4) / 2, iw = 28, ih = iw * 220 / 340, tx = iw + 4;
+    const text = (x, ty, it) => {
+        let e2 = flow([it.name], x + tx, ty + 2.2, bw - tx - 3, { st: 'bold', fs: 9 });
+        if (it.desc) e2 = flow([it.desc], x + tx, e2 + .6, bw - tx - 3, { fs: 7.5, col: C.gr, lh: 3.3 });
+        return flow([{ a: V(it.k), min: 20 }], x + tx, e2 + 1, bw - tx - 3, F9_);
+    };
+    let yy = y;
+    for (let r = 0; r < items.length; r += 2) {
+        const pair = items.slice(r, r + 2);
+        const h = Math.max(ih + 4, ...pair.map(it => meas(() => text(0, 0, it)) + 2.5));
+        pair.forEach((it, c) => { const x = NX + c * (bw + 4); RR(x, yy, bw, h, 1.8, null, C.ru, .4); IMG(it.img, x + 2, yy + (h - ih) / 2, iw, ih); text(x, yy, it); });
+        yy += h + 3;
+    }
+    return yy - 3;
+}
+const F9_ = { fs: 9 };
+function headRow(cols, y, right) {
+    font('bold', 8.5, C.nv);
+    cols.forEach(([h, x]) => T(h, x, y + 3));
+    if (right) T(right, MR, y + 3, { align: 'right' });
+    Ln(NX, y + 5, MR, y + 5, C.nv, .5);
+    return y + 5;
+}
+async function makePdf() {
+    if (!window.jspdf) {
+        modal('The PDF tool did not load', 'Check your internet connection, then try again. Keep this page open so you don’t lose your answers.', [['OK', 'pk']]);
+        return;
+    }
+    const btns = [$('#exportTop'), $('#exportBottom')];
+    btns.forEach(b => { b.disabled = true; b.textContent = 'Making PDF…'; });
+    try {
+        const img = {
+            graph: await svgPng(graphSvg(), 460, 272, 3), ramps: await svgPng(rampsSvg(), 700, 156, 3),
+            zig: await svgPng(zigSvg(), 640, 194, 3), parts: await svgPng(partsSvg(), 640, 260, 3), levers: await svgPng(lvSvg(), 640, 405, 3),
+            garden: await svgPng(gardenSvg(), 640, 122, 3)
+        };
+        for (const k of ['hammer', 'painttin', 'nutcracker', 'opener', 'rod', 'forearm', 'wheelbarrow', 'tweezers', 'scissors']) img[k] = await svgPng(artSvg(k), 340, 220, 3);
+        for (const k of ['crowbar', 'hockey', 'shears', 'broom']) img[k + 'E'] = await svgPng(artSvg(k, true), 340, 220, 3);
+        const date = clean($('#date').value.trim());
+        doc = new jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+        doc.setProperties({ title: TITLE });
+        DRY = false;
+
+        /* header */
+        doc.setFillColor(...C.nv); doc.rect(ML, 10, MR - ML, 2.4, 'F');
+        font('bold', 23, C.nv); T('Ramps, efficiency and ', ML, 24); const tw = doc.getTextWidth('Ramps, efficiency and ');
+        font('bold', 23, C.pk); T('levers', ML + tw, 24);
+        font('bold', 8.5, C.gr); T('Cornell notes  |  Consolidating SC10 to SC13', ML, 30);
+        font('bold', 9.5, C.nv); T('Date', 150, 24); font('bold', 10, C.pk); T(doc.splitTextToSize(date, 34)[0] || '', 161, 23.7);
+        Ln(161, 25.2, MR, 25.2, C.nv, .35);
+        Ln(ML, 33.5, MR, 33.5, C.nv, .9);
+        [['SC10', 'Describe how angle affects effort force'], ['SC11', 'Compare the efficiency of simple machines'], ['SC12', 'Locate the parts of a lever'], ['SC13', 'Contrast force and speed multipliers']].forEach(([c, t], i) => {
+            const x = i % 2 ? 108 : ML, y = i < 2 ? 39.5 : 45;
+            font('bold', 8.5, C.pk); T(c, x, y); const w = doc.getTextWidth(c + ' ');
+            font('normal', 8.5, C.nv); T(t, x + w + .5, y);
+        });
+        font('bold', 8, C.gr); T('Cues', ML, 51.5);
+        font('bold', 8, C.nv); T('Notes', NX, 51.5); const nw = doc.getTextWidth('Notes  ');
+        font('bold', 8, C.gr); T('Complete the notes, then cover them and test yourself with the cues.', NX + nw, 51.5);
+        Ln(ML, 54, MR, 54, C.nv, .9); Ln(CX, 48, CX, 54, C.nv, .8);
+        Y = 54;
+        const Q = (t, x, y, w = NW) => flow([t], x, y, w, { fs: 8.5, st: 'bold', col: C.gr });
+        const F9 = { fs: 9 };
+
+        /* SC10 */
+        sec('SC10', 'Describe the relationship between angle of inclination and effort force');
+        row({ q: 'What is an inclined plane?', s: 'How does the angle change the effort force?' }, y => {
+            const e = flow(['An inclined plane is a ', { a: V('ip1') }, '. It raises a load by moving it along a ', { a: V('ip2') }, ' instead of lifting it straight up.'], NX, y, NW);
+            const iw = 64, ih = iw * 272 / 460, rx = NX + iw + 5, rw = NW - iw - 5, t = e + 3;
+            IMG(img.graph, NX, t, iw, ih);
+            let e2 = flow(['At 30\xb0, the effort force is ', { a: V('ip3'), min: 10 }, ' N.'], rx, t + 4, rw);
+            e2 = flow(['The greater the angle of inclination, the ', { a: V('ip4'), min: 16 }, ' the effort force needed.'], rx, e2 + 3, rw);
+            e2 = flow(['A gentle ramp needs ', { a: V('ip5'), min: 12 }, ' effort force, but the load travels a ', { a: V('ip6'), min: 16 }, ' distance.'], rx, e2 + 3, rw);
+            return Math.max(t + ih, e2);
+        });
+        row({ q: 'Which ramp?', s: 'Compare the angles of inclination.' }, y => {
+            let e = Q('All three ramps raise the same box 1 m.', NX, y);
+            const iw = 112, ih = iw * 156 / 700;
+            IMG(img.ramps, NX, e + 1.5, iw, ih);
+            e = twoCol([['Least effort force', 'wc1'], ['Longest distance', 'wc2'], ['Greatest effort force', 'wc3'], ['Shortest distance', 'wc4']], ['1', '2', '3'], e + 1.5 + ih + 1);
+            e = Q('Explain your choice for least effort force, using angle of inclination.', NX, e + 3);
+            return longAns(V('wc5'), NX, e + 1.5, NW, 2);
+        });
+        row({ q: 'Why do some ramps zigzag?', s: 'Think about space and effort.' }, y => {
+            let e = Q('Some access ramps and mountain tracks are built in a zigzag instead of one straight ramp.', NX, y);
+            const iw = 96, ih = iw * 194 / 640;
+            IMG(img.zig, NX, e + 1.5, iw, ih);
+            e = Q('Explain why, using angle of inclination, effort force and distance.', NX, e + 1.5 + ih + 2);
+            return longAns(V('zz1'), NX, e + 1.5, NW, 3);
+        });
+
+        /* SC11 */
+        sec('SC11', 'Compare the efficiency of different simple machines');
+        row({ q: 'How do we calculate efficiency?', s: 'What does the percentage tell us?' }, y => {
+            let e = flow(['Efficiency (%) = force ', { a: V('ef1'), min: 14 }, ' a machine \xf7 force ', { a: V('ef2'), min: 14 }, ' a machine \xd7 100'], NX, y, NW, { st: 'bold' });
+            e = flow(['The higher the percentage, the ', { a: V('ef3'), min: 12 }, ' effort force the machine needs.'], NX, e + 2, NW);
+            e = Q('Lifting a 100 N box straight up takes 100 N. Pushing it up a steep ramp takes 50 N.', NX, e + 3);
+            return flow(['Efficiency = 100 \xf7 ', { a: V('ef4'), min: 10 }, ' \xd7 100 = ', { a: V('ef5'), min: 12 }, '%'], NX, e + 2, NW);
+        });
+        row({ q: 'Which machine is most efficient?', s: 'Calculate, then rank from most to least efficient.' }, y => {
+            const cx = [NX, NX + 32, NX + 52, NX + 72];
+            let yy = headRow([['Machine', cx[0]], ['Without', cx[1]], ['With', cx[2]], ['Efficiency', cx[3]]], y, 'Rank');
+            MACH.forEach(([n, wo, wi], i) => {
+                flow([n], cx[0], yy + 1.8, 30, F9); flow([wo + ' N'], cx[1], yy + 1.8, 18, F9); flow([wi + ' N'], cx[2], yy + 1.8, 18, F9);
+                flow([{ a: V('cp' + (i + 1)), min: 12 }, '%'], cx[3], yy + 1.8, 22, F9);
+                pills(['1st', '2nd', '3rd', '4th'], V('rk' + (i + 1)), MR, yy + 1.1, 8);
+                if (i < MACH.length - 1) Ln(NX, yy + 7.6, MR, yy + 7.6, C.ru, .25);
+                yy += 7.6;
+            });
+            return flow(['A single pulley only changes the ', { a: V('cp5'), min: 20 }, ' of the force, so it does not reduce the effort.'], NX, yy + 3, NW);
+        });
+        row({ q: 'Is the claim correct?', s: 'Agree or disagree with each student, then explain.' }, y => {
+            let e = y - 2;
+            CLAIMS.forEach(([n, q], i) => {
+                e = flow([clean(n + ': ' + q)], NX, e + 2, NW - 40, F9);
+                pills(['Agree', 'Disagree'], V('cl' + (i + 1)), MR, e - 4.5, 8);
+                e = flow(['because ', { a: V('cw' + (i + 1)), min: 80 }], NX, e + 1.5, NW, F9) + 1.5;
+            });
+            return e;
+        });
+        row({ q: 'Your cue', s: 'Write your own question.', own: true, k: 'cue1' }, y => {
+            const e = Q('A lever lifts a 100 N rock with only 25 N of effort. Calculate its efficiency and explain what the trade-off is.', NX, y);
+            return longAns(V('cue1a'), NX, e + 1.5, NW, 3);
+        });
+        sumBox('angle of inclination, effort force, distance, efficiency, trade-off', 'Describe how the angle of a ramp affects the effort force, and explain how efficiency helps us compare simple machines.', y => longAns(V('sum1'), ML + 5, y, MR - ML - 10, 4));
+
+        /* SC12 */
+        sec('SC12', 'Recognise the fulcrum, resistance arm and effort arm of levers');
+        row({ q: 'What are the parts of a lever?', s: 'Both arms are measured from the fulcrum.' }, y => {
+            let e = flow(['A lever is a rigid bar that turns around a fixed point called the ', { a: V('lp1') }, '.'], NX, y, NW);
+            const iw = 86, ih = iw * 260 / 640, rx = NX + iw + 6, rw = NW - iw - 6, t = e + 3;
+            IMG(img.parts, NX, t, iw, ih);
+            let yy = t + 1;
+            for (let i = 1; i <= 5; i++) {
+                RR(rx, yy, 4.6, 4.6, 2.3, C.nv); font('bold', 7.5, C.wh); T(String(i), rx + 2.3, yy + 3.4, { align: 'center' });
+                flow([{ a: V('pt' + i), min: 26 }], rx + 7, yy - .2, rw - 7, F9);
+                yy += 6.6;
+            }
+            e = flow(['The resistance arm is the distance from the fulcrum to the ', { a: V('lp2'), min: 12 }, '.'], NX, Math.max(t + ih, yy) + 3, NW);
+            return flow(['The effort arm is the distance from the fulcrum to the ', { a: V('lp3'), min: 12 }, '.'], NX, e + 2, NW);
+        });
+        row({ q: 'What class of lever is it?', s: 'F L E = 1 2 3. What is in the middle?' }, y => {
+            let e = y - 2;
+            [1, 2, 3].forEach(n => e = flow([`In a class ${n} lever, the `, { a: V('mid' + n), min: 16 }, ' is in the middle.'], NX, e + 2, NW));
+            return imgCards(CARDS.map(([n, c, k], i) => ({ img: img[k], name: n, desc: c, k: 'lc' + (i + 1) })), e + 3);
+        });
+        row({ q: 'Where are the parts?', s: 'Find the fulcrum, load and effort, then the class.' }, y => {
+            const bw = (NW - 8) / 3, iw = bw - 8, ih = iw * 220 / 340;
+            const body = (x, ty, i) => {
+                IMG(img[PARTS[i][2]], x + 4, ty + 2, iw, ih);
+                let e2 = flow([PARTS[i][0]], x + 3, ty + 3 + ih, bw - 6, { st: 'bold' });
+                ['Fulcrum', 'Load', 'Effort'].forEach((p, j) => { e2 = flow([p + ': ', { a: V('pk' + (i * 3 + j + 1)), min: 16 }], x + 3, e2 + 1.2, bw - 6, F9); });
+                e2 = flow(['Class: ', { a: V('pc' + (i + 1)), min: 8 }], x + 3, e2 + 1.2, bw - 6, F9);
+                return e2;
+            };
+            const h = Math.max(...[0, 1, 2].map(i => meas(() => body(0, 0, i)))) + 3;
+            [0, 1, 2].forEach(i => { const x = NX + i * (bw + 4); RR(x, y, bw, h, 1.8, null, C.ru, .4); body(x, y, i); });
+            return y + h;
+        });
+
+        /* SC13 */
+        sec('SC13', 'Contrast force multipliers and speed multipliers');
+        row({ q: 'How are force and speed multipliers different?', s: 'Compare each feature.' }, y => {
+            const c1 = NX + 87;
+            let yy = headRow([['Feature', NX]], y);
+            font('bold', 8.5, C.nv); T('Force multiplier', c1, y + 3, { align: 'right' }); T('Speed multiplier', MR, y + 3, { align: 'right' });
+            CMP.forEach(([t, o], i) => {
+                const fo = { fs: 9, lh: 3.9 }, th = meas(() => flow([t], 0, 0, 38, fo)), h = Math.max(7.6, th + 3.6), opts = o.split('|');
+                flow([t], NX, yy + (h - th) / 2, 38, fo);
+                pills(opts, V('fm' + (i + 1)), c1, yy + (h - 5.4) / 2, 8);
+                pills(opts, V('sp' + (i + 1)), MR, yy + (h - 5.4) / 2, 8);
+                if (i < CMP.length - 1) Ln(NX, yy + h, MR, yy + h, C.ru, .25);
+                yy += h;
+            });
+            return yy;
+        });
+        row({ q: 'What does the evidence show?', s: 'Two 2 m levers lift the same 300 N load.' }, y => {
+            const iw = 80, ih = iw * 405 / 640, rx = NX + iw + 5, rw = NW - iw - 5;
+            IMG(img.levers, NX, y, iw, ih);
+            let e2 = flow(['Lever A is a ', { a: V('la1'), min: 26 }, '.'], rx, y + 4, rw);
+            e2 = flow(['Lever B is a ', { a: V('la2'), min: 26 }, '.'], rx, e2 + 3, rw);
+            e2 = flow(['In lever B, the load moves ', { a: V('la3'), min: 8 }, ' times as far as the effort.'], rx, e2 + 3, rw);
+            e2 = flow(["Both ends move in the same time, so lever B's load moves ", { a: V('la4'), min: 14 }, ' than the effort.'], rx, e2 + 3, rw);
+            const e = Q('Explain why lever A needs only 100 N to lift the 300 N load, but lever B needs 900 N. Use effort arm and distance.', NX, Math.max(y + ih, e2) + 3);
+            return longAns(V('la5'), NX, e + 1.5, NW, 3);
+        });
+        row({ q: 'Force or speed multiplier?', s: 'Compare the effort arm to the resistance arm.' }, y => {
+            let e = Q('The pink arrow shows where the effort is applied.', NX, y);
+            e = imgCards(FS.map(([t, k], i) => ({ img: img[k + 'E'], name: t, desc: '', k: 'fs' + (i + 1) })), e + 2);
+            e = Q('Choose one of the speed multipliers. Why is it useful, even though it needs more force?', NX, e + 3);
+            return longAns(V('fs6'), NX, e + 1.5, NW, 2);
+        });
+        row({ q: 'Your cue', s: 'Write your own question.', own: true, k: 'cue2' }, y => {
+            const e = Q('Your forearm is a speed multiplier. Explain why this helps you throw a ball, and what the trade-off is.', NX, y);
+            return longAns(V('cue2a'), NX, e + 1.5, NW, 3);
+        });
+
+        /* apply */
+        sec('SC10 to SC13', 'Put it all together', true);
+        row({ q: 'Can I apply it?', s: 'The community garden team needs to move 200 N bags of soil onto a raised garden bed 1 m high.' }, y => {
+            const iw = NW * .7, ih = iw * 122 / 640;
+            IMG(img.garden, NX, y, iw, ih);
+            let e = flow(['Lifting a bag straight up takes 200 N. Ramp A is 2 m long and takes 100 N. Ramp B is 4 m long and takes 50 N.'], NX, y + ih + 2, NW, F9);
+            e = Q('1. Calculate the efficiency of each ramp. Which ramp is most efficient in terms of effort force? Show your working.', NX, e + 3);
+            return longAns(V('ap1'), NX, e + 1.5, NW, 3);
+        });
+        row({ q: '', s: '' }, y => {
+            let e = Q('2. What is the trade-off of using the more efficient ramp? Use angle of inclination and distance.', NX, y);
+            e = longAns(V('ap2'), NX, e + 1.5, NW, 2);
+            e = Q('3. The team carries the bags in a wheelbarrow. Identify the fulcrum, load and effort, and explain whether it is a force or speed multiplier.', NX, e + 4);
+            return longAns(V('ap3'), NX, e + 1.5, NW, 3);
+        });
+        row({ q: 'Self-check', s: 'My answers include' }, y => {
+            let yy = y;
+            CHECKS.forEach((t, i) => {
+                const on = CK('k' + (i + 1));
+                RR(NX, yy + .6, 4.2, 4.2, .8, on ? C.pk : null, on ? C.pk : C.nv, .35);
+                if (on && !DRY) { doc.setDrawColor(...C.wh); doc.setLineWidth(.6); doc.lines([[1.1, 1.1], [1.9, -2.4]], NX + .9, yy + 2.8); }
+                font('normal', 9, C.nv); T(t, NX + 7, yy + 3.9);
+                yy += 6.4;
+            });
+            return yy - 1.4;
+        });
+
+        sumBox('fulcrum, effort arm, force, distance, faster', '', y => {
+            let e = y - 1;
+            [['To recognise the class of a lever, I ', 's2a'], ['A force multiplier ', 's2b'], ['whereas a speed multiplier ', 's2c']].forEach(([t, k]) => {
+                e = flow([t, { a: V(k), min: 60 }], ML + 5, e + 2, MR - ML - 10, { plain: true }) + 1;
+            });
+            return e;
+        });
+
+        /* confidence */
+        ensure(22); Y += 7;
+        Ln(ML, Y, MR, Y, C.nv, .8);
+        font('bold', 10, C.nv); T('How confident am I?', ML, Y + 6); const cw2 = doc.getTextWidth('How confident am I?  ');
+        font('bold', 8.5, C.gr); T('1 = not yet, 4 = I can teach it', ML + cw2, Y + 6);
+        ['10', '11', '12', '13'].forEach((n, i) => {
+            const x = ML + i * 44;
+            font('bold', 8.5, C.nv); T('SC' + n, x, Y + 13.8); const lw = doc.getTextWidth('SC' + n) + 2;
+            pills(['1', '2', '3', '4'], V('c' + n), x + lw + 24.5, Y + 10.2, 7.5, true);
+        });
+        Y += 18;
+
+        const pages = doc.getNumberOfPages();
+        for (let i = 1; i <= pages; i++) {
+            doc.setPage(i);
+            font('normal', 7.5, C.gr);
+            doc.text(TITLE, ML, 289);
+            doc.text(`Page ${i} of ${pages}`, MR, 289, { align: 'right' });
+        }
+
+        lastDoc = doc;
+        doc.save(FILE);
+        exported = true;
+        $('#fname').textContent = FILE;
+        $('#done').classList.add('show'); $('#done').scrollTop = 0;
+        document.body.style.overflow = 'hidden';
+        $('#back').focus({ preventScroll: true });
+    } catch (err) {
+        console.error(err);
+        modal('The PDF could not be made', 'Try pressing Export PDF again. If it still doesn’t work, tell your teacher.', [['OK', 'pk']]);
+    } finally {
+        btns.forEach(b => { b.disabled = false; b.textContent = 'Export PDF'; });
+    }
+}
+$('#again').onclick = () => { if (lastDoc) lastDoc.save(FILE); };
+$('#back').onclick = () => { $('#done').classList.remove('show'); document.body.style.overflow = ''; };
+
+window.addEventListener('beforeunload', e => { if (dirty && !exported) { e.preventDefault(); e.returnValue = ''; } });
+
+changed(); dirty = false;
+
+</script>
+</body>
+</html>
