@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Science practice exam: Earth and Space and Physics</title>
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="%231b1f45"/><path d="M15 31 L27 43 L49 19" fill="none" stroke="%23ea008a" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><rect x="12" y="52" width="40" height="5" rx="2.5" fill="%23fff" opacity=".25"/><rect x="12" y="52" width="26" height="5" rx="2.5" fill="%23fff"/></svg>'>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+    :root {
+        --navy: #1b1f45; --pink: #ea008a; --grey: #9a9a9a; --ink2: #4a4e70; --rule: #d7dae2; --tint: #f3f4f8; --pinkT: rgba(234,0,138,.07);
+        --font: 'Helvetica Neue', Helvetica, Arial, sans-serif; --ease: cubic-bezier(.2,.8,.2,1);
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html { scroll-padding-top: 96px; }
+    body { margin: 0; font-family: var(--font); color: var(--navy); background: #e8e9ee; font-size: 18px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+    button { font-family: inherit; }
+    :focus-visible { outline: 3px solid var(--pink); outline-offset: 2px; }
+    @keyframes pop { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+
+    /* top bar */
+    .bar { position: sticky; top: 0; z-index: 20; background: #fff; border-bottom: 2px solid var(--navy); }
+    .bar-in { max-width: 1000px; margin: 0 auto; padding: 12px 28px; display: flex; align-items: center; gap: 14px; }
+    .bar-t { font-weight: 800; font-size: 17px; letter-spacing: -.01em; }
+    .bar-p { font-size: 15px; font-weight: 600; color: var(--grey); margin-left: auto; margin-right: 6px; white-space: nowrap; }
+    .bar-p b { color: var(--navy); }
+    .prog { position: absolute; left: 0; bottom: -2px; height: 4px; background: var(--pink); width: 0; transition: width .5s var(--ease); }
+    .btn { font-size: 16px; font-weight: 700; border-radius: 6px; padding: 9px 18px; cursor: pointer; border: 2px solid var(--navy); background: #fff; color: var(--navy); white-space: nowrap; transition: background-color .2s, color .2s, border-color .2s, opacity .2s; }
+    .btn:hover { background: var(--tint); }
+    .btn.pk { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .btn.pk:hover { background: #c90076; border-color: #c90076; }
+    .btn.sm { font-size: 15px; padding: 6px 14px; }
+    .btn.inv { background: transparent; border-color: #fff; color: #fff; }
+    .btn.inv:hover { background: rgba(255,255,255,.12); }
+    .btn:disabled { opacity: .45; cursor: default; }
+
+    /* sheet */
+    .sheet { max-width: 1000px; margin: 28px auto 60px; background: #fff; padding: 0 48px 48px; border-top: 12px solid var(--navy); }
+    .head { display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; padding: 30px 0 20px; border-bottom: 4px solid var(--navy); }
+    h1 { margin: 0; font-size: 42px; line-height: 1; font-weight: 800; letter-spacing: -.025em; }
+    h1 span { color: var(--pink); }
+    .sub { margin: 10px 0 0; font-size: 16px; font-weight: 600; color: var(--grey); }
+    .who { display: grid; grid-template-columns: auto 190px; gap: 10px 12px; align-items: end; flex-shrink: 0; }
+    .who label { font-weight: 800; font-size: 16px; }
+    .who input { width: 100%; font: inherit; font-size: 18px; font-weight: 700; color: var(--pink); border: 0; border-bottom: 2px solid var(--navy); padding: 2px 2px 3px; background: none; outline: none; border-radius: 0; }
+    .who input:focus { border-bottom-color: var(--pink); background: var(--pinkT); }
+
+    .intro { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin: 22px 0 0; border-bottom: 2px solid var(--rule); }
+    .intro div { padding: 0 20px 18px 0; font-size: 16px; font-weight: 500; line-height: 1.4; }
+    .intro div + div { padding-left: 20px; border-left: 2px solid var(--rule); }
+    .intro b { display: block; font-size: 17px; font-weight: 800; margin-bottom: 2px; }
+    .intro em { font-style: normal; color: var(--pink); font-weight: 700; }
+
+    /* banner after submitting */
+    .banner { margin: 24px 0 0; background: var(--navy); color: #fff; border-radius: 8px; padding: 22px 26px; display: grid; grid-template-columns: 1fr auto; gap: 18px 28px; align-items: center; animation: pop .4s var(--ease); }
+    .banner h3 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -.01em; }
+    .banner p { margin: 6px 0 0; font-size: 16px; font-weight: 500; opacity: .85; max-width: 560px; }
+    .banner .acts { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+    .scores { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 2px solid rgba(255,255,255,.2); padding-top: 14px; }
+    .scores div { font-size: 15px; font-weight: 600; opacity: .9; }
+    .scores div + div { padding-left: 18px; border-left: 2px solid rgba(255,255,255,.2); }
+    .scores b { display: block; font-size: 30px; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; }
+    .scores b span { color: #ff7fc8; }
+
+    /* sections */
+    .sec { display: flex; align-items: baseline; gap: 16px; margin: 46px 0 0; padding-bottom: 12px; border-bottom: 4px solid var(--navy); }
+    .sec h2 { margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; }
+    .sec h2 span { color: var(--pink); }
+    .sec p { margin: 0 0 0 auto; font-size: 16px; font-weight: 700; color: var(--grey); white-space: nowrap; }
+    .top { display: flex; align-items: center; gap: 14px; margin: 30px 0 0; padding-bottom: 10px; border-bottom: 2px solid var(--rule); font-size: 21px; font-weight: 800; letter-spacing: -.01em; }
+    .chip { background: var(--navy); color: #fff; font-size: 15px; font-weight: 800; padding: 4px 10px; border-radius: 4px; flex-shrink: 0; }
+    .chip.pk { background: var(--pink); }
+    .top small { font-size: 15px; font-weight: 600; color: var(--grey); margin-left: auto; }
+
+    /* questions */
+    .q { display: grid; grid-template-columns: 40px 1fr; gap: 0 16px; padding: 24px 0; border-bottom: 2px solid var(--rule); }
+    .qn { width: 36px; height: 36px; border-radius: 50%; background: var(--navy); color: #fff; font-weight: 800; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: background-color .25s; }
+    .q.answered .qn { background: var(--pink); }
+    body.rev .q .qn { background: var(--navy); }
+    body.rev .q.wrong .qn { background: var(--pink); }
+    .qb { min-width: 0; }
+    .qt { font-size: 18px; font-weight: 700; line-height: 1.4; margin: 5px 0 14px; }
+    .qt .mk { font-size: 15px; font-weight: 600; color: var(--grey); white-space: nowrap; margin-left: 8px; }
+    .qt .pt { display: block; margin-top: 6px; font-weight: 500; }
+    .fx { display: inline-flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 0 0 14px; padding: 8px 14px 8px 8px; border: 2px solid var(--navy); border-radius: 6px; font-size: 16.5px; font-weight: 700; }
+    .fx .chip { font-size: 13px; padding: 3px 8px; }
+    .fig { border: 2px solid var(--rule); border-radius: 8px; padding: 10px 12px; margin: 0 0 14px; max-width: 640px; }
+    .fig svg { display: block; width: 100%; height: auto; }
+
+    .opts { display: grid; gap: 8px; }
+    .opts.two { grid-template-columns: 1fr 1fr; }
+    .opt { display: grid; grid-template-columns: 30px 1fr auto; gap: 12px; align-items: center; width: 100%; text-align: left; font-size: 17px; font-weight: 500; line-height: 1.35; color: var(--navy); background: #fff; border: 2px solid var(--rule); border-radius: 8px; padding: 10px 14px; cursor: pointer; transition: border-color .2s, background-color .2s; }
+    .opt:hover { border-color: var(--navy); }
+    .opt .L { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--navy); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; transition: background-color .2s, border-color .2s, color .2s; }
+    .opt[aria-checked="true"] { border-color: var(--pink); background: var(--pinkT); }
+    .opt[aria-checked="true"] .L { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .opt .tag { font-size: 14px; font-weight: 800; white-space: nowrap; }
+
+    textarea { display: block; width: 100%; font: inherit; font-size: 17px; font-weight: 500; color: var(--pink); line-height: 1.5; border: 2px solid var(--rule); border-radius: 6px; padding: 10px 12px; resize: none; outline: none; overflow: hidden; background: #fff; min-height: 150px; }
+    textarea:focus { border-color: var(--pink); }
+    ::placeholder { color: #b9bccb; font-weight: 500; opacity: 1; }
+
+    /* review: multiple choice */
+    body.rev .opt { cursor: default; }
+    body.rev .opt:hover { border-color: var(--rule); }
+    body.rev .opt[aria-checked="true"] { border-color: var(--rule); background: #fff; }
+    body.rev .opt[aria-checked="true"] .L { background: #fff; border-color: var(--navy); color: var(--navy); }
+    body.rev .opt.ok, body.rev .opt.ok:hover { border-color: var(--navy); background: var(--tint); }
+    body.rev .opt.ok .L { background: var(--navy); border-color: var(--navy); color: #fff; }
+    body.rev .opt.bad, body.rev .opt.bad:hover { border-color: var(--pink); background: var(--pinkT); }
+    body.rev .opt.bad .L { background: #fff; border-color: var(--pink); color: var(--pink); }
+    .opt.ok .tag { color: var(--navy); }
+    .opt.bad .tag { color: var(--pink); }
+    .rv { margin-top: 14px; border-left: 6px solid var(--navy); background: var(--tint); padding: 12px 16px 14px; animation: pop .35s var(--ease); }
+    .rv.no { border-left-color: var(--pink); }
+    .vd { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 17px; font-weight: 800; }
+    .vd .chip { font-size: 13px; padding: 2px 8px; }
+    .vd small { font-size: 15px; font-weight: 600; color: var(--grey); }
+    .rv p { margin: 6px 0 0; font-size: 16.5px; font-weight: 500; }
+
+    /* review: short response */
+    body.rev textarea { border-style: dashed; background: #fff; cursor: default; }
+    .model { margin-top: 16px; border: 3px solid var(--navy); border-radius: 8px; padding: 14px 18px 16px; animation: pop .35s var(--ease); }
+    .model h4, .marking h4 { margin: 0; font-size: 17px; font-weight: 800; }
+    .model p { margin: 6px 0 0; font-size: 16.5px; font-weight: 500; line-height: 1.5; }
+    .caveat { display: flex; gap: 10px; align-items: flex-start; margin: 12px 0 0; padding-top: 10px; border-top: 1.5px solid var(--rule); font-size: 15px; font-weight: 600; color: var(--ink2); }
+    .caveat svg { width: 20px; height: 20px; flex-shrink: 0; margin-top: 1px; }
+    .marking { margin-top: 16px; animation: pop .35s var(--ease); }
+    .mhead { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; border-bottom: 2px solid var(--navy); padding-bottom: 8px; }
+    .mhead span { font-size: 15px; font-weight: 600; color: var(--grey); }
+    .mhead b { margin-left: auto; font-size: 20px; font-weight: 800; color: var(--pink); white-space: nowrap; }
+    .ck { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: none; border: 0; border-bottom: 1.5px solid var(--rule); padding: 10px 2px; font-size: 16px; font-weight: 600; color: var(--navy); cursor: pointer; line-height: 1.35; }
+    .ck .box { width: 24px; height: 24px; border: 2px solid var(--navy); border-radius: 5px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: background-color .2s, border-color .2s; }
+    .ck .box svg { width: 16px; height: 16px; opacity: 0; transition: opacity .2s; }
+    .ck[aria-pressed="true"] .box { background: var(--pink); border-color: var(--pink); }
+    .ck[aria-pressed="true"] .box svg { opacity: 1; }
+    .ck:hover { background: var(--tint); }
+    .ck .sc { font-size: 13px; font-weight: 800; color: var(--pink); width: 40px; flex-shrink: 0; }
+    .nonerow { display: flex; align-items: center; gap: 12px; margin-top: 10px; font-size: 15px; font-weight: 600; color: var(--grey); }
+    .btn[aria-pressed="true"] { background: var(--navy); color: #fff; }
+
+    /* results overview */
+    .res { margin-top: 46px; }
+    .rt { margin-top: 26px; }
+    .rth { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding-bottom: 10px; border-bottom: 4px solid var(--navy); }
+    .rth h3 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -.01em; }
+    .rth .sc2 { margin-left: auto; text-align: right; font-size: 15px; font-weight: 600; color: var(--grey); }
+    .rth .sc2 b { display: block; font-size: 30px; font-weight: 800; color: var(--pink); letter-spacing: -.02em; line-height: 1; }
+    .tw { overflow-x: auto; }
+    .ovt { width: 100%; border-collapse: collapse; font-size: 15.5px; min-width: 640px; }
+    .ovt th { text-align: left; font-size: 14px; font-weight: 800; color: var(--grey); padding: 10px 10px 6px 0; border-bottom: 2px solid var(--navy); }
+    .ovt td { padding: 8px 10px 8px 0; border-bottom: 1.5px solid var(--rule); vertical-align: middle; }
+    .ovt tr.lg td { background: var(--tint); font-weight: 600; font-size: 14.5px; padding: 8px 10px; }
+    .ovt tr.lg b { font-weight: 800; margin-right: 6px; }
+    .ovt .c { font-weight: 800; color: var(--pink); white-space: nowrap; }
+    .ovt .qs { font-size: 14px; font-weight: 700; color: var(--grey); white-space: nowrap; }
+    .ovt .m { font-weight: 800; white-space: nowrap; text-align: right; }
+    .pbar { width: 90px; height: 10px; border-radius: 5px; background: var(--tint); overflow: hidden; box-shadow: inset 0 0 0 1.5px var(--rule); }
+    .pbar i { display: block; height: 100%; background: var(--navy); transition: width .4s var(--ease); }
+    .pbar.w i { background: var(--pink); }
+    .st { display: inline-block; font-size: 13px; font-weight: 800; padding: 3px 9px; border-radius: 999px; border: 2px solid var(--navy); white-space: nowrap; }
+    .st.s { background: var(--navy); color: #fff; }
+    .st.d { background: #fff; color: var(--navy); }
+    .st.w { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .legend { display: flex; gap: 10px 18px; flex-wrap: wrap; align-items: center; margin-top: 12px; font-size: 14px; font-weight: 600; color: var(--grey); }
+
+    .fin { margin-top: 40px; display: flex; align-items: center; justify-content: space-between; gap: 20px; background: var(--navy); color: #fff; padding: 22px 26px; border-radius: 8px; }
+    .fin p { margin: 0; font-size: 18px; font-weight: 700; }
+    .fin small { display: block; font-size: 15px; font-weight: 500; opacity: .75; margin-top: 2px; }
+
+    /* modal */
+    .ov { position: fixed; inset: 0; background: rgba(27,31,69,.55); display: none; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
+    .ov.show { display: flex; }
+    .md { background: #fff; border-top: 8px solid var(--pink); border-radius: 8px; max-width: 520px; width: 100%; padding: 26px 30px 28px; animation: pop .35s var(--ease); }
+    .md h3 { margin: 0 0 8px; font-size: 24px; font-weight: 800; letter-spacing: -.01em; }
+    .md p { margin: 0; font-size: 17px; font-weight: 500; }
+    .md .acts { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; flex-wrap: wrap; }
+
+    /* done screen */
+    .done { position: fixed; inset: 0; background: #fff; z-index: 60; display: none; overflow: auto; border-top: 12px solid var(--navy); }
+    .done.show { display: block; }
+    .done-in { max-width: 760px; margin: 0 auto; padding: 64px 28px 48px; animation: pop .45s var(--ease); }
+    .tick { width: 76px; height: 76px; }
+    .tick circle { fill: var(--pink); }
+    .tick path { fill: none; stroke: #fff; stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 60; stroke-dashoffset: 60; }
+    .done.show .tick path { animation: draw .5s .25s var(--ease) forwards; }
+    .done h2 { margin: 22px 0 6px; font-size: 44px; font-weight: 800; letter-spacing: -.025em; line-height: 1.05; }
+    .done h2 span { color: var(--pink); }
+    .done .lead { font-size: 19px; font-weight: 500; margin: 0 0 30px; }
+    .steps { list-style: none; margin: 0; padding: 0; border-top: 4px solid var(--navy); }
+    .steps li { display: grid; grid-template-columns: 56px 1fr; gap: 16px; padding: 18px 0; border-bottom: 2px solid var(--rule); }
+    .steps .n { width: 44px; height: 44px; border-radius: 50%; background: var(--navy); color: #fff; font-weight: 800; font-size: 21px; display: flex; align-items: center; justify-content: center; }
+    .steps li:last-child .n { background: var(--pink); }
+    .steps strong { display: block; font-size: 20px; font-weight: 800; }
+    .steps span { display: block; font-size: 17px; font-weight: 500; margin-top: 2px; }
+    .file { display: inline-flex; align-items: center; gap: 10px; margin-top: 10px; border: 2px solid var(--navy); border-radius: 6px; padding: 7px 14px 7px 10px; font-size: 16px; font-weight: 700; word-break: break-all; }
+    .file svg { width: 22px; height: 26px; flex-shrink: 0; }
+    .dacts { display: flex; gap: 10px; margin-top: 30px; flex-wrap: wrap; }
+
+    @media (max-width: 820px) {
+        .sheet { padding: 0 20px 32px; margin-top: 16px; }
+        .head { flex-direction: column; align-items: flex-start; }
+        h1 { font-size: 34px; }
+        .intro, .scores { grid-template-columns: 1fr; }
+        .intro div + div, .scores div + div { padding-left: 0; border-left: 0; }
+        .opts.two { grid-template-columns: 1fr; }
+        .banner { grid-template-columns: 1fr; }
+        .banner .acts { justify-content: flex-start; }
+        .sec { flex-wrap: wrap; }
+        .sec p { margin-left: 0; }
+        .bar-t { display: none; }
+        .fin { flex-direction: column; align-items: flex-start; }
+        .q { grid-template-columns: 1fr; }
+        .qn { margin-bottom: 8px; }
+    }
+</style>
+</head>
+<body>
+
+<div class="bar">
+    <div class="bar-in">
+        <div class="bar-t">Practice exam</div>
+        <div class="bar-p" id="count"></div>
+        <button class="btn pk" id="actTop">Submit answers</button>
+    </div>
+    <div class="prog" id="prog"></div>
+</div>
+
+<main class="sheet">
+    <div class="head">
+        <div>
+            <h1>Science <span>practice exam</span></h1>
+            <p class="sub">Earth and Space | Physics: forces and simple machines</p>
+        </div>
+        <div class="who">
+            <label for="name">Name</label><input id="name" autocomplete="off">
+            <label for="date">Date</label><input id="date" autocomplete="off">
+        </div>
+    </div>
+
+    <div class="intro" id="intro">
+        <div><b>Section A</b>32 multiple choice questions, 1 mark each.</div>
+        <div><b>Section B</b>8 short response questions. Answer in full sentences and show your working.</div>
+        <div><b>Changing your mind</b>Scroll back and change any answer as often as you like. <em>Answers are only revealed after you submit.</em></div>
+    </div>
+
+    <div class="banner" id="banner" hidden>
+        <div>
+            <h3>Answers submitted</h3>
+            <p>Read the feedback on each question. Then mark your short responses in Section B against the marking points before you export your PDF.</p>
+        </div>
+        <div class="acts">
+            <button class="btn inv sm" id="goB">Mark Section B</button>
+            <button class="btn inv sm" id="goRes">See results overview</button>
+        </div>
+        <div class="scores" id="scores"></div>
+    </div>
+
+    <div id="paper"></div>
+
+    <section class="res" id="results" hidden></section>
+
+    <div class="fin">
+        <p id="finP"></p>
+        <button class="btn pk" id="actBottom">Submit answers</button>
+    </div>
+</main>
+
+<div class="ov" id="ov" role="dialog" aria-modal="true" aria-labelledby="mdh">
+    <div class="md"><h3 id="mdh"></h3><p id="mdp"></p><div class="acts" id="mda"></div></div>
+</div>
+
+<div class="done" id="done" role="dialog" aria-modal="true" aria-labelledby="doneh">
+    <div class="done-in">
+        <svg class="tick" viewBox="0 0 76 76"><circle cx="38" cy="38" r="38"/><path d="M22 39 L33 50 L55 27"/></svg>
+        <h2 id="doneh">PDF saved. Now <span>upload it to Stile.</span></h2>
+        <p class="lead">Your practice exam is not handed in until the PDF is in the Stile lesson.</p>
+        <ol class="steps">
+            <li><div class="n">1</div><div><strong>Find your PDF</strong><span>It saved to your Downloads folder.</span><div class="file"><svg viewBox="0 0 22 26"><path d="M2 1 H14 L20 7 V25 H2 Z" fill="#fff" stroke="#1b1f45" stroke-width="2" stroke-linejoin="round"/><rect x="0" y="13" width="17" height="8" fill="#ea008a"/><text x="8.5" y="19.4" fill="#fff" font-size="6" font-weight="800" text-anchor="middle" font-family="Helvetica, Arial, sans-serif">PDF</text></svg><span id="fname"></span></div></div></li>
+            <li><div class="n">2</div><div><strong>Go back to the Stile lesson</strong><span>Scroll to the Practice Exam question.</span></div></li>
+            <li><div class="n">3</div><div><strong>Upload your PDF</strong><span>Add the file, then open it to check it worked.</span></div></li>
+            <li><div class="n">4</div><div><strong>Check your results overview</strong><span>Pages 1 and 2 of your PDF show how you went on every SC in Earth and Space and Physics. Start your revision with any SC marked <b>Work on this</b>.</span></div></li>
+        </ol>
+        <div class="dacts">
+            <button class="btn" id="again">Download again</button>
+            <button class="btn" id="back">Back to my exam</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const NV = '#1b1f45', PK = '#ea008a', GR = '#c9ccd6', FONT = 'Helvetica Neue, Helvetica, Arial, sans-serif';
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const TITLE = 'Science practice exam';
+const TN = { E: 'Earth and Space', P: 'Physics' };
+const TSUB = { E: 'The Sun, Earth and Moon', P: 'Forces and simple machines' };
+const TEACHER = 'Mr Buckley';
+
+/* =========================================================
+   SUCCESS CRITERIA
+   ========================================================= */
+const LGS = {
+    E: [
+        { id: 'LG1', t: 'The relative positions of the Earth, Sun and Moon can be represented within models of the Solar System', sc: ['SC1', 'SC2', 'SC3', 'SC4', 'SC5', 'SC6', 'SC7'] },
+        { id: 'LG2', t: 'Seasons are a predictable phenomenon on Earth caused by the relative positions of the Sun and Earth', sc: ['SC8', 'SC9', 'SC10'] },
+        { id: 'LG3', t: 'Day-night cycles are a predictable phenomenon on Earth caused by the relative positions of the Sun, Moon and Earth', sc: ['SC11', 'SC12', 'SC13', 'SC14', 'SC15'] },
+        { id: 'LG4', t: 'Moon phases and tides are a predictable phenomenon caused by the relative positions of the Sun, Moon and Earth', sc: ['SC16', 'SC17', 'SC18', 'SC19'] },
+        { id: 'LG5', t: 'Eclipses are a predictable phenomenon caused by the relative positions of the Sun, Moon and Earth', sc: ['SC20', 'SC21', 'SC22'] }
+    ],
+    P: [
+        { id: 'LG1', t: 'To investigate common types of contact and non-contact forces', sc: ['SC1', 'SC2'] },
+        { id: 'LG2', t: 'To investigate balanced and unbalanced forces acting on objects', sc: ['SC3', 'SC4', 'SC5', 'SC6'] },
+        { id: 'LG3', t: 'To investigate common forces and simple machines', sc: ['SC7', 'SC8', 'SC9', 'SC10', 'SC11', 'SC12', 'SC13', 'SC14'] },
+        { id: 'LG4', t: 'To investigate changes to an object due to gravitational force', sc: ['SC15', 'SC16', 'SC17'] }
+    ]
+};
+const SCT = {
+    E: {
+        SC1: 'I can create a mnemonic to remember the order of planets in the Solar System',
+        SC2: 'I can describe the role of gravity in the formation of the Solar System',
+        SC3: 'I can explain how gravity keeps planets and moons in their orbits',
+        SC4: 'I can evaluate whether objects in space are satellites',
+        SC5: 'I can calculate the sizes and distances of planets to build scale models of the Solar System',
+        SC6: 'I can explain some limitations of models of the Solar System',
+        SC7: 'I can calculate my age on other planets and round to the nearest year or month',
+        SC8: 'I can explain why the northern and southern hemispheres experience seasons at different times',
+        SC9: 'I can describe the relationship between light intensity and light angle',
+        SC10: 'I can explain the impact of the Earth’s tilt on the seasons',
+        SC11: 'I can describe what causes sunrise on Earth',
+        SC12: 'I can explain how day and night occur on Earth',
+        SC13: 'I can describe how my location on Earth affects the number of daylight hours I experience',
+        SC14: 'I can explain why summer has longer daylight hours than winter',
+        SC15: 'I can describe the relationship between the number of daylight hours and temperature',
+        SC16: 'I can determine the phase of the Moon based on the positions of the Sun, Earth and Moon',
+        SC17: 'I can describe what causes the phases of the Moon to change each month',
+        SC18: 'I can describe how the Moon produces tides on Earth',
+        SC19: 'I can explain how tides change with the phases of the Moon',
+        SC20: 'I can describe how solar eclipses occur',
+        SC21: 'I can describe how lunar eclipses occur',
+        SC22: 'I can compare the positions of the Sun, Earth and Moon during solar and lunar eclipses'
+    },
+    P: {
+        SC1: 'I can define what forces are',
+        SC2: 'I can classify different types of forces as either contact or non-contact',
+        SC3: 'I can identify whether forces acting upon an object are balanced or unbalanced',
+        SC4: 'I can analyse forces using force arrow diagrams',
+        SC5: 'I can recognise that changes to an object’s motion are caused by unbalanced forces',
+        SC6: 'I can identify the effect of applying different forces to an object',
+        SC7: 'I can recognise the beneficial and unwanted effects of friction',
+        SC8: 'I can define the term ‘simple machine’',
+        SC9: 'I can identify the advantages of simple machines',
+        SC10: 'I can describe the relationship between angle of inclination and effort force',
+        SC11: 'I can compare the efficiency of different simple machines',
+        SC12: 'I can recognise the fulcrum, resistance arm and effort arm of different levers',
+        SC13: 'I can contrast force multipliers and speed multipliers',
+        SC14: 'I can calculate the net force acting on an object',
+        SC15: 'I can explain why objects fall due to gravitational force',
+        SC16: 'I can explain the difference between mass and weight',
+        SC17: 'I can compare the effect of gravity on objects on the Earth’s surface and on other planets'
+    }
+};
+
+/* =========================================================
+   QUESTIONS
+   mc: o = options, a = index of correct option, x = feedback
+   sr: pts = marking points (1 mark each, tagged to an SC), model = model response
+   ========================================================= */
+const MC = (t, sc, q, o, a, x, fig) => ({ type: 'mc', t, sc, q, o, a, x, fig });
+const SR = (t, q, pts, model, fig, ph) => ({ type: 'sr', t, q, pts: pts.map(([sc, tx]) => ({ sc, t: tx })), model, fig, ph });
+
+const QS = [
+    /* ---------- Section A: Earth and Space ---------- */
+    MC('E', 'SC1', 'Which list shows the planets in the correct order from the Sun?',
+        ['Mercury, Venus, Mars, Earth, Jupiter, Saturn, Uranus, Neptune', 'Mercury, Venus, Earth, Mars, Saturn, Jupiter, Uranus, Neptune', 'Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune', 'Mercury, Venus, Earth, Mars, Jupiter, Saturn, Neptune, Uranus'], 2,
+        'A mnemonic such as “My Very Eager Mother Just Served Us Noodles” gives the order from the Sun: Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune.'),
+    MC('E', 'SC3', 'The Moon is orbiting Earth. Which arrow shows the direction of Earth’s gravitational pull on the Moon?',
+        ['Arrow 1', 'Arrow 2', 'Arrow 3', 'Arrow 4'], 2,
+        'Gravity pulls the Moon towards the centre of Earth, so arrow 3 is correct. Arrow 1 shows the direction the Moon is moving along its orbit.', 'orbit'),
+    MC('E', 'SC4', 'Which of these objects is not a satellite?',
+        ['The Moon, which orbits Earth', 'A weather satellite orbiting Earth', 'Titan, which orbits Saturn', 'A meteor burning up as it falls through Earth’s atmosphere'], 3,
+        'A satellite is any object that orbits a larger object. A meteor falls through the atmosphere and burns up, so it is not orbiting anything.'),
+    MC('E', 'SC5', 'In a scale model, 1 cm stands for 2000 km. Mars is about 6800 km wide. How wide should the model Mars be?',
+        ['0.34 cm', '3.4 cm', '13.6 cm', '34 cm'], 1,
+        '6800 km ÷ 2000 km per cm = 3.4 cm. Divide the real size by the number of kilometres that each centimetre stands for.'),
+    MC('E', 'SC7', 'A Mars year is about 1.9 Earth years. Sam is 11 Earth years old. How old is Sam in Mars years, rounded to the nearest year?',
+        ['21', '9', '6', '5'], 2,
+        '11 ÷ 1.9 = 5.79, which rounds up to 6. Divide, because each Mars year is longer than an Earth year. Multiplying gives 20.9, which is far too big.'),
+    MC('E', 'SC8', 'It is July in Brisbane. What season is it in Tokyo, in the northern hemisphere?',
+        ['Winter, the same as Brisbane', 'Summer, because the northern hemisphere is tilted towards the Sun', 'Winter, because Tokyo is further from the Sun', 'Spring, because the hemispheres are one season apart'], 1,
+        'The hemispheres have opposite seasons. In July the southern hemisphere tilts away from the Sun, so the northern hemisphere tilts towards it and has summer.'),
+    MC('E', 'SC9', 'Two identical solar panels are in full sun. Sunlight hits panel A straight on and hits panel B at a low angle. Which panel receives more intense light?',
+        ['Panel A, because the same light is concentrated on a smaller area', 'Panel B, because the light is spread over a bigger area', 'Both panels, because the light comes from the same Sun', 'Panel B, because low-angle light is hotter'], 0,
+        'Low-angle light spreads the same energy over a bigger area, so each part of the panel gets less. Light that hits straight on is concentrated, so it is more intense.'),
+    MC('E', 'SC10', 'Earth’s axis always tilts the same way as Earth orbits the Sun. At which position is Australia having summer?',
+        ['Position 1', 'Position 2', 'At both positions', 'At neither position'], 0,
+        'At position 1 the South Pole leans towards the Sun, so the southern hemisphere gets more direct light and longer days. At position 2 it leans away, giving Australia winter.', 'seasons'),
+    MC('E', 'SC11', 'Why does the Sun appear to rise in the east each morning?',
+        ['The Sun orbits Earth from east to west each day', 'Earth orbits the Sun once every 24 hours', 'The Moon moves out of the Sun’s path each morning', 'Earth rotates from west to east, turning your location towards the Sun'], 3,
+        'The Sun does not move across the sky. Earth spins from west to east, so your location turns into the Sun’s light and the Sun first appears on the eastern horizon.'),
+    MC('E', 'SC13', 'Which of these places gets about 12 hours of daylight every day of the year?',
+        ['Hobart', 'Singapore, which is on the equator', 'London', 'A research station in Antarctica'], 1,
+        'The equator is always split evenly between Earth’s day half and night half, so its day length stays close to 12 hours. Places further from the equator have bigger changes through the year.'),
+    MC('E', 'SC15', 'The graphs show Brisbane’s average daylight hours and average maximum temperature. Which statement best describes the relationship?',
+        ['Months with fewer daylight hours tend to be warmer', 'There is no link between daylight hours and temperature', 'Months with more daylight hours tend to be warmer', 'Warmer temperatures cause the days to get longer'], 2,
+        'Daylight hours and temperature rise and fall together. More hours of sunlight give the Sun more time to heat the ground and air. Temperature does not cause day length.', 'daylight'),
+    MC('E', 'SC16', 'The diagram shows the Sun, Earth and Moon from above. Which phase would we see from Earth?',
+        ['New moon', 'Full moon', 'A quarter moon, with half of the face we see lit', 'A thin crescent moon'], 2,
+        'The Moon is at right angles to the Sun. From Earth we see half of its sunlit half, so half of the face we see is lit: a quarter moon.', 'moon'),
+    MC('E', 'SC17', 'What causes the Moon’s phases to change during the month?',
+        ['As the Moon orbits Earth, we see different amounts of its sunlit half', 'Earth’s shadow covers different amounts of the Moon', 'The Moon gives off less of its own light as it cools', 'Clouds in Earth’s sky block parts of the Moon'], 0,
+        'The Sun always lights half of the Moon. As the Moon orbits Earth, its position changes how much of that lit half faces us. Earth’s shadow only reaches the Moon during a lunar eclipse.'),
+    MC('E', 'SC18', 'Why do most beaches have two high tides each day?',
+        ['The Moon orbits Earth twice each day', 'The Sun causes one high tide and the Moon causes the other', 'Earth spins through two bulges of water, one facing the Moon and one on the far side', 'Wind blows water onto the beach in the morning and evening'], 2,
+        'The Moon’s gravity pulls the oceans into two bulges. As Earth spins once every 24 hours, each beach passes through both bulges, giving two high tides.'),
+    MC('E', 'SC19', 'A class wants the biggest difference between high and low tide for a reef walk. When should they go?',
+        ['Near a quarter moon', 'Near a new moon or full moon', 'Only during a lunar eclipse', 'Any day, because the tidal range never changes'], 1,
+        'At new moon and full moon the Sun, Earth and Moon line up, so the Sun’s pull adds to the Moon’s. These spring tides have the biggest tidal range.'),
+    MC('E', 'SC20', 'A total solar eclipse can only be seen from a narrow strip of Earth at a time. Why?',
+        ['The darkest part of the Moon’s shadow is small when it reaches Earth', 'The Sun only shines on a narrow strip of Earth', 'Earth’s shadow blocks the eclipse for everyone else', 'Clouds always cover the rest of Earth'], 0,
+        'In a solar eclipse the Moon passes between the Sun and Earth. The darkest part of its shadow is small, so only people inside it see a total eclipse.'),
+
+    /* ---------- Section A: Physics ---------- */
+    MC('P', 'SC1', 'Which statement about forces is correct?',
+        ['A force is the amount of matter in an object, measured in kilograms', 'A force is a push or a pull, measured in newtons (N)', 'A force can change how an object moves, but never its shape', 'A force only needs one object to act'], 1,
+        'A force is a push or a pull, measured in newtons. Forces can change an object’s motion or its shape, and every force involves two objects.'),
+    MC('P', 'SC2', 'Which list contains only non-contact forces?',
+        ['Gravity, friction and tension', 'Air resistance, magnetic force and gravity', 'Friction, air resistance and water resistance', 'Gravity, magnetic force and electrostatic force'], 3,
+        'Gravity, magnetic force and electrostatic force can act across a gap without touching. Friction, tension, air resistance and water resistance all need contact.'),
+    MC('P', 'SC3', 'A lamp hangs still from the ceiling on a cord. Which statement is correct?',
+        ['No forces act on the lamp because it is not moving', 'Gravity is bigger than the tension in the cord', 'The tension pulling up equals gravity pulling down, so the forces are balanced', 'The tension is bigger than gravity, which is what holds the lamp up'], 2,
+        'Still objects still have forces acting on them. The cord pulls up exactly as hard as gravity pulls down, so the forces are balanced.'),
+    MC('P', 'SC4', 'The pink arrow shows a 10 N force pushing right. Using the same scale, which arrow shows a 30 N force pushing left?',
+        ['Arrow 1', 'Arrow 2', 'Arrow 3', 'Arrow 4'], 3,
+        '30 N is three times 10 N, so the arrow must be three times as long. It must also point left. Arrow 1 is the right length but points the wrong way.', 'arrows'),
+    MC('P', 'SC5', 'A soccer ball rolls across the grass and gradually slows to a stop. What does this show?',
+        ['An unbalanced force, friction, acts against the ball’s motion', 'The forces on the ball are balanced', 'No forces act on the ball once it has been kicked', 'Gravity pushes the ball backwards'], 0,
+        'Only an unbalanced force can change motion. Friction from the grass pushes against the motion and nothing balances it, so the ball slows down.'),
+    MC('P', 'SC6', 'The same 50 N push is given to an empty wheelbarrow and a full wheelbarrow. What happens?',
+        ['The full wheelbarrow speeds up more', 'Both speed up by the same amount', 'The empty wheelbarrow speeds up more', 'Neither moves, because 50 N is too small'], 2,
+        'The same force has a bigger effect on an object with less mass, so the empty wheelbarrow speeds up more.'),
+    MC('P', 'SC7', 'Which of these shows friction being helpful?',
+        ['A bike chain wearing out over time', 'Brake pads gripping a bike wheel to slow it down', 'Engine parts heating up and wasting energy', 'A sled slowing down on rough snow during a race'], 1,
+        'Brake pads rely on friction to slow the wheel safely. The other examples are unwanted effects: wear, energy wasted as heat, and slowing down when you want to go fast.'),
+    MC('P', 'SC8', 'Which statement best defines a simple machine?',
+        ['A basic device that changes the size or direction of a force', 'A device that creates extra energy', 'Any machine powered by an electric motor', 'A device that makes the load weigh less'], 0,
+        'A simple machine changes the size or direction of a force, making work easier. It cannot create energy or change the weight of the load.'),
+    MC('P', 'SC9', 'A gardener moves a heavy load of soil with a wheelbarrow instead of carrying it. What is the main advantage?',
+        ['The soil weighs less in the wheelbarrow', 'The gardener does no work at all', 'A smaller effort force is needed to lift and move the load', 'The soil’s mass is reduced'], 2,
+        'A wheelbarrow is a lever with a wheel. It lets a smaller effort force lift and move the load. The weight and mass of the soil do not change.'),
+    MC('P', 'SC10', 'All three ramps raise the same box 1 m. Which ramp needs the least effort force to push the box up?',
+        ['Ramp 1', 'Ramp 2', 'Ramp 3', 'They all need the same effort force'], 1,
+        'Ramp 2 has the smallest angle of inclination, so it needs the least effort force. The trade-off is that the box travels the longest distance.', 'ramps'),
+    MC('P', 'SC11', 'Lifting a crate straight up takes 300 N. Using a pulley system, it takes 75 N. What is the efficiency of the pulley system?',
+        ['25%', '225%', '4%', '400%'], 3,
+        'efficiency = force without simple machine ÷ force with simple machine × 100 = 300 ÷ 75 × 100 = 400%.'),
+    MC('P', 'SC12', 'Which label shows the effort arm of this lever?',
+        ['Label 1', 'Label 2', 'Label 3', 'Label 4'], 1,
+        'The effort arm runs from the fulcrum to where the effort is applied, so it is label 2. Label 1 is the resistance arm, label 3 is the fulcrum and label 4 is the effort force.', 'lever'),
+    MC('P', 'SC13', 'A small movement of your hands makes the end of a hockey stick move much further and faster. What kind of multiplier is the hockey stick?',
+        ['A force multiplier, so you need less effort', 'A speed multiplier, but you need a larger effort force', 'A force multiplier, because the end of the stick moves faster', 'Neither, because a hockey stick is not a lever'], 1,
+        'The end of the stick moves further and faster than your hands, so it is a speed multiplier. The trade-off is that your hands must push with a larger force.'),
+    MC('P', 'SC14', 'What is the net force on the box?',
+        ['80 N to the right', '55 N to the right', '30 N to the right', '0 N'], 2,
+        'Up and down are both 30 N, so they cancel. Add the forces acting right: 40 N + 15 N = 55 N. Subtract the force acting left: 55 N − 25 N = 30 N to the right.', 'net'),
+    MC('P', 'SC16', 'Which of these measurements could be the weight of a dog?',
+        ['20 kg', '196 N', '9.8 m/s²', '60 cm'], 1,
+        'Weight is a force, so it is measured in newtons (N). Kilograms measure mass, m/s² measures the strength of gravity and centimetres measure length.'),
+    MC('P', 'SC17', 'A rover has a mass of 100 kg. Gravity on Venus is 8.9 m/s². What is the rover’s weight on Venus?',
+        ['100 N', '11.2 N', '980 N', '890 N'], 3,
+        'weight = mass × gravity = 100 kg × 8.9 m/s² = 890 N. That is a little less than its weight on Earth (980 N), but its mass is still 100 kg.'),
+
+    /* ---------- Section B: Earth and Space ---------- */
+    SR('E', 'Explain the role of gravity in (a) forming the Solar System and (b) keeping the planets in their orbits around the Sun.',
+        [['SC2', 'Gravity pulled a huge cloud of gas and dust together'],
+         ['SC2', 'Most material gathered at the centre to form the Sun, and leftover material clumped into planets'],
+         ['SC3', 'The Sun’s gravity pulls each planet towards the Sun'],
+         ['SC3', 'The planet’s sideways motion and the inward pull of gravity combine to make a curved orbit']],
+        '(a) Gravity pulled a huge, spinning cloud of gas and dust inwards. Most of the material gathered at the centre and became the Sun. Gravity then pulled the leftover dust and rock into bigger and bigger clumps, which became the planets. (b) The Sun’s gravity pulls each planet towards the Sun. Each planet is also moving sideways very fast, so the inward pull bends its path into a curved orbit. Without gravity, the planets would travel off in straight lines.',
+        null, '(a) ...\n(b) ...'),
+    SR('E', 'A class builds a model of the Solar System on the school oval using the scale 1 AU = 10 m (1 AU is the distance from Earth to the Sun). Saturn is about 9.5 AU from the Sun. (a) Calculate how far from the model Sun the class should place Saturn. Show your working. (b) Explain one limitation of this model.',
+        [['SC5', 'Shows working: 9.5 AU × 10 m per AU'],
+         ['SC5', 'Correct answer with units: 95 m'],
+         ['SC6', 'Identifies a limitation of the model'],
+         ['SC6', 'Explains how the limitation could mislead, or what the model cannot show']],
+        '(a) 9.5 AU × 10 m per AU = 95 m. (b) The model only shows distances to scale. At this scale the planets would be too small to see, so the class would probably use balls that are far too big. This makes the planets look large compared with the space between them, when the Solar System is mostly empty space.',
+        null, '(a) ...\n(b) ...'),
+    SR('E', 'Explain how day and night occur on Earth. Then explain why Brisbane has more daylight hours in December than in June.',
+        [['SC12', 'Earth rotates on its axis about once every 24 hours'],
+         ['SC12', 'The half facing the Sun has day and the half facing away has night'],
+         ['SC14', 'In December the southern hemisphere is tilted towards the Sun'],
+         ['SC14', 'So Brisbane spends more of each rotation in the lit half, giving longer days (and less in June)']],
+        'Earth rotates on its axis about once every 24 hours. The half of Earth facing the Sun has day and the half facing away has night, so each place turns into and out of the Sun’s light. In December, the southern hemisphere is tilted towards the Sun. Brisbane spends more of each rotation in the lit half, so its days are longer. In June the southern hemisphere tilts away, so Brisbane’s days are shorter.'),
+    SR('E', 'Compare solar and lunar eclipses. In your answer, describe the positions of the Sun, Earth and Moon in each eclipse and name the phase of the Moon when each can happen.',
+        [['SC20', 'Solar: the Moon is between the Sun and Earth, and the Moon’s shadow falls on Earth'],
+         ['SC21', 'Lunar: Earth is between the Sun and the Moon, and Earth’s shadow falls on the Moon'],
+         ['SC22', 'Both eclipses need the Sun, Earth and Moon to line up in a straight line'],
+         ['SC22', 'A solar eclipse happens at a new moon and a lunar eclipse happens at a full moon']],
+        'In a solar eclipse, the Moon is between the Sun and Earth, and the Moon’s shadow falls on Earth. In a lunar eclipse, Earth is between the Sun and the Moon, and Earth’s shadow falls on the Moon. Both eclipses need the Sun, Earth and Moon to line up in a straight line. A solar eclipse can only happen at a new moon, and a lunar eclipse can only happen at a full moon.'),
+
+    /* ---------- Section B: Physics ---------- */
+    SR('P', 'Priya rides her bike along a flat road at a steady speed. Then she stops pedalling. Using the terms balanced and unbalanced, explain the forces acting on Priya and her bike (a) while she rides at a steady speed and (b) after she stops pedalling.',
+        [['SC3', 'Steady speed: the pedalling force equals friction and air resistance, so the forces are balanced'],
+         ['SC5', 'Balanced forces mean her motion does not change'],
+         ['SC3', 'After she stops pedalling, friction and air resistance are not balanced, so the forces are unbalanced'],
+         ['SC5', 'The unbalanced force acts against her motion, so she slows down and stops']],
+        '(a) At a steady speed, the forward force from pedalling is equal to the friction and air resistance pushing back. The forces are balanced, so Priya’s motion does not change and she keeps a steady speed. (b) When she stops pedalling, friction and air resistance still push backwards but nothing balances them. The forces are unbalanced against her motion, so she slows down and eventually stops.',
+        null, '(a) ...\n(b) ...'),
+    SR('P', 'Using a bicycle as your example, describe one beneficial effect of friction and one unwanted effect of friction. Then suggest one way to reduce the unwanted effect.',
+        [['SC7', 'Describes a beneficial effect (e.g. brake pads gripping the wheel, or tyres gripping the road)'],
+         ['SC7', 'Describes an unwanted effect (e.g. the chain rubbing, wasting energy as heat or wearing out)'],
+         ['SC7', 'Suggests a valid way to reduce it (e.g. oiling the chain)']],
+        'Friction is helpful between the brake pads and the wheel, because it lets the rider slow down and stop safely. Friction is unwanted between the chain and the gears, because it wastes energy as heat and wears the parts out. Oiling the chain reduces this unwanted friction.'),
+    SR('P', 'Leo uses a crowbar to lift a heavy rock. Lifting the rock straight up would take 600 N, but with the crowbar it takes only 150 N. (a) Identify the fulcrum, the effort arm and the resistance arm. (b) Is the crowbar a force multiplier or a speed multiplier? Explain your answer, including the trade-off. (c) Calculate the efficiency of the crowbar.',
+        [['SC12', 'Correctly locates the fulcrum (the block), effort arm and resistance arm'],
+         ['SC13', 'Force multiplier, because the effort arm is longer than the resistance arm'],
+         ['SC13', 'Trade-off: the effort moves a longer distance than the rock'],
+         ['SC11', 'Efficiency: 600 ÷ 150 × 100 = 400%']],
+        '(a) The fulcrum is the block. The effort arm runs from the block to where Leo pushes down. The resistance arm runs from the block to the rock. (b) The crowbar is a force multiplier, because the effort arm is much longer than the resistance arm. The trade-off is that Leo’s hands must move a long distance to lift the rock a short distance. (c) efficiency = 600 N ÷ 150 N × 100 = 400%.',
+        'crowbar', '(a) ...\n(b) ...\n(c) ...'),
+    SR('P', 'Ava has a mass of 50 kg. (a) Explain the difference between mass and weight. (b) Calculate Ava’s weight on Earth (gravity = 9.8 m/s²) and on the Moon (gravity = 1.6 m/s²). Show your working. (c) Explain why a ball Ava drops falls to the ground, and how this would be different on the Moon.',
+        [['SC16', 'Mass is the amount of matter (kg) and stays the same; weight is the force of gravity on it (N)'],
+         ['SC16', 'Weight on Earth: 50 × 9.8 = 490 N'],
+         ['SC17', 'Weight on the Moon: 50 × 1.6 = 80 N'],
+         ['SC15', 'Gravity pulls the ball down and nothing balances it, so it falls and speeds up'],
+         ['SC17', 'The Moon’s weaker gravity makes the ball speed up more slowly, so it takes longer to land']],
+        '(a) Mass is the amount of matter in an object, measured in kilograms, and it stays the same everywhere. Weight is the force of gravity on that mass, measured in newtons, so it changes with gravity. (b) Earth: 50 kg × 9.8 m/s² = 490 N. Moon: 50 kg × 1.6 m/s² = 80 N. Her mass is still 50 kg. (c) Gravity pulls the ball towards the centre of Earth. Nothing balances this force, so the ball falls and speeds up. The Moon’s gravity is weaker, so the ball would speed up more slowly and take longer to land.',
+        null, '(a) ...\n(b) ...\n(c) ...')
+];
+QS.forEach((q, i) => { q.n = i + 1; if (q.type === 'sr') q.m = q.pts.length; });
+/* formulas given with the question */
+const F_EFF = 'efficiency = force without simple machine ÷ force with simple machine × 100';
+const F_WT = 'weight (N) = mass (kg) × gravity (m/s²)';
+const FX = {
+    4: ['model size (cm) = real size (km) ÷ km per cm'],
+    5: ['age on a planet = age in Earth years ÷ length of that planet’s year in Earth years'],
+    27: [F_EFF],
+    30: ['net force = forces in one direction − forces in the opposite direction'],
+    32: [F_WT],
+    34: ['model distance (m) = distance (AU) × metres per AU'],
+    39: [F_EFF],
+    40: [F_WT]
+};
+QS.forEach(q => { if (FX[q.n]) q.fx = FX[q.n]; });
+const MCQ = QS.filter(q => q.type === 'mc'), SRQ = QS.filter(q => q.type === 'sr');
+const MAX = { E: 0, P: 0 }; QS.forEach(q => MAX[q.t] += q.type === 'mc' ? 1 : q.m);
+
+/* =========================================================
+   FIGURES (SVG, shared by the page and the PDF)
+   ========================================================= */
+const f1 = v => (+v).toFixed(1), rad = d => d * Math.PI / 180;
+const wrapSvg = (w, h, inner) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" font-family="${FONT}">${inner}</svg>`;
+const txt = (x, y, s, o = {}) => `<text x="${f1(x)}" y="${f1(y)}" font-size="${o.fs || 16}" font-weight="${o.fw || 800}" fill="${o.c || NV}" text-anchor="${o.a || 'start'}">${s}</text>`;
+const lab = (x, y, L, c = NV) => `<circle cx="${f1(x)}" cy="${f1(y)}" r="15" fill="${c}"/><text x="${f1(x)}" y="${f1(y + 6)}" font-size="17" font-weight="800" fill="#fff" text-anchor="middle">${L}</text>`;
+function arrow(x, y, ang, len, c = PK, sw = 6) {
+    const hl = Math.min(18, len), hw = 10, ux = Math.cos(ang), uy = Math.sin(ang), ex = x + ux * len, ey = y + uy * len, bx = ex - ux * hl, by = ey - uy * hl, px = -uy * hw, py = ux * hw;
+    return (len > hl ? `<line x1="${f1(x)}" y1="${f1(y)}" x2="${f1(bx)}" y2="${f1(by)}" stroke="${c}" stroke-width="${sw}"/>` : '') +
+        `<polygon points="${f1(ex)},${f1(ey)} ${f1(bx + px)},${f1(by + py)} ${f1(bx - px)},${f1(by - py)}" fill="${c}" stroke="${c}" stroke-width="1.5" stroke-linejoin="round"/>`;
+}
+const R = 0, L = Math.PI, U = -Math.PI / 2, D = Math.PI / 2;
+/* globe lit on one side: side = 'r' or 'l' */
+function litGlobe(cx, cy, r, side) {
+    return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${NV}"/><path d="M${cx} ${cy - r} A${r} ${r} 0 0 ${side === 'r' ? 1 : 0} ${cx} ${cy + r} Z" fill="#dfe3f3"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${NV}" stroke-width="3"/>`;
+}
+
+const FIG = {
+    orbit: { w: 560, h: 250, f() {
+        let s = `<ellipse cx="200" cy="125" rx="170" ry="92" fill="none" stroke="${GR}" stroke-width="2.5" stroke-dasharray="8 7"/>`;
+        s += txt(200, 246, 'Moon’s orbit', { fs: 14, fw: 700, c: '#8a8ea8', a: 'middle' });
+        s += `<circle cx="200" cy="125" r="42" fill="#8f99c9" stroke="${NV}" stroke-width="3"/>` + txt(200, 131, 'Earth', { a: 'middle', c: '#fff' });
+        s += `<circle cx="370" cy="125" r="16" fill="#c3c6d0" stroke="${NV}" stroke-width="2.5"/>` + txt(394, 104, 'Moon', { fs: 15 });
+        s += arrow(370, 103, U, 60, NV, 5) + lab(370, 26, '1');
+        s += arrow(392, 125, R, 60, NV, 5) + lab(470, 125, '2');
+        s += arrow(348, 125, L, 60, NV, 5) + lab(270, 125, '3');
+        s += arrow(370, 147, D, 60, NV, 5) + lab(370, 224, '4');
+        return wrapSvg(this.w, this.h, s);
+    } },
+    seasons: { w: 640, h: 250, f() {
+        let s = `<ellipse cx="320" cy="118" rx="210" ry="62" fill="none" stroke="${GR}" stroke-width="2.5" stroke-dasharray="8 7"/>`;
+        s += `<circle cx="320" cy="118" r="44" fill="${PK}"/>` + txt(320, 124, 'Sun', { a: 'middle', c: '#fff', fs: 17 });
+        const t = rad(-23), rot = (x, y) => [x * Math.cos(t) - y * Math.sin(t), x * Math.sin(t) + y * Math.cos(t)];
+        [[110, 'r', 'Position 1'], [530, 'l', 'Position 2']].forEach(([cx, side, name]) => {
+            const cy = 118, [ax, ay] = rot(0, -58), [nx, ny] = rot(0, -74);
+            s += litGlobe(cx, cy, 38, side);
+            const [ex, ey] = rot(38, 0);
+            s += `<line x1="${f1(cx - ex)}" y1="${f1(cy - ey)}" x2="${f1(cx + ex)}" y2="${f1(cy + ey)}" stroke="#9aa0bd" stroke-width="3"/>`;
+            s += side === 'r' ? txt(cx - ex - 4, cy - ey + 14, 'Equator', { a: 'end', fs: 13, fw: 700, c: '#6b7096' }) : txt(cx + ex + 4, cy + ey - 4, 'Equator', { fs: 13, fw: 700, c: '#6b7096' });
+            s += `<line x1="${f1(cx - ax)}" y1="${f1(cy - ay)}" x2="${f1(cx + ax)}" y2="${f1(cy + ay)}" stroke="${PK}" stroke-width="3.5" stroke-linecap="round"/>`;
+            s += txt(cx + nx, cy + ny + 5, 'N', { a: 'middle', fs: 15 }) + txt(cx - nx, cy - ny + 6, 'S', { a: 'middle', fs: 15 });
+            s += txt(cx, 238, name, { a: 'middle', fs: 16 });
+        });
+        return wrapSvg(this.w, this.h, s);
+    } },
+    daylight: { w: 600, h: 300, f() {
+        const M = ['Jan', 'Mar', 'May', 'Jul', 'Sep', 'Nov'], DL = [13.5, 12.2, 11.0, 10.6, 11.9, 13.3], TP = [30, 29, 25, 22, 26, 28];
+        let s = txt(20, 20, 'Daylight (hours)', { fs: 15 }) + txt(20, 156, 'Maximum temperature (°C)', { fs: 15, c: PK });
+        s += `<line x1="90" y1="130" x2="590" y2="130" stroke="${GR}" stroke-width="2.5"/><line x1="90" y1="262" x2="590" y2="262" stroke="${GR}" stroke-width="2.5"/>`;
+        M.forEach((m, i) => {
+            const cx = 90 + 500 / 6 * (i + .5), h1 = DL[i] / 14 * 88, h2 = TP[i] / 35 * 88;
+            s += `<rect x="${f1(cx - 22)}" y="${f1(130 - h1)}" width="44" height="${f1(h1)}" fill="${NV}"/>` + txt(cx, 130 - h1 - 6, DL[i].toFixed(1), { a: 'middle', fs: 14 });
+            s += `<rect x="${f1(cx - 22)}" y="${f1(262 - h2)}" width="44" height="${f1(h2)}" fill="${PK}"/>` + txt(cx, 262 - h2 - 6, TP[i], { a: 'middle', fs: 14, c: PK });
+            s += txt(cx, 286, m, { a: 'middle', fs: 15, fw: 700 });
+        });
+        return wrapSvg(this.w, this.h, s);
+    } },
+    moon: { w: 560, h: 300, f() {
+        let s = `<circle cx="-20" cy="170" r="92" fill="${PK}"/>` + txt(22, 176, 'Sun', { c: '#fff', fs: 17 });
+        [95, 170, 245].forEach(y => s += arrow(100, y, R, 70, GR, 4));
+        s += txt(100, 62, 'Sunlight', { fs: 14, fw: 700, c: '#8a8ea8' });
+        s += `<circle cx="330" cy="170" r="115" fill="none" stroke="${GR}" stroke-width="2.5" stroke-dasharray="8 7"/>`;
+        s += litGlobe(330, 170, 34, 'l') + txt(330, 230, 'Earth', { a: 'middle', fs: 15 });
+        s += litGlobe(330, 55, 18, 'l') + txt(358, 42, 'Moon', { fs: 15 });
+        return wrapSvg(this.w, this.h, s);
+    } },
+    arrows: { w: 600, h: 268, f() {
+        let s = '';
+        for (let k = 0; k <= 9; k++) s += `<line x1="${160 + 40 * k}" y1="20" x2="${160 + 40 * k}" y2="258" stroke="#e4e6ee" stroke-width="2"/>`;
+        s += txt(60, 46, '10 N', { c: PK, fs: 17 }) + arrow(160, 40, R, 40, PK, 6);
+        const rows = [[R, 120], [L, 40], [L, 80], [L, 120]];
+        rows.forEach(([a, len], i) => { const y = 92 + i * 50; s += lab(110, y, i + 1) + arrow(a === R ? 160 : 520, y, a, len, NV, 6); });
+        return wrapSvg(this.w, this.h, s);
+    } },
+    ramps: { w: 610, h: 132, f() {
+        const g = 98, h = 70;
+        let s = `<line x1="10" y1="${g}" x2="600" y2="${g}" stroke="${GR}" stroke-width="4"/>`;
+        [[30, 45, 'Ramp 1'], [140, 15, 'Ramp 2'], [450, 30, 'Ramp 3']].forEach(([x0, a, name]) => {
+            const run = h / Math.tan(rad(a)), r = 34;
+            s += `<polygon points="${x0},${g} ${f1(x0 + run)},${g} ${f1(x0 + run)},${g - h}" fill="#eef0f6" stroke="${NV}" stroke-width="3" stroke-linejoin="round"/>`;
+            s += `<path d="M${x0 + r} ${g} A${r} ${r} 0 0 0 ${f1(x0 + r * Math.cos(rad(a)))} ${f1(g - r * Math.sin(rad(a)))}" fill="none" stroke="${PK}" stroke-width="3.5"/>`;
+            s += txt(x0 + Math.max(r + 8, 22 / Math.tan(rad(a))), g - 8, a + '°', { fs: 14, c: PK });
+            s += txt(x0 + run / 2, g + 26, name, { a: 'middle', fs: 16 });
+        });
+        return wrapSvg(this.w, this.h, s);
+    } },
+    lever: { w: 600, h: 232, f() {
+        let s = `<line x1="150" y1="148" x2="250" y2="148" stroke="${GR}" stroke-width="4"/>`;
+        s += `<polygon points="200,106 178,148 222,148" fill="#9aa0bd" stroke="${NV}" stroke-width="2.5" stroke-linejoin="round"/>`;
+        s += `<rect x="40" y="96" width="520" height="10" fill="${NV}"/>`;
+        s += `<rect x="50" y="50" width="60" height="46" fill="#c3c6d0" stroke="${NV}" stroke-width="2.5"/>` + txt(80, 79, 'Load', { a: 'middle', fs: 15 });
+        s += arrow(540, 18, D, 76, PK, 6) + lab(574, 52, '4');
+        s += `<path d="M80 166 V178 H200 V166 M200 178 H540 V166" fill="none" stroke="${NV}" stroke-width="2.5"/>`;
+        s += lab(140, 206, '1') + lab(370, 206, '2') + lab(258, 128, '3');
+        return wrapSvg(this.w, this.h, s);
+    } },
+    net: { w: 560, h: 258, f() {
+        let s = `<rect x="230" y="92" width="100" height="76" rx="4" fill="${NV}"/>`;
+        s += arrow(330, 110, R, 100) + txt(440, 116, '40 N');
+        s += arrow(330, 150, R, 38) + txt(378, 156, '15 N');
+        s += arrow(230, 130, L, 62) + txt(160, 136, '25 N', { a: 'end' });
+        s += arrow(280, 92, U, 72) + txt(292, 36, '30 N');
+        s += arrow(280, 168, D, 72) + txt(292, 232, '30 N');
+        return wrapSvg(this.w, this.h, s);
+    } },
+    crowbar: { w: 620, h: 240, f() {
+        let s = `<line x1="10" y1="210" x2="610" y2="210" stroke="${GR}" stroke-width="4"/>`;
+        s += `<rect x="165" y="186" width="30" height="24" fill="#c3c6d0" stroke="${NV}" stroke-width="2"/>` + txt(180, 232, 'Block', { a: 'middle', fs: 14 });
+        s += `<line x1="110" y1="200" x2="590" y2="70" stroke="${NV}" stroke-width="8" stroke-linecap="round"/>`;
+        s += `<path d="M30 210 L40 150 L80 118 L130 126 L152 165 L150 210 Z" fill="#8f99c9" stroke="${NV}" stroke-width="2.5" stroke-linejoin="round"/>` + txt(90, 176, 'Rock', { a: 'middle', fs: 16 });
+        s += arrow(590, 4, D, 58) + txt(572, 26, 'Leo pushes down here', { a: 'end', fs: 15 });
+        return wrapSvg(this.w, this.h, s);
+    } }
+};
+
+/* =========================================================
+   STATE
+   ========================================================= */
+const ans = {};          // mc: option index, sr: text
+const ticks = {};        // sr: Set of ticked marking point indexes
+const none = {};         // sr: "none of these" chosen
+let submitted = false, dirty = false, exported = false, lastDoc = null, FILE = 'Science-practice-exam.pdf';
+SRQ.forEach(q => { ticks[q.n] = new Set(); none[q.n] = false; });
+
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const isAnswered = q => q.type === 'mc' ? ans[q.n] != null : !!(ans[q.n] || '').trim();
+const markOf = q => q.type === 'mc' ? (ans[q.n] === q.a ? 1 : 0) : ticks[q.n].size;
+const maxOf = q => q.type === 'mc' ? 1 : q.m;
+const touched = q => ticks[q.n].size > 0 || none[q.n];
+
+/* =========================================================
+   RENDER THE PAPER
+   ========================================================= */
+const TICK_SVG = '<svg viewBox="0 0 16 16"><path d="M3 8.5 L6.5 12 L13 4.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function qHTML(q) {
+    const fig = (q.fx ? q.fx.map(f => `<div class="fx"><span class="chip pk">Formula</span>${esc(f)}</div>`).join('<br>') : '') + (q.fig ? `<div class="fig">${FIG[q.fig].f()}</div>` : '');
+    const mk = q.type === 'mc' ? '1 mark' : q.m + ' marks';
+    const parts = q.q.split(/(?<=\.)\s(?=\([abc]\)\s)/);
+    const qt = esc(parts[0]) + `<span class="mk">${mk}</span>` + parts.slice(1).map(p => `<span class="pt">${esc(p)}</span>`).join('');
+    let body;
+    if (q.type === 'mc') {
+        const two = q.o.every(o => o.length < 34);
+        body = `<div class="opts${two ? ' two' : ''}" role="radiogroup" aria-label="Question ${q.n} options">` +
+            q.o.map((o, i) => `<button type="button" class="opt" role="radio" aria-checked="false" data-i="${i}"><span class="L">${'ABCD'[i]}</span><span>${esc(o)}</span><span class="tag"></span></button>`).join('') + '</div>';
+    } else {
+        body = `<textarea rows="5" aria-label="Answer to question ${q.n}" placeholder="${esc(q.ph || 'Write your answer here.')}"></textarea>`;
+    }
+    return `<article class="q" id="q${q.n}" data-n="${q.n}"><div class="qn">${q.n}</div><div class="qb"><div class="qt">${qt}</div>${fig}${body}<div class="rvh"></div></div></article>`;
+}
+function renderPaper() {
+    let h = '';
+    const block = (type, t) => QS.filter(q => q.type === type && q.t === t);
+    h += `<div class="sec" id="secA"><h2>Section A: <span>Multiple choice</span></h2><p>32 marks</p></div>`;
+    ['E', 'P'].forEach(t => {
+        const qs = block('mc', t);
+        h += `<div class="top"><span class="chip${t === 'P' ? ' pk' : ''}">${TN[t]}</span>${TSUB[t]}<small>Questions ${qs[0].n} to ${qs[qs.length - 1].n}</small></div>`;
+        h += qs.map(qHTML).join('');
+    });
+    h += `<div class="sec" id="secB"><h2>Section B: <span>Short response</span></h2><p>32 marks</p></div>`;
+    ['E', 'P'].forEach(t => {
+        const qs = block('sr', t);
+        h += `<div class="top"><span class="chip${t === 'P' ? ' pk' : ''}">${TN[t]}</span>${TSUB[t]}<small>Questions ${qs[0].n} to ${qs[qs.length - 1].n}</small></div>`;
+        h += qs.map(qHTML).join('');
+    });
+    $('#paper').innerHTML = h;
+
+    $$('.q').forEach(el => {
+        const q = QS[+el.dataset.n - 1];
+        if (q.type === 'mc') {
+            $$('.opt', el).forEach(b => b.onclick = () => {
+                if (submitted) return;
+                const i = +b.dataset.i, off = ans[q.n] === i;
+                if (off) delete ans[q.n]; else ans[q.n] = i;
+                $$('.opt', el).forEach(x => x.setAttribute('aria-checked', String(!off && x === b)));
+                changed();
+            });
+        } else {
+            const ta = $('textarea', el);
+            ta.addEventListener('input', () => { if (submitted) return; ans[q.n] = ta.value; grow(ta); changed(); });
+        }
+    });
+}
+function grow(t) { if (!t.offsetParent) return; t.style.height = 'auto'; t.style.height = t.scrollHeight + 4 + 'px'; }
+window.addEventListener('resize', () => $$('textarea').forEach(grow));
+
+/* =========================================================
+   PROGRESS
+   ========================================================= */
+function changed() {
+    dirty = true; exported = false;
+    QS.forEach(q => $('#q' + q.n).classList.toggle('answered', isAnswered(q)));
+    if (!submitted) {
+        const n = QS.filter(isAnswered).length;
+        $('#count').innerHTML = `<b>${n}</b> of ${QS.length} answered`;
+        $('#prog').style.width = (n / QS.length * 100) + '%';
+    } else {
+        const T = totals();
+        $('#count').innerHTML = `Score <b>${T.all.e}</b> / ${T.all.p}`;
+        $('#prog').style.width = (T.all.e / T.all.p * 100) + '%';
+    }
+}
+
+/* =========================================================
+   SCORING
+   ========================================================= */
+function scBreakdown() {
+    const S = { E: {}, P: {} };
+    ['E', 'P'].forEach(t => LGS[t].forEach(l => l.sc.forEach(c => S[t][c] = { e: 0, p: 0, qs: [] })));
+    QS.forEach(q => {
+        if (q.type === 'mc') { const r = S[q.t][q.sc]; r.p++; r.e += markOf(q); r.qs.push(q.n); }
+        else q.pts.forEach((pt, i) => { const r = S[q.t][pt.sc]; r.p++; if (ticks[q.n].has(i)) r.e++; if (!r.qs.includes(q.n)) r.qs.push(q.n); });
+    });
+    return S;
+}
+function totals() {
+    const T = { E: { mc: 0, mcP: 0, sr: 0, srP: 0 }, P: { mc: 0, mcP: 0, sr: 0, srP: 0 } };
+    QS.forEach(q => { const o = T[q.t]; if (q.type === 'mc') { o.mc += markOf(q); o.mcP++; } else { o.sr += markOf(q); o.srP += q.m; } });
+    ['E', 'P'].forEach(t => { T[t].e = T[t].mc + T[t].sr; T[t].p = T[t].mcP + T[t].srP; });
+    T.all = { e: T.E.e + T.P.e, p: T.E.p + T.P.p };
+    return T;
+}
+const pct = (e, p) => p ? Math.round(e / p * 100) : 0;
+const status = r => { const v = r.e / r.p; return v >= .8 ? ['s', 'Secure'] : v >= .5 ? ['d', 'Developing'] : ['w', 'Work on this']; };
+
+/* =========================================================
+   SUBMIT AND REVIEW
+   ========================================================= */
+function modal(h, p, acts) {
+    $('#mdh').textContent = h; $('#mdp').innerHTML = p;
+    const a = $('#mda'); a.innerHTML = '';
+    acts.forEach(([t, cls, fn]) => { const b = document.createElement('button'); b.className = 'btn ' + cls; b.textContent = t; b.onclick = () => { closeModal(); fn && fn(); }; a.appendChild(b); });
+    $('#ov').classList.add('show'); a.lastChild.focus();
+}
+const closeModal = () => $('#ov').classList.remove('show');
+$('#ov').addEventListener('click', e => { if (e.target.id === 'ov') closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+function jumpTo(el, focusSel) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const f = focusSel && $(focusSel, el);
+    setTimeout(() => f && f.focus({ preventScroll: true }), 450);
+}
+function startSubmit() {
+    const left = QS.filter(q => !isAnswered(q));
+    if (left.length) {
+        modal(`${left.length} ${left.length === 1 ? 'question is' : 'questions are'} still blank`,
+            'You can go back and finish them, or submit now. Once you submit, the correct answers are shown.',
+            [['Go to next blank', '', () => jumpTo($('#q' + left[0].n), '.opt, textarea')], ['Submit anyway', 'pk', submit]]);
+        return;
+    }
+    modal('Submit your answers?', 'Check your answers first if you like. Once you submit, the correct answers are shown and you mark your short responses.',
+        [['Keep checking', ''], ['Submit', 'pk', submit]]);
+}
+function submit() {
+    submitted = true; dirty = true;
+    document.body.classList.add('rev');
+    $$('textarea').forEach(t => { t.readOnly = true; if (!t.value.trim()) t.placeholder = 'No answer written.'; });
+    $$('.opt').forEach(b => b.tabIndex = -1);
+    MCQ.forEach(reviewMC);
+    SRQ.forEach(reviewSR);
+    $('#intro').hidden = true;
+    $('#banner').hidden = false;
+    $('#results').hidden = false;
+    setActions();
+    refresh();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function reviewMC(q) {
+    const el = $('#q' + q.n), pick = ans[q.n], ok = pick === q.a;
+    el.classList.toggle('wrong', !ok);
+    $$('.opt', el).forEach((b, i) => {
+        b.classList.toggle('ok', i === q.a); b.classList.toggle('bad', i === pick && !ok);
+        $('.tag', b).textContent = i === pick ? 'Your answer' : i === q.a ? 'Correct answer' : '';
+    });
+    $('.rvh', el).innerHTML = `<div class="rv${ok ? '' : ' no'}"><div class="vd">${pick == null ? 'Not answered' : ok ? 'Correct' : 'Not quite'}, ${ok ? 1 : 0} / 1<span class="chip${ok ? '' : ' pk'}">${q.sc}</span><small>${esc(SCT[q.t][q.sc])}</small></div><p>${esc(q.x)}</p></div>`;
+}
+function reviewSR(q) {
+    const el = $('#q' + q.n);
+    const scs = [...new Set(q.pts.map(p => p.sc))].join(', ');
+    $('.rvh', el).innerHTML =
+        `<div class="model"><h4>Model response</h4><p>${esc(q.model)}</p>
+            <div class="caveat"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="${PK}"/><rect x="8.7" y="4.5" width="2.6" height="7" rx="1.3" fill="#fff"/><circle cx="10" cy="14.6" r="1.5" fill="#fff"/></svg><span>This is a model response, not the only correct answer. Your wording can be different and still earn the marks. If you’re unsure how your answer would be marked, check with ${TEACHER}.</span></div></div>
+         <div class="marking"><div class="mhead"><h4>Mark your answer</h4><span>Tick each point your answer includes (${scs})</span><b class="srm"></b></div>
+            ${q.pts.map((p, i) => `<button type="button" class="ck" aria-pressed="false" data-i="${i}"><span class="box">${TICK_SVG}</span><span class="sc">${p.sc}</span><span>${esc(p.t)}</span></button>`).join('')}
+            <div class="nonerow"><button type="button" class="btn sm nn" aria-pressed="false">None of these</button><span>Choose this if your answer doesn’t include any of the points.</span></div></div>`;
+    $$('.ck', el).forEach(b => b.onclick = () => {
+        const i = +b.dataset.i, s = ticks[q.n];
+        s.has(i) ? s.delete(i) : s.add(i);
+        none[q.n] = false; syncSR(q); refresh();
+    });
+    $('.nn', el).onclick = () => { none[q.n] = !none[q.n]; if (none[q.n]) ticks[q.n].clear(); syncSR(q); refresh(); };
+    syncSR(q);
+}
+function syncSR(q) {
+    const el = $('#q' + q.n);
+    $$('.ck', el).forEach(b => b.setAttribute('aria-pressed', String(ticks[q.n].has(+b.dataset.i))));
+    $('.nn', el).setAttribute('aria-pressed', String(none[q.n]));
+    $('.srm', el).textContent = touched(q) ? `${ticks[q.n].size} / ${q.m}` : `? / ${q.m}`;
+    el.classList.toggle('wrong', touched(q) && ticks[q.n].size < q.m / 2);
+}
+function refresh() {
+    const T = totals();
+    $('#scores').innerHTML = ['E', 'P'].map(t => `<div>${TN[t]}<b>${T[t].e}<span> / ${T[t].p}</span></b>Multiple choice ${T[t].mc}/${T[t].mcP}, short response ${T[t].sr}/${T[t].srP}</div>`).join('') +
+        `<div>Whole exam<b>${T.all.e}<span> / ${T.all.p}</span></b>${pct(T.all.e, T.all.p)}% so far</div>`;
+    renderResults(T);
+    changed();
+}
+function renderResults(T) {
+    const S = scBreakdown();
+    let h = `<div class="sec"><h2>Results <span>overview</span></h2><p>By success criteria</p></div>
+        <div class="legend">Status: <span class="st s">Secure</span> 80% or more <span class="st d">Developing</span> 50 to 79% <span class="st w">Work on this</span> below 50%</div>`;
+    const unmarked = SRQ.filter(q => !touched(q)).length;
+    if (unmarked) h += `<p class="sub" style="color:var(--pink)">${unmarked} short ${unmarked === 1 ? 'response is' : 'responses are'} not marked yet, so ${unmarked === 1 ? 'it counts' : 'they count'} as 0 below.</p>`;
+    ['E', 'P'].forEach(t => {
+        h += `<div class="rt"><div class="rth"><span class="chip${t === 'P' ? ' pk' : ''}">${TN[t]}</span><h3>${TSUB[t]}</h3><div class="sc2"><b>${T[t].e} / ${T[t].p}</b>${pct(T[t].e, T[t].p)}%</div></div><div class="tw"><table class="ovt"><thead><tr><th>SC</th><th>Success criteria</th><th>Questions</th><th style="text-align:right">Marks</th><th></th><th>Status</th></tr></thead><tbody>`;
+        LGS[t].forEach(l => {
+            h += `<tr class="lg"><td colspan="6"><b>${l.id}</b>${esc(l.t)}</td></tr>`;
+            l.sc.forEach(c => {
+                const r = S[t][c], [k, lb] = status(r);
+                h += `<tr><td class="c">${c}</td><td>${esc(SCT[t][c])}</td><td class="qs">Q${r.qs.join(', Q')}</td><td class="m">${r.e}/${r.p}</td><td><div class="pbar${k === 'w' ? ' w' : ''}"><i style="width:${pct(r.e, r.p)}%"></i></div></td><td><span class="st ${k}">${lb}</span></td></tr>`;
+            });
+        });
+        h += '</tbody></table></div></div>';
+    });
+    $('#results').innerHTML = h;
+}
+
+function setActions() {
+    [$('#actTop'), $('#actBottom')].forEach(b => { b.textContent = submitted ? 'Export PDF' : 'Submit answers'; b.onclick = submitted ? startExport : startSubmit; });
+    $('#finP').innerHTML = submitted
+        ? 'Marked your short responses?<small>Export your results as a PDF, then upload it to the Stile lesson.</small>'
+        : 'Finished?<small>Check your answers, then submit to see the correct answers.</small>';
+}
+$('#goB').onclick = () => jumpTo($('#secB'));
+$('#goRes').onclick = () => jumpTo($('#results'));
+
+function startExport() {
+    const left = SRQ.filter(q => !touched(q));
+    if (left.length) {
+        modal(`${left.length} short ${left.length === 1 ? 'response is' : 'responses are'} not marked yet`,
+            'Tick the marking points your answer includes, or choose None of these. Your results overview uses these marks.',
+            [['Go to the next one', '', () => jumpTo($('#q' + left[0].n + ' .marking'))], ['Export anyway', 'pk', makePdf]]);
+        return;
+    }
+    makePdf();
+}
+
+/* =========================================================
+   PDF EXPORT
+   ========================================================= */
+function svgPng(svg, w, h, k = 3) {
+    return new Promise((res, rej) => {
+        const img = new Image();
+        img.onload = () => { const c = document.createElement('canvas'); c.width = w * k; c.height = h * k; const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0, c.width, c.height); res(c.toDataURL('image/png')); };
+        img.onerror = rej;
+        img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    });
+}
+const C = { nv: [27, 31, 69], pk: [234, 0, 138], gr: [154, 154, 154], ink: [74, 78, 112], ru: [210, 214, 224], wh: [255, 255, 255], tn: [243, 244, 248], pt: [253, 237, 246] };
+const ML = 14, MR = 196, BOT = 280;
+let doc, Y, DRY = false, IMGS = {};
+const mm = pt => pt * .3528;
+const clean = s => String(s == null ? '' : s).replace(/[\u2018\u2019\u02bc]/g, "'").replace(/[\u201c\u201d]/g, '"').replace(/[\u2013\u2014\u2212]/g, '-').replace(/\u2026/g, '...').replace(/[^\x09\x0a\x0d\x20-\x7e\xa0-\xff]/g, '');
+function font(st, sz, col) { doc.setFont('helvetica', st); doc.setFontSize(sz); doc.setTextColor(...col); }
+function T(s, x, y, o) { if (!DRY) doc.text(clean(s), x, y, o); }
+function Ln(x1, y1, x2, y2, col, w) { if (DRY) return; doc.setDrawColor(...col); doc.setLineWidth(w); doc.line(x1, y1, x2, y2); }
+function RR(x, y, w, h, r, fill, stroke, lw = .4) {
+    if (DRY) return;
+    if (fill) doc.setFillColor(...fill);
+    if (stroke) { doc.setDrawColor(...stroke); doc.setLineWidth(lw); }
+    doc.roundedRect(x, y, w, h, r, r, fill && stroke ? 'FD' : fill ? 'F' : 'S');
+}
+function CIR(x, y, r, fill, stroke, lw = .35) {
+    if (DRY) return;
+    if (fill) doc.setFillColor(...fill);
+    if (stroke) { doc.setDrawColor(...stroke); doc.setLineWidth(lw); }
+    doc.circle(x, y, r, fill && stroke ? 'FD' : fill ? 'F' : 'S');
+}
+function IMG(d, x, y, w, h) { if (!DRY) doc.addImage(d, 'PNG', x, y, w, h); }
+function meas(fn) { const d = DRY; DRY = true; const r = fn(); DRY = d; return r; }
+const lines = (s, w, fs, st = 'normal') => { font(st, fs, C.nv); return doc.splitTextToSize(clean(s), w); };
+function para(s, x, y, w, fs = 9, st = 'normal', col = C.nv, lhK = 1.45) {
+    const L = lines(s, w, fs, st), lh = mm(fs) * lhK;
+    font(st, fs, col);
+    L.forEach((ln, i) => T(ln, x, y + mm(fs) * .8 + i * lh));
+    return y + L.length * lh;
+}
+function tickBox(x, y, on, s = 3.4) {
+    RR(x, y, s, s, .6, on ? C.pk : null, on ? null : C.nv, .35);
+    if (on) { Ln(x + .7, y + s * .55, x + s * .42, y + s * .8, C.wh, .5); Ln(x + s * .42, y + s * .8, x + s * .82, y + s * .25, C.wh, .5); }
+}
+function chipT(s, x, y, fill, fs = 7.5) {
+    font('bold', fs, C.wh); const w = doc.getTextWidth(clean(s)) + 3.6;
+    RR(x, y, w, mm(fs) + 2.2, .8, fill); font('bold', fs, C.wh); T(s, x + 1.8, y + mm(fs) + .65);
+    return w;
+}
+function statusChip(st, x, y, w, h) {
+    const [k, lb] = st;
+    if (k === 's') RR(x, y, w, h, h / 2, C.nv);
+    else if (k === 'w') RR(x, y, w, h, h / 2, C.pk);
+    else RR(x, y, w, h, h / 2, C.wh, C.nv, .35);
+    font('bold', 6.8, k === 'd' ? C.nv : C.wh); T(lb, x + w / 2, y + h / 2 + .85, { align: 'center' });
+}
+
+/* ---------- overview pages ---------- */
+function overviewPage(t, idx, S, Tt, name, date) {
+    if (idx) doc.addPage();
+    doc.setFillColor(...C.nv); doc.rect(ML, 10, MR - ML, 2.4, 'F');
+    font('bold', 20, C.nv); T(TITLE, ML, 23);
+    font('bold', 8.5, C.gr); T(`Results overview  |  Page ${idx + 1} of 2`, ML, 29);
+    font('bold', 8.5, C.nv); T('Name', 132, 19); T('Date', 132, 27);
+    font('bold', 9.5, C.pk); T(doc.splitTextToSize(clean(name), 52)[0] || '', 143, 18.7); T(doc.splitTextToSize(clean(date), 52)[0] || '', 143, 26.7);
+    Ln(143, 20.2, MR, 20.2, C.nv, .3); Ln(143, 28.2, MR, 28.2, C.nv, .3);
+    Ln(ML, 32, MR, 32, C.nv, .9);
+
+    let y = 37;
+    font('bold', 15, C.wh); const cw = doc.getTextWidth(TN[t]) + 8;
+    RR(ML, y, cw, 10, 1.2, t === 'E' ? C.nv : C.pk); T(TN[t], ML + 4, y + 7.1);
+    font('bold', 10, C.nv); T(TSUB[t], ML + cw + 4, y + 4.4);
+    font('normal', 8.5, C.ink); T(`Multiple choice ${Tt[t].mc}/${Tt[t].mcP}   |   Short response ${Tt[t].sr}/${Tt[t].srP} (self-marked)`, ML + cw + 4, y + 9);
+    font('bold', 24, C.pk); T(`${Tt[t].e} / ${Tt[t].p}`, MR, y + 7.6, { align: 'right' });
+    font('bold', 8.5, C.nv); T(`${pct(Tt[t].e, Tt[t].p)}%   |   Whole exam ${Tt.all.e} / ${Tt.all.p}`, MR, y + 12.4, { align: 'right' });
+
+    y += 17;
+    font('bold', 8, C.gr); T('Status', ML, y + 3.4);
+    let lx = ML + 11;
+    [[['s', 'Secure'], '80% or more'], [['d', 'Developing'], '50 to 79%'], [['w', 'Work on this'], 'below 50%']].forEach(([st, d]) => {
+        statusChip(st, lx, y, 17, 4.6); font('normal', 7.5, C.ink); T(d, lx + 19, y + 3.4); lx += 19 + doc.getTextWidth(d) + 7;
+    });
+    const unmarked = SRQ.filter(q => q.t === t && !touched(q)).length;
+    if (unmarked) { font('bold', 7.5, C.pk); T(`${unmarked} short ${unmarked === 1 ? 'response' : 'responses'} not self-marked (counted as 0)`, MR, y + 3.4, { align: 'right' }); }
+    y += 8;
+
+    /* table */
+    const X = { c: ML + 1, s: ML + 12, sW: 94, q: 122, qW: 22, m: 156, b: 159, bW: 17, st: 178, stW: 18 };
+    const tbl = (fs, draw) => {
+        const D = DRY; DRY = !draw;
+        let yy = y;
+        font('bold', 7.5, C.gr);
+        T('SC', X.c, yy + 3.5); T('Success criteria', X.s, yy + 3.5); T('Questions', X.q, yy + 3.5); T('Marks', X.m, yy + 3.5, { align: 'right' }); T('Status', X.st, yy + 3.5);
+        yy += 5.2; Ln(ML, yy, MR, yy, C.nv, .6);
+        const lh = mm(fs) * 1.35;
+        LGS[t].forEach(l => {
+            const Ll = lines(l.t, MR - ML - 16, fs - .5);
+            const h = Ll.length * lh + 3;
+            RR(ML, yy, MR - ML, h, 0, C.tn);
+            font('bold', fs - .5, C.nv); T(l.id, ML + 1.5, yy + 1.6 + mm(fs) * .8);
+            font('normal', fs - .5, C.nv); Ll.forEach((ln, i) => T(ln, ML + 12, yy + 1.6 + mm(fs) * .8 + i * lh));
+            yy += h;
+            l.sc.forEach(c => {
+                const r = S[t][c], st = status(r);
+                const Ls = lines(SCT[t][c], X.sW, fs), Lq = lines('Q' + r.qs.join(', Q'), X.qW, fs - 1.5, 'bold');
+                const n = Math.max(Ls.length, Lq.length), hh = n * lh + 2.8, top = yy + 1.4 + mm(fs) * .8, mid = yy + hh / 2;
+                if (st[0] === 'w') RR(ML, yy, MR - ML, hh, 0, C.pt);
+                font('bold', fs, C.pk); T(c, X.c, top);
+                font('normal', fs, C.nv); Ls.forEach((ln, i) => T(ln, X.s, top + i * lh));
+                font('bold', fs - 1.5, C.gr); Lq.forEach((ln, i) => T(ln, X.q, top + i * lh));
+                font('bold', fs, C.nv); T(`${r.e}/${r.p}`, X.m, mid + mm(fs) * .35, { align: 'right' });
+                RR(X.b, mid - 1.3, X.bW, 2.6, 1.3, C.wh, C.ru, .3);
+                if (r.e) RR(X.b, mid - 1.3, Math.max(2.6, X.bW * r.e / r.p), 2.6, 1.3, st[0] === 'w' ? C.pk : C.nv);
+                statusChip(st, X.st, mid - 2.3, X.stW, 4.6);
+                yy += hh; Ln(ML, yy, MR, yy, C.ru, .25);
+            });
+        });
+        DRY = D;
+        return yy;
+    };
+    let fs = 8.5; while (fs > 6.5 && tbl(fs, false) > 248) fs -= .25;
+    y = tbl(fs, true);
+
+    /* focus box */
+    const all = LGS[t].flatMap(l => l.sc).map(c => ({ c, r: S[t][c] }));
+    const focus = all.filter(o => status(o.r)[0] !== 's').sort((a, b) => a.r.e / a.r.p - b.r.e / b.r.p);
+    y += 5;
+    const room = BOT - y - 12, per = 4.6, maxN = Math.max(0, Math.min(4, Math.floor(room / per)));
+    const items = focus.slice(0, maxN);
+    const bh = 9 + (items.length ? items.length * per : per) + 1;
+    RR(ML, y, MR - ML, bh, 1.5, null, C.nv, .5); RR(ML, y, 1.6, bh, 0, C.pk);
+    font('bold', 10, C.nv); T('Revise these first', ML + 5, y + 6);
+    font('normal', 7.8, C.ink); T('Re-read the feedback for these questions, then practise with your flashcard decks.', ML + 42, y + 6);
+    let fy = y + 11;
+    if (!items.length) { font('bold', 8.5, C.nv); T('Every SC is secure. Keep revising with your flashcard decks so it sticks.', ML + 5, fy); }
+    items.forEach(o => {
+        font('bold', 8.5, C.pk); T(o.c, ML + 5, fy);
+        const qs = '  (Q' + o.r.qs.join(', Q') + ')';
+        font('bold', 7.8, C.gr); const qw = doc.getTextWidth(qs);
+        font('normal', 8.5, C.nv); const s = doc.splitTextToSize(clean(SCT[t][o.c]), MR - ML - 22 - qw)[0];
+        T(s, ML + 17, fy); const sw = doc.getTextWidth(s);
+        font('bold', 7.8, C.gr); T(qs, ML + 17 + sw, fy);
+        fy += per;
+    });
+}
+
+/* ---------- question review pages ---------- */
+function reviewPage() {
+    doc.addPage();
+    doc.setFillColor(...C.nv); doc.rect(ML, 10, MR - ML, 1.8, 'F');
+    font('bold', 9, C.nv); T(TITLE, ML, 17); const w = doc.getTextWidth(TITLE + '  ');
+    font('bold', 9, C.gr); T('Question review', ML + w, 17);
+    Ln(ML, 20, MR, 20, C.nv, .6);
+    Y = 24;
+}
+function ensure(h) { if (Y + h > BOT) reviewPage(); }
+function secHead(title, t) {
+    ensure(30);
+    Y += 3;
+    if (title) { font('bold', 14, C.nv); T(title, ML, Y + 5); Y += 8; Ln(ML, Y, MR, Y, C.nv, .8); Y += 4; }
+    const w = chipT(TN[t], ML, Y, t === 'E' ? C.nv : C.pk, 8.5);
+    font('bold', 9.5, C.nv); T(TSUB[t], ML + w + 3, Y + 4);
+    Y += 9;
+}
+const tx0 = ML + 10, W0 = MR - tx0;
+function qBadge(q, y, good) {
+    CIR(ML + 3.6, y + 3.6, 3.6, good ? C.nv : C.pk);
+    font('bold', 8.5, C.wh); T(String(q.n), ML + 3.6, y + 4.8, { align: 'center' });
+}
+function fxBox(q, y) {
+    if (!q.fx) return y;
+    q.fx.forEach(f => {
+        font('bold', 8.5, C.nv); const w = doc.getTextWidth(clean(f)) + 22;
+        RR(tx0, y, w, 6.4, 1, C.wh, C.nv, .4);
+        chipT('Formula', tx0 + 1.2, y + 1.15, C.pk, 7);
+        font('bold', 8.5, C.nv); T(f, tx0 + 18.5, y + 4.4);
+        y += 8;
+    });
+    return y;
+}
+function figImg(q, y, maxW) {
+    const f = FIG[q.fig], w = Math.min(maxW, W0), h = w * f.h / f.w;
+    IMG(IMGS[q.fig], tx0, y, w, h);
+    return y + h;
+}
+function mcBlock(q, y) {
+    const pick = ans[q.n], ok = pick === q.a;
+    qBadge(q, y, ok);
+    font('bold', 7.5, C.gr); T(`${q.sc}  ${SCT[q.t][q.sc]}`, tx0, y + 2.4);
+    font('bold', 8.5, ok ? C.nv : C.pk); T(ok ? 'Correct  1 / 1' : pick == null ? 'Not answered  0 / 1' : 'Incorrect  0 / 1', MR, y + 2.4, { align: 'right' });
+    let e = para(q.q, tx0, y + 4.2, W0, 9.5, 'bold');
+    if (q.fx) e = fxBox(q, e + 2) - 1;
+    if (q.fig) e = figImg(q, e + 2, 82) + 2; else e += 1.5;
+    q.o.forEach((o, i) => {
+        const isA = i === q.a, isS = i === pick, cy = e + 2.6;
+        if (isA) CIR(tx0 + 2.4, cy, 2.4, C.nv); else CIR(tx0 + 2.4, cy, 2.4, null, isS ? C.pk : C.ru);
+        font('bold', 7, isA ? C.wh : isS ? C.pk : C.gr); T('ABCD'[i], tx0 + 2.4, cy + .95, { align: 'center' });
+        const end = para(o, tx0 + 7, e + .55, W0 - 7 - 28, 8.8, isA ? 'bold' : 'normal', isS && !isA ? C.pk : C.nv);
+        const tag = isS ? 'Your answer' : isA ? 'Correct answer' : '';
+        if (tag) { font('bold', 7.5, isA ? C.nv : C.pk); T(tag, MR, cy + .95, { align: 'right' }); }
+        e = Math.max(end, e + 5.2) + .6;
+    });
+    e = para('Why: ' + q.x, tx0, e + 1, W0, 8.3, 'normal', C.ink);
+    return e + 4;
+}
+function srPDF(q) {
+    const m = ticks[q.n].size, tch = touched(q);
+    /* head + question + figure */
+    const head = y => {
+        qBadge(q, y, tch && m >= q.m / 2);
+        const scs = [...new Set(q.pts.map(p => p.sc))].join(', ');
+        font('bold', 7.5, C.gr); T(`${scs}  |  ${q.m} marks`, tx0, y + 2.4);
+        font('bold', 8.5, C.pk); T(tch ? `${m} / ${q.m}  self-marked` : `Not marked  0 / ${q.m}`, MR, y + 2.4, { align: 'right' });
+        let e = para(q.q, tx0, y + 4.2, W0, 9.5, 'bold');
+        if (q.fx) e = fxBox(q, e + 2) - 1;
+        if (q.fig) e = figImg(q, e + 2, 90) + 1;
+        return e + 2;
+    };
+    const hh = meas(() => head(0));
+    ensure(hh + 18); Y = head(Y);
+    /* answer */
+    font('bold', 8, C.gr); T('Your answer', tx0, Y + 3); Y += 4.5;
+    const a = clean(ans[q.n] || '').trim();
+    if (!a) { font('normal', 9, C.gr); T('No answer written.', tx0, Y + 3); Y += 5; }
+    else {
+        const lh = mm(9.2) * 1.45;
+        a.split(/\n+/).filter(p => p.trim()).forEach(p => {
+            lines(p, W0, 9.2).forEach(ln => { ensure(lh); font('normal', 9.2, C.pk); T(ln, tx0, Y + mm(9.2) * .8); Y += lh; });
+            Y += .8;
+        });
+    }
+    /* marking points */
+    Y += 2; ensure(10);
+    font('bold', 8, C.gr); T('Marking points', tx0, Y + 3); Y += 5;
+    q.pts.forEach((p, i) => {
+        const on = ticks[q.n].has(i);
+        const h = meas(() => para(p.t, tx0 + 17, 0, W0 - 17, 8.6)) + 1.6;
+        ensure(h);
+        tickBox(tx0, Y + .2, on);
+        font('bold', 7.8, C.pk); T(p.sc, tx0 + 5.5, Y + 2.9);
+        para(p.t, tx0 + 17, Y, W0 - 17, 8.6, on ? 'bold' : 'normal', C.nv);
+        Y += h;
+    });
+    /* model response */
+    Y += 2;
+    const mh = meas(() => para(q.model, tx0 + 4, 0, W0 - 8, 8.8)) + 10;
+    if (mh > BOT - 24) { /* very long: no box */ ensure(12); font('bold', 8.5, C.nv); T('Model response', tx0, Y + 3); Y = para(q.model, tx0, Y + 5, W0, 8.8); }
+    else {
+        ensure(mh);
+        RR(tx0, Y, W0, mh, 1.5, C.tn);
+        font('bold', 8.5, C.nv); T('Model response', tx0 + 4, Y + 5);
+        para(q.model, tx0 + 4, Y + 7, W0 - 8, 8.8);
+        Y += mh;
+    }
+    const cav = `This is a model response, not the only correct answer. Your wording can be different and still earn the marks. If you're unsure how your answer would be marked, check with ${TEACHER}.`;
+    const chh = meas(() => para(cav, tx0, 0, W0, 8, 'italic')) + 2;
+    ensure(chh); Y = para(cav, tx0, Y + 1.5, W0, 8, 'italic', C.ink) + 4;
+    Ln(ML, Y - 1.5, MR, Y - 1.5, C.ru, .3);
+    Y += 1.5;
+}
+
+async function makePdf() {
+    if (!window.jspdf) {
+        modal('The PDF tool did not load', 'Check your internet connection, then try again. Keep this page open so you don’t lose your answers.', [['OK', 'pk']]);
+        return;
+    }
+    const btns = [$('#actTop'), $('#actBottom')];
+    btns.forEach(b => { b.disabled = true; b.textContent = 'Making PDF…'; });
+    try {
+        for (const k of Object.keys(FIG)) if (!IMGS[k]) IMGS[k] = await svgPng(FIG[k].f(), FIG[k].w, FIG[k].h, 3);
+        const name = $('#name').value.trim(), date = $('#date').value.trim();
+        FILE = 'Science-practice-exam' + (name ? '-' + name.replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '') : '') + '.pdf';
+        doc = new jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+        doc.setProperties({ title: TITLE + ' results' });
+        DRY = false;
+        const S = scBreakdown(), Tt = totals();
+
+        overviewPage('E', 0, S, Tt, name, date);
+        overviewPage('P', 1, S, Tt, name, date);
+
+        reviewPage();
+        ['E', 'P'].forEach((t, i) => {
+            secHead(i ? '' : 'Section A: Multiple choice', t);
+            MCQ.filter(q => q.t === t).forEach(q => {
+                const h = meas(() => mcBlock(q, 0));
+                ensure(h); mcBlock(q, Y); Y += h;
+                Ln(ML, Y - 2, MR, Y - 2, C.ru, .3);
+            });
+        });
+        reviewPage();
+        ['E', 'P'].forEach((t, i) => {
+            secHead(i ? '' : 'Section B: Short response', t);
+            SRQ.filter(q => q.t === t).forEach(srPDF);
+        });
+
+        const pages = doc.getNumberOfPages(), who = clean(name);
+        for (let i = 1; i <= pages; i++) {
+            doc.setPage(i);
+            font('normal', 7.5, C.gr);
+            doc.text(TITLE + (who ? '  |  ' + who : ''), ML, 289);
+            doc.text(`Page ${i} of ${pages}`, MR, 289, { align: 'right' });
+        }
+
+        lastDoc = doc;
+        doc.save(FILE);
+        exported = true;
+        $('#fname').textContent = FILE;
+        $('#done').classList.add('show'); $('#done').scrollTop = 0;
+        document.body.style.overflow = 'hidden';
+        $('#back').focus({ preventScroll: true });
+    } catch (err) {
+        console.error(err);
+        modal('The PDF could not be made', 'Try pressing Export PDF again. If it still doesn’t work, tell your teacher.', [['OK', 'pk']]);
+    } finally {
+        btns.forEach(b => b.disabled = false);
+        setActions();
+    }
+}
+$('#again').onclick = () => { if (lastDoc) lastDoc.save(FILE); };
+$('#back').onclick = () => { $('#done').classList.remove('show'); document.body.style.overflow = ''; };
+
+window.addEventListener('beforeunload', e => { if (dirty && !exported) { e.preventDefault(); e.returnValue = ''; } });
+document.addEventListener('input', e => { if (e.target.matches('#name, #date')) dirty = true; });
+
+/* ---------- start ---------- */
+$('#date').value = new Date().toLocaleDateString('en-AU');
+renderPaper();
+setActions();
+changed(); dirty = false;
+$$('textarea').forEach(grow);
+</script>
+</body>
+</html>
