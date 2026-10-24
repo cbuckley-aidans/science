@@ -1314,7 +1314,55 @@ const CARDS = [
     C('sc17-order-the-drops', 'SC17', 'Order the drops', 'A ball is dropped from the same height on each world, ignoring air. Put them in order from first to land to last.', [], 'Stronger gravity makes the ball speed up faster, so it lands sooner. Jupiter has the strongest gravity of these worlds and the Moon has the weakest.', { kind: 'order',
         seq: ['jupiter', 'earth', 'mars', 'moon'], tile: worldTile, tileCls: 'wld', poolCls: 'pool4', cols: 4, ordTop: 'Lands first<i></i>Lands last',
         instr: 'Drag each world into a box, or tap a world to place it. Press <b>Check</b>.',
-        ansHTML: ansRow(['jupiter', 'earth', 'mars', 'moon'].map(k => aItem(worldSVG(k, ''), `${WORLD[k].name}<small>${WORLD[k].g}\u00a0m/s²</small>`)).join('')) })
+        ansHTML: ansRow(['jupiter', 'earth', 'mars', 'moon'].map(k => aItem(worldSVG(k, ''), `${WORLD[k].name}<small>${WORLD[k].g}\u00a0m/s²</small>`)).join('')) }),
+    /* additional cards (October 2026) */
+    C('sc1-seeing-a-force', 'SC1', 'Seeing a force', 'You cannot see a force. How can you tell that one is acting on an object?', ['By its effect, such as a change in speed, direction or shape', 'By the colour the object turns', 'By the sound the force makes', 'You can only tell with a force meter'], 'Forces are invisible, but their effects are not. If an object starts, stops, speeds up, slows down, turns or changes shape, a force is acting on it.'),
+    C('sc1-same-size-different-effect', 'SC1', 'Same size, different effect', 'Two forces of 10 N act on the same box, one at a time. Why might they have different effects?', ['They could act in different directions', 'One of them is heavier than the other', 'Forces of the same size always have the same effect', 'One of them is a contact force'], 'A force has a size and a direction. Two 10 N forces pushing in opposite directions would move the box opposite ways.'),
+
+    C('sc2-gliding-swimmer', 'SC2', 'Gliding swimmer', 'A swimmer pushes off the wall, glides and slowly comes to a stop. Which force slows her down?', ['Water resistance, a contact force', 'Gravity, a non-contact force', 'Magnetic force, a non-contact force', 'Tension, a contact force'], 'Water particles push against her body as she moves through them. The particles touch her, so water resistance is a contact force.'),
+    C('sc2-through-the-table', 'SC2', 'Through the table', 'A magnet moved under a wooden table drags a paperclip along the top. What does this show about magnetic force?', ['It can act across a gap and through some materials', 'It only works when the magnet touches the paperclip', 'It is a contact force that travels through wood', 'It is really a type of friction'], 'The magnet never touches the paperclip, yet it still pulls it. Non-contact forces can act across a gap, and magnetic force passes through materials like wood.'),
+
+    C('sc3-a-parked-car', 'SC3', 'A parked car', 'A car is parked on a flat street. Which statement is correct?', ['Forces act on it, but they are balanced', 'No forces act on it', 'Only gravity acts on it', 'The forces are unbalanced downwards'], 'Gravity pulls the car down and the road pushes it up just as hard. Still objects still have forces acting on them. The forces are simply balanced.'),
+    C('sc3-a-hovering-drone', 'SC3', 'A hovering drone', 'A drone hovers in one spot. How does the upward push from its propellers compare with the pull of gravity?', ['They are equal, so the forces are balanced', 'The upward push is bigger', 'The upward push is smaller', 'There is no upward push while it hovers'], 'The drone is not speeding up or slowing down in any direction, so the forces are balanced. If the push were bigger it would rise, and if it were smaller it would sink.'),
+
+    C('sc4-the-missing-force', 'SC4', 'The missing force', 'The box is not moving. What other force must be acting on it?', ['25 N to the left', '25 N to the right', '55 N to the left', 'No other force is needed'], 'A still box has balanced forces. 40 N − 15 N = 25 N to the right is not cancelled, so another 25 N must act to the left. This is often friction.', { vis: fdiag([{ d: 'r', n: 40 }, { d: 'l', n: 15 }], { w: 540, h: 230, size: 100, k: 2.6, name: 'Box' }), calc: true }),
+    C('sc4-reading-the-scale', 'SC4', 'Reading the scale', 'On a force diagram, arrow A is 3 cm long and shows 15 N. Arrow B, drawn to the same scale, is 6 cm long. What force does arrow B show?', ['30 N', '6 N', '90 N', '21 N'], 'Arrow A shows 1 cm = 5 N. Arrow B is twice as long, so it shows twice the force: 6 × 5 N = 30 N.', { calc: true }),
+
+    C('sc5-turning-a-corner', 'SC5', 'Turning a corner', 'A cyclist rides around a corner at a steady speed. Are the forces on the bike balanced?', ['No. Its direction is changing, so there is an unbalanced force', 'Yes. Its speed is not changing', 'Yes. The cyclist is not pedalling harder', 'No. The bike is slowing down'], 'Changing direction is a change in motion, even at a steady speed. Only an unbalanced force can change motion, so the forces are unbalanced.'),
+    C('sc5-pushing-harder', 'SC5', 'Pushing harder', 'A shopper pushes a trolley at a steady speed. She then pushes harder. What happens to the trolley?', ['It speeds up, because the forces are now unbalanced forwards', 'It keeps the same speed, because it was already moving', 'It slows down, because friction grows', 'It stops, because the forces are balanced'], 'At a steady speed her push matched the friction. A bigger push is no longer cancelled, so the net force points forwards and the trolley speeds up.'),
+
+    C('sc6-stretching-a-spring', 'SC6', 'Stretching a spring', 'Hanging a heavier mass on a spring makes it stretch further. What does this show?', ['A bigger force causes a bigger change in shape', 'The spring gets weaker each time', 'Gravity only acts on heavy objects', 'Changing shape does not need a force'], 'The heavier mass pulls down on the spring with a bigger force. The bigger the force, the bigger its effect, so the spring stretches further.'),
+    C('sc6-slowing-a-rolling-ball', 'SC6', 'Slowing a rolling ball', 'A ball is rolling to the right. Which push would slow it down?', ['A push against its motion, to the left', 'A push in the same direction, to the right', 'A push from the side', 'No push can slow a rolling ball'], 'The direction of a force decides its effect. A push against the motion slows the ball, a push with the motion speeds it up and a push from the side changes its direction.'),
+
+    C('sc7-tyre-tread', 'SC7', 'Tyre tread', 'Why do car tyres have deep grooves, called tread?', ['The grooves push water away, so the tyre keeps enough friction to grip a wet road', 'The grooves reduce friction so the car goes faster', 'The grooves make the tyre lighter', 'The grooves stop the tyre from heating up'], 'On a wet road, a layer of water can stop the tyre touching the road. Tread channels the water away, keeping the friction needed to steer and brake safely.'),
+    C('sc7-air-hockey', 'SC7', 'Air hockey', 'An air hockey table blows air up through tiny holes. Why does the puck glide so easily?', ['A cushion of air stops the puck rubbing on the table', 'The air pushes the puck along from behind', 'The air makes the puck lighter', 'The air removes gravity from the puck'], 'The puck floats on a thin layer of air, so its surface barely touches the table. With almost no friction, it keeps moving for a long time.'),
+
+    C('sc8-no-free-energy', 'SC8', 'No free energy', 'Sam says a simple machine gives you extra energy for free. Why is Sam wrong?', ['A machine only changes the size or direction of a force. You still do the work', 'Simple machines use electricity, so the energy is not free', 'Simple machines always make jobs harder', 'Sam is right. Machines create energy'], 'A simple machine cannot create energy. It lets you use a smaller force or a more convenient direction, but you still do all of the work.'),
+    C('sc8-the-axe-head', 'SC8', 'The axe head', 'Why is an axe head counted as a simple machine?', ['It is a wedge that turns a downward force into sideways forces that split the wood', 'It is sharp, and all sharp things are simple machines', 'It is heavy, so it makes the work easier', 'It is a lever because it has a handle'], 'A wedge changes the direction of a force. Driving the axe down pushes the two sides of the wood apart.'),
+
+    C('sc9-the-flagpole', 'SC9', 'The flagpole', 'Why does a flagpole have a pulley at the top?', ['You can pull down at the bottom to raise the flag up', 'It makes the flag lighter to lift', 'It stops the wind moving the flag', 'It halves the effort needed to raise the flag'], 'A single fixed pulley changes the direction of the force. Pulling down from the ground is much easier than climbing the pole to lift the flag.'),
+    C('sc9-the-bottle-opener', 'SC9', 'The bottle opener', 'A bottle opener lets you lift off a tight cap that your fingers cannot. What is its advantage?', ['A small effort on the long handle makes a bigger force on the cap', 'It makes the cap lighter', 'It removes the friction holding the cap on', 'It changes the cap’s shape before you push'], 'A bottle opener is a lever. Your hand moves a long way at the end of the handle, so a smaller effort can lift the cap.'),
+
+    C('sc10-zigzag-roads', 'SC10', 'Zigzag roads', 'Roads up steep mountains often zigzag back and forth. Why?', ['The zigzag makes a gentler slope, so less effort is needed, but the trip is longer', 'The zigzag makes the road steeper so cars climb faster', 'The zigzag removes friction from the road', 'Cars weigh less on a zigzag road'], 'Each section of the zigzag is a ramp with a small angle of inclination. Cars need less driving force, but they travel a longer distance to reach the top.'),
+    C('sc10-predict-the-force-meter', 'SC10', 'Predict the force meter', 'A force meter reads 4 N while pulling a cart up a ramp at 20°. The ramp is raised to 40°. What will the meter read?', ['More than 4 N', 'Less than 4 N', 'Exactly 4 N', '0 N'], 'A steeper ramp has a larger angle of inclination, so more effort force is needed to pull the same cart up it.'),
+
+    C('sc11-the-crowbar', 'SC11', 'The crowbar', 'Lifting a rock straight up takes 500 N. With a crowbar it takes 125 N. What is the crowbar’s efficiency?', ['400%', '25%', '375%', '4%'], 'efficiency = 500 N ÷ 125 N × 100 = 400%. The crowbar needs only a quarter of the force.', { calc: true }),
+    C('sc11-pick-the-machine', 'SC11', 'Pick the machine', 'Machine A has an efficiency of 150%. Machine B has an efficiency of 300%. Both do the same job. Which needs less effort?', ['Machine B', 'Machine A', 'They need the same effort', 'You cannot tell from efficiency'], 'A higher efficiency means the force without the machine is a bigger multiple of the force with it. Machine B needs half the effort that machine A does.'),
+
+    C('sc12-fulcrum-of-scissors', 'SC12', 'Fulcrum of scissors', 'Where is the fulcrum on a pair of scissors?', ['The pivot where the two blades cross', 'The tips of the blades', 'The finger holes', 'The paper being cut'], 'Scissors are two first-class levers joined at a pivot. The pivot is the fulcrum, the effort is at the handles and the load is the paper between the blades.'),
+    C('sc12-your-forearm', 'SC12', 'Your forearm', 'Your forearm is a lever. The elbow is the fulcrum, your bicep pulls just below the elbow and the load is in your hand. What class of lever is it?', ['Third class, because the effort is between the fulcrum and the load', 'First class, because the fulcrum is in the middle', 'Second class, because the load is in the middle', 'It is not a lever because it bends'], 'The effort (bicep) sits between the fulcrum (elbow) and the load (hand). That makes the forearm a third-class lever, like tweezers.'),
+
+    C('sc13-the-fishing-rod', 'SC13', 'The fishing rod', 'A small flick of the wrist makes the tip of a fishing rod move a long way, very fast. What kind of multiplier is the rod?', ['A speed multiplier', 'A force multiplier', 'Both a force and a speed multiplier', 'Neither, because it only changes direction'], 'The tip moves much further and faster than your hands. The trade-off is that your hands must push with a larger force.'),
+    C('sc13-the-seesaw', 'SC13', 'The seesaw', 'A small child wants to lift a heavy adult on a seesaw. Where should the adult sit?', ['Close to the fulcrum', 'Far from the fulcrum', 'The same distance from the fulcrum as the child', 'Anywhere, because it makes no difference'], 'With the adult close to the fulcrum, the child’s side has the longer arm. The child’s end moves further, so a smaller effort can lift the heavier load.'),
+
+    C('sc14-four-forces', 'SC14', 'Four forces', 'What is the net force on the box?', ['12 N to the right', '28 N to the right', '12 N to the left', '0 N'], 'Up and down are both 30 N, so they cancel. Left and right: 20 N − 8 N = 12 N to the right.', { vis: fdiag([{ d: 'u', n: 30 }, { d: 'd', n: 30 }, { d: 'r', n: 20 }, { d: 'l', n: 8 }], { w: 540, h: 330, size: 116, k: 2.6, name: 'Box' }), calc: true }),
+    C('sc14-work-backwards', 'SC14', 'Work backwards', 'The net force on a box is 10 N to the right. A 25 N force pushes it to the right. How big is the force acting to the left?', ['15 N', '35 N', '10 N', '25 N'], 'The left force must cancel part of the 25 N, leaving 10 N. 25 N − 15 N = 10 N, so the left force is 15 N.', { calc: true }),
+
+    C('sc15-hammer-and-feather', 'SC15', 'Hammer and feather', 'An astronaut on the Moon, where there is no air, drops a hammer and a feather at the same time. What happens?', ['They land at the same time', 'The hammer lands first', 'The feather lands first', 'The feather floats away'], 'With no air, there is no air resistance. Gravity speeds up every object by the same amount, so both land together. An Apollo 15 astronaut tested this in 1971.'),
+
+    C('sc16-balance-on-the-moon', 'SC16', 'Balance on the Moon', 'A pan balance compares an object with known masses. Would it still give the right mass on the Moon?', ['Yes. Gravity pulls both sides less by the same amount, so they still balance', 'No. Everything weighs less, so it reads too low', 'No. A balance needs air to work', 'No. There is no gravity on the Moon'], 'A balance compares two masses. Weaker gravity reduces the weight on both pans equally, so the same masses still balance. A balance measures mass, not weight.'),
+
+    C('sc17-half-the-gravity', 'SC17', 'Half the gravity', 'A student weighs 500 N on Earth. She visits a world where gravity is half as strong. What changes?', ['Her weight becomes 250 N, but her mass stays the same', 'Her mass halves, but her weight stays the same', 'Her mass and weight both halve', 'Nothing changes, because she is the same person'], 'Weight depends on gravity, so half the gravity gives half the weight: 250 N. Mass is the amount of matter in her body, which does not change.')
 ];
 const scNum = s => +s.slice(2);
 const nb = t => t.replace(/(\d) (N|kg|m|s)\b/g, '$1\u00a0$2').replace(/ = /g, '\u00a0= ').replace(/ − /g, '\u00a0−\u00a0');
@@ -1459,6 +1507,38 @@ const RELEASED_IDS = [
     'sc15-explain-the-fall',
     'sc16-sort-mass-and-weight',
     'sc17-order-the-drops',
+    /* additional cards (October 2026) */
+    'sc1-seeing-a-force',
+    'sc1-same-size-different-effect',
+    'sc2-gliding-swimmer',
+    'sc2-through-the-table',
+    'sc3-a-parked-car',
+    'sc3-a-hovering-drone',
+    'sc4-the-missing-force',
+    'sc4-reading-the-scale',
+    'sc5-turning-a-corner',
+    'sc5-pushing-harder',
+    'sc6-stretching-a-spring',
+    'sc6-slowing-a-rolling-ball',
+    'sc7-tyre-tread',
+    'sc7-air-hockey',
+    'sc8-no-free-energy',
+    'sc8-the-axe-head',
+    'sc9-the-flagpole',
+    'sc9-the-bottle-opener',
+    'sc10-zigzag-roads',
+    'sc10-predict-the-force-meter',
+    'sc11-the-crowbar',
+    'sc11-pick-the-machine',
+    'sc12-fulcrum-of-scissors',
+    'sc12-your-forearm',
+    'sc13-the-fishing-rod',
+    'sc13-the-seesaw',
+    'sc14-four-forces',
+    'sc14-work-backwards',
+    'sc15-hammer-and-feather',
+    'sc16-balance-on-the-moon',
+    'sc17-half-the-gravity',
 ];
 /* IDs of cards that have been deleted. Keep them here (and in RELEASED_IDS) so they are never reused. */
 const RETIRED_IDS = [

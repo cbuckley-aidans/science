@@ -219,6 +219,9 @@
     .bin .sub { font-size: 15px; font-weight: 600; color: var(--mid-grey); padding: 5px 14px 0; }
     .bin .area { flex: 1; display: flex; flex-wrap: wrap; gap: 6px; align-content: flex-start; justify-content: center; padding: 8px; }
     .bin .mtile svg { width: 54px; height: 54px; }
+    .stile { white-space: normal; text-align: center; justify-content: center !important; font-size: 20px; }
+    .bin .stile { font-size: 16px; padding: 3px 9px; }
+    .slot .stile { font-size: 15px; }
     .pool4 { display: grid; grid-template-columns: 1fr 1fr; align-content: center; justify-items: center; gap: 20px; }
     .ai.am svg { width: 60px; height: 60px; }
     .ai small { font-size: 14px; }
@@ -996,6 +999,7 @@ function spinFrame(inner, o = {}) {
     return s;
 }
 const spinBack = () => `<svg class="vis" viewBox="0 0 520 440" preserveAspectRatio="xMidYMid meet">${spinFrame(spinGlobeInner(6, { msg: 'Brisbane: sunrise' }), { arrow: true })}</svg>`;
+const sTile = t => `<span>${t}</span>`;
 const mTile = p => `<svg viewBox="-34 -34 68 68">${moonG(p, 30)}</svg>`;
 const ansRow = items => `<div class="arow">${items}</div>`;
 
@@ -1159,7 +1163,120 @@ const CARDS = [
         ansHTML: '<p class="actext">When sunlight hits the ground at a <b>low</b> angle, the same energy is spread over a <b>larger</b> area, so the light intensity is <b>lower</b>.</p>' }),
     C('sc12-next-place-into-night', 'SC12', 'Next place into night', 'Watch the model of Earth spin. Which place will move into night first?', ['Place 1', 'Place 2', 'Place 3', 'Place 4'], 'Seen from above the South Pole, Earth spins clockwise, from west to east. This carries place 4 out of the lit half first. The same spin makes the Sun appear to move from east to west across our sky.', { scene: 'spin', vis: spinSVG(), ordered: true, ans: 3 }),
     C('sc12-spin-earth-west-to-east', 'SC12', 'Spin Earth west to east', 'Earth spins from west to east. Spin the model the same way until Brisbane reaches sunrise.', [], 'Earth turns towards the east, so Brisbane is carried out of the night and into the Sun’s light. That is why the Sun always appears to rise in the east and set in the west.', { kind: 'spindrag',
-        instr: 'Drag the globe sideways, or hold an arrow button, to spin Earth.', ansHTML: '<div class="ans">Spin it towards the east, from west to east</div>', backVis: spinBack() })
+        instr: 'Drag the globe sideways, or hold an arrow button, to spin Earth.', ansHTML: '<div class="ans">Spin it towards the east, from west to east</div>', backVis: spinBack() }),
+    /* additional cards (October 2026) */
+    C('sc1-which-mnemonic-fails', 'SC1', 'Which mnemonic fails?', 'Students wrote new mnemonics for the planets. Which one would give the wrong order?', ['My Very Excellent Mum Served Jam Under Napkins', 'Many Vets Eat Mangoes Just Sitting Under Nets', 'My Very Easy Method Just Speeds Up Naming', 'Mean Velociraptors Eat Many Juicy Sausages Until Noon'], 'The first letters must follow M, V, E, M, J, S, U, N. In this one “Served” comes before “Jam”, which would put Saturn before Jupiter.'),
+    C('sc1-two-m-planets', 'SC1', 'Two M planets', 'Mercury and Mars both start with M. How does a mnemonic stop you mixing them up?', ['The position of each word gives the order, so the first M is Mercury and the second M is Mars', 'Mercury is always the shorter word', 'You use a capital M for Mars only', 'It does not. You have to remember them separately'], 'A mnemonic works because of the order of its words. The 1st word is Mercury and the 4th word is Mars, even though both start with M.'),
+
+    C('sc2-the-flat-disc', 'SC2', 'The flat disc', 'All eight planets orbit the Sun in the same direction, in roughly the same flat plane. What does this suggest about how they formed?', ['They formed from the same spinning, flattened disc of gas and dust', 'They were captured one at a time from other stars', 'Gravity pushed them into line after they formed', 'They broke off the Sun at different times'], 'As gravity pulled the cloud inwards it spun faster and flattened into a disc. The planets formed inside that disc, so they still share its direction and plane.'),
+    C('sc2-most-of-the-mass', 'SC2', 'Most of the mass', 'The Sun holds more than 99% of all the mass in the Solar System. Why did most of the material end up in the Sun?', ['Gravity pulled most of the cloud into its centre', 'The Sun swallowed most of the planets', 'Heat from the Sun melted material into it', 'The planets lost most of their mass to space'], 'Gravity pulled the collapsing cloud towards its centre. Most of the gas and dust gathered there, leaving only a small amount to form the planets.'),
+    C('sc2-order-the-formation', 'SC2', 'Order the formation', 'Put the stages of the Solar System’s formation in order.', [], 'Gravity drives every stage: it pulls the cloud together, forms the Sun at the centre and clumps the leftover material into planets.', { kind: 'order',
+        seq: ['cloud', 'collapse', 'sun', 'planets'], cols: 4, tileCls: 'stile', poolCls: 'pool2',
+        tile: k => sTile({ cloud: 'A huge cloud of gas and dust', collapse: 'Gravity pulls the cloud inwards', sun: 'The dense centre becomes the Sun', planets: 'Leftover dust and rock clump into planets' }[k]),
+        ordTop: '<span>First</span><i></i><span>Last</span>',
+        instr: 'Drag or tap each stage into place, then press <b>Check</b>.',
+        ansHTML: '<p class="actext">A cloud of gas and dust, then gravity pulls it inwards, then the dense centre becomes the Sun, then leftover dust and rock clump into planets.</p>' }),
+
+    C('sc3-ball-on-a-string', 'SC3', 'Ball on a string', 'You swing a ball on a string in a circle, then let go. How is this like a planet’s orbit?', ['The string pulls inwards like gravity. Without it, the ball flies off in a straight line', 'The string pushes the ball outwards, like the Sun pushes the planets', 'The ball stops when you let go, like a planet would without gravity', 'It is not like an orbit, because planets do not move in curves'], 'Gravity acts like the string, pulling the planet towards the centre. Without that pull, the planet would carry on in a straight line.'),
+    C('sc3-why-astronauts-float', 'SC3', 'Why astronauts float', 'The space station orbits about 400 km up, where Earth’s gravity is still about 90% as strong as on the ground. Why don’t the astronauts fall to Earth?', ['They are falling, but they move sideways so fast that they keep missing Earth', 'There is no gravity in space', 'The station’s engines hold it up all the time', 'The air at that height holds the station up'], 'Gravity is still strong there. The station and astronauts fall together around Earth, which is why they float inside it.'),
+
+    C('sc4-is-a-comet-a-satellite', 'SC4', 'Is a comet a satellite?', 'A comet travels around the Sun in a long, stretched orbit. Is it a satellite?', ['Yes. It orbits a larger object, so it is a natural satellite of the Sun', 'No. Its orbit is not a circle', 'No. Only objects that orbit planets are satellites', 'Yes. It is an artificial satellite'], 'A satellite is any object that orbits a larger object. The shape of the orbit does not matter.'),
+    C('sc4-passing-the-moon', 'SC4', 'Passing the Moon', 'A space probe flies past the Moon on its way to Mars. Is it a satellite of the Moon?', ['No. It is passing by, not orbiting the Moon', 'Yes. Anything near the Moon is its satellite', 'Yes. All spacecraft are satellites', 'No. The Moon is too small to have satellites'], 'Being close to an object is not enough. To be a satellite, the probe would have to go around and around the Moon in an orbit.'),
+    C('sc4-satellite-or-not', 'SC4', 'Satellite or not', 'Is each object a satellite? Sort them.', [], 'A satellite orbits a larger object. Objects that are passing by, flying in the air or falling to the ground are not orbiting anything.', { kind: 'sort',
+        bins: [['Satellite', 'Orbits a larger object'], ['Not a satellite', 'Is not in orbit']], tileCls: 'stile', poolCls: 'pool2',
+        items: [['The Moon', 0], ['Earth', 0], ['Halley’s Comet', 0], ['A weather satellite', 0], ['A plane over Sydney', 1], ['A rocket on the launch pad', 1], ['A probe flying past Jupiter', 1], ['A meteor burning up', 1]].map(([t, k]) => [sTile(t), k]),
+        instr: 'Drag each object into a group, or tap an object then a group. Press <b>Check</b>.',
+        ansHTML: '<p class="actext"><b>Satellite:</b> the Moon, Earth, Halley’s Comet, a weather satellite.<br><b>Not a satellite:</b> a plane, a rocket on the pad, a probe flying past Jupiter, a meteor.</p>' }),
+
+    C('sc5-scaling-the-sun', 'SC5', 'Scaling the Sun', 'In a model, 1 cm stands for 1000 km. The Sun is about 1\u00a0400\u00a0000 km wide. How wide should the model Sun be?', ['1400 cm, which is 14 m', '140 cm, which is 1.4 m', '14 cm', '1.4 cm'], '1\u00a0400\u00a0000 km ÷ 1000 km per cm = 1400 cm. There are 100 cm in a metre, so that is 14 m, far too big for a classroom.', { calc: true }),
+    C('sc5-finding-the-scale', 'SC5', 'Finding the scale', 'Students use a 3.5 cm ball for the Moon, which is really about 3500 km wide. What scale are they using?', ['1 cm = 1000 km', '1 cm = 100 km', '1 cm = 3500 km', '1 cm = 10\u00a0000 km'], '3500 km ÷ 3.5 cm = 1000 km per cm. Every centimetre in the model stands for 1000 km in space.', { calc: true }),
+    C('sc5-placing-neptune', 'SC5', 'Placing Neptune', 'Neptune is about 30 AU from the Sun. In the playground model, 1 AU = 10 m. How far from the model Sun should Neptune go?', ['300 m', '30 m', '3 m', '3000 m'], '30 AU × 10 m per AU = 300 m. That is further than most school grounds, which shows how spread out the Solar System is.', { calc: true }),
+
+    C('sc6-glued-in-place', 'SC6', 'Glued in place', 'A model has the planets glued onto sticks around a foam Sun. What is one limitation of this model?', ['It cannot show the planets orbiting and changing position', 'It has the wrong number of planets', 'It leaves out the Sun', 'It shows the planets moving too fast'], 'Real planets are always moving along their orbits. A fixed model shows just one moment and hides that movement.'),
+    C('sc6-why-use-models', 'SC6', 'Why use models?', 'If every model of the Solar System has limitations, why do scientists still use them?', ['They help us understand and predict things too big or far away to study directly', 'They are exact copies of the Solar System', 'They are only used for decoration', 'Scientists do not use models'], 'A model is a simpler version of something real. Each one shows some features well and others badly, so scientists choose the model that suits the question.'),
+    C('sc6-planets-in-a-line', 'SC6', 'Planets in a line', 'Most diagrams show all eight planets in a straight line from the Sun. What is misleading about this?', ['The planets are spread around their orbits and are almost never lined up', 'The planets are actually in a different order', 'The planets really do sit in a straight line', 'The diagram should show the planets in a circle around Earth'], 'Each planet travels around the Sun at its own speed, so at any moment they are scattered around their orbits.'),
+
+    C('sc7-why-divide', 'SC7', 'Why divide?', 'To find your age on another planet, you divide your age by the length of that planet’s year. Why?', ['You are working out how many of that planet’s years fit into your age', 'Dividing always gives a smaller, neater number', 'Other planets spin more slowly', 'You multiply for planets further from the Sun'], 'Your age on Earth counts Earth years. Dividing by a planet’s year length tells you how many times that planet has gone around the Sun in the same time.'),
+    C('sc7-age-on-venus', 'SC7', 'Age on Venus', 'A Venus year is about 0.62 Earth years. How old is a 13-year-old in Venus years, to the nearest year?', ['21', '20', '8', '13'], '13 ÷ 0.62 = 20.97, which rounds up to 21. Rounding to the nearest year means 20.97 is closer to 21 than to 20.', { calc: true }),
+    C('sc7-age-on-saturn-in-months', 'SC7', 'Age on Saturn in months', 'A Saturn year is about 29.4 Earth years. How old is a 12-year-old in Saturn years, to the nearest month?', ['5 months', '4 months', '2 years and 5 months', '353 years'], '12 ÷ 29.4 = 0.41 of a Saturn year. 0.41 × 12 months = 4.9, which rounds to 5 months.', { calc: true }),
+    C('sc7-bigger-or-smaller-age', 'SC7', 'Bigger or smaller age', 'Would your age be a bigger or smaller number on each planet? Sort them.', [], 'Planets closer to the Sun than Earth have shorter years, so you have had more of them. Planets further out have longer years, so you have had fewer.', { kind: 'sort',
+        bins: [['Bigger number', 'Year shorter than Earth’s'], ['Smaller number', 'Year longer than Earth’s']], tileCls: 'stile', poolCls: 'pool2',
+        items: [['Mercury', 0], ['Venus', 0], ['Mars', 1], ['Jupiter', 1], ['Saturn', 1], ['Neptune', 1]].map(([t, k]) => [sTile(t), k]),
+        instr: 'Drag each planet into a group, or tap a planet then a group. Press <b>Check</b>.',
+        ansHTML: '<p class="actext"><b>Bigger number:</b> Mercury, Venus.<br><b>Smaller number:</b> Mars, Jupiter, Saturn, Neptune.</p>' }),
+
+    C('sc8-packing-for-canada', 'SC8', 'Packing for Canada', 'In January, Priya flies from Brisbane to Canada, in the northern hemisphere. What should she pack?', ['Warm clothes, because Canada is having winter', 'Summer clothes, because it is summer everywhere in January', 'Summer clothes, because Canada is closer to the Sun', 'Raincoats only, because January is the wet season everywhere'], 'In January the southern hemisphere leans towards the Sun and the northern hemisphere leans away, so Canada is having winter.'),
+    C('sc8-seasons-near-the-equator', 'SC8', 'Seasons near the equator', 'Singapore is very close to the equator. Why does it have almost no difference between summer and winter?', ['The Sun stays high and day length stays close to 12 hours all year', 'It is always closest to the Sun', 'Earth’s tilt does not reach the equator', 'It is in both hemispheres at once'], 'As Earth orbits, the equator never leans much towards or away from the Sun. Its light angle and day length barely change, so its seasons are hardly different.'),
+
+    C('sc9-torch-on-paper', 'SC9', 'Torch on paper', 'You shine a torch straight down onto paper, then tilt the torch to a low angle. What happens to the patch of light?', ['It gets bigger and dimmer', 'It gets smaller and brighter', 'It stays the same size but gets brighter', 'It stays exactly the same'], 'The same light is spread over a bigger area, so each part of the paper gets less light. This is just like sunlight at a low angle.'),
+    C('sc9-solar-panels', 'SC9', 'Solar panels', 'Solar panels in Brisbane are usually tilted to face north. Why?', ['The Sun is in the northern part of our sky, so the light hits them more directly', 'North is the coldest direction', 'Panels only work when they face the equator at night', 'It stops rain from landing on them'], 'From Brisbane the Sun crosses the northern sky. Tilting panels towards it makes the light strike more squarely, giving higher light intensity and more electricity.'),
+    C('sc9-cold-poles', 'SC9', 'Cold poles', 'Why are the polar regions much colder than the equator?', ['Sunlight hits them at a low angle, so it spreads over a larger area', 'They are much further from the Sun', 'They never get any sunlight', 'The ice there reflects all of the Sun’s heat'], 'Near the poles the Sun stays low, so its energy is spread thinly. The difference in distance to the Sun is tiny compared with the effect of the angle.'),
+
+    C('sc10-closest-in-january', 'SC10', 'Closest in January', 'Earth is closest to the Sun in early January. Why isn’t it summer for the whole world then?', ['Seasons are caused by the tilt, not distance, so the north is having winter', 'Earth is not really closer in January', 'It is summer for the whole world in January', 'Being closer makes Earth colder'], 'Earth’s distance from the Sun changes only a little. The tilt decides which hemisphere gets direct light and long days, so the north has winter in January.'),
+    C('sc10-a-bigger-tilt', 'SC10', 'A bigger tilt', 'Imagine Earth’s axis was tilted much more than it is now. How would the seasons change?', ['Summers would be hotter and winters would be colder', 'There would be no seasons', 'The seasons would stay exactly the same', 'Every season would become summer'], 'A bigger tilt would make each hemisphere lean further towards and away from the Sun. The changes in light angle and day length would be bigger, so the seasons would be more extreme.'),
+    C('sc10-two-effects-of-the-tilt', 'SC10', 'Two effects of the tilt', 'Complete the explanation of how the tilt causes summer.', [], 'The tilt gives a hemisphere two things in summer: more direct sunlight and longer days.', { kind: 'cloze',
+        text: 'When a hemisphere tilts towards the Sun, sunlight hits it at a [] angle and its days are []. It has [].',
+        answers: ['higher', 'longer', 'summer'], bank: ['higher', 'lower', 'longer', 'shorter', 'summer', 'winter'],
+        instr: 'Drag or tap a word into each gap, then press <b>Check</b>.', backVis: earthSide({ tilt: 'dec' }),
+        ansHTML: '<p class="actext">When a hemisphere tilts towards the Sun, sunlight hits it at a <b>higher</b> angle and its days are <b>longer</b>. It has <b>summer</b>.</p>' }),
+
+    C('sc11-describing-sunrise', 'SC11', 'Describing sunrise', 'We say the Sun “rises”. Which description is scientifically accurate?', ['Earth turns towards the Sun, so the Sun appears above the eastern horizon', 'The Sun climbs up from behind Earth', 'The Sun orbits Earth and comes back each morning', 'The Sun gets brighter at dawn'], 'The Sun does not move up. Earth’s spin carries your horizon down past the Sun, so it looks like the Sun is rising.'),
+    C('sc11-perth-or-brisbane', 'SC11', 'Perth or Brisbane', 'Perth is about 3600 km west of Brisbane. Which city sees sunrise first?', ['Brisbane, because Earth spins towards the east', 'Perth, because it is further west', 'Both at the same time', 'It changes every day'], 'Earth spins from west to east, so places further east turn into the Sun’s light first. Perth sees sunrise about two to three hours after Brisbane.'),
+
+    C('sc12-night-in-london', 'SC12', 'Night in London', 'It is midday in Brisbane. Why is it night in London at the same moment?', ['London is on the half of Earth facing away from the Sun', 'The Sun is shining on the other side of the Moon', 'London is further from the Sun', 'London has night during the Australian summer'], 'Only one half of Earth faces the Sun at a time. London is almost on the opposite side of Earth from Brisbane, so it is in the dark half.'),
+    C('sc12-if-earth-stopped-spinning', 'SC12', 'If Earth stopped spinning', 'Imagine Earth stopped rotating but kept orbiting the Sun. What would happen to day and night?', ['Each place would have about six months of day, then six months of night', 'Nothing would change', 'It would be night everywhere forever', 'It would be day everywhere forever'], 'Day and night come from rotation. Without it, the side facing the Sun would only change slowly as Earth moved around its orbit over a year.'),
+
+    C('sc13-longest-summer-day', 'SC13', 'Longest summer day', 'It is December. Which of these Australian cities has the most daylight hours?', ['Hobart', 'Darwin', 'Brisbane', 'They all get exactly 12 hours'], 'In summer, places further from the equator have longer days. Hobart is the furthest south, so it has the longest days in December and the shortest in June.'),
+    C('sc13-moving-away-from-the-equator', 'SC13', 'Moving away from the equator', 'As you move further from the equator, what happens to the difference between summer and winter day lengths?', ['It gets bigger', 'It gets smaller', 'It stays the same', 'It disappears'], 'At the equator days stay close to 12 hours. Further towards the poles, summer days get longer and winter days get shorter, until there is 24-hour daylight or darkness.'),
+    C('sc13-the-equinox', 'SC13', 'The equinox', 'Around 20 March and 23 September, Earth’s tilt points neither towards nor away from the Sun. How much daylight do Brisbane and Hobart get?', ['About 12 hours each', 'Brisbane gets more', 'Hobart gets more', 'Neither gets any'], 'At an equinox the day and night halves split every line of latitude evenly. Almost every place on Earth gets about 12 hours of daylight.'),
+
+    C('sc14-summer-sunrise-and-sunset', 'SC14', 'Summer sunrise and sunset', 'Compared with winter, when does the Sun rise and set in Brisbane in summer?', ['It rises earlier and sets later', 'It rises later and sets earlier', 'It rises and sets at the same times', 'It rises earlier and sets earlier'], 'In summer Brisbane spends more of each spin in the lit half. The Sun rises earlier and sets later, giving more hours of daylight.'),
+    C('sc14-shortest-day-in-june', 'SC14', 'Shortest day in June', 'Around 21 June, Brisbane has its shortest day of the year. Why?', ['The southern hemisphere tilts furthest away from the Sun', 'Earth spins faster in June', 'The Sun gives off less light in June', 'The Moon blocks some sunlight in June'], 'At the June solstice the south leans furthest away from the Sun. Less of Brisbane’s path is in the light, so its day is the shortest.'),
+    C('sc14-explain-long-days', 'SC14', 'Explain long days', 'Complete the explanation of long summer days.', [], 'In summer the southern hemisphere leans towards the Sun, so places like Brisbane spend more of each 24-hour spin in the light.', { kind: 'cloze',
+        text: 'In summer, the southern hemisphere tilts [] the Sun. More of Brisbane’s path as Earth spins is in the [], so Brisbane gets [] hours of daylight.',
+        answers: ['towards', 'light', 'more'], bank: ['towards', 'away from', 'light', 'dark', 'more', 'fewer'],
+        instr: 'Drag or tap a word into each gap, then press <b>Check</b>.', backVis: earthSide({ tilt: 'dec', lat: true, bris: 'day' }),
+        ansHTML: '<p class="actext">In summer, the southern hemisphere tilts <b>towards</b> the Sun. More of Brisbane’s path as Earth spins is in the <b>light</b>, so Brisbane gets <b>more</b> hours of daylight.</p>' }),
+
+    C('sc15-after-the-longest-day', 'SC15', 'After the longest day', 'Brisbane’s longest day is in December, but January and February are often hotter. Why?', ['The land and ocean keep gaining heat for weeks after the longest day', 'Earth is closest to the Sun in February', 'The Sun gets hotter in February', 'Days keep getting longer until February'], 'Days are still long in January and February, so the land and ocean keep gaining more heat than they lose. Temperatures keep climbing until the shorter days finally tip the balance.'),
+    C('sc15-hottest-time-of-day', 'SC15', 'Hottest time of day', 'The Sun is highest around midday, but the hottest part of the day is usually mid-afternoon. Why?', ['The ground keeps gaining more heat than it loses until mid-afternoon', 'The Sun is closer to Earth in the afternoon', 'The Sun shines brighter after midday', 'Clouds always clear in the afternoon'], 'After midday the sunlight is still strong. The ground keeps building up heat until the Sun gets low enough that it starts losing heat faster than it gains it.'),
+    C('sc15-winter-in-hobart', 'SC15', 'Winter in Hobart', 'Hobart has fewer daylight hours than Brisbane in winter. What would you predict about Hobart’s winter temperatures?', ['Colder, because it has less time to warm up and a longer night to cool down', 'Warmer, because it is closer to Antarctica', 'The same, because both cities are in Australia', 'Warmer, because short days trap heat'], 'Fewer daylight hours means less time for the Sun to heat the ground and air, and a longer night for heat to escape. Hobart’s winters are much colder than Brisbane’s.'),
+
+    C('sc16-a-right-angle-moon', 'SC16', 'A right-angle Moon', 'The Moon is at right angles to the Sun, as seen from Earth. What would we see?', ['A quarter moon, with half of its face lit', 'A full moon', 'A new moon', 'A thin crescent moon'], 'From the side, we see half of the Moon’s sunlit half. That makes half of the face we see lit, which is a first or last quarter Moon.', { vis: lineup({ type: 'q1' }) }),
+    C('sc16-full-moon-rising', 'SC16', 'Full moon rising', 'A full moon rises in the east at about the same time as the Sun sets in the west. Why?', ['The full moon is on the opposite side of Earth from the Sun', 'The Moon follows the Sun around the sky', 'The Moon only shines after the Sun sets', 'The Sun pushes the Moon up as it sets'], 'At full moon, Earth is between the Sun and the Moon. As your part of Earth turns away from the Sun, it turns towards the Moon.'),
+    C('sc16-spot-the-waning-crescent', 'SC16', 'Spot the waning crescent', 'Seen from Brisbane, which picture shows a waning crescent Moon?', [moonPic(.875), moonPic(.125), moonPic(.625), moonPic(.75)], 'In the southern hemisphere a waning Moon is lit on the right. Crescent means less than half of it is lit.', { pic: true }),
+
+    C('sc17-half-always-lit', 'SC17', 'Half always lit', 'How much of the Moon is lit by the Sun during a new moon?', ['Half, but the lit half faces away from Earth', 'None of it', 'All of it', 'Only a thin sliver'], 'The Sun always lights half of the Moon. At new moon that lit half faces the Sun, so the side facing us is dark.'),
+    C('sc17-not-earths-shadow', 'SC17', 'Not Earth’s shadow', 'Alex says the phases happen because Earth’s shadow covers part of the Moon. Which fact shows Alex is wrong?', ['Earth’s shadow only reaches the Moon during a lunar eclipse, which is rare', 'The Moon makes its own light', 'Earth does not have a shadow', 'The phases only happen during the day'], 'The phases change every night of the month, but Earth’s shadow only falls on the Moon during a lunar eclipse. Phases come from our changing view of the Moon’s lit half.'),
+    C('sc17-phases-after-a-full-moon', 'SC17', 'Phases after a full moon', 'It is a full moon. Put the phases in the order they appear from Brisbane over the next two weeks.', [], 'After a full moon the lit part shrinks from the left, leaving the right side lit: waning gibbous, last quarter, waning crescent, then new moon about 15 days later.', { kind: 'order', seq: [.625, .75, .875, 0], cols: 4, tile: mTile, tileCls: 'mtile', poolCls: 'pool4',
+        slotLab: ['Day 4', 'Day 7', 'Day 11', 'Day 15'],
+        ordTop: `<svg viewBox="-34 -34 68 68" class="mini">${moonG(.5, 30)}</svg><span>Day 0: full moon</span><i></i><span>Two weeks later</span>`,
+        instr: 'Drag or tap each Moon into place, then press <b>Check</b>.',
+        ansHTML: `<div class="arow">${[[.625, 'Waning gibbous'], [.75, 'Last quarter'], [.875, 'Waning crescent'], [0, 'New moon']].map(([p, n]) => `<span class="ai am">${mTile(p)}<small>${n}</small></span>`).join('')}</div>` }),
+
+    C('sc18-tides-run-late', 'SC18', 'Tides run late', 'High tide at a beach comes about 50 minutes later each day. Why?', ['The Moon moves along its orbit, so Earth must turn a little further to face it again', 'Earth slows down a little every day', 'The ocean takes longer to fill each day', 'The Sun pulls the tide back by 50 minutes'], 'In the 24 hours Earth takes to spin once, the Moon moves a little further along its orbit. Earth needs about 50 extra minutes to catch up to the same tidal bulge.'),
+    C('sc18-why-the-moon-wins', 'SC18', 'Why the Moon wins', 'The Sun has far more mass than the Moon. Why does the Moon have a bigger effect on our tides?', ['The Moon is much closer to Earth', 'The Moon has more gravity than the Sun', 'The Sun has no gravity', 'The Moon is made of water'], 'Gravity gets weaker with distance. The Moon is about 400 times closer than the Sun, so its effect on the oceans is roughly twice as strong as the Sun’s.'),
+
+    C('sc19-planning-a-reef-walk', 'SC19', 'Planning a reef walk', 'A class wants the lowest possible low tide for a reef walk. Which phases should they plan around?', ['New moon or full moon', 'First quarter or last quarter', 'Waxing crescent only', 'Any phase, because the tides are always the same'], 'Spring tides happen at new and full moon. They have the biggest tidal range, so the high tides are highest and the low tides are lowest.'),
+    C('sc19-how-often-spring-tides', 'SC19', 'How often spring tides', 'About how often do spring tides happen?', ['About every two weeks', 'About once a year', 'Every day', 'About once a month'], 'Spring tides happen at both new moon and full moon. These are about two weeks apart, so there are two sets of spring tides each lunar month.'),
+    C('sc19-spring-and-neap', 'SC19', 'Spring and neap', 'Complete the comparison of spring and neap tides.', [], 'When the Sun and Moon pull in line, their pulls add together. When they pull at right angles, they partly cancel out.', { kind: 'cloze',
+        text: 'At new and full moon, the Sun and Moon pull in a [] line, giving [] tides with a large range. At the quarter phases they pull at [] angles, giving [] tides with a small range.',
+        answers: ['straight', 'spring', 'right', 'neap'], bank: ['straight', 'curved', 'spring', 'neap', 'right', 'equal'],
+        instr: 'Drag or tap a word into each gap, then press <b>Check</b>.',
+        ansHTML: '<p class="actext">At new and full moon, the Sun and Moon pull in a <b>straight</b> line, giving <b>spring</b> tides with a large range. At the quarter phases they pull at <b>right</b> angles, giving <b>neap</b> tides with a small range.</p>' }),
+
+    C('sc20-just-a-few-minutes', 'SC20', 'Just a few minutes', 'A total solar eclipse lasts only a few minutes in any one place. Why?', ['The Moon’s small shadow moves quickly across Earth’s surface', 'The Sun moves out of the way', 'Clouds always form during an eclipse', 'The Moon stops for a few minutes, then moves on'], 'The darkest part of the Moon’s shadow is small when it reaches Earth. As the Moon orbits and Earth spins, the shadow races across the surface.'),
+    C('sc20-a-perfect-fit', 'SC20', 'A perfect fit', 'The Sun is about 400 times wider than the Moon. How can the Moon cover the whole Sun?', ['The Sun is also about 400 times further away, so they look the same size', 'The Moon gets bigger during an eclipse', 'The Sun shrinks during an eclipse', 'The Moon only covers the middle of the Sun'], 'Objects look smaller when they are further away. The Sun’s extra size and extra distance balance out, so from Earth the Sun and Moon appear almost the same size.'),
+
+    C('sc21-who-can-see-it', 'SC21', 'Who can see it?', 'Who on Earth can see a total lunar eclipse?', ['Anyone on the night side of Earth', 'Only people in a narrow strip of Earth', 'Only people on the equator', 'Only people in the daytime'], 'During a lunar eclipse the Moon itself goes dark. Anyone who can see the Moon in their night sky can watch it.'),
+    C('sc21-safe-to-watch', 'SC21', 'Safe to watch', 'Why is it safe to watch a lunar eclipse without eclipse glasses?', ['You are looking at the Moon, which only reflects dim sunlight', 'The Sun turns off during a lunar eclipse', 'It is only safe for a few seconds', 'Earth’s shadow blocks harmful light from your eyes'], 'In a lunar eclipse you look at the Moon, not the Sun. Moonlight is sunlight reflected off the Moon, and it is far too dim to harm your eyes.'),
+
+    C('sc22-which-lasts-longer', 'SC22', 'Which lasts longer?', 'A total lunar eclipse can last over an hour, but a total solar eclipse lasts only minutes. Why?', ['Earth’s shadow is much bigger than the Moon’s, so the Moon takes longer to cross it', 'The Moon moves more slowly at full moon', 'The Sun is dimmer during a lunar eclipse', 'Lunar eclipses happen at night, when time passes slowly'], 'Earth is much bigger than the Moon, so its shadow is much wider. The Moon takes over an hour to travel through it.'),
+    C('sc22-sort-the-eclipses', 'SC22', 'Sort the eclipses', 'Does each statement describe a solar eclipse or a lunar eclipse? Sort them.', [], 'In a solar eclipse the Moon is in the middle and blocks the Sun. In a lunar eclipse Earth is in the middle and its shadow falls on the Moon.', { kind: 'sort',
+        bins: [['Solar eclipse', 'Moon blocks the Sun'], ['Lunar eclipse', 'Moon in Earth’s shadow']], tileCls: 'stile', poolCls: 'pool2',
+        items: [['Happens at new moon', 0], ['Moon in the middle', 0], ['Seen from a narrow strip', 0], ['Needs eye protection', 0], ['Happens at full moon', 1], ['Earth in the middle', 1], ['Seen from the night side', 1], ['Moon can look red', 1]].map(([t, k]) => [sTile(t), k]),
+        instr: 'Drag each statement into a group, or tap a statement then a group. Press <b>Check</b>.',
+        ansHTML: '<p class="actext"><b>Solar eclipse:</b> new moon, Moon in the middle, seen from a narrow strip, needs eye protection.<br><b>Lunar eclipse:</b> full moon, Earth in the middle, seen from the night side, Moon can look red.</p>' })
 ];
 const scNum = s => +s.slice(2);
 const nb = t => t.replace(/(\d) (cm|mm|m|km|AU|days|hours|years|months|year|month)\b/g, '$1\u00a0$2').replace(/(\d)-year-old/g, '$1\u2011year\u2011old').replace(/(\d) 700/g, '$1\u00a0700').replace(/ = /g, '\u00a0= ');
@@ -1200,6 +1317,65 @@ const RELEASED_IDS = [
     'sc1-planets-in-order', 'sc16-waxing-or-waning', 'sc17-phases-after-a-new-moon',
     'sc18-tap-a-high-tide', 'sc22-comparing-eclipses', 'sc9-angle-and-intensity',
     'sc12-next-place-into-night', 'sc12-spin-earth-west-to-east',
+    /* additional cards (October 2026) */
+    'sc1-which-mnemonic-fails',
+    'sc1-two-m-planets',
+    'sc2-the-flat-disc',
+    'sc2-most-of-the-mass',
+    'sc2-order-the-formation',
+    'sc3-ball-on-a-string',
+    'sc3-why-astronauts-float',
+    'sc4-is-a-comet-a-satellite',
+    'sc4-passing-the-moon',
+    'sc4-satellite-or-not',
+    'sc5-scaling-the-sun',
+    'sc5-finding-the-scale',
+    'sc5-placing-neptune',
+    'sc6-glued-in-place',
+    'sc6-why-use-models',
+    'sc6-planets-in-a-line',
+    'sc7-why-divide',
+    'sc7-age-on-venus',
+    'sc7-age-on-saturn-in-months',
+    'sc7-bigger-or-smaller-age',
+    'sc8-packing-for-canada',
+    'sc8-seasons-near-the-equator',
+    'sc9-torch-on-paper',
+    'sc9-solar-panels',
+    'sc9-cold-poles',
+    'sc10-closest-in-january',
+    'sc10-a-bigger-tilt',
+    'sc10-two-effects-of-the-tilt',
+    'sc11-describing-sunrise',
+    'sc11-perth-or-brisbane',
+    'sc12-night-in-london',
+    'sc12-if-earth-stopped-spinning',
+    'sc13-longest-summer-day',
+    'sc13-moving-away-from-the-equator',
+    'sc13-the-equinox',
+    'sc14-summer-sunrise-and-sunset',
+    'sc14-shortest-day-in-june',
+    'sc14-explain-long-days',
+    'sc15-after-the-longest-day',
+    'sc15-hottest-time-of-day',
+    'sc15-winter-in-hobart',
+    'sc16-a-right-angle-moon',
+    'sc16-full-moon-rising',
+    'sc16-spot-the-waning-crescent',
+    'sc17-half-always-lit',
+    'sc17-not-earths-shadow',
+    'sc17-phases-after-a-full-moon',
+    'sc18-tides-run-late',
+    'sc18-why-the-moon-wins',
+    'sc19-planning-a-reef-walk',
+    'sc19-how-often-spring-tides',
+    'sc19-spring-and-neap',
+    'sc20-just-a-few-minutes',
+    'sc20-a-perfect-fit',
+    'sc21-who-can-see-it',
+    'sc21-safe-to-watch',
+    'sc22-which-lasts-longer',
+    'sc22-sort-the-eclipses',
 ];
 /* IDs of cards that have been deleted. Keep them here (and in RELEASED_IDS) so they are never reused. */
 const RETIRED_IDS = [];
@@ -1535,10 +1711,10 @@ const KIND = {
         const kz = front.querySelector('.kz');
         kz.innerHTML = `<div class="bins">${c.bins.map((b, i) => `<div class="bin${i ? '' : ' pk'}"><h3>${b[0]}</h3><div class="sub">${b[1]}</div><div class="area"></div></div>`).join('')}</div>`;
         const bins = [...kz.querySelectorAll('.bin')];
-        const pool = el('div', 'pool pool3'); col.appendChild(pool);
+        const pool = el('div', 'pool ' + (c.poolCls || 'pool3')); col.appendChild(pool);
         const zones = bins.map((b, i) => ({ el: b, box: b.querySelector('.area'), cap: Infinity, key: i }));
         const D = dnd({ el: pool, box: pool }, zones, () => S.refresh && S.refresh());
-        shuffle(c.items).forEach(([html, k]) => pool.appendChild(D.tile(html, k, 'mtile')));
+        shuffle(c.items).forEach(([html, k]) => pool.appendChild(D.tile(html, k, c.tileCls || 'mtile')));
         return {
             ready: () => !pool.querySelector('.tile'),
             check() {
