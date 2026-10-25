@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Science practice exam B: Earth and Space and Physics</title>
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="%231b1f45"/><path d="M15 31 L27 43 L49 19" fill="none" stroke="%23ea008a" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><rect x="12" y="52" width="40" height="5" rx="2.5" fill="%23fff" opacity=".25"/><rect x="12" y="52" width="26" height="5" rx="2.5" fill="%23fff"/></svg>'>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+    :root {
+        --navy: #1b1f45; --pink: #ea008a; --grey: #9a9a9a; --ink2: #4a4e70; --rule: #d7dae2; --tint: #f3f4f8; --pinkT: rgba(234,0,138,.07);
+        --font: 'Helvetica Neue', Helvetica, Arial, sans-serif; --ease: cubic-bezier(.2,.8,.2,1);
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html { scroll-padding-top: 96px; }
+    body { margin: 0; font-family: var(--font); color: var(--navy); background: #e8e9ee; font-size: 18px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+    button { font-family: inherit; }
+    :focus-visible { outline: 3px solid var(--pink); outline-offset: 2px; }
+    @keyframes pop { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+
+    /* top bar */
+    .bar { position: sticky; top: 0; z-index: 20; background: #fff; border-bottom: 2px solid var(--navy); }
+    .bar-in { max-width: 1000px; margin: 0 auto; padding: 12px 28px; display: flex; align-items: center; gap: 14px; }
+    .bar-t { font-weight: 800; font-size: 17px; letter-spacing: -.01em; }
+    .bar-p { font-size: 15px; font-weight: 600; color: var(--grey); margin-left: auto; margin-right: 6px; white-space: nowrap; }
+    .bar-p b { color: var(--navy); }
+    .prog { position: absolute; left: 0; bottom: -2px; height: 4px; background: var(--pink); width: 0; transition: width .5s var(--ease); }
+    .btn { font-size: 16px; font-weight: 700; border-radius: 6px; padding: 9px 18px; cursor: pointer; border: 2px solid var(--navy); background: #fff; color: var(--navy); white-space: nowrap; transition: background-color .2s, color .2s, border-color .2s, opacity .2s; }
+    .btn:hover { background: var(--tint); }
+    .btn.pk { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .btn.pk:hover { background: #c90076; border-color: #c90076; }
+    .btn.sm { font-size: 15px; padding: 6px 14px; }
+    .btn.inv { background: transparent; border-color: #fff; color: #fff; }
+    .btn.inv:hover { background: rgba(255,255,255,.12); }
+    .btn:disabled { opacity: .45; cursor: default; }
+
+    /* sheet */
+    .sheet { max-width: 1000px; margin: 28px auto 60px; background: #fff; padding: 0 48px 48px; border-top: 12px solid var(--navy); }
+    .head { display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; padding: 30px 0 20px; border-bottom: 4px solid var(--navy); }
+    h1 { margin: 0; font-size: 42px; line-height: 1; font-weight: 800; letter-spacing: -.025em; }
+    h1 span { color: var(--pink); }
+    .sub { margin: 10px 0 0; font-size: 16px; font-weight: 600; color: var(--grey); }
+    .who { display: grid; grid-template-columns: auto 190px; gap: 10px 12px; align-items: end; flex-shrink: 0; }
+    .who label { font-weight: 800; font-size: 16px; }
+    .who input { width: 100%; font: inherit; font-size: 18px; font-weight: 700; color: var(--pink); border: 0; border-bottom: 2px solid var(--navy); padding: 2px 2px 3px; background: none; outline: none; border-radius: 0; }
+    .who input:focus { border-bottom-color: var(--pink); background: var(--pinkT); }
+
+    .intro { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin: 22px 0 0; border-bottom: 2px solid var(--rule); }
+    .intro div { padding: 0 20px 18px 0; font-size: 16px; font-weight: 500; line-height: 1.4; }
+    .intro div + div { padding-left: 20px; border-left: 2px solid var(--rule); }
+    .intro b { display: block; font-size: 17px; font-weight: 800; margin-bottom: 2px; }
+    .intro em { font-style: normal; color: var(--pink); font-weight: 700; }
+
+    /* banner after submitting */
+    .banner { margin: 24px 0 0; background: var(--navy); color: #fff; border-radius: 8px; padding: 22px 26px; display: grid; grid-template-columns: 1fr auto; gap: 18px 28px; align-items: center; animation: pop .4s var(--ease); }
+    .banner h3 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -.01em; }
+    .banner p { margin: 6px 0 0; font-size: 16px; font-weight: 500; opacity: .85; max-width: 560px; }
+    .banner .acts { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+    .scores { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 2px solid rgba(255,255,255,.2); padding-top: 14px; }
+    .scores div { font-size: 15px; font-weight: 600; opacity: .9; }
+    .scores div + div { padding-left: 18px; border-left: 2px solid rgba(255,255,255,.2); }
+    .scores b { display: block; font-size: 30px; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; }
+    .scores b span { color: #ff7fc8; }
+
+    /* sections */
+    .sec { display: flex; align-items: baseline; gap: 16px; margin: 46px 0 0; padding-bottom: 12px; border-bottom: 4px solid var(--navy); }
+    .sec h2 { margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; }
+    .sec h2 span { color: var(--pink); }
+    .sec p { margin: 0 0 0 auto; font-size: 16px; font-weight: 700; color: var(--grey); white-space: nowrap; }
+    .top { display: flex; align-items: center; gap: 14px; margin: 30px 0 0; padding-bottom: 10px; border-bottom: 2px solid var(--rule); font-size: 21px; font-weight: 800; letter-spacing: -.01em; }
+    .chip { background: var(--navy); color: #fff; font-size: 15px; font-weight: 800; padding: 4px 10px; border-radius: 4px; flex-shrink: 0; }
+    .chip.pk { background: var(--pink); }
+    .top small { font-size: 15px; font-weight: 600; color: var(--grey); margin-left: auto; }
+
+    /* questions */
+    .q { display: grid; grid-template-columns: 40px 1fr; gap: 0 16px; padding: 24px 0; border-bottom: 2px solid var(--rule); }
+    .qn { width: 36px; height: 36px; border-radius: 50%; background: var(--navy); color: #fff; font-weight: 800; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: background-color .25s; }
+    .q.answered .qn { background: var(--pink); }
+    body.rev .q .qn { background: var(--navy); }
+    body.rev .q.wrong .qn { background: var(--pink); }
+    .qb { min-width: 0; }
+    .qt { font-size: 18px; font-weight: 700; line-height: 1.4; margin: 5px 0 14px; }
+    .qt .mk { font-size: 15px; font-weight: 600; color: var(--grey); white-space: nowrap; margin-left: 8px; }
+    .qt .pt { display: block; margin-top: 6px; font-weight: 500; }
+    .fx { display: inline-flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 0 0 14px; padding: 8px 14px 8px 8px; border: 2px solid var(--navy); border-radius: 6px; font-size: 16.5px; font-weight: 700; }
+    .fx .chip { font-size: 13px; padding: 3px 8px; }
+    .fig { border: 2px solid var(--rule); border-radius: 8px; padding: 10px 12px; margin: 0 0 14px; max-width: 640px; }
+    .fig svg { display: block; width: 100%; height: auto; }
+
+    .opts { display: grid; gap: 8px; }
+    .opts.two { grid-template-columns: 1fr 1fr; }
+    .opt { display: grid; grid-template-columns: 30px 1fr auto; gap: 12px; align-items: center; width: 100%; text-align: left; font-size: 17px; font-weight: 500; line-height: 1.35; color: var(--navy); background: #fff; border: 2px solid var(--rule); border-radius: 8px; padding: 10px 14px; cursor: pointer; transition: border-color .2s, background-color .2s; }
+    .opt:hover { border-color: var(--navy); }
+    .opt .L { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--navy); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; transition: background-color .2s, border-color .2s, color .2s; }
+    .opt[aria-checked="true"] { border-color: var(--pink); background: var(--pinkT); }
+    .opt[aria-checked="true"] .L { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .opt .tag { font-size: 14px; font-weight: 800; white-space: nowrap; }
+
+    textarea { display: block; width: 100%; font: inherit; font-size: 17px; font-weight: 500; color: var(--pink); line-height: 1.5; border: 2px solid var(--rule); border-radius: 6px; padding: 10px 12px; resize: none; outline: none; overflow: hidden; background: #fff; min-height: 150px; }
+    textarea:focus { border-color: var(--pink); }
+    ::placeholder { color: #b9bccb; font-weight: 500; opacity: 1; }
+
+    /* review: multiple choice */
+    body.rev .opt { cursor: default; }
+    body.rev .opt:hover { border-color: var(--rule); }
+    body.rev .opt[aria-checked="true"] { border-color: var(--rule); background: #fff; }
+    body.rev .opt[aria-checked="true"] .L { background: #fff; border-color: var(--navy); color: var(--navy); }
+    body.rev .opt.ok, body.rev .opt.ok:hover { border-color: var(--navy); background: var(--tint); }
+    body.rev .opt.ok .L { background: var(--navy); border-color: var(--navy); color: #fff; }
+    body.rev .opt.bad, body.rev .opt.bad:hover { border-color: var(--pink); background: var(--pinkT); }
+    body.rev .opt.bad .L { background: #fff; border-color: var(--pink); color: var(--pink); }
+    .opt.ok .tag { color: var(--navy); }
+    .opt.bad .tag { color: var(--pink); }
+    .rv { margin-top: 14px; border-left: 6px solid var(--navy); background: var(--tint); padding: 12px 16px 14px; animation: pop .35s var(--ease); }
+    .rv.no { border-left-color: var(--pink); }
+    .vd { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 17px; font-weight: 800; }
+    .vd .chip { font-size: 13px; padding: 2px 8px; }
+    .vd small { font-size: 15px; font-weight: 600; color: var(--grey); }
+    .rv p { margin: 6px 0 0; font-size: 16.5px; font-weight: 500; }
+
+    /* review: short response */
+    body.rev textarea { border-style: dashed; background: #fff; cursor: default; }
+    .model { margin-top: 16px; border: 3px solid var(--navy); border-radius: 8px; padding: 14px 18px 16px; animation: pop .35s var(--ease); }
+    .model h4, .marking h4 { margin: 0; font-size: 17px; font-weight: 800; }
+    .model p { margin: 6px 0 0; font-size: 16.5px; font-weight: 500; line-height: 1.5; }
+    .caveat { display: flex; gap: 10px; align-items: flex-start; margin: 12px 0 0; padding-top: 10px; border-top: 1.5px solid var(--rule); font-size: 15px; font-weight: 600; color: var(--ink2); }
+    .caveat svg { width: 20px; height: 20px; flex-shrink: 0; margin-top: 1px; }
+    .marking { margin-top: 16px; animation: pop .35s var(--ease); }
+    .mhead { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; border-bottom: 2px solid var(--navy); padding-bottom: 8px; }
+    .mhead span { font-size: 15px; font-weight: 600; color: var(--grey); }
+    .mhead b { margin-left: auto; font-size: 20px; font-weight: 800; color: var(--pink); white-space: nowrap; }
+    .ck { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: none; border: 0; border-bottom: 1.5px solid var(--rule); padding: 10px 2px; font-size: 16px; font-weight: 600; color: var(--navy); cursor: pointer; line-height: 1.35; }
+    .ck .box { width: 24px; height: 24px; border: 2px solid var(--navy); border-radius: 5px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: background-color .2s, border-color .2s; }
+    .ck .box svg { width: 16px; height: 16px; opacity: 0; transition: opacity .2s; }
+    .ck[aria-pressed="true"] .box { background: var(--pink); border-color: var(--pink); }
+    .ck[aria-pressed="true"] .box svg { opacity: 1; }
+    .ck:hover { background: var(--tint); }
+    .ck .sc { font-size: 13px; font-weight: 800; color: var(--pink); width: 40px; flex-shrink: 0; }
+    .nonerow { display: flex; align-items: center; gap: 12px; margin-top: 10px; font-size: 15px; font-weight: 600; color: var(--grey); }
+    .btn[aria-pressed="true"] { background: var(--navy); color: #fff; }
+
+    /* results overview */
+    .res { margin-top: 46px; }
+    .rt { margin-top: 26px; }
+    .rth { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding-bottom: 10px; border-bottom: 4px solid var(--navy); }
+    .rth h3 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -.01em; }
+    .rth .sc2 { margin-left: auto; text-align: right; font-size: 15px; font-weight: 600; color: var(--grey); }
+    .rth .sc2 b { display: block; font-size: 30px; font-weight: 800; color: var(--pink); letter-spacing: -.02em; line-height: 1; }
+    .tw { overflow-x: auto; }
+    .ovt { width: 100%; border-collapse: collapse; font-size: 15.5px; min-width: 640px; }
+    .ovt th { text-align: left; font-size: 14px; font-weight: 800; color: var(--grey); padding: 10px 10px 6px 0; border-bottom: 2px solid var(--navy); }
+    .ovt td { padding: 8px 10px 8px 0; border-bottom: 1.5px solid var(--rule); vertical-align: middle; }
+    .ovt tr.lg td { background: var(--tint); font-weight: 600; font-size: 14.5px; padding: 8px 10px; }
+    .ovt tr.lg b { font-weight: 800; margin-right: 6px; }
+    .ovt .c { font-weight: 800; color: var(--pink); white-space: nowrap; }
+    .ovt .qs { font-size: 14px; font-weight: 700; color: var(--grey); white-space: nowrap; }
+    .ovt .m { font-weight: 800; white-space: nowrap; text-align: right; }
+    .pbar { width: 90px; height: 10px; border-radius: 5px; background: var(--tint); overflow: hidden; box-shadow: inset 0 0 0 1.5px var(--rule); }
+    .pbar i { display: block; height: 100%; background: var(--navy); transition: width .4s var(--ease); }
+    .pbar.w i { background: var(--pink); }
+    .st { display: inline-block; font-size: 13px; font-weight: 800; padding: 3px 9px; border-radius: 999px; border: 2px solid var(--navy); white-space: nowrap; }
+    .st.s { background: var(--navy); color: #fff; }
+    .st.d { background: #fff; color: var(--navy); }
+    .st.w { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .legend { display: flex; gap: 10px 18px; flex-wrap: wrap; align-items: center; margin-top: 12px; font-size: 14px; font-weight: 600; color: var(--grey); }
+
+    .fin { margin-top: 40px; display: flex; align-items: center; justify-content: space-between; gap: 20px; background: var(--navy); color: #fff; padding: 22px 26px; border-radius: 8px; }
+    .fin p { margin: 0; font-size: 18px; font-weight: 700; }
+    .fin small { display: block; font-size: 15px; font-weight: 500; opacity: .75; margin-top: 2px; }
+
+    /* modal */
+    .ov { position: fixed; inset: 0; background: rgba(27,31,69,.55); display: none; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
+    .ov.show { display: flex; }
+    .md { background: #fff; border-top: 8px solid var(--pink); border-radius: 8px; max-width: 520px; width: 100%; padding: 26px 30px 28px; animation: pop .35s var(--ease); }
+    .md h3 { margin: 0 0 8px; font-size: 24px; font-weight: 800; letter-spacing: -.01em; }
+    .md p { margin: 0; font-size: 17px; font-weight: 500; }
+    .md .acts { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; flex-wrap: wrap; }
+
+    /* done screen */
+    .done { position: fixed; inset: 0; background: #fff; z-index: 60; display: none; overflow: auto; border-top: 12px solid var(--navy); }
+    .done.show { display: block; }
+    .done-in { max-width: 760px; margin: 0 auto; padding: 64px 28px 48px; animation: pop .45s var(--ease); }
+    .tick { width: 76px; height: 76px; }
+    .tick circle { fill: var(--pink); }
+    .tick path { fill: none; stroke: #fff; stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 60; stroke-dashoffset: 60; }
+    .done.show .tick path { animation: draw .5s .25s var(--ease) forwards; }
+    .done h2 { margin: 22px 0 6px; font-size: 44px; font-weight: 800; letter-spacing: -.025em; line-height: 1.05; }
+    .done h2 span { color: var(--pink); }
+    .done .lead { font-size: 19px; font-weight: 500; margin: 0 0 30px; }
+    .steps { list-style: none; margin: 0; padding: 0; border-top: 4px solid var(--navy); }
+    .steps li { display: grid; grid-template-columns: 56px 1fr; gap: 16px; padding: 18px 0; border-bottom: 2px solid var(--rule); }
+    .steps .n { width: 44px; height: 44px; border-radius: 50%; background: var(--navy); color: #fff; font-weight: 800; font-size: 21px; display: flex; align-items: center; justify-content: center; }
+    .steps li:last-child .n { background: var(--pink); }
+    .steps strong { display: block; font-size: 20px; font-weight: 800; }
+    .steps span { display: block; font-size: 17px; font-weight: 500; margin-top: 2px; }
+    .file { display: inline-flex; align-items: center; gap: 10px; margin-top: 10px; border: 2px solid var(--navy); border-radius: 6px; padding: 7px 14px 7px 10px; font-size: 16px; font-weight: 700; word-break: break-all; }
+    .file svg { width: 22px; height: 26px; flex-shrink: 0; }
+    .dacts { display: flex; gap: 10px; margin-top: 30px; flex-wrap: wrap; }
+
+    @media (max-width: 820px) {
+        .sheet { padding: 0 20px 32px; margin-top: 16px; }
+        .head { flex-direction: column; align-items: flex-start; }
+        h1 { font-size: 34px; }
+        .intro, .scores { grid-template-columns: 1fr; }
+        .intro div + div, .scores div + div { padding-left: 0; border-left: 0; }
+        .opts.two { grid-template-columns: 1fr; }
+        .banner { grid-template-columns: 1fr; }
+        .banner .acts { justify-content: flex-start; }
+        .sec { flex-wrap: wrap; }
+        .sec p { margin-left: 0; }
+        .bar-t { display: none; }
+        .fin { flex-direction: column; align-items: flex-start; }
+        .q { grid-template-columns: 1fr; }
+        .qn { margin-bottom: 8px; }
+    }
+</style>
+</head>
+<body>
+
+<div class="bar">
+    <div class="bar-in">
+        <div class="bar-t">Practice exam</div>
+        <div class="bar-p" id="count"></div>
+        <button class="btn pk" id="actTop">Submit answers</button>
+    </div>
+    <div class="prog" id="prog"></div>
+</div>
+
+<main class="sheet">
+    <div class="head">
+        <div>
+            <h1>Science <span>practice exam B</span></h1>
+            <p class="sub">Earth and Space | Physics: forces and simple machines</p>
+        </div>
+        <div class="who">
+            <label for="name">Name</label><input id="name" autocomplete="off">
+            <label for="date">Date</label><input id="date" autocomplete="off">
+        </div>
+    </div>
+
+    <div class="intro" id="intro">
+        <div><b>Section A</b>32 multiple choice questions, 1 mark each.</div>
+        <div><b>Section B</b>8 short response questions. Answer in full sentences and show your working.</div>
+        <div><b>Changing your mind</b>Scroll back and change any answer as often as you like. <em>Answers are only revealed after you submit.</em></div>
+    </div>
+
+    <div class="banner" id="banner" hidden>
+        <div>
+            <h3>Answers submitted</h3>
+            <p>Read the feedback on each question. Then mark your short responses in Section B against the marking points before you export your PDF.</p>
+        </div>
+        <div class="acts">
+            <button class="btn inv sm" id="goB">Mark Section B</button>
+            <button class="btn inv sm" id="goRes">See results overview</button>
+        </div>
+        <div class="scores" id="scores"></div>
+    </div>
+
+    <div id="paper"></div>
+
+    <section class="res" id="results" hidden></section>
+
+    <div class="fin">
+        <p id="finP"></p>
+        <button class="btn pk" id="actBottom">Submit answers</button>
+    </div>
+</main>
+
+<div class="ov" id="ov" role="dialog" aria-modal="true" aria-labelledby="mdh">
+    <div class="md"><h3 id="mdh"></h3><p id="mdp"></p><div class="acts" id="mda"></div></div>
+</div>
+
+<div class="done" id="done" role="dialog" aria-modal="true" aria-labelledby="doneh">
+    <div class="done-in">
+        <svg class="tick" viewBox="0 0 76 76"><circle cx="38" cy="38" r="38"/><path d="M22 39 L33 50 L55 27"/></svg>
+        <h2 id="doneh">PDF saved. Now <span>upload it to Stile.</span></h2>
+        <p class="lead">Your practice exam is not handed in until the PDF is in the Stile lesson.</p>
+        <ol class="steps">
+            <li><div class="n">1</div><div><strong>Find your PDF</strong><span>It saved to your Downloads folder.</span><div class="file"><svg viewBox="0 0 22 26"><path d="M2 1 H14 L20 7 V25 H2 Z" fill="#fff" stroke="#1b1f45" stroke-width="2" stroke-linejoin="round"/><rect x="0" y="13" width="17" height="8" fill="#ea008a"/><text x="8.5" y="19.4" fill="#fff" font-size="6" font-weight="800" text-anchor="middle" font-family="Helvetica, Arial, sans-serif">PDF</text></svg><span id="fname"></span></div></div></li>
+            <li><div class="n">2</div><div><strong>Go back to the Stile lesson</strong><span>Scroll to the Practice Exam question.</span></div></li>
+            <li><div class="n">3</div><div><strong>Upload your PDF</strong><span>Add the file, then open it to check it worked.</span></div></li>
+            <li><div class="n">4</div><div><strong>Check your results overview</strong><span>Pages 1 and 2 of your PDF show how you went on every SC in Earth and Space and Physics. Start your revision with any SC marked <b>Work on this</b>.</span></div></li>
+        </ol>
+        <div class="dacts">
+            <button class="btn" id="again">Download again</button>
+            <button class="btn" id="back">Back to my exam</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const NV = '#1b1f45', PK = '#ea008a', GR = '#c9ccd6', FONT = 'Helvetica Neue, Helvetica, Arial, sans-serif';
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const TITLE = 'Science practice exam B';
+const TN = { E: 'Earth and Space', P: 'Physics' };
+const TSUB = { E: 'The Sun, Earth and Moon', P: 'Forces and simple machines' };
+const TEACHER = 'Mr Buckley';
+
+/* =========================================================
+   SUCCESS CRITERIA
+   ========================================================= */
+const LGS = {
+    E: [
+        { id: 'LG1', t: 'The relative positions of the Earth, Sun and Moon can be represented within models of the Solar System', sc: ['SC1', 'SC2', 'SC3', 'SC4', 'SC5', 'SC6', 'SC7'] },
+        { id: 'LG2', t: 'Seasons are a predictable phenomenon on Earth caused by the relative positions of the Sun and Earth', sc: ['SC8', 'SC9', 'SC10'] },
+        { id: 'LG3', t: 'Day-night cycles are a predictable phenomenon on Earth caused by the relative positions of the Sun, Moon and Earth', sc: ['SC11', 'SC12', 'SC13', 'SC14', 'SC15'] },
+        { id: 'LG4', t: 'Moon phases and tides are a predictable phenomenon caused by the relative positions of the Sun, Moon and Earth', sc: ['SC16', 'SC17', 'SC18', 'SC19'] },
+        { id: 'LG5', t: 'Eclipses are a predictable phenomenon caused by the relative positions of the Sun, Moon and Earth', sc: ['SC20', 'SC21', 'SC22'] }
+    ],
+    P: [
+        { id: 'LG1', t: 'To investigate common types of contact and non-contact forces', sc: ['SC1', 'SC2'] },
+        { id: 'LG2', t: 'To investigate balanced and unbalanced forces acting on objects', sc: ['SC3', 'SC4', 'SC5', 'SC6'] },
+        { id: 'LG3', t: 'To investigate common forces and simple machines', sc: ['SC7', 'SC8', 'SC9', 'SC10', 'SC11', 'SC12', 'SC13', 'SC14'] },
+        { id: 'LG4', t: 'To investigate changes to an object due to gravitational force', sc: ['SC15', 'SC16', 'SC17'] }
+    ]
+};
+const SCT = {
+    E: {
+        SC1: 'I can create a mnemonic to remember the order of planets in the Solar System',
+        SC2: 'I can describe the role of gravity in the formation of the Solar System',
+        SC3: 'I can explain how gravity keeps planets and moons in their orbits',
+        SC4: 'I can evaluate whether objects in space are satellites',
+        SC5: 'I can calculate the sizes and distances of planets to build scale models of the Solar System',
+        SC6: 'I can explain some limitations of models of the Solar System',
+        SC7: 'I can calculate my age on other planets and round to the nearest year or month',
+        SC8: 'I can explain why the northern and southern hemispheres experience seasons at different times',
+        SC9: 'I can describe the relationship between light intensity and light angle',
+        SC10: 'I can explain the impact of the Earth’s tilt on the seasons',
+        SC11: 'I can describe what causes sunrise on Earth',
+        SC12: 'I can explain how day and night occur on Earth',
+        SC13: 'I can describe how my location on Earth affects the number of daylight hours I experience',
+        SC14: 'I can explain why summer has longer daylight hours than winter',
+        SC15: 'I can describe the relationship between the number of daylight hours and temperature',
+        SC16: 'I can determine the phase of the Moon based on the positions of the Sun, Earth and Moon',
+        SC17: 'I can describe what causes the phases of the Moon to change each month',
+        SC18: 'I can describe how the Moon produces tides on Earth',
+        SC19: 'I can explain how tides change with the phases of the Moon',
+        SC20: 'I can describe how solar eclipses occur',
+        SC21: 'I can describe how lunar eclipses occur',
+        SC22: 'I can compare the positions of the Sun, Earth and Moon during solar and lunar eclipses'
+    },
+    P: {
+        SC1: 'I can define what forces are',
+        SC2: 'I can classify different types of forces as either contact or non-contact',
+        SC3: 'I can identify whether forces acting upon an object are balanced or unbalanced',
+        SC4: 'I can analyse forces using force arrow diagrams',
+        SC5: 'I can recognise that changes to an object’s motion are caused by unbalanced forces',
+        SC6: 'I can identify the effect of applying different forces to an object',
+        SC7: 'I can recognise the beneficial and unwanted effects of friction',
+        SC8: 'I can define the term ‘simple machine’',
+        SC9: 'I can identify the advantages of simple machines',
+        SC10: 'I can describe the relationship between angle of inclination and effort force',
+        SC11: 'I can compare the efficiency of different simple machines',
+        SC12: 'I can recognise the fulcrum, resistance arm and effort arm of different levers',
+        SC13: 'I can contrast force multipliers and speed multipliers',
+        SC14: 'I can calculate the net force acting on an object',
+        SC15: 'I can explain why objects fall due to gravitational force',
+        SC16: 'I can explain the difference between mass and weight',
+        SC17: 'I can compare the effect of gravity on objects on the Earth’s surface and on other planets'
+    }
+};
+
+/* =========================================================
+   QUESTIONS
+   mc: o = options, a = index of correct option, x = feedback
+   sr: pts = marking points (1 mark each, tagged to an SC), model = model response
+   ========================================================= */
+const MC = (t, sc, q, o, a, x, fig) => ({ type: 'mc', t, sc, q, o, a, x, fig });
+const SR = (t, q, pts, model, fig, ph) => ({ type: 'sr', t, q, pts: pts.map(([sc, tx]) => ({ sc, t: tx })), model, fig, ph });
+
+const QS = [
+    /* ---------- Section A: Earth and Space ---------- */
+    MC('E', 'SC1', 'Which list shows the planets in the correct order, starting with the planet furthest from the Sun?',
+        ['Neptune, Uranus, Jupiter, Saturn, Mars, Earth, Venus, Mercury', 'Neptune, Uranus, Saturn, Jupiter, Mars, Earth, Venus, Mercury', 'Uranus, Neptune, Saturn, Jupiter, Mars, Earth, Venus, Mercury', 'Neptune, Uranus, Saturn, Jupiter, Earth, Mars, Venus, Mercury'], 1,
+        'From the Sun the order is Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune. Starting from the furthest planet simply reverses it.'),
+    MC('E', 'SC2', 'Which force was mainly responsible for forming the Sun and planets from a huge cloud of gas and dust?',
+        ['Friction', 'Magnetic force', 'Gravity', 'Air resistance'], 2,
+        'Gravity pulled the gas and dust together. Most of it collected in the centre to form the Sun, and leftover material clumped together to form the planets.'),
+    MC('E', 'SC4', 'A space probe flies past Jupiter and keeps travelling out of the Solar System. Is it a satellite?',
+        ['Yes, because it is a human-made object in space', 'Yes, because it passed close to a planet', 'No, because only natural objects can be satellites', 'No, because it is not orbiting a larger object'], 3,
+        'A satellite must orbit a larger object. The probe passes Jupiter and leaves, so it is not orbiting anything. Satellites can be natural, like the Moon, or artificial, like weather satellites.'),
+    MC('E', 'SC5', 'In a scale model, 1 cm stands for 1000 km. Earth is about 12 700 km wide. How wide should the model Earth be?',
+        ['1.27 cm', '12.7 cm', '127 cm', '12 700 cm'], 1,
+        '12 700 km ÷ 1000 km per cm = 12.7 cm.'),
+    MC('E', 'SC6', 'A poster shows all eight planets lined up in a straight row out from the Sun. Which is a limitation of this model?',
+        ['The planets are almost never lined up like this, because they orbit at different speeds', 'The planets should be shown in a different order', 'Posters cannot show the Sun', 'The planets should all be drawn the same size'], 0,
+        'Each planet orbits the Sun at its own speed, so they are spread around their orbits rather than in a neat line. Models simplify things to make them easier to show.'),
+    MC('E', 'SC9', 'In winter, the midday Sun is lower in the sky than in summer. Why is winter sunlight less intense?',
+        ['The Sun gives off less light in winter', 'Earth is much further from the Sun in winter', 'Low-angle sunlight spreads the same energy over a bigger area', 'Clouds always block winter sunlight'], 2,
+        'When light arrives at a low angle, the same energy is spread over a bigger area of ground, so each part receives less. The higher the angle, the more intense the light.'),
+    MC('E', 'SC10', 'What would happen to the seasons if Earth’s axis had no tilt?',
+        ['The seasons would be much stronger', 'There would be almost no seasons, because each hemisphere would get the same sunlight all year', 'Both hemispheres would have summer at the same time', 'Days would always be 24 hours long everywhere'], 1,
+        'Seasons happen because the tilt makes each hemisphere lean towards the Sun for part of the year. Without a tilt, the angle of sunlight and day length would barely change through the year.'),
+    MC('E', 'SC11', 'The diagram shows Earth from above the North Pole, rotating in the direction of the arrow. Which location is about to have sunrise?',
+        ['Location 1', 'Location 2', 'Location 3', 'Location 4'], 0,
+        'Location 1 is being carried by Earth’s rotation from the night side into the Sun’s light, so it is about to have sunrise. Location 3 is moving into darkness, so it is about to have sunset.', 'daynight'),
+    MC('E', 'SC12', 'At the same moment, it is daytime in Brisbane and night-time in London. Why?',
+        ['The Sun moves around Earth, lighting one city at a time', 'Earth rotates, and only the half facing the Sun is in daylight', 'London is further from the Sun than Brisbane', 'Earth orbits the Sun once every day'], 1,
+        'Earth rotates on its axis about once every 24 hours. Only the half facing the Sun has day, so places on opposite sides of Earth have day and night at different times.'),
+    MC('E', 'SC13', 'The graph shows the daylight hours on 21 June in four Australian cities. Which statement best describes the pattern?',
+        ['All four cities get the same number of daylight hours', 'Cities further north get fewer daylight hours in June', 'Daylight hours depend on the size of the city', 'Cities further south get fewer daylight hours in June'], 3,
+        'In June the southern hemisphere tilts away from the Sun. The further south a city is, the more of each rotation it spends in darkness, so Hobart has the shortest days.', 'latitude'),
+    MC('E', 'SC14', 'In summer, the southern hemisphere is tilted towards the Sun. How does this give Brisbane longer days?',
+        ['Brisbane spends more of each rotation on the sunlit side of Earth', 'Earth spins more slowly in summer', 'The Sun is closer to Brisbane, so its light reaches further', 'The Moon reflects extra light onto Brisbane in summer'], 0,
+        'With the southern hemisphere tilted towards the Sun, more of Brisbane’s path around Earth’s axis is in the lit half, so it spends more hours in daylight.'),
+    MC('E', 'SC16', 'The diagram shows four positions of the Moon in its orbit. At which position would we see a full moon?',
+        ['Position 1', 'Position 2', 'Position 3', 'Position 4'], 2,
+        'At position 3 Earth is between the Sun and the Moon, so the whole sunlit half of the Moon faces Earth. Position 1 would be a new moon.', 'phases'),
+    MC('E', 'SC17', 'Why does the Moon look full about two weeks after a new moon?',
+        ['Earth’s shadow has moved off the Moon', 'The Moon has moved halfway around its orbit, so its whole sunlit half faces Earth', 'The Moon has moved much closer to Earth', 'The Sun shines more brightly on the Moon at that time'], 1,
+        'The Sun always lights half of the Moon. Over two weeks the Moon travels halfway around Earth, so the side facing us changes from fully dark to fully lit.'),
+    MC('E', 'SC20', 'During a total solar eclipse, the sky goes dark in the middle of the day. Why?',
+        ['Earth blocks sunlight from reaching the Moon', 'The Sun briefly stops giving off light', 'The Moon blocks sunlight from reaching part of Earth', 'Earth rotates to face away from the Sun'], 2,
+        'In a solar eclipse the Moon passes directly between the Sun and Earth. Its shadow falls on part of Earth, blocking the Sun’s light there.'),
+    MC('E', 'SC21', 'Which event does the diagram show?',
+        ['A solar eclipse', 'A new moon', 'A neap tide', 'A lunar eclipse'], 3,
+        'Earth is between the Sun and the Moon, and the Moon is inside Earth’s shadow. This is a lunar eclipse, which can only happen at full moon.', 'eclipse'),
+    MC('E', 'SC22', 'Which statement correctly compares solar and lunar eclipses?',
+        ['In a solar eclipse Earth is in the middle; in a lunar eclipse the Moon is in the middle', 'In a solar eclipse the Moon is in the middle; in a lunar eclipse Earth is in the middle', 'In both eclipses the Sun is in the middle', 'Neither eclipse needs the Sun, Earth and Moon to line up'], 1,
+        'Both eclipses need a straight line-up. In a solar eclipse the Moon blocks the Sun from Earth. In a lunar eclipse Earth blocks the Sun from the Moon.'),
+
+    /* ---------- Section A: Physics ---------- */
+    MC('P', 'SC1', 'Which of these is an example of a force?',
+        ['The temperature of a cup of tea', 'A magnet pulling a paperclip', 'The mass of a book', 'The length of a ruler'], 1,
+        'A force is a push or a pull. The magnet pulls the paperclip. Temperature, mass and length are measurements, not forces.'),
+    MC('P', 'SC2', 'Which of these is a contact force?',
+        ['Gravity', 'Magnetic force', 'Electrostatic force', 'Friction'], 3,
+        'Friction only acts when two surfaces touch, so it is a contact force. Gravity, magnetic force and electrostatic force can act across a gap.'),
+    MC('P', 'SC3', 'A car travels along a straight highway at a constant 100 km/h. Which statement is correct?',
+        ['The driving force is bigger than friction and air resistance', 'No forces act on the car', 'The driving force equals friction and air resistance, so the forces are balanced', 'Gravity pushes the car forwards'], 2,
+        'A steady speed in a straight line means the motion is not changing, so the forces must be balanced. The driving force matches the forces pushing back.'),
+    MC('P', 'SC4', 'The force arrow diagram shows a skydiver just after she jumps. What does it tell you?',
+        ['The forces are balanced, so she falls at a steady speed', 'The forces are unbalanced, so she speeds up as she falls', 'Air resistance is bigger than gravity, so she slows down', 'Gravity has stopped acting on her'], 1,
+        'The gravity arrow is much longer than the air resistance arrow, so the forces are unbalanced downwards. An unbalanced force changes motion, so she speeds up.', 'skydiver'),
+    MC('P', 'SC5', 'A hockey puck slides across smooth ice and barely slows down. Why?',
+        ['There is very little friction, so there is almost no unbalanced force to change its motion', 'The hit stored a force inside the puck', 'The ice pushes the puck forwards', 'Gravity pulls the puck along the ice'], 0,
+        'Motion only changes when there is an unbalanced force. Smooth ice gives very little friction, so almost nothing acts to slow the puck down.'),
+    MC('P', 'SC6', 'Two identical boxes sit on the same floor. Box A is pushed with 40 N and box B is pushed with 80 N. What happens?',
+        ['Box A speeds up more', 'Both boxes speed up by the same amount', 'Box B slows down', 'Box B speeds up more'], 3,
+        'The boxes have the same mass, so a bigger force has a bigger effect. The 80 N push makes box B speed up more.'),
+    MC('P', 'SC7', 'Which of these is an unwanted effect of friction?',
+        ['Shoes gripping the ground when you walk', 'A pencil leaving a mark on paper', 'Car tyres wearing down over time', 'A match lighting when it is struck'], 2,
+        'Tyres wearing down is damage caused by friction, so it is unwanted. Walking, writing and lighting a match all rely on friction.'),
+    MC('P', 'SC8', 'Which of these is not a simple machine?',
+        ['An electric drill', 'A ramp (inclined plane)', 'A lever', 'A pulley'], 0,
+        'Simple machines are basic devices with few or no moving parts, such as ramps, levers, pulleys, wedges, screws and wheels and axles. An electric drill is a complex machine with a motor.'),
+    MC('P', 'SC9', 'A screwdriver acts as a wheel and axle. What is the main advantage of its wide handle?',
+        ['It makes the screw lighter', 'A small force on the wide handle makes a bigger turning force on the screw', 'It removes all friction', 'It lets the screw turn without any force'], 1,
+        'Turning the wide handle multiplies your force at the narrow tip, so a smaller effort turns a tight screw. Simple machines make work easier but do not remove the need for force.'),
+    MC('P', 'SC10', 'A ramp’s angle is increased from 20° to 40°. What happens to the effort force needed to push a box up it?',
+        ['It decreases', 'It stays the same', 'It increases, but the box travels a shorter distance', 'It increases, and the box travels a longer distance'], 2,
+        'A steeper ramp needs a bigger effort force. The trade-off is that the box travels a shorter distance to reach the same height.'),
+    MC('P', 'SC11', 'Machine A lifts a 400 N load with an effort of 100 N. Machine B lifts the same load with an effort of 200 N. Which is more efficient?',
+        ['Machine B, at 200%', 'Machine B, at 50%', 'They are equally efficient', 'Machine A, at 400%'], 3,
+        'Machine A: 400 ÷ 100 × 100 = 400%. Machine B: 400 ÷ 200 × 100 = 200%. Machine A needs less effort, so it is more efficient.'),
+    MC('P', 'SC12', 'Which label shows the resistance arm of the wheelbarrow?',
+        ['Label 1', 'Label 2', 'Label 3', 'Label 4'], 1,
+        'The resistance arm runs from the fulcrum (the wheel) to the load, so it is label 2. Label 1 is the fulcrum, label 3 is the effort arm and label 4 is the effort force.', 'wheelbarrow'),
+    MC('P', 'SC13', 'Which of these levers is a force multiplier?',
+        ['A fishing rod', 'Tweezers', 'A bottle opener', 'A broom'], 2,
+        'A bottle opener has a long effort arm and a short resistance arm, so a small effort makes a bigger force. Fishing rods, tweezers and brooms are speed multipliers.'),
+    MC('P', 'SC14', 'A boat’s engine pushes it forwards with 600 N. Water resistance (250 N) and wind (100 N) push backwards. What is the net force on the boat?',
+        ['950 N forwards', '350 N forwards', '250 N forwards', '450 N backwards'], 2,
+        'Add the backward forces: 250 N + 100 N = 350 N. Subtract from the forward force: 600 N − 350 N = 250 N forwards.'),
+    MC('P', 'SC16', 'Ella says, “My weight is 45 kg.” What is wrong with this?',
+        ['45 kg is her mass; weight is a force measured in newtons', 'Nothing, weight is measured in kilograms', 'Weight is measured in metres', '45 kg is too heavy to be a weight'], 0,
+        'Kilograms measure mass, the amount of matter in an object. Weight is the force of gravity on that mass, so it is measured in newtons. Ella’s weight is about 441 N.'),
+    MC('P', 'SC17', 'Gravity on Mars is weaker than on Earth. A 10 kg box is taken from Earth to Mars. What happens?',
+        ['Its mass and weight both decrease', 'Its mass decreases but its weight stays the same', 'Nothing changes', 'Its mass stays the same but its weight decreases'], 3,
+        'Mass is the amount of matter, so it stays 10 kg everywhere. Weight depends on the strength of gravity, so the box weighs less on Mars.'),
+
+    /* ---------- Section B: Earth and Space ---------- */
+    SR('E', 'The International Space Station (ISS) travels around Earth about every 90 minutes. (a) Explain how gravity keeps the ISS in orbit. (b) Is the ISS a satellite? Is a rocket during launch a satellite? Justify both answers.',
+        [['SC3', 'Earth’s gravity pulls the ISS towards the centre of Earth'],
+         ['SC3', 'The ISS moves sideways very fast, so the pull bends its path into a curved orbit'],
+         ['SC4', 'The ISS is a satellite, because it orbits a larger object (Earth)'],
+         ['SC4', 'A rocket during launch is not a satellite, because it is not orbiting anything yet']],
+        '(a) Earth’s gravity pulls the ISS towards the centre of Earth. The ISS is also moving sideways very fast, so instead of falling straight down, gravity bends its path into a curved orbit and it keeps falling around Earth. (b) The ISS is a satellite, because it orbits a larger object, Earth. A rocket during launch is not a satellite, because it is not orbiting anything yet.',
+        null, '(a) ...\n(b) ...'),
+    SR('E', 'Mia is 13 Earth years old. A year on Venus is 0.62 Earth years and a year on Jupiter is 11.9 Earth years. (a) Calculate Mia’s age on Venus, rounded to the nearest year. (b) Calculate Mia’s age on Jupiter, rounded to the nearest month. Show your working.',
+        [['SC7', 'Venus working: 13 ÷ 0.62 = 20.97'],
+         ['SC7', 'Rounds to 21 Venus years'],
+         ['SC7', 'Jupiter working: 13 ÷ 11.9 = 1.09'],
+         ['SC7', 'Converts to months: 0.09 × 12 = 1.1, so 1 year and 1 month']],
+        '(a) 13 ÷ 0.62 = 20.97, so Mia is about 21 Venus years old. (b) 13 ÷ 11.9 = 1.09 Jupiter years. 0.09 × 12 = 1.1 months, so Mia is about 1 Jupiter year and 1 month old.',
+        null, '(a) ...\n(b) ...'),
+    SR('E', 'In December, Brisbane is in summer while London is in winter. (a) Explain why the northern and southern hemispheres have their seasons at different times. (b) Brisbane has about 13.8 daylight hours in December and 10.4 in June. Describe how this helps explain why December is warmer.',
+        [['SC8', 'Earth’s axis is tilted'],
+         ['SC8', 'In December the southern hemisphere tilts towards the Sun while the northern hemisphere tilts away (and this swaps in June)'],
+         ['SC15', 'More daylight hours means the Sun heats the ground and air for longer each day'],
+         ['SC15', 'Shorter nights mean less time to cool down, so temperatures are higher']],
+        '(a) Earth’s axis is tilted. In December the southern hemisphere tilts towards the Sun and has summer, while the northern hemisphere tilts away and has winter. Six months later, on the other side of the orbit, this swaps. (b) In December Brisbane has more daylight hours, so the Sun heats the ground and air for longer each day. The nights are also shorter, so there is less time for heat to escape. This makes December warmer than June.',
+        null, '(a) ...\n(b) ...'),
+    SR('E', 'Explain how the Moon produces tides on Earth. Then explain why the difference between high and low tide is bigger at new moon and full moon than at a quarter moon.',
+        [['SC18', 'The Moon’s gravity pulls the oceans into a bulge facing the Moon (and one on the far side)'],
+         ['SC18', 'As Earth rotates, places pass through the bulges, giving two high and two low tides each day'],
+         ['SC19', 'At new and full moon the Sun, Earth and Moon line up, so the Sun’s pull adds to the Moon’s (spring tides)'],
+         ['SC19', 'At quarter moons the Sun and Moon pull at right angles, so the range is smaller (neap tides)']],
+        'The Moon’s gravity pulls on Earth’s oceans, making the water bulge towards the Moon, with a second bulge on the opposite side of Earth. As Earth rotates, a beach passes through both bulges, giving two high tides and two low tides each day. At new moon and full moon, the Sun, Earth and Moon line up, so the Sun’s pull adds to the Moon’s. These spring tides have the biggest tidal range. At quarter moons, the Sun and Moon pull at right angles, giving neap tides with the smallest range.'),
+
+    /* ---------- Section B: Physics ---------- */
+    SR('P', 'A student kicks a soccer ball, and it flies through the air before landing. (a) Define a force. (b) Name one contact force and one non-contact force acting on the ball while it is in the air, and explain why each is classified that way.',
+        [['SC1', 'A force is a push or a pull (measured in newtons)'],
+         ['SC2', 'Contact force: air resistance, because the air touches the ball as it moves'],
+         ['SC2', 'Non-contact force: gravity, because Earth pulls the ball without touching it']],
+        '(a) A force is a push or a pull on an object, measured in newtons (N). (b) Air resistance is a contact force, because the air must touch the ball to push against it. Gravity is a non-contact force, because Earth pulls the ball down without touching it.',
+        null, '(a) ...\n(b) ...'),
+    SR('P', 'In a tug of war, Team A pulls the rope to the left with 450 N and Team B pulls to the right with 380 N. (a) Calculate the net force on the rope and give its direction. (b) Describe how force arrows would show these two forces. (c) Explain what happens to the rope.',
+        [['SC14', 'Net force: 450 − 380 = 70 N'],
+         ['SC14', 'Direction: to the left, towards Team A'],
+         ['SC4', 'Arrows point in opposite directions, with Team A’s arrow longer'],
+         ['SC5', 'The forces are unbalanced, so the rope speeds up towards Team A']],
+        '(a) net force = 450 N − 380 N = 70 N to the left, towards Team A. (b) Draw one arrow pointing left and one pointing right from the rope. Team A’s arrow should be longer, because 450 N is a bigger force than 380 N. (c) The forces are unbalanced, so the rope speeds up towards Team A.',
+        null, '(a) ...\n(b) ...\n(c) ...'),
+    SR('P', 'Removalists need to move a heavy washing machine into the back of a truck. (a) Define a simple machine. (b) Explain one advantage of using a ramp instead of lifting the washing machine straight up. (c) Describe how the angle of the ramp affects the effort force, including the trade-off.',
+        [['SC8', 'A simple machine is a basic device that changes the size or direction of a force'],
+         ['SC9', 'A ramp reduces the effort force needed'],
+         ['SC10', 'A smaller angle of inclination needs less effort force'],
+         ['SC10', 'Trade-off: the load must be pushed a longer distance']],
+        '(a) A simple machine is a basic device that changes the size or direction of a force. (b) A ramp means the removalists need a smaller effort force than lifting the washing machine straight up. (c) The lower the angle of the ramp, the smaller the effort force needed. The trade-off is that the washing machine must be pushed a longer distance up the ramp.',
+        null, '(a) ...\n(b) ...\n(c) ...'),
+    SR('P', 'An astronaut takes a 2 kg rock from Earth to Jupiter. Gravity on Earth is 9.8 m/s² and on Jupiter is 24.8 m/s². (a) Calculate the rock’s weight on Earth and on Jupiter. Show your working. (b) Does the rock’s mass change on Jupiter? Explain. (c) Explain why the rock falls when it is dropped, and how its fall on Jupiter would be different.',
+        [['SC16', 'Weight on Earth: 2 × 9.8 = 19.6 N'],
+         ['SC17', 'Weight on Jupiter: 2 × 24.8 = 49.6 N'],
+         ['SC16', 'Mass stays 2 kg, because the amount of matter does not change'],
+         ['SC15', 'Gravity pulls the rock down and nothing balances it, so it falls and speeds up'],
+         ['SC17', 'Jupiter’s stronger gravity makes the rock speed up faster, so it lands sooner']],
+        '(a) Earth: 2 kg × 9.8 m/s² = 19.6 N. Jupiter: 2 kg × 24.8 m/s² = 49.6 N. (b) The mass stays 2 kg, because the amount of matter in the rock does not change. Only the pull of gravity changes. (c) Gravity pulls the rock down and nothing balances it, so it falls and speeds up. Jupiter’s gravity is stronger, so the rock would speed up faster and hit the ground sooner.',
+        null, '(a) ...\n(b) ...\n(c) ...')
+];
+
+QS.forEach((q, i) => { q.n = i + 1; if (q.type === 'sr') q.m = q.pts.length; });
+/* formulas given with the question */
+const F_EFF = 'efficiency = force without simple machine ÷ force with simple machine × 100';
+const F_WT = 'weight (N) = mass (kg) × gravity (m/s²)';
+const F_NET = 'net force = forces in one direction − forces in the opposite direction';
+const FX = {
+    4: ['model size (cm) = real size (km) ÷ km per cm'],
+    27: [F_EFF],
+    30: [F_NET],
+    34: ['age on a planet = age in Earth years ÷ length of that planet’s year in Earth years', 'months = decimal part of the age × 12'],
+    38: [F_NET],
+    40: [F_WT]
+};
+QS.forEach(q => { if (FX[q.n]) q.fx = FX[q.n]; });
+const MCQ = QS.filter(q => q.type === 'mc'), SRQ = QS.filter(q => q.type === 'sr');
+const MAX = { E: 0, P: 0 }; QS.forEach(q => MAX[q.t] += q.type === 'mc' ? 1 : q.m);
+
+/* =========================================================
+   FIGURES (SVG, shared by the page and the PDF)
+   ========================================================= */
+const f1 = v => (+v).toFixed(1), rad = d => d * Math.PI / 180;
+const wrapSvg = (w, h, inner) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" font-family="${FONT}">${inner}</svg>`;
+const txt = (x, y, s, o = {}) => `<text x="${f1(x)}" y="${f1(y)}" font-size="${o.fs || 16}" font-weight="${o.fw || 800}" fill="${o.c || NV}" text-anchor="${o.a || 'start'}">${s}</text>`;
+const lab = (x, y, L, c = NV) => `<circle cx="${f1(x)}" cy="${f1(y)}" r="15" fill="${c}"/><text x="${f1(x)}" y="${f1(y + 6)}" font-size="17" font-weight="800" fill="#fff" text-anchor="middle">${L}</text>`;
+function arrow(x, y, ang, len, c = PK, sw = 6) {
+    const hl = Math.min(18, len), hw = 10, ux = Math.cos(ang), uy = Math.sin(ang), ex = x + ux * len, ey = y + uy * len, bx = ex - ux * hl, by = ey - uy * hl, px = -uy * hw, py = ux * hw;
+    return (len > hl ? `<line x1="${f1(x)}" y1="${f1(y)}" x2="${f1(bx)}" y2="${f1(by)}" stroke="${c}" stroke-width="${sw}"/>` : '') +
+        `<polygon points="${f1(ex)},${f1(ey)} ${f1(bx + px)},${f1(by + py)} ${f1(bx - px)},${f1(by - py)}" fill="${c}" stroke="${c}" stroke-width="1.5" stroke-linejoin="round"/>`;
+}
+const R = 0, L = Math.PI, U = -Math.PI / 2, D = Math.PI / 2;
+/* globe lit on one side: side = 'r' or 'l' */
+function litGlobe(cx, cy, r, side) {
+    return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${NV}"/><path d="M${cx} ${cy - r} A${r} ${r} 0 0 ${side === 'r' ? 1 : 0} ${cx} ${cy + r} Z" fill="#dfe3f3"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${NV}" stroke-width="3"/>`;
+}
+
+const FIG = {
+    daynight: { w: 560, h: 300, f() {
+        const cx = 360, cy = 150, r = 95;
+        let s = `<circle cx="-30" cy="150" r="110" fill="${PK}"/>` + txt(18, 156, 'Sun', { c: '#fff', fs: 17 });
+        [90, 150, 210].forEach(y => s += arrow(100, y, R, 70, GR, 4));
+        s += txt(100, 62, 'Sunlight', { fs: 14, fw: 700, c: '#8a8ea8' });
+        s += litGlobe(cx, cy, r, 'l');
+        s += `<circle cx="${cx}" cy="${cy}" r="5" fill="${PK}"/>` + txt(cx + 10, cy + 22, 'North Pole', { fs: 13, fw: 700, c: '#fff' });
+        const a1 = rad(-25), a2 = rad(-62), rr = 120, p = a => [cx + rr * Math.cos(a), cy + rr * Math.sin(a)];
+        const [x1, y1] = p(a1), [x2, y2] = p(a2);
+        s += `<path d="M${f1(x1)} ${f1(y1)} A${rr} ${rr} 0 0 0 ${f1(x2)} ${f1(y2)}" fill="none" stroke="${NV}" stroke-width="4"/>`;
+        s += arrow(x2, y2, Math.atan2(-Math.cos(a2), Math.sin(a2)), 14, NV, 4);
+        [[0, -1, '1'], [-1, 0, '2'], [0, 1, '3'], [1, 0, '4']].forEach(([dx, dy, L]) => {
+            s += `<circle cx="${cx + dx * r}" cy="${cy + dy * r}" r="7" fill="${PK}" stroke="#fff" stroke-width="2.5"/>`;
+            s += lab(cx + dx * (r + 28), cy + dy * (r + 28) + (dy > 0 ? -4 : dy < 0 ? 4 : 0), L);
+        });
+        return wrapSvg(this.w, this.h, s);
+    } },
+    latitude: { w: 600, h: 250, f() {
+        const C = [['Darwin', 11.4], ['Brisbane', 10.4], ['Sydney', 9.9], ['Hobart', 9.0]];
+        let s = txt(150, 22, 'Daylight hours on 21 June', { fs: 15 });
+        s += `<line x1="150" y1="36" x2="150" y2="230" stroke="${GR}" stroke-width="2.5"/>`;
+        C.forEach(([c, v], i) => {
+            const y = 44 + i * 48, w = v / 12 * 380;
+            s += txt(140, y + 21, c, { a: 'end', fs: 15, fw: 700 });
+            s += `<rect x="150" y="${y}" width="${f1(w)}" height="30" fill="${NV}"/>` + txt(158 + w, y + 21, v.toFixed(1) + ' h', { fs: 14 });
+        });
+        s += arrow(28, 50, D, 160, PK, 4) + txt(28, 40, 'N', { a: 'middle', fs: 14, c: PK }) + txt(28, 236, 'S', { a: 'middle', fs: 14, c: PK });
+        return wrapSvg(this.w, this.h, s);
+    } },
+    phases: { w: 560, h: 320, f() {
+        const cx = 340, cy = 160, ro = 110;
+        let s = `<circle cx="-20" cy="160" r="92" fill="${PK}"/>` + txt(22, 166, 'Sun', { c: '#fff', fs: 17 });
+        [85, 160, 235].forEach(y => s += arrow(100, y, R, 60, GR, 4));
+        s += txt(100, 52, 'Sunlight', { fs: 14, fw: 700, c: '#8a8ea8' });
+        s += `<circle cx="${cx}" cy="${cy}" r="${ro}" fill="none" stroke="${GR}" stroke-width="2.5" stroke-dasharray="8 7"/>`;
+        s += litGlobe(cx, cy, 30, 'l') + txt(cx, cy + 50, 'Earth', { a: 'middle', fs: 15 });
+        [[-1, 0, '1'], [0, -1, '2'], [1, 0, '3'], [0, 1, '4']].forEach(([dx, dy, L]) => {
+            s += litGlobe(cx + dx * ro, cy + dy * ro, 16, 'l');
+            s += lab(cx + dx * (ro + 36), cy + dy * (ro + 34), L);
+        });
+        return wrapSvg(this.w, this.h, s);
+    } },
+    eclipse: { w: 620, h: 210, f() {
+        let s = `<polygon points="330,78 330,142 590,124 590,96" fill="#9aa0bd" opacity=".45"/>`;
+        s += `<circle cx="70" cy="105" r="62" fill="${PK}"/>` + txt(70, 111, 'Sun', { a: 'middle', c: '#fff', fs: 17 });
+        [80, 105, 130].forEach(y => s += arrow(150, y, R, 60, GR, 4));
+        s += litGlobe(330, 110, 32, 'l') + txt(330, 165, 'Earth', { a: 'middle', fs: 15 });
+        s += `<circle cx="520" cy="110" r="13" fill="#6b7096" stroke="${NV}" stroke-width="2.5"/>` + txt(520, 150, 'Moon', { a: 'middle', fs: 15 });
+        s += txt(610, 200, 'Not to scale', { a: 'end', fs: 12, fw: 600, c: '#8a8ea8' });
+        return wrapSvg(this.w, this.h, s);
+    } },
+    skydiver: { w: 460, h: 256, f() {
+        let s = `<g transform="translate(0 -72)"><circle cx="200" cy="140" r="14" fill="${NV}"/><rect x="186" y="158" width="28" height="44" rx="10" fill="${NV}"/>`;
+        s += `<line x1="188" y1="166" x2="160" y2="146" stroke="${NV}" stroke-width="8" stroke-linecap="round"/><line x1="212" y1="166" x2="240" y2="146" stroke="${NV}" stroke-width="8" stroke-linecap="round"/>`;
+        s += arrow(200, 122, U, 34) + txt(220, 104, 'Air resistance 200 N', { fs: 15 });
+        s += arrow(200, 206, D, 112) + txt(220, 276, 'Gravity 700 N', { fs: 15 }) + '</g>';
+        return wrapSvg(this.w, this.h, s);
+    } },
+    wheelbarrow: { w: 620, h: 240, f() {
+        let s = `<line x1="10" y1="226" x2="610" y2="226" stroke="${GR}" stroke-width="4"/>`;
+        s += `<line x1="200" y1="150" x2="200" y2="224" stroke="${NV}" stroke-width="6"/>`;
+        s += `<line x1="520" y1="150" x2="520" y2="190" stroke="${NV}" stroke-width="6"/>`;
+        s += `<circle cx="520" cy="190" r="34" fill="#c3c6d0" stroke="${NV}" stroke-width="4"/><circle cx="520" cy="190" r="5" fill="${NV}"/>`;
+        s += `<rect x="60" y="146" width="460" height="9" fill="${NV}"/>`;
+        s += `<rect x="380" y="104" width="90" height="42" fill="#8f99c9" stroke="${NV}" stroke-width="2.5"/>` + txt(425, 131, 'Load', { a: 'middle', fs: 15 });
+        s += arrow(70, 222, U, 64) + lab(100, 200, '4');
+        s += `<path d="M70 52 V40 H520 V52 M425 92 V80 H520 V92" fill="none" stroke="${NV}" stroke-width="2.5"/>`;
+        s += lab(295, 40, '3') + lab(472, 80, '2') + lab(572, 160, '1');
+        return wrapSvg(this.w, this.h, s);
+    } }
+};
+
+/* =========================================================
+   STATE
+   ========================================================= */
+const ans = {};          // mc: option index, sr: text
+const ticks = {};        // sr: Set of ticked marking point indexes
+const none = {};         // sr: "none of these" chosen
+let submitted = false, dirty = false, exported = false, lastDoc = null, FILE = 'Science-practice-exam-B.pdf';
+SRQ.forEach(q => { ticks[q.n] = new Set(); none[q.n] = false; });
+
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const isAnswered = q => q.type === 'mc' ? ans[q.n] != null : !!(ans[q.n] || '').trim();
+const markOf = q => q.type === 'mc' ? (ans[q.n] === q.a ? 1 : 0) : ticks[q.n].size;
+const maxOf = q => q.type === 'mc' ? 1 : q.m;
+const touched = q => ticks[q.n].size > 0 || none[q.n];
+
+/* =========================================================
+   RENDER THE PAPER
+   ========================================================= */
+const TICK_SVG = '<svg viewBox="0 0 16 16"><path d="M3 8.5 L6.5 12 L13 4.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function qHTML(q) {
+    const fig = (q.fx ? q.fx.map(f => `<div class="fx"><span class="chip pk">Formula</span>${esc(f)}</div>`).join('<br>') : '') + (q.fig ? `<div class="fig">${FIG[q.fig].f()}</div>` : '');
+    const mk = q.type === 'mc' ? '1 mark' : q.m + ' marks';
+    const parts = q.q.split(/(?<=\.)\s(?=\([abc]\)\s)/);
+    const qt = esc(parts[0]) + `<span class="mk">${mk}</span>` + parts.slice(1).map(p => `<span class="pt">${esc(p)}</span>`).join('');
+    let body;
+    if (q.type === 'mc') {
+        const two = q.o.every(o => o.length < 34);
+        body = `<div class="opts${two ? ' two' : ''}" role="radiogroup" aria-label="Question ${q.n} options">` +
+            q.o.map((o, i) => `<button type="button" class="opt" role="radio" aria-checked="false" data-i="${i}"><span class="L">${'ABCD'[i]}</span><span>${esc(o)}</span><span class="tag"></span></button>`).join('') + '</div>';
+    } else {
+        body = `<textarea rows="5" aria-label="Answer to question ${q.n}" placeholder="${esc(q.ph || 'Write your answer here.')}"></textarea>`;
+    }
+    return `<article class="q" id="q${q.n}" data-n="${q.n}"><div class="qn">${q.n}</div><div class="qb"><div class="qt">${qt}</div>${fig}${body}<div class="rvh"></div></div></article>`;
+}
+function renderPaper() {
+    let h = '';
+    const block = (type, t) => QS.filter(q => q.type === type && q.t === t);
+    h += `<div class="sec" id="secA"><h2>Section A: <span>Multiple choice</span></h2><p>32 marks</p></div>`;
+    ['E', 'P'].forEach(t => {
+        const qs = block('mc', t);
+        h += `<div class="top"><span class="chip${t === 'P' ? ' pk' : ''}">${TN[t]}</span>${TSUB[t]}<small>Questions ${qs[0].n} to ${qs[qs.length - 1].n}</small></div>`;
+        h += qs.map(qHTML).join('');
+    });
+    h += `<div class="sec" id="secB"><h2>Section B: <span>Short response</span></h2><p>32 marks</p></div>`;
+    ['E', 'P'].forEach(t => {
+        const qs = block('sr', t);
+        h += `<div class="top"><span class="chip${t === 'P' ? ' pk' : ''}">${TN[t]}</span>${TSUB[t]}<small>Questions ${qs[0].n} to ${qs[qs.length - 1].n}</small></div>`;
+        h += qs.map(qHTML).join('');
+    });
+    $('#paper').innerHTML = h;
+
+    $$('.q').forEach(el => {
+        const q = QS[+el.dataset.n - 1];
+        if (q.type === 'mc') {
+            $$('.opt', el).forEach(b => b.onclick = () => {
+                if (submitted) return;
+                const i = +b.dataset.i, off = ans[q.n] === i;
+                if (off) delete ans[q.n]; else ans[q.n] = i;
+                $$('.opt', el).forEach(x => x.setAttribute('aria-checked', String(!off && x === b)));
+                changed();
+            });
+        } else {
+            const ta = $('textarea', el);
+            ta.addEventListener('input', () => { if (submitted) return; ans[q.n] = ta.value; grow(ta); changed(); });
+        }
+    });
+}
+function grow(t) { if (!t.offsetParent) return; t.style.height = 'auto'; t.style.height = t.scrollHeight + 4 + 'px'; }
+window.addEventListener('resize', () => $$('textarea').forEach(grow));
+
+/* =========================================================
+   PROGRESS
+   ========================================================= */
+function changed() {
+    dirty = true; exported = false;
+    QS.forEach(q => $('#q' + q.n).classList.toggle('answered', isAnswered(q)));
+    if (!submitted) {
+        const n = QS.filter(isAnswered).length;
+        $('#count').innerHTML = `<b>${n}</b> of ${QS.length} answered`;
+        $('#prog').style.width = (n / QS.length * 100) + '%';
+    } else {
+        const T = totals();
+        $('#count').innerHTML = `Score <b>${T.all.e}</b> / ${T.all.p}`;
+        $('#prog').style.width = (T.all.e / T.all.p * 100) + '%';
+    }
+}
+
+/* =========================================================
+   SCORING
+   ========================================================= */
+function scBreakdown() {
+    const S = { E: {}, P: {} };
+    ['E', 'P'].forEach(t => LGS[t].forEach(l => l.sc.forEach(c => S[t][c] = { e: 0, p: 0, qs: [] })));
+    QS.forEach(q => {
+        if (q.type === 'mc') { const r = S[q.t][q.sc]; r.p++; r.e += markOf(q); r.qs.push(q.n); }
+        else q.pts.forEach((pt, i) => { const r = S[q.t][pt.sc]; r.p++; if (ticks[q.n].has(i)) r.e++; if (!r.qs.includes(q.n)) r.qs.push(q.n); });
+    });
+    return S;
+}
+function totals() {
+    const T = { E: { mc: 0, mcP: 0, sr: 0, srP: 0 }, P: { mc: 0, mcP: 0, sr: 0, srP: 0 } };
+    QS.forEach(q => { const o = T[q.t]; if (q.type === 'mc') { o.mc += markOf(q); o.mcP++; } else { o.sr += markOf(q); o.srP += q.m; } });
+    ['E', 'P'].forEach(t => { T[t].e = T[t].mc + T[t].sr; T[t].p = T[t].mcP + T[t].srP; });
+    T.all = { e: T.E.e + T.P.e, p: T.E.p + T.P.p };
+    return T;
+}
+const pct = (e, p) => p ? Math.round(e / p * 100) : 0;
+const status = r => { const v = r.e / r.p; return v >= .8 ? ['s', 'Secure'] : v >= .5 ? ['d', 'Developing'] : ['w', 'Work on this']; };
+
+/* =========================================================
+   SUBMIT AND REVIEW
+   ========================================================= */
+function modal(h, p, acts) {
+    $('#mdh').textContent = h; $('#mdp').innerHTML = p;
+    const a = $('#mda'); a.innerHTML = '';
+    acts.forEach(([t, cls, fn]) => { const b = document.createElement('button'); b.className = 'btn ' + cls; b.textContent = t; b.onclick = () => { closeModal(); fn && fn(); }; a.appendChild(b); });
+    $('#ov').classList.add('show'); a.lastChild.focus();
+}
+const closeModal = () => $('#ov').classList.remove('show');
+$('#ov').addEventListener('click', e => { if (e.target.id === 'ov') closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+function jumpTo(el, focusSel) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const f = focusSel && $(focusSel, el);
+    setTimeout(() => f && f.focus({ preventScroll: true }), 450);
+}
+function startSubmit() {
+    const left = QS.filter(q => !isAnswered(q));
+    if (left.length) {
+        modal(`${left.length} ${left.length === 1 ? 'question is' : 'questions are'} still blank`,
+            'You can go back and finish them, or submit now. Once you submit, the correct answers are shown.',
+            [['Go to next blank', '', () => jumpTo($('#q' + left[0].n), '.opt, textarea')], ['Submit anyway', 'pk', submit]]);
+        return;
+    }
+    modal('Submit your answers?', 'Check your answers first if you like. Once you submit, the correct answers are shown and you mark your short responses.',
+        [['Keep checking', ''], ['Submit', 'pk', submit]]);
+}
+function submit() {
+    submitted = true; dirty = true;
+    document.body.classList.add('rev');
+    $$('textarea').forEach(t => { t.readOnly = true; if (!t.value.trim()) t.placeholder = 'No answer written.'; });
+    $$('.opt').forEach(b => b.tabIndex = -1);
+    MCQ.forEach(reviewMC);
+    SRQ.forEach(reviewSR);
+    $('#intro').hidden = true;
+    $('#banner').hidden = false;
+    $('#results').hidden = false;
+    setActions();
+    refresh();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function reviewMC(q) {
+    const el = $('#q' + q.n), pick = ans[q.n], ok = pick === q.a;
+    el.classList.toggle('wrong', !ok);
+    $$('.opt', el).forEach((b, i) => {
+        b.classList.toggle('ok', i === q.a); b.classList.toggle('bad', i === pick && !ok);
+        $('.tag', b).textContent = i === pick ? 'Your answer' : i === q.a ? 'Correct answer' : '';
+    });
+    $('.rvh', el).innerHTML = `<div class="rv${ok ? '' : ' no'}"><div class="vd">${pick == null ? 'Not answered' : ok ? 'Correct' : 'Not quite'}, ${ok ? 1 : 0} / 1<span class="chip${ok ? '' : ' pk'}">${q.sc}</span><small>${esc(SCT[q.t][q.sc])}</small></div><p>${esc(q.x)}</p></div>`;
+}
+function reviewSR(q) {
+    const el = $('#q' + q.n);
+    const scs = [...new Set(q.pts.map(p => p.sc))].join(', ');
+    $('.rvh', el).innerHTML =
+        `<div class="model"><h4>Model response</h4><p>${esc(q.model)}</p>
+            <div class="caveat"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="${PK}"/><rect x="8.7" y="4.5" width="2.6" height="7" rx="1.3" fill="#fff"/><circle cx="10" cy="14.6" r="1.5" fill="#fff"/></svg><span>This is a model response, not the only correct answer. Your wording can be different and still earn the marks. If you’re unsure how your answer would be marked, check with ${TEACHER}.</span></div></div>
+         <div class="marking"><div class="mhead"><h4>Mark your answer</h4><span>Tick each point your answer includes (${scs})</span><b class="srm"></b></div>
+            ${q.pts.map((p, i) => `<button type="button" class="ck" aria-pressed="false" data-i="${i}"><span class="box">${TICK_SVG}</span><span class="sc">${p.sc}</span><span>${esc(p.t)}</span></button>`).join('')}
+            <div class="nonerow"><button type="button" class="btn sm nn" aria-pressed="false">None of these</button><span>Choose this if your answer doesn’t include any of the points.</span></div></div>`;
+    $$('.ck', el).forEach(b => b.onclick = () => {
+        const i = +b.dataset.i, s = ticks[q.n];
+        s.has(i) ? s.delete(i) : s.add(i);
+        none[q.n] = false; syncSR(q); refresh();
+    });
+    $('.nn', el).onclick = () => { none[q.n] = !none[q.n]; if (none[q.n]) ticks[q.n].clear(); syncSR(q); refresh(); };
+    syncSR(q);
+}
+function syncSR(q) {
+    const el = $('#q' + q.n);
+    $$('.ck', el).forEach(b => b.setAttribute('aria-pressed', String(ticks[q.n].has(+b.dataset.i))));
+    $('.nn', el).setAttribute('aria-pressed', String(none[q.n]));
+    $('.srm', el).textContent = touched(q) ? `${ticks[q.n].size} / ${q.m}` : `? / ${q.m}`;
+    el.classList.toggle('wrong', touched(q) && ticks[q.n].size < q.m / 2);
+}
+function refresh() {
+    const T = totals();
+    $('#scores').innerHTML = ['E', 'P'].map(t => `<div>${TN[t]}<b>${T[t].e}<span> / ${T[t].p}</span></b>Multiple choice ${T[t].mc}/${T[t].mcP}, short response ${T[t].sr}/${T[t].srP}</div>`).join('') +
+        `<div>Whole exam<b>${T.all.e}<span> / ${T.all.p}</span></b>${pct(T.all.e, T.all.p)}% so far</div>`;
+    renderResults(T);
+    changed();
+}
+function renderResults(T) {
+    const S = scBreakdown();
+    let h = `<div class="sec"><h2>Results <span>overview</span></h2><p>By success criteria</p></div>
+        <div class="legend">Status: <span class="st s">Secure</span> 80% or more <span class="st d">Developing</span> 50 to 79% <span class="st w">Work on this</span> below 50%</div>`;
+    const unmarked = SRQ.filter(q => !touched(q)).length;
+    if (unmarked) h += `<p class="sub" style="color:var(--pink)">${unmarked} short ${unmarked === 1 ? 'response is' : 'responses are'} not marked yet, so ${unmarked === 1 ? 'it counts' : 'they count'} as 0 below.</p>`;
+    ['E', 'P'].forEach(t => {
+        h += `<div class="rt"><div class="rth"><span class="chip${t === 'P' ? ' pk' : ''}">${TN[t]}</span><h3>${TSUB[t]}</h3><div class="sc2"><b>${T[t].e} / ${T[t].p}</b>${pct(T[t].e, T[t].p)}%</div></div><div class="tw"><table class="ovt"><thead><tr><th>SC</th><th>Success criteria</th><th>Questions</th><th style="text-align:right">Marks</th><th></th><th>Status</th></tr></thead><tbody>`;
+        LGS[t].forEach(l => {
+            h += `<tr class="lg"><td colspan="6"><b>${l.id}</b>${esc(l.t)}</td></tr>`;
+            l.sc.forEach(c => {
+                const r = S[t][c], [k, lb] = status(r);
+                h += `<tr><td class="c">${c}</td><td>${esc(SCT[t][c])}</td><td class="qs">Q${r.qs.join(', Q')}</td><td class="m">${r.e}/${r.p}</td><td><div class="pbar${k === 'w' ? ' w' : ''}"><i style="width:${pct(r.e, r.p)}%"></i></div></td><td><span class="st ${k}">${lb}</span></td></tr>`;
+            });
+        });
+        h += '</tbody></table></div></div>';
+    });
+    $('#results').innerHTML = h;
+}
+
+function setActions() {
+    [$('#actTop'), $('#actBottom')].forEach(b => { b.textContent = submitted ? 'Export PDF' : 'Submit answers'; b.onclick = submitted ? startExport : startSubmit; });
+    $('#finP').innerHTML = submitted
+        ? 'Marked your short responses?<small>Export your results as a PDF, then upload it to the Stile lesson.</small>'
+        : 'Finished?<small>Check your answers, then submit to see the correct answers.</small>';
+}
+$('#goB').onclick = () => jumpTo($('#secB'));
+$('#goRes').onclick = () => jumpTo($('#results'));
+
+function startExport() {
+    const left = SRQ.filter(q => !touched(q));
+    if (left.length) {
+        modal(`${left.length} short ${left.length === 1 ? 'response is' : 'responses are'} not marked yet`,
+            'Tick the marking points your answer includes, or choose None of these. Your results overview uses these marks.',
+            [['Go to the next one', '', () => jumpTo($('#q' + left[0].n + ' .marking'))], ['Export anyway', 'pk', makePdf]]);
+        return;
+    }
+    makePdf();
+}
+
+/* =========================================================
+   PDF EXPORT
+   ========================================================= */
+function svgPng(svg, w, h, k = 3) {
+    return new Promise((res, rej) => {
+        const img = new Image();
+        img.onload = () => { const c = document.createElement('canvas'); c.width = w * k; c.height = h * k; const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0, c.width, c.height); res(c.toDataURL('image/png')); };
+        img.onerror = rej;
+        img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    });
+}
+const C = { nv: [27, 31, 69], pk: [234, 0, 138], gr: [154, 154, 154], ink: [74, 78, 112], ru: [210, 214, 224], wh: [255, 255, 255], tn: [243, 244, 248], pt: [253, 237, 246] };
+const ML = 14, MR = 196, BOT = 280;
+let doc, Y, DRY = false, IMGS = {};
+const mm = pt => pt * .3528;
+const clean = s => String(s == null ? '' : s).replace(/[\u2018\u2019\u02bc]/g, "'").replace(/[\u201c\u201d]/g, '"').replace(/[\u2013\u2014\u2212]/g, '-').replace(/\u2026/g, '...').replace(/[^\x09\x0a\x0d\x20-\x7e\xa0-\xff]/g, '');
+function font(st, sz, col) { doc.setFont('helvetica', st); doc.setFontSize(sz); doc.setTextColor(...col); }
+function T(s, x, y, o) { if (!DRY) doc.text(clean(s), x, y, o); }
+function Ln(x1, y1, x2, y2, col, w) { if (DRY) return; doc.setDrawColor(...col); doc.setLineWidth(w); doc.line(x1, y1, x2, y2); }
+function RR(x, y, w, h, r, fill, stroke, lw = .4) {
+    if (DRY) return;
+    if (fill) doc.setFillColor(...fill);
+    if (stroke) { doc.setDrawColor(...stroke); doc.setLineWidth(lw); }
+    doc.roundedRect(x, y, w, h, r, r, fill && stroke ? 'FD' : fill ? 'F' : 'S');
+}
+function CIR(x, y, r, fill, stroke, lw = .35) {
+    if (DRY) return;
+    if (fill) doc.setFillColor(...fill);
+    if (stroke) { doc.setDrawColor(...stroke); doc.setLineWidth(lw); }
+    doc.circle(x, y, r, fill && stroke ? 'FD' : fill ? 'F' : 'S');
+}
+function IMG(d, x, y, w, h) { if (!DRY) doc.addImage(d, 'PNG', x, y, w, h); }
+function meas(fn) { const d = DRY; DRY = true; const r = fn(); DRY = d; return r; }
+const lines = (s, w, fs, st = 'normal') => { font(st, fs, C.nv); return doc.splitTextToSize(clean(s), w); };
+function para(s, x, y, w, fs = 9, st = 'normal', col = C.nv, lhK = 1.45) {
+    const L = lines(s, w, fs, st), lh = mm(fs) * lhK;
+    font(st, fs, col);
+    L.forEach((ln, i) => T(ln, x, y + mm(fs) * .8 + i * lh));
+    return y + L.length * lh;
+}
+function tickBox(x, y, on, s = 3.4) {
+    RR(x, y, s, s, .6, on ? C.pk : null, on ? null : C.nv, .35);
+    if (on) { Ln(x + .7, y + s * .55, x + s * .42, y + s * .8, C.wh, .5); Ln(x + s * .42, y + s * .8, x + s * .82, y + s * .25, C.wh, .5); }
+}
+function chipT(s, x, y, fill, fs = 7.5) {
+    font('bold', fs, C.wh); const w = doc.getTextWidth(clean(s)) + 3.6;
+    RR(x, y, w, mm(fs) + 2.2, .8, fill); font('bold', fs, C.wh); T(s, x + 1.8, y + mm(fs) + .65);
+    return w;
+}
+function statusChip(st, x, y, w, h) {
+    const [k, lb] = st;
+    if (k === 's') RR(x, y, w, h, h / 2, C.nv);
+    else if (k === 'w') RR(x, y, w, h, h / 2, C.pk);
+    else RR(x, y, w, h, h / 2, C.wh, C.nv, .35);
+    font('bold', 6.8, k === 'd' ? C.nv : C.wh); T(lb, x + w / 2, y + h / 2 + .85, { align: 'center' });
+}
+
+/* ---------- overview pages ---------- */
+function overviewPage(t, idx, S, Tt, name, date) {
+    if (idx) doc.addPage();
+    doc.setFillColor(...C.nv); doc.rect(ML, 10, MR - ML, 2.4, 'F');
+    font('bold', 20, C.nv); T(TITLE, ML, 23);
+    font('bold', 8.5, C.gr); T(`Results overview  |  Page ${idx + 1} of 2`, ML, 29);
+    font('bold', 8.5, C.nv); T('Name', 132, 19); T('Date', 132, 27);
+    font('bold', 9.5, C.pk); T(doc.splitTextToSize(clean(name), 52)[0] || '', 143, 18.7); T(doc.splitTextToSize(clean(date), 52)[0] || '', 143, 26.7);
+    Ln(143, 20.2, MR, 20.2, C.nv, .3); Ln(143, 28.2, MR, 28.2, C.nv, .3);
+    Ln(ML, 32, MR, 32, C.nv, .9);
+
+    let y = 37;
+    font('bold', 15, C.wh); const cw = doc.getTextWidth(TN[t]) + 8;
+    RR(ML, y, cw, 10, 1.2, t === 'E' ? C.nv : C.pk); T(TN[t], ML + 4, y + 7.1);
+    font('bold', 10, C.nv); T(TSUB[t], ML + cw + 4, y + 4.4);
+    font('normal', 8.5, C.ink); T(`Multiple choice ${Tt[t].mc}/${Tt[t].mcP}   |   Short response ${Tt[t].sr}/${Tt[t].srP} (self-marked)`, ML + cw + 4, y + 9);
+    font('bold', 24, C.pk); T(`${Tt[t].e} / ${Tt[t].p}`, MR, y + 7.6, { align: 'right' });
+    font('bold', 8.5, C.nv); T(`${pct(Tt[t].e, Tt[t].p)}%   |   Whole exam ${Tt.all.e} / ${Tt.all.p}`, MR, y + 12.4, { align: 'right' });
+
+    y += 17;
+    font('bold', 8, C.gr); T('Status', ML, y + 3.4);
+    let lx = ML + 11;
+    [[['s', 'Secure'], '80% or more'], [['d', 'Developing'], '50 to 79%'], [['w', 'Work on this'], 'below 50%']].forEach(([st, d]) => {
+        statusChip(st, lx, y, 17, 4.6); font('normal', 7.5, C.ink); T(d, lx + 19, y + 3.4); lx += 19 + doc.getTextWidth(d) + 7;
+    });
+    const unmarked = SRQ.filter(q => q.t === t && !touched(q)).length;
+    if (unmarked) { font('bold', 7.5, C.pk); T(`${unmarked} short ${unmarked === 1 ? 'response' : 'responses'} not self-marked (counted as 0)`, MR, y + 3.4, { align: 'right' }); }
+    y += 8;
+
+    /* table */
+    const X = { c: ML + 1, s: ML + 12, sW: 94, q: 122, qW: 22, m: 156, b: 159, bW: 17, st: 178, stW: 18 };
+    const tbl = (fs, draw) => {
+        const D = DRY; DRY = !draw;
+        let yy = y;
+        font('bold', 7.5, C.gr);
+        T('SC', X.c, yy + 3.5); T('Success criteria', X.s, yy + 3.5); T('Questions', X.q, yy + 3.5); T('Marks', X.m, yy + 3.5, { align: 'right' }); T('Status', X.st, yy + 3.5);
+        yy += 5.2; Ln(ML, yy, MR, yy, C.nv, .6);
+        const lh = mm(fs) * 1.35;
+        LGS[t].forEach(l => {
+            const Ll = lines(l.t, MR - ML - 16, fs - .5);
+            const h = Ll.length * lh + 3;
+            RR(ML, yy, MR - ML, h, 0, C.tn);
+            font('bold', fs - .5, C.nv); T(l.id, ML + 1.5, yy + 1.6 + mm(fs) * .8);
+            font('normal', fs - .5, C.nv); Ll.forEach((ln, i) => T(ln, ML + 12, yy + 1.6 + mm(fs) * .8 + i * lh));
+            yy += h;
+            l.sc.forEach(c => {
+                const r = S[t][c], st = status(r);
+                const Ls = lines(SCT[t][c], X.sW, fs), Lq = lines('Q' + r.qs.join(', Q'), X.qW, fs - 1.5, 'bold');
+                const n = Math.max(Ls.length, Lq.length), hh = n * lh + 2.8, top = yy + 1.4 + mm(fs) * .8, mid = yy + hh / 2;
+                if (st[0] === 'w') RR(ML, yy, MR - ML, hh, 0, C.pt);
+                font('bold', fs, C.pk); T(c, X.c, top);
+                font('normal', fs, C.nv); Ls.forEach((ln, i) => T(ln, X.s, top + i * lh));
+                font('bold', fs - 1.5, C.gr); Lq.forEach((ln, i) => T(ln, X.q, top + i * lh));
+                font('bold', fs, C.nv); T(`${r.e}/${r.p}`, X.m, mid + mm(fs) * .35, { align: 'right' });
+                RR(X.b, mid - 1.3, X.bW, 2.6, 1.3, C.wh, C.ru, .3);
+                if (r.e) RR(X.b, mid - 1.3, Math.max(2.6, X.bW * r.e / r.p), 2.6, 1.3, st[0] === 'w' ? C.pk : C.nv);
+                statusChip(st, X.st, mid - 2.3, X.stW, 4.6);
+                yy += hh; Ln(ML, yy, MR, yy, C.ru, .25);
+            });
+        });
+        DRY = D;
+        return yy;
+    };
+    let fs = 8.5; while (fs > 6.5 && tbl(fs, false) > 248) fs -= .25;
+    y = tbl(fs, true);
+
+    /* focus box */
+    const all = LGS[t].flatMap(l => l.sc).map(c => ({ c, r: S[t][c] }));
+    const focus = all.filter(o => status(o.r)[0] !== 's').sort((a, b) => a.r.e / a.r.p - b.r.e / b.r.p);
+    y += 5;
+    const room = BOT - y - 12, per = 4.6, maxN = Math.max(0, Math.min(4, Math.floor(room / per)));
+    const items = focus.slice(0, maxN);
+    const bh = 9 + (items.length ? items.length * per : per) + 1;
+    RR(ML, y, MR - ML, bh, 1.5, null, C.nv, .5); RR(ML, y, 1.6, bh, 0, C.pk);
+    font('bold', 10, C.nv); T('Revise these first', ML + 5, y + 6);
+    font('normal', 7.8, C.ink); T('Re-read the feedback for these questions, then practise with your flashcard decks.', ML + 42, y + 6);
+    let fy = y + 11;
+    if (!items.length) { font('bold', 8.5, C.nv); T('Every SC is secure. Keep revising with your flashcard decks so it sticks.', ML + 5, fy); }
+    items.forEach(o => {
+        font('bold', 8.5, C.pk); T(o.c, ML + 5, fy);
+        const qs = '  (Q' + o.r.qs.join(', Q') + ')';
+        font('bold', 7.8, C.gr); const qw = doc.getTextWidth(qs);
+        font('normal', 8.5, C.nv); const s = doc.splitTextToSize(clean(SCT[t][o.c]), MR - ML - 22 - qw)[0];
+        T(s, ML + 17, fy); const sw = doc.getTextWidth(s);
+        font('bold', 7.8, C.gr); T(qs, ML + 17 + sw, fy);
+        fy += per;
+    });
+}
+
+/* ---------- question review pages ---------- */
+function reviewPage() {
+    doc.addPage();
+    doc.setFillColor(...C.nv); doc.rect(ML, 10, MR - ML, 1.8, 'F');
+    font('bold', 9, C.nv); T(TITLE, ML, 17); const w = doc.getTextWidth(TITLE + '  ');
+    font('bold', 9, C.gr); T('Question review', ML + w, 17);
+    Ln(ML, 20, MR, 20, C.nv, .6);
+    Y = 24;
+}
+function ensure(h) { if (Y + h > BOT) reviewPage(); }
+function secHead(title, t) {
+    ensure(30);
+    Y += 3;
+    if (title) { font('bold', 14, C.nv); T(title, ML, Y + 5); Y += 8; Ln(ML, Y, MR, Y, C.nv, .8); Y += 4; }
+    const w = chipT(TN[t], ML, Y, t === 'E' ? C.nv : C.pk, 8.5);
+    font('bold', 9.5, C.nv); T(TSUB[t], ML + w + 3, Y + 4);
+    Y += 9;
+}
+const tx0 = ML + 10, W0 = MR - tx0;
+function qBadge(q, y, good) {
+    CIR(ML + 3.6, y + 3.6, 3.6, good ? C.nv : C.pk);
+    font('bold', 8.5, C.wh); T(String(q.n), ML + 3.6, y + 4.8, { align: 'center' });
+}
+function fxBox(q, y) {
+    if (!q.fx) return y;
+    q.fx.forEach(f => {
+        font('bold', 8.5, C.nv); const w = doc.getTextWidth(clean(f)) + 22;
+        RR(tx0, y, w, 6.4, 1, C.wh, C.nv, .4);
+        chipT('Formula', tx0 + 1.2, y + 1.15, C.pk, 7);
+        font('bold', 8.5, C.nv); T(f, tx0 + 18.5, y + 4.4);
+        y += 8;
+    });
+    return y;
+}
+function figImg(q, y, maxW) {
+    const f = FIG[q.fig], w = Math.min(maxW, W0), h = w * f.h / f.w;
+    IMG(IMGS[q.fig], tx0, y, w, h);
+    return y + h;
+}
+function mcBlock(q, y) {
+    const pick = ans[q.n], ok = pick === q.a;
+    qBadge(q, y, ok);
+    font('bold', 7.5, C.gr); T(`${q.sc}  ${SCT[q.t][q.sc]}`, tx0, y + 2.4);
+    font('bold', 8.5, ok ? C.nv : C.pk); T(ok ? 'Correct  1 / 1' : pick == null ? 'Not answered  0 / 1' : 'Incorrect  0 / 1', MR, y + 2.4, { align: 'right' });
+    let e = para(q.q, tx0, y + 4.2, W0, 9.5, 'bold');
+    if (q.fx) e = fxBox(q, e + 2) - 1;
+    if (q.fig) e = figImg(q, e + 2, 82) + 2; else e += 1.5;
+    q.o.forEach((o, i) => {
+        const isA = i === q.a, isS = i === pick, cy = e + 2.6;
+        if (isA) CIR(tx0 + 2.4, cy, 2.4, C.nv); else CIR(tx0 + 2.4, cy, 2.4, null, isS ? C.pk : C.ru);
+        font('bold', 7, isA ? C.wh : isS ? C.pk : C.gr); T('ABCD'[i], tx0 + 2.4, cy + .95, { align: 'center' });
+        const end = para(o, tx0 + 7, e + .55, W0 - 7 - 28, 8.8, isA ? 'bold' : 'normal', isS && !isA ? C.pk : C.nv);
+        const tag = isS ? 'Your answer' : isA ? 'Correct answer' : '';
+        if (tag) { font('bold', 7.5, isA ? C.nv : C.pk); T(tag, MR, cy + .95, { align: 'right' }); }
+        e = Math.max(end, e + 5.2) + .6;
+    });
+    e = para('Why: ' + q.x, tx0, e + 1, W0, 8.3, 'normal', C.ink);
+    return e + 4;
+}
+function srPDF(q) {
+    const m = ticks[q.n].size, tch = touched(q);
+    /* head + question + figure */
+    const head = y => {
+        qBadge(q, y, tch && m >= q.m / 2);
+        const scs = [...new Set(q.pts.map(p => p.sc))].join(', ');
+        font('bold', 7.5, C.gr); T(`${scs}  |  ${q.m} marks`, tx0, y + 2.4);
+        font('bold', 8.5, C.pk); T(tch ? `${m} / ${q.m}  self-marked` : `Not marked  0 / ${q.m}`, MR, y + 2.4, { align: 'right' });
+        let e = para(q.q, tx0, y + 4.2, W0, 9.5, 'bold');
+        if (q.fx) e = fxBox(q, e + 2) - 1;
+        if (q.fig) e = figImg(q, e + 2, 90) + 1;
+        return e + 2;
+    };
+    const hh = meas(() => head(0));
+    ensure(hh + 18); Y = head(Y);
+    /* answer */
+    font('bold', 8, C.gr); T('Your answer', tx0, Y + 3); Y += 4.5;
+    const a = clean(ans[q.n] || '').trim();
+    if (!a) { font('normal', 9, C.gr); T('No answer written.', tx0, Y + 3); Y += 5; }
+    else {
+        const lh = mm(9.2) * 1.45;
+        a.split(/\n+/).filter(p => p.trim()).forEach(p => {
+            lines(p, W0, 9.2).forEach(ln => { ensure(lh); font('normal', 9.2, C.pk); T(ln, tx0, Y + mm(9.2) * .8); Y += lh; });
+            Y += .8;
+        });
+    }
+    /* marking points */
+    Y += 2; ensure(10);
+    font('bold', 8, C.gr); T('Marking points', tx0, Y + 3); Y += 5;
+    q.pts.forEach((p, i) => {
+        const on = ticks[q.n].has(i);
+        const h = meas(() => para(p.t, tx0 + 17, 0, W0 - 17, 8.6)) + 1.6;
+        ensure(h);
+        tickBox(tx0, Y + .2, on);
+        font('bold', 7.8, C.pk); T(p.sc, tx0 + 5.5, Y + 2.9);
+        para(p.t, tx0 + 17, Y, W0 - 17, 8.6, on ? 'bold' : 'normal', C.nv);
+        Y += h;
+    });
+    /* model response */
+    Y += 2;
+    const mh = meas(() => para(q.model, tx0 + 4, 0, W0 - 8, 8.8)) + 10;
+    if (mh > BOT - 24) { /* very long: no box */ ensure(12); font('bold', 8.5, C.nv); T('Model response', tx0, Y + 3); Y = para(q.model, tx0, Y + 5, W0, 8.8); }
+    else {
+        ensure(mh);
+        RR(tx0, Y, W0, mh, 1.5, C.tn);
+        font('bold', 8.5, C.nv); T('Model response', tx0 + 4, Y + 5);
+        para(q.model, tx0 + 4, Y + 7, W0 - 8, 8.8);
+        Y += mh;
+    }
+    const cav = `This is a model response, not the only correct answer. Your wording can be different and still earn the marks. If you're unsure how your answer would be marked, check with ${TEACHER}.`;
+    const chh = meas(() => para(cav, tx0, 0, W0, 8, 'italic')) + 2;
+    ensure(chh); Y = para(cav, tx0, Y + 1.5, W0, 8, 'italic', C.ink) + 4;
+    Ln(ML, Y - 1.5, MR, Y - 1.5, C.ru, .3);
+    Y += 1.5;
+}
+
+async function makePdf() {
+    if (!window.jspdf) {
+        modal('The PDF tool did not load', 'Check your internet connection, then try again. Keep this page open so you don’t lose your answers.', [['OK', 'pk']]);
+        return;
+    }
+    const btns = [$('#actTop'), $('#actBottom')];
+    btns.forEach(b => { b.disabled = true; b.textContent = 'Making PDF…'; });
+    try {
+        for (const k of Object.keys(FIG)) if (!IMGS[k]) IMGS[k] = await svgPng(FIG[k].f(), FIG[k].w, FIG[k].h, 3);
+        const name = $('#name').value.trim(), date = $('#date').value.trim();
+        FILE = 'Science-practice-exam-B' + (name ? '-' + name.replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '') : '') + '.pdf';
+        doc = new jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+        doc.setProperties({ title: TITLE + ' results' });
+        DRY = false;
+        const S = scBreakdown(), Tt = totals();
+
+        overviewPage('E', 0, S, Tt, name, date);
+        overviewPage('P', 1, S, Tt, name, date);
+
+        reviewPage();
+        ['E', 'P'].forEach((t, i) => {
+            secHead(i ? '' : 'Section A: Multiple choice', t);
+            MCQ.filter(q => q.t === t).forEach(q => {
+                const h = meas(() => mcBlock(q, 0));
+                ensure(h); mcBlock(q, Y); Y += h;
+                Ln(ML, Y - 2, MR, Y - 2, C.ru, .3);
+            });
+        });
+        reviewPage();
+        ['E', 'P'].forEach((t, i) => {
+            secHead(i ? '' : 'Section B: Short response', t);
+            SRQ.filter(q => q.t === t).forEach(srPDF);
+        });
+
+        const pages = doc.getNumberOfPages(), who = clean(name);
+        for (let i = 1; i <= pages; i++) {
+            doc.setPage(i);
+            font('normal', 7.5, C.gr);
+            doc.text(TITLE + (who ? '  |  ' + who : ''), ML, 289);
+            doc.text(`Page ${i} of ${pages}`, MR, 289, { align: 'right' });
+        }
+
+        lastDoc = doc;
+        doc.save(FILE);
+        exported = true;
+        $('#fname').textContent = FILE;
+        $('#done').classList.add('show'); $('#done').scrollTop = 0;
+        document.body.style.overflow = 'hidden';
+        $('#back').focus({ preventScroll: true });
+    } catch (err) {
+        console.error(err);
+        modal('The PDF could not be made', 'Try pressing Export PDF again. If it still doesn’t work, tell your teacher.', [['OK', 'pk']]);
+    } finally {
+        btns.forEach(b => b.disabled = false);
+        setActions();
+    }
+}
+$('#again').onclick = () => { if (lastDoc) lastDoc.save(FILE); };
+$('#back').onclick = () => { $('#done').classList.remove('show'); document.body.style.overflow = ''; };
+
+window.addEventListener('beforeunload', e => { if (dirty && !exported) { e.preventDefault(); e.returnValue = ''; } });
+document.addEventListener('input', e => { if (e.target.matches('#name, #date')) dirty = true; });
+
+/* ---------- start ---------- */
+$('#date').value = new Date().toLocaleDateString('en-AU');
+renderPaper();
+setActions();
+changed(); dirty = false;
+$$('textarea').forEach(grow);
+</script>
+</body>
+</html>
