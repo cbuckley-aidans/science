@@ -350,6 +350,19 @@
     .rlist::-webkit-scrollbar, .sclist::-webkit-scrollbar { width: 8px; }
     .rlist::-webkit-scrollbar-thumb, .sclist::-webkit-scrollbar-thumb { background: var(--navy); border-radius: 4px; }
     .rlist::-webkit-scrollbar-track, .sclist::-webkit-scrollbar-track { background: var(--blank); border-radius: 4px; }
+    /* new cards only toggle */
+    .ntog { display: flex; align-items: center; gap: 10px; font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--navy); background: #fff; border: 3px solid var(--navy); border-radius: 8px; padding: 8px 16px 8px 10px; cursor: pointer; white-space: nowrap; }
+    .ntog .box { width: 26px; height: 26px; border: 3px solid var(--navy); border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: background-color .2s, border-color .2s; }
+    .ntog .box svg { width: 16px; height: 16px; fill: none; stroke: #fff; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; opacity: 0; }
+    .ntog[aria-pressed="true"] { border-color: var(--pink); }
+    .ntog[aria-pressed="true"] .box { background: var(--pink); border-color: var(--pink); }
+    .ntog[aria-pressed="true"] .box svg { opacity: 1; }
+    .ntog:hover { background: var(--blank); }
+    .sch .schr { display: flex; align-items: center; gap: 22px; }
+    .sch .ntog { padding: 4px 12px 4px 8px; font-size: 18px; letter-spacing: .08em; }
+    .sch .ntog .box { width: 22px; height: 22px; }
+    .scrow .n.new { color: var(--pink); }
+    .btn2:disabled { opacity: .45; cursor: default; background: #fff; }
 </style>
 </head>
 <body>
@@ -1407,6 +1420,21 @@ const Buckles = {
 Buckles.migrate();
 const BK = '<img src="buckle.svg" alt="" onerror="this.style.display=\'none\'">';
 const earnedIn = list => list.filter(c => Buckles.isDone(c.id)).length;
+/* "New cards only": skips cards that have already earned a buckle. The choice is remembered per page. */
+const NEW_KEY = PAGE_ID + ':new-only';
+let NEW_ONLY = (() => { try { return localStorage.getItem(NEW_KEY) === '1'; } catch (e) { return false; } })();
+const pool = list => NEW_ONLY ? list.filter(c => !Buckles.isDone(c.id)) : list;
+function newToggle(onChange) {
+    const b = el('button', 'ntog', `<span class="box">${TICK}</span><span>New cards only</span>`);
+    b.title = 'Only deal cards you have not earned a buckle for yet';
+    b.setAttribute('aria-pressed', NEW_ONLY);
+    b.onclick = () => {
+        NEW_ONLY = !NEW_ONLY; b.setAttribute('aria-pressed', NEW_ONLY);
+        try { localStorage.setItem(NEW_KEY, NEW_ONLY ? '1' : '0'); } catch (e) {}
+        onChange();
+    };
+    return b;
+}
 function refreshCount() { $('#buckleCount').textContent = Buckles.total(); }
 function celebrate(n) {
     const a = $('#award');
@@ -1459,8 +1487,15 @@ function home() {
         A(b, [{ opacity: 0, transform: 'translateY(60px) rotate(4deg)' }, { opacity: 1, transform: 'none' }], { duration: 650, delay: 80 + i * 90 });
     });
     content.appendChild(g);
-    say('Choose a deck to see its success criteria.');
-    addBtn('Mix all decks', 'btn2', () => start(CARDS, 'All decks'));
+    btns.appendChild(newToggle(upd));
+    const mix = addBtn('', 'btn2', () => start(pool(CARDS), NEW_ONLY ? 'All decks: new' : 'All decks'));
+    function upd() {
+        const m = pool(CARDS).length;
+        mix.textContent = !NEW_ONLY ? 'Mix all decks' : m ? `Mix ${m} new cards` : 'All buckles earned';
+        mix.disabled = !m;
+        say(!NEW_ONLY ? 'Choose a deck to see its success criteria.' : m ? 'Earned cards will be skipped.' : 'You’ve earned every buckle. Turn off <b>New cards only</b> to practise again.');
+    }
+    upd();
 }
 
 function deckScreen(lg) {
@@ -1471,22 +1506,32 @@ function deckScreen(lg) {
     const left = el('div', 'deck', `<div class="dface">${ICON[lg.id]}<div class="dcode">${lg.id}</div><div class="dstate">${lg.text}</div></div>`);
     const right = el('div', 'sccol');
     const head = el('div', 'sch', '<span>Success criteria</span>');
-    const allBtn = el('button', '', 'Select all'); head.appendChild(allBtn);
+    const allBtn = el('button', '', 'Select all'), schr = el('div', 'schr');
+    schr.append(newToggle(upd), allBtn); head.appendChild(schr);
     const list = el('div', 'sclist');
     const rows = lg.sc.map(sc => {
         const n = CARDS.filter(c => c.sc === sc).length;
-        const r = el('button', 'scrow on', `<span class="box">${TICK}</span><span class="code">${sc}</span><span>${SCT[sc]}</span><span class="n">${n} cards</span><span class="bk">${BK}${earnedIn(CARDS.filter(c => c.sc === sc))}/${n}</span>`);
+        const r = el('button', 'scrow on', `<span class="box">${TICK}</span><span class="code">${sc}</span><span>${SCT[sc]}</span><span class="n"></span><span class="bk">${BK}${earnedIn(CARDS.filter(c => c.sc === sc))}/${n}</span>`);
         r.onclick = () => { sel.has(sc) ? sel.delete(sc) : sel.add(sc); r.classList.toggle('on', sel.has(sc)); upd(); };
+        r.dataset.sc = sc;
         list.appendChild(r); return r;
     });
     allBtn.onclick = () => { lg.sc.forEach(s => sel.add(s)); rows.forEach(r => r.classList.add('on')); upd(); };
     right.append(head, list); wrap.append(left, right); content.appendChild(wrap);
     A(left, [{ opacity: 0, transform: 'translateX(-40px) rotate(-3deg)' }, { opacity: 1, transform: 'none' }], { duration: 550 });
     rows.forEach((r, i) => A(r, [{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], { duration: 400, delay: 120 + i * 45, fill: 'backwards' }));
-    say('Tap a success criterion to leave it out, then press <b>Start</b>.');
     addBtn('Back', 'btn2', home);
-    const go = addBtn('', 'next', () => start(CARDS.filter(c => sel.has(c.sc)), lg.id));
-    function upd() { const n = CARDS.filter(c => sel.has(c.sc)).length; go.textContent = n ? `Start ${n} cards` : 'Start'; go.disabled = !n; }
+    const go = addBtn('', 'next', () => start(pool(CARDS.filter(c => sel.has(c.sc))), NEW_ONLY ? `${lg.id}: new` : lg.id));
+    function upd() {
+        rows.forEach(r => {
+            const cs = CARDS.filter(c => c.sc === r.dataset.sc), m = pool(cs).length, t = r.querySelector('.n');
+            t.textContent = NEW_ONLY ? `${m} new` : `${cs.length} cards`; t.classList.toggle('new', NEW_ONLY && m > 0);
+        });
+        const all = CARDS.filter(c => sel.has(c.sc)), n = pool(all).length;
+        go.textContent = n ? `Start ${n} ${NEW_ONLY ? 'new ' : ''}card${n === 1 ? '' : 's'}` : NEW_ONLY && all.length ? 'All earned' : 'Start';
+        go.disabled = !n;
+        say(NEW_ONLY && all.length && !n ? 'You’ve earned every buckle here. Turn off <b>New cards only</b> to practise again.' : 'Tap a success criterion to leave it out, then press <b>Start</b>.');
+    }
     upd();
 }
 
