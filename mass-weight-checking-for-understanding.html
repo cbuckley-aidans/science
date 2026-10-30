@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mass or Weight: Checking for Understanding</title>
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="%231b1f45"/><path d="M15 31 L27 43 L49 19" fill="none" stroke="%23ea008a" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><rect x="12" y="52" width="40" height="5" rx="2.5" fill="%23fff" opacity=".25"/><rect x="12" y="52" width="26" height="5" rx="2.5" fill="%23fff"/></svg>'>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --navy: #1b1f45;
+        --pink: #ea008a;
+        --mid-grey: #9a9a9a;
+        --light-grey: #e8e8e8;
+        --blank: #f0f3f6;
+        --tint: #e9ecf5;
+        --cond: 'Barlow Condensed', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        --ease: cubic-bezier(.2,.8,.2,1);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body { font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #eaeaea; color: var(--navy);
+        display: flex; align-items: center; justify-content: center; overflow: hidden; -webkit-user-select: none; user-select: none; }
+    .stage { width: 1280px; height: 720px; background: #fff; border-top: 6px solid var(--navy); position: relative; padding: 36px 64px 0; flex-shrink: 0; overflow: hidden; transform-origin: center; }
+    .top { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 4px solid var(--navy); padding-bottom: 12px; }
+    .sheet-title { font-family: var(--cond); font-size: 44px; font-weight: 900; text-transform: uppercase; letter-spacing: .01em; margin: 0; line-height: 1; }
+    .sheet-title span { color: var(--pink); }
+    .counter { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; color: var(--mid-grey); text-transform: uppercase; }
+    .counter b { color: var(--navy); }
+    .content { position: absolute; left: 64px; right: 64px; top: 124px; bottom: 108px; }
+    .caption { position: absolute; left: 64px; right: 64px; bottom: 28px; min-height: 60px; display: flex; align-items: center; gap: 16px; font-size: 25px; font-weight: 500; line-height: 1.32; }
+    .caption::before { content: ''; width: 10px; height: 10px; background: var(--pink); flex-shrink: 0; }
+    .caption .txt { flex: 1; }
+    .caption b { color: var(--pink); font-weight: 800; }
+    .caption b.no { color: var(--navy); }
+    .caption .in { animation: capIn .45s var(--ease); display: block; }
+    @keyframes capIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .progress { position: absolute; left: 0; bottom: 0; height: 6px; background: var(--pink); width: 0; transition: width .6s var(--ease); }
+
+    .next { font-family: var(--cond); font-size: 26px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; background: var(--pink); color: #fff;
+        border: none; border-radius: 8px; padding: 12px 30px; cursor: pointer; flex-shrink: 0; }
+    .next[hidden] { display: none; }
+    .next:disabled { background: #c3c6d0; cursor: default; }
+    button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--pink); outline-offset: 3px; }
+    .next:focus-visible { outline-color: var(--navy); }
+    .pop-in { animation: capIn .45s var(--ease); }
+    @keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+
+    /* buckles */
+    .hright { display: flex; align-items: flex-end; gap: 28px; }
+    .bcount { display: flex; align-items: center; gap: 10px; }
+    .counter-icon { width: 34px; height: 34px; display: block; }
+    .bcount .num { font-family: var(--cond); font-size: 34px; font-weight: 900; line-height: 1; }
+    .bcount .lbl { font-family: var(--cond); font-size: 18px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mid-grey); }
+    .award { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(.8); opacity: 0; pointer-events: none; z-index: 30;
+        background: #fff; border: 3px solid var(--pink); border-radius: 12px; padding: 24px 40px; display: flex; flex-direction: column; align-items: center; gap: 10px;
+        box-shadow: 0 20px 50px rgba(27,31,69,.25); transition: opacity .3s, transform .35s var(--ease); }
+    .award.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    .award.hide { opacity: 0; transform: translate(-50%, -60%) scale(.95); }
+    .award-img { width: 140px; height: auto; }
+    .award-text { font-family: var(--cond); font-size: 40px; font-weight: 900; color: var(--pink); text-transform: uppercase; letter-spacing: .04em; }
+    .confetti-canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 29; }
+
+    /* question frame */
+    .q { display: flex; flex-direction: column; height: 100%; }
+    .qhead { display: flex; align-items: center; gap: 18px; }
+    .qtitle { font-size: 40px; font-weight: 800; line-height: 1.15; }
+    .tchip { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--pink); border: 3px solid var(--pink); border-radius: 6px; padding: 3px 12px 2px; }
+    .sctag { margin-left: auto; font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--navy); box-shadow: inset 0 0 0 3px var(--navy); border-radius: 6px; padding: 6px 12px 5px; line-height: 1; }
+    .prompt { font-size: 28px; font-weight: 600; margin-top: 6px; line-height: 1.3; }
+    .body { flex: 1; min-height: 0; margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 22px; }
+    .center { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+    .dlbl { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mid-grey); }
+
+    /* svg basics */
+    svg { overflow: visible; display: block; }
+    .t { font-family: var(--cond); font-weight: 800; font-size: 22px; letter-spacing: .03em; fill: var(--navy); }
+    .t.mid { text-anchor: middle; } .t.end { text-anchor: end; }
+    .t.pk { fill: var(--pink); } .t.gr { fill: var(--mid-grey); }
+    .t.sm { font-size: 19px; }
+    .obj { fill: var(--blank); stroke: var(--navy); stroke-width: 4; stroke-linejoin: round; }
+    .oname { font-family: var(--cond); font-size: 20px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; fill: var(--navy); }
+    .olbl { font-family: var(--cond); font-size: 24px; font-weight: 900; fill: var(--navy); text-anchor: middle; }
+    .flbl { font-family: var(--cond); font-size: 24px; font-weight: 800; fill: var(--navy); }
+    .spd { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; fill: var(--mid-grey); }
+    .gnd { stroke: #c9ccd6; stroke-width: 4; }
+    .bn { font-family: var(--cond); font-size: 22px; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; fill: var(--navy); }
+    .bg { font-family: var(--cond); font-size: 21px; font-weight: 800; fill: var(--pink); }
+    .pnm { font-family: var(--cond); font-size: 28px; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; fill: var(--navy); text-anchor: middle; }
+    .pg { font-family: var(--cond); font-size: 25px; font-weight: 800; fill: var(--mid-grey); text-anchor: middle; }
+    .pg.pk { fill: var(--pink); }
+    .vs { font-family: var(--cond); font-size: 34px; font-weight: 900; fill: #c3c6d0; text-anchor: middle; text-transform: uppercase; }
+    .mtag rect { fill: #fff; stroke: var(--navy); stroke-width: 3; transition: fill .3s, stroke .3s; }
+    .mtag text { font-family: var(--cond); font-size: 24px; font-weight: 900; fill: var(--navy); text-anchor: middle; transition: fill .3s; }
+    .mtag.ok rect { fill: var(--pink); stroke: var(--pink); } .mtag.ok text { fill: #fff; }
+    .rlb { font-family: var(--cond); font-size: 18px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; fill: var(--mid-grey); }
+    .rd { font-family: var(--cond); font-size: 30px; font-weight: 900; fill: #fff; }
+    .fade { transition: opacity .6s; }
+
+    /* multiple choice */
+    .opts { display: grid; gap: 10px; }
+    .col .opt { font-size: 23px; padding: 9px 18px; }
+    .opt { display: flex; align-items: center; gap: 16px; border: 3px solid var(--navy); border-radius: 8px; background: #fff; padding: 12px 20px;
+        font-family: inherit; font-size: 25px; font-weight: 600; color: var(--navy); text-align: left; line-height: 1.25; cursor: pointer;
+        transition: background-color .2s, border-color .2s, color .2s, opacity .2s; }
+    .opt .l { flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background: var(--navy); color: #fff; font-family: var(--cond); font-size: 24px; font-weight: 900;
+        display: flex; align-items: center; justify-content: center; transition: background-color .2s, color .2s; }
+    .opt:hover:not(:disabled) { background: #f6f7fb; }
+    .opt.sel { background: var(--tint); }
+    .opt.sel .l { background: var(--pink); }
+    .opt.right, .opt.right:hover { background: var(--pink); border-color: var(--pink); color: #fff; opacity: 1; }
+    .opt.right .l { background: #fff; color: var(--pink); }
+    .opt.wrong { border-style: dashed; opacity: .5; animation: shake .4s; cursor: default; }
+    .opt:disabled { cursor: default; }
+    .pred .opts { width: 390px; flex-shrink: 0; }
+    .pred .opt { min-height: 72px; font-size: 22px; font-weight: 700; padding: 8px 16px; }
+
+    /* picture choices */
+    .pcard { position: relative; border: 3px solid var(--navy); border-radius: 8px; background: #fff; padding: 12px; cursor: pointer;
+        display: flex; align-items: center; gap: 14px; font-family: inherit; color: var(--navy); text-align: left; transition: background-color .2s, border-color .2s, opacity .2s; }
+    .pcard .l { position: absolute; left: 10px; top: 10px; width: 38px; height: 38px; border-radius: 50%; background: var(--navy); color: #fff; font-family: var(--cond); font-size: 23px; font-weight: 900;
+        display: flex; align-items: center; justify-content: center; transition: background-color .2s; }
+    .pcard:hover:not(:disabled) { background: #f6f7fb; }
+    .pcard.sel { background: var(--tint); }
+    .pcard.sel .l { background: var(--pink); }
+    .pcard.right, .pcard.right:hover { border-color: var(--pink); background: #fff; box-shadow: 0 0 0 5px rgba(234,0,138,.18); opacity: 1; }
+    .pcard.right .l { background: var(--pink); }
+    .pcard.wrong { border-style: dashed; opacity: .45; animation: shake .4s; cursor: default; }
+    .pcard:disabled { cursor: default; }
+    .wcol { flex: 1; display: flex; flex-direction: column; gap: 12px; height: 100%; justify-content: center; }
+    .wgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .wgrid .pcard { padding: 8px 14px 8px 44px; }
+    .wgrid .nm { font-size: 30px; font-weight: 800; line-height: 1.1; }
+    .wgrid .gv { font-family: var(--cond); font-size: 24px; font-weight: 800; color: var(--pink); }
+
+    /* quote */
+    .quote { border-left: 8px solid var(--pink); padding: 4px 0 4px 20px; font-size: 25px; font-weight: 600; font-style: italic; line-height: 1.3; margin-bottom: 14px; }
+    .col { display: flex; flex-direction: column; }
+    .scene { position: relative; border: 3px solid var(--navy); border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #fff; }
+    .scene > svg { overflow: hidden; }
+    .replay { position: absolute; right: 12px; bottom: 12px; display: flex; align-items: center; gap: 6px; font-family: var(--cond); font-size: 19px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+        background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 6px; padding: 5px 12px 4px 9px; cursor: pointer; }
+    .replay svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+    .replay:hover { background: var(--blank); }
+
+    /* quick fire */
+    .qf { display: flex; gap: 26px; width: 100%; height: 100%; }
+    .qwrap { flex: 1; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+    .qstack { position: relative; flex: 1; border: 3px solid var(--navy); border-radius: 8px; overflow: hidden; background: #fff; }
+    .qc { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 50px 20px; text-align: center; animation: qin .45s var(--ease); }
+    .qc.out { animation: qout .32s var(--ease) forwards; }
+    @keyframes qin { from { opacity: 0; transform: translateX(80px); } to { opacity: 1; transform: none; } }
+    @keyframes qout { to { opacity: 0; transform: translateX(-80px); } }
+    .qc .ask { position: absolute; left: 20px; top: 16px; }
+    .qc .big { font-family: var(--cond); font-size: 136px; font-weight: 900; line-height: 1; letter-spacing: .01em; }
+    .qc .txt { font-size: 42px; font-weight: 800; line-height: 1.2; max-width: 640px; }
+    .stamp { position: absolute; right: 26px; top: 20px; font-family: var(--cond); font-size: 36px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: var(--pink);
+        border: 4px solid var(--pink); border-radius: 8px; padding: 4px 16px 1px; transform: rotate(-8deg); animation: stampIn .35s var(--ease); background: #fff; }
+    @keyframes stampIn { from { opacity: 0; transform: rotate(-8deg) scale(1.9); } to { opacity: 1; transform: rotate(-8deg) scale(1); } }
+    .pips { display: flex; gap: 8px; align-items: center; }
+    .pips i { width: 26px; height: 10px; border-radius: 3px; background: var(--light-grey); transition: background-color .3s; }
+    .pips i.on { background: var(--navy); } .pips i.ok { background: var(--pink); }
+    .pips .pn { margin-left: auto; }
+    .qchoices { width: 340px; flex-shrink: 0; display: flex; flex-direction: column; gap: 18px; justify-content: center; }
+    .qbtn { display: flex; align-items: center; gap: 18px; border: 3px solid var(--navy); border-radius: 10px; background: #fff; padding: 18px 22px; cursor: pointer;
+        font-family: var(--cond); font-size: 46px; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; color: var(--navy); text-align: left; line-height: 1;
+        box-shadow: 0 5px 0 #c3c6d0; transition: background-color .2s, border-color .2s, color .2s, box-shadow .2s; }
+    .qbtn small { display: block; font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 19px; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--mid-grey); margin-top: 6px; }
+    .qbtn:hover:not(:disabled) { background: #f6f7fb; }
+    .qbtn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 2px 0 #c3c6d0; }
+    .qbtn:disabled { cursor: default; }
+    .qbtn.right, .qbtn.right:hover { background: var(--pink); border-color: var(--pink); color: #fff; box-shadow: none; }
+    .qbtn.right small { color: rgba(255,255,255,.85); }
+    .qbtn.wrong { border-style: dashed; animation: shake .4s; }
+    .qbtn .ic { width: 62px; height: 62px; flex-shrink: 0; }
+
+    /* formula card + calculations */
+    .fcard { border: 3px solid var(--navy); border-left: 12px solid var(--pink); border-radius: 8px; padding: 10px 20px 12px; background: #fff; }
+    .fcard { display: flex; flex-wrap: wrap; align-items: center; column-gap: 18px; row-gap: 10px; }
+    .fcard .fbody { flex: 1 1 auto; }
+    .calc-cta { position: relative; display: flex; align-items: center; gap: 10px; flex-shrink: 0; font-family: var(--cond); font-size: 22px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase;
+        background: var(--pink); color: #fff; border: 3px solid var(--pink); border-radius: 8px; padding: 9px 16px 8px 12px; cursor: pointer; line-height: 1.05; text-align: left;
+        box-shadow: 0 4px 0 #b3006a; transition: background-color .2s, color .2s, box-shadow .2s; }
+    .calc-cta small { display: block; font-family: 'Barlow', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 600; letter-spacing: 0; text-transform: none; opacity: .9; margin-top: 2px; }
+    .calc-cta svg { width: 30px; height: 30px; flex-shrink: 0; }
+    .calc-cta:hover { background: #d1007b; }
+    .calc-cta:active { transform: translateY(2px); box-shadow: 0 2px 0 #b3006a; }
+    .calc-cta:focus-visible { outline-color: var(--navy); }
+    .calc-cta.on { background: #fff; color: var(--pink); box-shadow: 0 4px 0 #f3b9d8; }
+    .fcard.cmp .calc-cta { font-size: 19px; padding: 7px 12px 6px 10px; }
+    .fcard.cmp .calc-cta svg { width: 24px; height: 24px; }
+    .fcard.cmp .calc-cta small { display: none; }
+    .bside .pool { min-height: 0; padding: 10px; gap: 8px; }
+    .bside .pool .tile { padding: 4px 12px; font-size: 22px; }
+    .fcard .fm { font-size: 30px; font-weight: 800; line-height: 1.2; margin-top: 4px; white-space: nowrap; }
+    .fcard .fu { white-space: nowrap; }
+    .fcard .fu { font-family: var(--cond); font-size: 24px; font-weight: 800; letter-spacing: .03em; color: var(--mid-grey); margin-top: 2px; }
+    .fcard .fu b { color: var(--navy); }
+    .fcard .fm2 { border-top: 2px solid var(--light-grey); margin-top: 8px; padding-top: 6px; }
+    .fcard.cmp { padding: 8px 14px 10px; border-left-width: 10px; }
+    .fcard.cmp .fm { font-size: 23px; } .fcard.cmp .fu { font-size: 19px; }
+    .ccol { flex: 1; display: flex; flex-direction: column; gap: 14px; height: 100%; justify-content: center; min-width: 0; }
+    .arow { display: flex; align-items: center; gap: 12px; font-size: 34px; font-weight: 800; }
+    .arow .vr { font-family: var(--cond); font-size: 36px; font-weight: 900; }
+    .arow .un { font-family: var(--cond); font-size: 27px; font-weight: 800; color: var(--mid-grey); margin-left: -4px; }
+    .arow .op { color: var(--mid-grey); }
+    .num-in { width: 104px; height: 60px; border: 3px solid var(--navy); border-radius: 8px; font-family: var(--cond); font-size: 34px; font-weight: 800; color: var(--navy); text-align: center;
+        background: #fff; -webkit-user-select: text; user-select: text; outline: none; padding: 0 6px; transition: background-color .2s, border-color .2s, color .2s, box-shadow .2s; }
+    .num-in.wide { width: 170px; }
+    .num-in:focus { border-color: var(--pink); box-shadow: 0 0 0 4px rgba(234,0,138,.18); }
+    .num-in.right, .num-in.right:disabled { background: var(--pink); border-color: var(--pink); color: #fff; box-shadow: none; }
+    .num-in.wrong { border-style: dashed; animation: shake .4s; }
+    .num-in:disabled { opacity: 1; -webkit-text-fill-color: currentColor; }
+    .units { display: flex; border: 3px solid var(--navy); border-radius: 8px; overflow: hidden; }
+    .ub { font-family: var(--cond); font-size: 28px; font-weight: 900; color: var(--navy); background: #fff; border: none; width: 72px; height: 54px; cursor: pointer; transition: background-color .2s, color .2s; }
+    .ub + .ub { border-left: 3px solid var(--navy); }
+    .ub:hover:not(:disabled) { background: #f6f7fb; }
+    .ub.sel, .ub.sel:hover { background: var(--navy); color: #fff; }
+    .units.right { border-color: var(--pink); } .units.right .ub.sel { background: var(--pink); }
+    .units.right .ub + .ub { border-left-color: var(--pink); }
+    .units.wrong { border-style: dashed; animation: shake .4s; }
+    .ub:disabled { cursor: default; }
+
+    /* drag tiles */
+    .tile { font-family: inherit; font-size: 24px; font-weight: 700; color: var(--navy); background: #fff; border: 3px solid var(--navy); border-radius: 8px; padding: 6px 16px; line-height: 1.25;
+        cursor: grab; touch-action: none; position: relative; z-index: 2; transition: transform .3s var(--ease), box-shadow .2s, border-color .2s; box-shadow: 0 4px 0 #c3c6d0; white-space: nowrap; text-align: center; }
+    .tile.sm { font-size: 21px; padding: 6px 12px; white-space: normal; }
+    .tile.sel { border-color: var(--pink); box-shadow: 0 0 0 4px rgba(234,0,138,.22); }
+    .tile.drag { transition: none; cursor: grabbing; z-index: 30; box-shadow: 0 14px 30px rgba(27,31,69,.25); border-color: var(--pink); }
+    .tile.right { background: var(--pink); color: #fff; border-color: var(--pink); box-shadow: none; cursor: default; }
+    .tile.wrong { border-style: dashed; background: var(--tint); box-shadow: none; animation: shake .4s; }
+
+    /* sort */
+    .sort { display: grid; grid-template-columns: 1fr 400px 1fr; gap: 18px; width: 100%; height: 100%; }
+    .bin { border: 3px solid var(--navy); border-radius: 8px; display: flex; flex-direction: column; overflow: visible; transition: box-shadow .2s; }
+    .bin.pk { border-color: var(--pink); }
+    .bin h3 { margin: 0; padding: 8px 16px 7px; font-family: var(--cond); font-size: 28px; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; color: #fff; background: var(--navy); }
+    .bin.pk h3 { background: var(--pink); }
+    .bin .sub { font-size: 18px; font-weight: 600; color: var(--mid-grey); padding: 8px 16px 0; }
+    .bin .area { flex: 1; padding: 12px 14px; display: flex; flex-wrap: wrap; gap: 10px; align-content: flex-start; justify-content: center; border-radius: 0 0 6px 6px; transition: background-color .2s; }
+    .bin.hover .area, .bin.armed:hover .area { background: rgba(234,0,138,.06); }
+    .bin.armed { box-shadow: 0 0 0 4px rgba(234,0,138,.15); cursor: pointer; }
+    .pool { background: var(--blank); border-radius: 8px; padding: 14px; display: flex; flex-wrap: wrap; gap: 10px; align-content: center; justify-content: center; transition: background-color .2s; }
+    .pool.hover { background: #e3e7ee; }
+
+    /* scene + side panel */
+    .bwrap { position: relative; width: 806px; height: 336px; border: 3px solid var(--navy); border-radius: 8px; flex-shrink: 0; background: #fff; }
+    .bwrap > svg { position: absolute; left: 0; top: 0; overflow: hidden; border-radius: 6px; }
+    .slot { position: absolute; height: 48px; border: 3px dashed #c3c6d0; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,.85); transition: border-color .2s, background-color .2s; }
+    .slot.hover, .slot.armed:hover { border-color: var(--pink); background: rgba(234,0,138,.08); }
+    .slot.armed { border-color: #e7a3c9; cursor: pointer; }
+    .slot.filled { border-color: transparent; background: none; }
+    .slot.wrong { animation: shake .4s; }
+    .slot .tile { box-shadow: none; padding: 5px 14px; font-size: 23px; }
+    .bside { width: 324px; display: flex; flex-direction: column; gap: 10px; height: 336px; }
+    .bside .pool { flex: 1; }
+
+    /* cloze */
+    .cz { display: flex; flex-direction: column; gap: 14px; width: 100%; }
+    .crow { display: flex; align-items: center; gap: 22px; }
+    .crow > svg { flex-shrink: 0; border: 3px solid var(--navy); border-radius: 8px; background: #fff; }
+    .ctext { font-size: 26px; font-weight: 600; line-height: 1.3; }
+    .ctext b { font-weight: 800; }
+    .cslot { display: inline-flex; vertical-align: middle; min-width: 132px; height: 48px; border: 3px dashed #c3c6d0; border-radius: 8px; margin: 3px 4px; align-items: center; justify-content: center; transition: border-color .2s, background-color .2s; }
+    .cslot.hover, .cslot.armed:hover { border-color: var(--pink); background: rgba(234,0,138,.06); }
+    .cslot.armed { border-color: #e7a3c9; cursor: pointer; }
+    .cslot.filled { border-color: transparent; }
+    .cslot.wrong { animation: shake .4s; }
+    .cslot .tile { box-shadow: none; padding: 4px 14px; font-size: 23px; }
+    .cz .pool { flex-direction: row; margin-top: 4px; min-height: 70px; }
+
+    /* end */
+    .scorecard { border: 3px solid var(--pink); border-radius: 8px; padding: 22px 60px 26px; text-align: center; display: flex; flex-direction: column; align-items: center; }
+    .scorecard .big { font-family: var(--cond); font-size: 96px; font-weight: 900; color: var(--pink); line-height: 1; margin-top: 8px; }
+    .scorecard .dlbl { margin-top: 8px; }
+    .scorecard .sub { margin-top: 18px; }
+    .done-buckle { width: 90px; height: 90px; }
+    .dots { display: flex; gap: 8px; justify-content: center; margin-top: 14px; }
+    .dots span { width: 34px; height: 34px; border-radius: 6px; border: 3px solid var(--navy); font-family: var(--cond); font-size: 17px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+    .dots span.y { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .again { margin-top: 22px; font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+        background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 8px; padding: 8px 22px; cursor: pointer; }
+    /* calculator */
+    .calc { position: absolute; z-index: 25; width: 284px; background: #fff; border: 3px solid var(--navy); border-radius: 10px; box-shadow: 0 18px 40px rgba(27,31,69,.22); overflow: hidden; outline: none; }
+    .calc[hidden] { display: none; }
+    .calc.pop { animation: calcIn .3s var(--ease); }
+    @keyframes calcIn { from { opacity: 0; transform: translateY(12px) scale(.96); } to { opacity: 1; transform: none; } }
+    .calc:focus-visible { box-shadow: 0 0 0 4px rgba(234,0,138,.3), 0 18px 40px rgba(27,31,69,.22); }
+    .calc-bar { display: flex; align-items: center; gap: 10px; background: var(--navy); color: #fff; padding: 7px 8px 7px 14px; cursor: grab; touch-action: none; }
+    .calc-bar.grab { cursor: grabbing; }
+    .calc-bar .ttl { font-family: var(--cond); font-size: 20px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; flex: 1; }
+    .calc-bar .grip { width: 18px; height: 18px; opacity: .55; }
+    .calc-x { width: 32px; height: 32px; border: none; border-radius: 6px; background: transparent; color: #fff; font-size: 26px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .calc-x:hover { background: rgba(255,255,255,.15); }
+    .calc-x:focus-visible { outline-color: #fff; }
+    .calc-scr { padding: 6px 16px 6px; text-align: right; border-bottom: 3px solid var(--navy); background: var(--blank); }
+    .calc-scr .ex { font-family: var(--cond); font-size: 20px; font-weight: 800; color: var(--mid-grey); min-height: 24px; white-space: pre; overflow: hidden; direction: rtl; }
+    .calc-scr .ex span { direction: ltr; unicode-bidi: isolate; }
+    .calc-scr .rs { font-family: var(--cond); font-size: 36px; font-weight: 900; line-height: 1.05; white-space: nowrap; overflow: hidden; }
+    .calc-keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 9px 10px; }
+    .ck { height: 40px; border: 3px solid var(--navy); border-radius: 8px; background: #fff; font-family: var(--cond); font-size: 26px; font-weight: 900; color: var(--navy); cursor: pointer;
+        box-shadow: 0 3px 0 #c3c6d0; transition: background-color .15s; }
+    .ck:hover { background: #f6f7fb; }
+    .ck:active, .ck.hit { transform: translateY(2px); box-shadow: 0 1px 0 #c3c6d0; background: var(--tint); }
+    .ck.op { color: var(--pink); }
+    .ck.fn { font-size: 20px; letter-spacing: .06em; }
+    .ck.eq { background: var(--pink); border-color: var(--pink); color: #fff; box-shadow: 0 3px 0 #b3006a; grid-row: span 2; height: auto; }
+    .ck.eq:active, .ck.eq.hit { background: #c90077; box-shadow: 0 1px 0 #b3006a; }
+    .ck.zero { grid-column: span 2; }
+    .calc-scr { position: relative; }
+    .calc-ins { position: absolute; left: 8px; top: 7px; height: 30px; border: 2px solid var(--navy); border-radius: 6px; background: var(--navy); color: #fff; padding: 0 10px;
+        font-family: var(--cond); font-size: 16px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
+    .calc-ins[hidden] { display: none; }
+    .calc-ins:hover:not(:disabled) { background: var(--pink); border-color: var(--pink); }
+    .calc-ins:disabled { background: transparent; color: #c3c6d0; border-color: #c3c6d0; cursor: default; }
+    .calc-ins:not([hidden]) ~ .ex { padding-left: 120px; }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+    <div class="top">
+        <h1 class="sheet-title">Mass or <span>weight?</span></h1>
+        <div class="hright">
+            <div class="counter" id="counter"></div>
+            <div class="bcount" title="Buckles earned">
+                <img src="buckle.svg" alt="" class="counter-icon" onerror="this.style.visibility='hidden'">
+                <div class="num" id="buckleCount">0</div>
+                <div class="lbl">Buckles</div>
+            </div>
+        </div>
+    </div>
+    <div class="content" id="content"></div>
+    <div class="caption"><div class="txt" id="cap"></div><button class="next" id="next" hidden>Check</button></div>
+    <div class="progress" id="progress"></div>
+    <div class="calc" id="calc" role="dialog" aria-label="Calculator" tabindex="-1" hidden>
+        <div class="calc-bar" id="calcBar"><svg class="grip" viewBox="0 0 18 18" fill="#fff"><circle cx="5" cy="4" r="1.6"/><circle cx="13" cy="4" r="1.6"/><circle cx="5" cy="9" r="1.6"/><circle cx="13" cy="9" r="1.6"/><circle cx="5" cy="14" r="1.6"/><circle cx="13" cy="14" r="1.6"/></svg><span class="ttl">Calculator</span><button class="calc-x" id="calcX" aria-label="Close calculator">&times;</button></div>
+        <div class="calc-scr"><button class="calc-ins" id="calcIns" hidden>Put in answer</button><div class="ex" id="calcEx"></div><div class="rs" id="calcRs">0</div></div>
+        <div class="calc-keys" id="calcKeys"></div>
+    </div>
+</div>
+
+<div class="award" id="award" role="status" aria-live="polite">
+    <img src="penguin-with-buckle.svg" alt="" class="award-img" onerror="this.style.display='none'">
+    <div class="award-text" id="awardText">+1 Buckle!</div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const content = $('#content'), cap = $('#cap'), btn = $('#next'), counter = $('#counter'), progress = $('#progress');
+const NS = 'http://www.w3.org/2000/svg';
+const NV = '#1b1f45', PK = '#ea008a', GR = '#c9ccd6', LT = '#f0f3f6', MG = '#b8bcc8', SK = '#d7dae2';
+let scaleK = 1, UID = 0;
+function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
+function say(html) { cap.innerHTML = `<span class="in">${html}</span>`; }
+
+/* ---------- animation helpers ---------- */
+let runId = 0;
+const easeOut = t => 1 - (1 - t) * (1 - t);
+function play(dur, step, guard) {
+    const id = runId, ok = guard || (() => id === runId);
+    return new Promise(res => {
+        const st = performance.now();
+        const f = n => { if (!ok()) return; const t = Math.min(1, (n - st) / dur); step(t); if (t < 1) requestAnimationFrame(f); else res(); };
+        requestAnimationFrame(f);
+    });
+}
+function wait(ms) { const id = runId; return new Promise(r => setTimeout(() => { if (id === runId) r(); }, ms)); }
+/* settle from one value to another with a damped wobble, like a spring or a balance beam */
+function damp(from, to, dur, apply) { return play(dur, k => apply(to + (from - to) * Math.exp(-5 * k) * Math.cos(k * Math.PI * 5))).then(() => apply(to)); }
+
+/* ---------- drawing helpers ---------- */
+const f1 = n => String(Math.round(n * 10) / 10);
+const tx = (x, y, s, cls = '', st = '') => `<text class="t ${cls}" x="${f1(x)}" y="${f1(y)}"${st ? ` style="${st}"` : ''}>${s}</text>`;
+const DIR = { r: 0, l: Math.PI, u: -Math.PI / 2, d: Math.PI / 2 };
+function arrowSVG(x, y, ang, len, o = {}) {
+    const c = o.c || PK, sw = o.sw || 8, hw = o.hw || 13, hl = Math.min(o.hl || 22, len);
+    if (len < 1) return '';
+    const ux = Math.cos(ang), uy = Math.sin(ang), ex = x + ux * len, ey = y + uy * len, bx = ex - ux * hl, by = ey - uy * hl, px = -uy * hw, py = ux * hw;
+    let s = len > hl ? `<line x1="${f1(x)}" y1="${f1(y)}" x2="${f1(bx)}" y2="${f1(by)}" stroke="${c}" stroke-width="${sw}"/>` : '';
+    s += `<polygon points="${f1(ex)},${f1(ey)} ${f1(bx + px)},${f1(by + py)} ${f1(bx - px)},${f1(by - py)}" fill="${c}" stroke="${c}" stroke-width="1.5" stroke-linejoin="round"/>`;
+    if (o.label) {
+        const fs = o.fs || 24, full = o.full || len, op = o.lop === undefined ? 1 : o.lop;
+        const lx = x + (o.left ? -18 : 18), ly = o.ly !== undefined ? o.ly : y + uy * full / 2 + 8;
+        s += `<text class="flbl" x="${f1(lx)}" y="${f1(ly)}" text-anchor="${o.left ? 'end' : 'start'}" opacity="${op}" style="font-size:${fs}px">${o.label}</text>`;
+    }
+    return s;
+}
+function growArrow(g, x, y, ang, len, o = {}, dur = 450) {
+    const tok = g._tok = (g._tok || 0) + 1;
+    return play(dur, k => { g.innerHTML = arrowSVG(x, y, ang, len * easeOut(k), { ...o, full: len, lop: k }); }, () => g._tok === tok && document.body.contains(g));
+}
+function clearArrow(g) { g._tok = (g._tok || 0) + 1; g.innerHTML = ''; }
+const mtag = (x, y, t, cls = '') => { const w = Math.round(t.length * 12 + 28); return `<g class="mtag ${cls}"><rect x="${x - w / 2}" y="${y - 19}" width="${w}" height="38" rx="6"/><text x="${x}" y="${y + 8}">${t}</text></g>`; };
+
+/* ---------- planets (drawn at radius 50, then scaled) ---------- */
+const WORLD = { Mercury: 3.7, Venus: 8.9, Earth: 9.8, Moon: 1.6, Mars: 3.8, Jupiter: 24.8, Saturn: 10.4, Uranus: 8.7, Neptune: 11.2 };
+function planet(k, cx, cy, r) {
+    const id = 'pc' + (++UID), s = (r / 50).toFixed(4);
+    const C = (x, y, rr, f) => `<circle cx="${x}" cy="${y}" r="${rr}" fill="${f}"/>`;
+    const B = (y, h, f) => `<rect x="-50" y="${y}" width="100" height="${h}" fill="${f}"/>`;
+    let base = LT, body = '', back = '', front = '', dash = '';
+    if (k === 'Earth') { base = NV; body = `<path d="M-34 -30 C-16 -44 6 -38 4 -22 C2 -8 -16 -6 -14 8 C-12 22 -30 22 -38 6 C-46 -8 -44 -22 -34 -30Z M14 2 C28 -4 44 6 38 22 C32 34 18 38 12 28 C6 18 4 8 14 2Z M10 -46 C22 -50 36 -42 30 -34 C24 -28 12 -34 10 -46Z" fill="#5560a8"/>`; }
+    else if (k === 'Moon') { body = C(-18, -14, 12, SK) + C(16, 12, 16, SK) + C(-10, 26, 7, SK) + C(22, -24, 6, SK); }
+    else if (k === 'Mercury') { base = '#b8bcc8'; body = C(-16, -18, 11, '#9ea3b2') + C(18, 8, 14, '#9ea3b2') + C(-20, 22, 8, '#9ea3b2') + C(14, -30, 5, '#9ea3b2'); }
+    else if (k === 'Venus') { base = '#f2f3f8'; body = `<g fill="none" stroke="#c3c6d0" stroke-width="6" stroke-linecap="round"><path d="M-50 -22 Q-24 -34 2 -22 T52 -24"/><path d="M-52 2 Q-26 -10 0 2 T52 0"/><path d="M-50 26 Q-24 14 2 26 T52 24"/></g>`; }
+    else if (k === 'Mars') { base = '#f5a2cd'; body = C(-14, -4, 9, '#e97cb5') + C(18, 16, 12, '#e97cb5') + C(6, -24, 6, '#e97cb5') + `<ellipse cx="0" cy="-49" rx="22" ry="8" fill="#fff"/>`; }
+    else if (k === 'Jupiter') { base = '#f2f3f8'; body = B(-42, 10, '#c3c6d0') + B(-24, 12, '#8a8fa6') + B(-6, 8, '#c3c6d0') + B(8, 14, '#8a8fa6') + B(30, 9, '#c3c6d0') + `<ellipse cx="16" cy="15" rx="11" ry="6" fill="${PK}"/>`; }
+    else if (k === 'Saturn') {
+        base = '#eceef4'; body = B(-32, 8, '#c9ccd6') + B(-12, 10, SK) + B(8, 8, '#c9ccd6') + B(26, 8, SK);
+        const ring = sw => `<path d="M-94 0 A94 22 0 0 ${sw} 94 0" fill="none" stroke="${NV}" stroke-width="9"/><path d="M-80 0 A80 16 0 0 ${sw} 80 0" fill="none" stroke="#c3c6d0" stroke-width="5"/>`;
+        back = `<g transform="rotate(-14)">${ring(1)}</g>`; front = `<g transform="rotate(-14)">${ring(0)}</g>`;
+    }
+    else if (k === 'Uranus') {
+        base = '#d6dcef'; body = B(-6, 6, '#c3cbe4');
+        back = `<g transform="rotate(-80)"><path d="M-84 0 A84 14 0 0 1 84 0" fill="none" stroke="${NV}" stroke-width="4"/></g>`; front = `<g transform="rotate(-80)"><path d="M-84 0 A84 14 0 0 0 84 0" fill="none" stroke="${NV}" stroke-width="4"/></g>`;
+    }
+    else if (k === 'Neptune') { base = '#3a4290'; body = `<path d="M-44 -8 Q-10 -18 34 -10" fill="none" stroke="#8b93cf" stroke-width="6" stroke-linecap="round"/><path d="M-30 28 Q0 20 30 30" fill="none" stroke="#5a62ad" stroke-width="5" stroke-linecap="round"/><ellipse cx="-6" cy="10" rx="12" ry="6" fill="#262c6b"/>`; }
+    else if (k === 'Mystery') { base = '#fff'; dash = ' stroke-dasharray="9 7"'; front = `<text x="0" y="24" text-anchor="middle" style="font-family:var(--cond);font-size:68px;font-weight:900" fill="${PK}">?</text>`; }
+    return `<g transform="translate(${cx} ${cy}) scale(${s})"><defs><clipPath id="${id}"><circle r="50"/></clipPath></defs>${back}<circle r="50" fill="${base}"/><g clip-path="url(#${id})">${body}</g><circle r="50" fill="none" stroke="${NV}" stroke-width="3" vector-effect="non-scaling-stroke"${dash}/>${front}</g>`;
+}
+function badge(k, g, x = 14, y = 12, name) {
+    return `<g transform="translate(${x} ${y})"><rect width="214" height="56" rx="8" fill="#fff" stroke="${NV}" stroke-width="3"/>${planet(k, 30, 28, 17)}
+        <text class="bn" x="58" y="25">${name || k}</text><text class="bg" x="58" y="47">g = ${g} m/s²</text></g>`;
+}
+
+/* ---------- grounds ---------- */
+const GND = {
+    Earth: (w, gy) => `<rect x="0" y="${gy}" width="${w}" height="200" fill="#f4f5f8"/><line class="gnd" x1="0" x2="${w}" y1="${gy}" y2="${gy}"/>`,
+    Mars: (w, gy) => `<rect x="0" y="${gy}" width="${w}" height="200" fill="#fdf1f7"/><line x1="0" x2="${w}" y1="${gy}" y2="${gy}" stroke="#f3bcd9" stroke-width="4"/>
+        <ellipse cx="${w * .12}" cy="${gy + 26}" rx="18" ry="6" fill="#f8d3e6"/><ellipse cx="${w * .8}" cy="${gy + 46}" rx="26" ry="8" fill="#f8d3e6"/><ellipse cx="${w * .55}" cy="${gy + 60}" rx="12" ry="4" fill="#f8d3e6"/>`,
+    Moon: (w, gy) => `<rect x="0" y="${gy}" width="${w}" height="200" fill="${LT}"/><line class="gnd" x1="0" x2="${w}" y1="${gy}" y2="${gy}"/>
+        <ellipse cx="${w * .14}" cy="${gy + 30}" rx="30" ry="8" fill="none" stroke="${SK}" stroke-width="3"/><ellipse cx="${w * .82}" cy="${gy + 48}" rx="40" ry="10" fill="none" stroke="${SK}" stroke-width="3"/><ellipse cx="${w * .5}" cy="${gy + 66}" rx="18" ry="5" fill="none" stroke="${SK}" stroke-width="3"/>`
+};
+
+/* ---------- objects ---------- */
+const TIN = (cx, by) => `<path d="M${cx - 44} ${by - 96} Q${cx} ${by - 160} ${cx + 44} ${by - 96}" fill="none" stroke="${NV}" stroke-width="4"/>
+    <rect class="obj" x="${cx - 50}" y="${by - 100}" width="100" height="100" rx="6"/><rect x="${cx - 50}" y="${by - 104}" width="100" height="12" rx="4" fill="${NV}"/>
+    <rect x="${cx - 50}" y="${by - 70}" width="100" height="40" fill="#fff" stroke="${NV}" stroke-width="2"/><text class="oname" x="${cx}" y="${by - 43}" text-anchor="middle">Paint</text>`;
+const DUMBBELL = (cx, gy) => {
+    const plate = (x, w, h) => `<rect x="${x}" y="${gy - (h + 80) / 2}" width="${w}" height="${h}" rx="5" fill="${NV}"/>`;
+    return `<rect x="${cx - 100}" y="${gy - 46}" width="200" height="12" rx="4" fill="${MG}" stroke="${NV}" stroke-width="2"/>
+        ${plate(cx - 104, 24, 80)}${plate(cx - 80, 18, 58)}${plate(cx + 80, 24, 80)}${plate(cx + 62, 18, 58)}`;
+};
+const CAMERA = (cx, cy) => `<rect x="${cx - 30}" y="${cy - 52}" width="44" height="18" rx="4" fill="${NV}"/><rect class="obj" x="${cx - 64}" y="${cy - 38}" width="128" height="80" rx="12"/>
+    <circle cx="${cx}" cy="${cy + 2}" r="28" fill="#fff" stroke="${NV}" stroke-width="4"/><circle cx="${cx}" cy="${cy + 2}" r="15" fill="${NV}"/><circle cx="${cx - 5}" cy="${cy - 3}" r="4" fill="#fff"/>
+    <rect x="${cx + 36}" y="${cy - 28}" width="18" height="10" rx="2" fill="${PK}"/>`;
+function rover(x, y, s) {
+    const wheel = cx => `<circle cx="${cx}" cy="-12" r="12" fill="${NV}"/><circle cx="${cx}" cy="-12" r="4" fill="#fff"/>`;
+    return `<g transform="translate(${x} ${y}) scale(${s})"><line x1="28" y1="-46" x2="28" y2="-76" stroke="${NV}" stroke-width="4"/><rect x="16" y="-88" width="30" height="14" rx="3" fill="${NV}"/>
+        <rect x="-66" y="-60" width="70" height="8" rx="2" fill="${NV}"/><line x1="-32" y1="-52" x2="-32" y2="-46" stroke="${NV}" stroke-width="4"/>
+        <rect class="obj" x="-52" y="-48" width="104" height="30" rx="5"/>${wheel(-38)}${wheel(0)}${wheel(38)}</g>`;
+}
+function astro(x, y, s) {
+    return `<g transform="translate(${x} ${y}) scale(${s})"><g stroke="${NV}" stroke-width="7" stroke-linecap="round"><line x1="-8" y1="0" x2="-6" y2="-26"/><line x1="8" y1="0" x2="6" y2="-26"/>
+        <line x1="-12" y1="-48" x2="-22" y2="-30"/><line x1="12" y1="-48" x2="22" y2="-32"/></g>
+        <rect x="-24" y="-56" width="12" height="26" rx="3" fill="${LT}" stroke="${NV}" stroke-width="3"/><rect x="-15" y="-58" width="30" height="34" rx="9" fill="#fff" stroke="${NV}" stroke-width="4"/>
+        <circle cx="0" cy="-70" r="13" fill="#fff" stroke="${NV}" stroke-width="4"/><ellipse cx="3" cy="-70" rx="8" ry="6" fill="${NV}"/></g>`;
+}
+/* things that hang from a spring scale hook at (0, 0) */
+const SACK = lbl => `<line x1="0" y1="0" x2="0" y2="12" stroke="${NV}" stroke-width="4"/>
+    <path d="M-32 18 Q-40 62 -36 88 Q0 98 36 88 Q40 62 32 18 Q0 24 -32 18 Z" class="obj"/><path d="M-16 18 L0 9 L16 18" fill="none" stroke="${NV}" stroke-width="4" stroke-linejoin="round"/>
+    <text class="oname" x="0" y="46" text-anchor="middle" style="font-size:16px">Flour</text><text class="olbl" x="0" y="76">${lbl}</text>`;
+const SUITCASE = `<line x1="0" y1="0" x2="0" y2="8" stroke="${NV}" stroke-width="4"/><path d="M-24 28 V16 Q-24 8 -16 8 H16 Q24 8 24 16 V28" fill="none" stroke="${NV}" stroke-width="7"/>
+    <rect class="obj" x="-66" y="28" width="132" height="88" rx="10"/><line x1="-34" y1="28" x2="-34" y2="116" stroke="${GR}" stroke-width="4"/><line x1="34" y1="28" x2="34" y2="116" stroke="${GR}" stroke-width="4"/>
+    <circle cx="-46" cy="121" r="6" fill="${NV}"/><circle cx="46" cy="121" r="6" fill="${NV}"/>`;
+const CRATE = `<line x1="0" y1="0" x2="0" y2="10" stroke="${NV}" stroke-width="4"/><path d="M-30 24 L0 10 L30 24" fill="none" stroke="${NV}" stroke-width="3"/>
+    <rect class="obj" x="-40" y="24" width="80" height="66" rx="4"/><path d="M-40 24 L40 90 M40 24 L-40 90" stroke="${GR}" stroke-width="3"/>
+    <rect x="-26" y="44" width="52" height="28" rx="4" fill="#fff" stroke="${NV}" stroke-width="2"/><text class="olbl" x="0" y="66" style="font-size:22px">4 kg</text>`;
+
+/* ---------- spring scale ---------- */
+function springPath(y1, y2) {
+    const n = 10, a = 8, top = y1 + 3, bot = y2 - 3, h = (bot - top) / n;
+    let d = `M0 ${f1(y1)} L0 ${f1(top)}`;
+    for (let i = 0; i < n; i++) d += ` L${i % 2 ? -a : a} ${f1(top + h * (i + .5))}`;
+    return d + ` L0 ${f1(bot)} L0 ${f1(y2)}`;
+}
+function sscale(cls, x, y, s, obj, left) {
+    let ticks = '';
+    for (let i = 0; i <= 11; i++) { const yy = 46 + i * 10; ticks += `<line x1="-24" x2="${i % 5 === 0 ? -12 : -17}" y1="${yy}" y2="${yy}" stroke="${MG}" stroke-width="2"/>`; }
+    const rx = left ? -146 : 34;
+    return `<g class="${cls}" transform="translate(${x} ${y}) scale(${s})">
+        <rect x="-46" y="-10" width="92" height="9" rx="2" fill="${NV}"/><circle cx="0" cy="8" r="7" fill="none" stroke="${NV}" stroke-width="4"/>
+        <rect x="-24" y="15" width="48" height="158" rx="10" fill="#fff" stroke="${NV}" stroke-width="3.5"/><rect x="-11" y="24" width="22" height="140" rx="3" fill="${LT}"/>${ticks}
+        <path class="spr" fill="none" stroke="${NV}" stroke-width="3" stroke-linejoin="round"/><rect class="ptr" x="-17" width="34" height="6" rx="2" fill="${PK}"/>
+        <g class="hang"><line x1="0" y1="0" x2="0" y2="132" stroke="${NV}" stroke-width="5"/><circle cx="0" cy="140" r="8" fill="none" stroke="${NV}" stroke-width="4"/><g class="hobj" transform="translate(0 148)">${obj}</g></g>
+        <text class="rlb" x="${rx + 56}" y="94" text-anchor="middle">Reading</text><rect x="${rx}" y="102" width="112" height="50" rx="6" fill="${NV}"/><text class="rd" x="${rx + 56}" y="138" text-anchor="middle"></text></g>`;
+}
+function setSS(g, ext, txt) {
+    g.querySelector('.spr').setAttribute('d', springPath(24, 46 + ext));
+    g.querySelector('.ptr').setAttribute('y', f1(43 + ext));
+    g.querySelector('.hang').setAttribute('transform', `translate(0 ${f1(46 + ext)})`);
+    if (txt !== undefined) g.querySelector('.rd').textContent = txt;
+}
+
+/* ---------- formula reminder ---------- */
+const CALC_IC = `<svg viewBox="0 0 20 20"><rect x="3" y="1.5" width="14" height="17" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="6" y="4.5" width="8" height="3.5" rx=".8" fill="currentColor"/><g fill="currentColor"><circle cx="7" cy="11" r="1.2"/><circle cx="10" cy="11" r="1.2"/><circle cx="13" cy="11" r="1.2"/><circle cx="7" cy="14.8" r="1.2"/><circle cx="10" cy="14.8" r="1.2"/><circle cx="13" cy="14.8" r="1.2"/></g></svg>`;
+const fcard = (rev, cmp) => `<div class="fcard${cmp ? ' cmp' : ''}"><div class="fbody"><div class="dlbl">Formula</div><div class="fm">Weight = mass × gravity</div>
+    <div class="fu"><b>W</b> (N) = <b>m</b> (kg) × <b>g</b> (m/s²)</div>${rev ? '<div class="fm fm2">mass = weight ÷ gravity</div>' : ''}</div>
+    <button class="calc-cta" aria-controls="calc" aria-expanded="false">${CALC_IC}<span class="cl">Open calculator<small>Do the sum here</small></span></button></div>`;
+
+/* ---------- choice icons ---------- */
+const IC = {
+    kg: `<svg class="ic" viewBox="0 0 62 62"><circle cx="31" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="4"/><path d="M15 22 H47 L54 56 H8 Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><text x="31" y="48" text-anchor="middle" fill="currentColor" style="font-family:var(--cond);font-size:20px;font-weight:900;letter-spacing:0;text-transform:none">kg</text></svg>`,
+    N: `<svg class="ic" viewBox="0 0 62 62"><rect x="10" y="4" width="26" height="22" rx="4" fill="none" stroke="currentColor" stroke-width="4"/><line x1="23" y1="26" x2="23" y2="46" stroke="currentColor" stroke-width="6"/><polygon points="12,44 34,44 23,60" fill="currentColor"/><text x="48" y="50" text-anchor="middle" fill="currentColor" style="font-family:var(--cond);font-size:24px;font-weight:900;letter-spacing:0">N</text></svg>`,
+    more: `<svg class="ic" viewBox="0 0 62 62"><line x1="31" y1="2" x2="31" y2="40" stroke="currentColor" stroke-width="8"/><polygon points="15,38 47,38 31,60" fill="currentColor"/></svg>`,
+    less: `<svg class="ic" viewBox="0 0 62 62"><line x1="31" y1="2" x2="31" y2="40" stroke="currentColor" stroke-width="3" stroke-dasharray="4 5" opacity=".45"/><line x1="31" y1="26" x2="31" y2="40" stroke="currentColor" stroke-width="8"/><polygon points="19,38 43,38 31,54" fill="currentColor"/></svg>`
+};
+const replayIcon = `<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v5h5"/></svg>`;
+
+/* ---------- small pictures for fill the gaps ---------- */
+const PIC = {
+    mass: `<svg viewBox="0 0 110 76" width="110" height="76"><rect class="obj" x="14" y="12" width="54" height="54" rx="4"/>${[0, 1, 2].map(i => [0, 1, 2].map(j => `<circle cx="${27 + j * 14}" cy="${25 + i * 14}" r="4" fill="${MG}"/>`).join('')).join('')}${tx(76, 47, 'kg', '', 'font-size:26px')}</svg>`,
+    weight: `<svg viewBox="0 0 110 76" width="110" height="76"><rect class="obj" x="14" y="8" width="54" height="34" rx="4"/>${arrowSVG(41, 42, DIR.d, 28, { sw: 6, hl: 13, hw: 9 })}${tx(80, 47, 'N', '', 'font-size:26px')}</svg>`,
+    travel: `<svg viewBox="0 0 110 76" width="110" height="76">${planet('Earth', 25, 38, 17)}<line x1="47" y1="38" x2="60" y2="38" stroke="${MG}" stroke-width="3" stroke-dasharray="4 4"/><polygon points="58,32 66,38 58,44" fill="${MG}"/>${planet('Mars', 86, 38, 17)}</svg>`,
+    stand: `<svg viewBox="0 0 110 76" width="110" height="76"><rect x="0" y="66" width="110" height="10" fill="${LT}"/><line class="gnd" x1="0" x2="110" y1="66" y2="66"/>${astro(55, 66, .78)}</svg>`,
+    jump: `<svg viewBox="0 0 110 76" width="110" height="76"><rect x="0" y="66" width="110" height="10" fill="${LT}"/><line class="gnd" x1="0" x2="110" y1="66" y2="66"/><path d="M14 66 Q55 -6 96 66" fill="none" stroke="${MG}" stroke-width="2.5" stroke-dasharray="4 5"/>${astro(55, 35, .4)}</svg>`
+};
+
+/* =========================================================
+   ANIMATED SCENES (predict)
+   Each scene: run(full, skipIntro)
+   ========================================================= */
+const SCENES = {
+    spring(svg) {
+        const EE = 78.4, EM = 30.4;
+        svg.innerHTML = `<line x1="370" y1="0" x2="370" y2="330" stroke="${SK}" stroke-width="3" stroke-dasharray="6 8"/>
+            ${badge('Earth', 9.8, 14, 12)}${badge('Mars', 3.8, 386, 12)}
+            ${sscale('ssL', 284, 26, .8, SACK('2 kg'), true)}${sscale('ssR', 654, 26, .8, SACK('2 kg'), true)}`;
+        const L = svg.querySelector('.ssL'), R = svg.querySelector('.ssR'), rObj = R.querySelector('.hobj');
+        return {
+            async run(full, skipIntro) {
+                if (!skipIntro) {
+                    this.introDone = false;
+                    setSS(L, 0, '0.0 N'); setSS(R, 0, '? N'); rObj.style.opacity = .3;
+                    await wait(500);
+                    await damp(0, EE, 1600, e => setSS(L, e, (Math.max(0, e) / EE * 19.6).toFixed(1) + ' N'));
+                    setSS(L, EE, '19.6 N');
+                    this.introDone = true;
+                }
+                if (!full) return;
+                await wait(skipIntro ? 100 : 500);
+                await play(300, k => { rObj.style.opacity = .3 + .7 * k; });
+                await damp(0, EM, 1600, e => setSS(R, e, (Math.max(0, e) / EM * 7.6).toFixed(1) + ' N'));
+                setSS(R, EM, '7.6 N');
+            }
+        };
+    },
+    balance(svg) {
+        const P = { x: 370, y: 98 }, H = 210, AL = 84;
+        const ROCK = `<polygon class="obj" points="-36,78 -40,58 -24,38 2,32 26,42 38,60 34,78"/><path d="M-18 54 l12 -8 M8 62 l14 -6" stroke="${GR}" stroke-width="3" stroke-linecap="round"/>`;
+        const BLOCK = `<rect x="-9" y="26" width="18" height="10" rx="3" fill="${NV}"/><path d="M-32 78 L-25 36 H25 L32 78 Z" fill="${NV}"/><text x="0" y="66" text-anchor="middle" style="font-family:var(--cond);font-size:22px;font-weight:900" fill="#fff">2 kg</text>`;
+        const pan = (x, y, obj) => `<g transform="translate(${f1(x)} ${f1(y)})"><line x1="0" y1="0" x2="-48" y2="78" stroke="${NV}" stroke-width="2.5"/><line x1="0" y1="0" x2="48" y2="78" stroke="${NV}" stroke-width="2.5"/>
+            ${obj}<path d="M-60 78 Q0 112 60 78 Z" fill="${LT}" stroke="${NV}" stroke-width="4" stroke-linejoin="round"/></g>`;
+        svg.innerHTML = `<g class="gE fade">${GND.Earth(740, 300)}</g><g class="gM fade" opacity="0">${GND.Moon(740, 300)}</g>
+            <g class="bE fade">${badge('Earth', 9.8)}</g><g class="bM fade" opacity="0">${badge('Moon', 1.6)}</g>
+            <rect x="310" y="292" width="120" height="10" rx="3" fill="${NV}"/><rect x="362" y="${P.y}" width="16" height="196" fill="${NV}"/>
+            <g class="pans"></g><g class="beam"><rect x="${P.x - H - 14}" y="${P.y - 7}" width="${2 * H + 28}" height="14" rx="5" fill="${NV}"/></g>
+            <circle cx="${P.x}" cy="${P.y}" r="10" fill="#fff" stroke="${NV}" stroke-width="4"/>
+            <g class="aL"></g><g class="aR"></g>
+            <text class="qm" x="${P.x}" y="62" text-anchor="middle" opacity="0" style="font-family:var(--cond);font-size:46px;font-weight:900" fill="${PK}">?</text>
+            <text class="lv" x="${P.x}" y="66" text-anchor="middle" opacity="0" style="font-family:var(--cond);font-size:26px;font-weight:900;letter-spacing:.06em;text-transform:uppercase" fill="${PK}">Still level</text>`;
+        const $s = c => svg.querySelector(c), beam = $s('.beam'), pans = $s('.pans'), aL = $s('.aL'), aR = $s('.aR');
+        const draw = th => {
+            const t = th * Math.PI / 180, dx = H * Math.cos(t), dy = H * Math.sin(t);
+            beam.setAttribute('transform', `rotate(${th.toFixed(2)} ${P.x} ${P.y})`);
+            pans.innerHTML = pan(P.x - dx, P.y - dy, ROCK) + pan(P.x + dx, P.y + dy, BLOCK);
+        };
+        const op = (c, v) => $s(c).setAttribute('opacity', v);
+        const arrows = len => Promise.all([
+            growArrow(aL, P.x - H, P.y + 96, DIR.d, len, { label: 'Gravity', left: true, ly: P.y + 130 }),
+            growArrow(aR, P.x + H, P.y + 96, DIR.d, len, { label: 'Gravity', ly: P.y + 130 })]);
+        return {
+            async run(full, skipIntro) {
+                if (!skipIntro) {
+                    this.introDone = false;
+                    op('.gE', 1); op('.gM', 0); op('.bE', 1); op('.bM', 0); op('.qm', 0); op('.lv', 0);
+                    clearArrow(aL); clearArrow(aR); aL.setAttribute('opacity', 1); aR.setAttribute('opacity', 1);
+                    draw(-10);
+                    await wait(500);
+                    await damp(-10, 0, 1700, draw);
+                    await arrows(AL);
+                    await wait(1100);
+                    await play(700, k => { op('.gE', 1 - k); op('.gM', k); op('.bE', 1 - k); op('.bM', k); aL.setAttribute('opacity', 1 - k); aR.setAttribute('opacity', 1 - k); });
+                    clearArrow(aL); clearArrow(aR); aL.setAttribute('opacity', 1); aR.setAttribute('opacity', 1);
+                    await play(300, k => op('.qm', k));
+                    this.introDone = true;
+                }
+                if (!full) return;
+                await wait(skipIntro ? 100 : 500);
+                op('.qm', 0);
+                await arrows(AL * 1.6 / 9.8);
+                await damp(2.5, 0, 1200, draw);
+                await play(400, k => op('.lv', k));
+            }
+        };
+    }
+};
+
+/* =========================================================
+   QUESTIONS
+   Each id is frozen once released: buckles are saved against it.
+   ========================================================= */
+const near = (v, x) => Math.abs(v - x) < 0.051;
+/* common slips when finding weight */
+function diagW(v, m, g, where) {
+    if (near(v, m)) return 'That is the mass. Weight is the mass multiplied by gravity.';
+    if (g !== 9.8 && near(v, m * 9.8)) return `That uses Earth’s gravity. Use the gravity on ${where} (${g} m/s²).`;
+    if (near(v, m / g) || near(v, g / m)) return 'Multiply the mass by gravity. Don’t divide.';
+    if (near(v, m + g)) return 'Multiply the mass by gravity. Don’t add them.';
+    return `Multiply the mass (${m} kg) by the gravity on ${where} (${g} m/s²).`;
+}
+const UNIT_N = 'Weight is a force, so it is measured in newtons (N).';
+const UNIT_KG = 'Mass is measured in kilograms (kg), not newtons.';
+
+const QUICK_MW = [
+    { t: '45 kg', big: true, a: 'm', why: 'Kilograms are a unit of mass.', hint: 'Look at the unit. Kilograms (kg) measure mass.' },
+    { t: '441 N', big: true, a: 'w', why: 'Newtons are a unit of force, and weight is a force.', hint: 'Look at the unit. Newtons (N) measure forces like weight.' },
+    { t: '250 g', big: true, a: 'm', why: 'Grams are a unit of mass, just like kilograms.', hint: 'Grams measure mass, just like kilograms.' },
+    { t: 'The amount of matter in a pineapple', a: 'm', why: 'Mass is the amount of matter in an object.', hint: 'Weight is a pull from gravity. Which one is the amount of matter?' },
+    { t: 'How hard Earth pulls on a pineapple', a: 'w', why: 'Weight is the pull of gravity on an object.', hint: 'A pull is a force. Which one is a force?' },
+    { t: 'Stays the same on Mars', a: 'm', why: 'The amount of matter doesn’t change when an object travels.', hint: 'Gravity on Mars is weaker, so weight changes there. Which one stays the same?' },
+    { t: 'Gets bigger on Jupiter', a: 'w', why: 'Jupiter’s gravity is stronger than Earth’s, so weight increases.', hint: 'Mass never changes when an object travels. Which one depends on gravity?' },
+    { t: 'Is a type of force', a: 'w', why: 'Weight is the force of gravity on an object.', hint: 'Mass is an amount of matter, not a push or a pull.' },
+    { t: 'Would be zero in deep space, far from any planet or star', a: 'w', why: 'With no gravity pulling, there is no weight. The matter is still there.', hint: 'The object still has all its matter in deep space. What disappears without gravity?' },
+    { t: 'Measured with a spring scale in newtons', a: 'w', why: 'A spring scale measures the pull of gravity in newtons.', hint: 'Newtons measure force. Which one is a force?' }
+];
+const QUICK_PL = ['Saturn', 'Venus', 'Neptune', 'Mercury', 'Jupiter', 'Uranus', 'Moon'].map(k => {
+    const g = WORLD[k], up = g > 9.8, close = Math.abs(g - 9.8) < 1.5, nm = k === 'Moon' ? 'the Moon' : k;
+    return { k, g, a: up ? 'more' : 'less',
+        why: `Gravity on ${nm} is ${up ? 'stronger' : 'weaker'} than on Earth, so the robot weighs ${up ? 'more' : 'less'}.`,
+        hint: `${close ? 'It’s close, but ' : ''}${g} is ${up ? 'bigger' : 'smaller'} than 9.8, so ${nm} pulls ${up ? 'harder than' : 'less hard than'} Earth.` };
+});
+const PLANET_CARD = it => `<svg viewBox="0 0 700 270" width="700" height="270">${planet('Earth', 170, 116, 72)}<text class="pnm" x="170" y="228">Earth</text><text class="pg" x="170" y="258">9.8 m/s²</text>
+    <text class="vs" x="350" y="128">vs</text>${planet(it.k, 530, 116, 72)}<text class="pnm" x="530" y="228">${it.k}</text><text class="pg pk" x="530" y="258">${it.g} m/s²</text></svg>`;
+
+const MATCH_W = [['Moon', 1.6, '16 N'], ['Mars', 3.8, '38 N'], ['Earth', 9.8, '98 N'], ['Jupiter', 24.8, '248 N']];
+const MATCH_SCENE = `${rover(300, 62, .62)}${tx(352, 50, 'Rover mass: 10 kg', '', 'font-size:28px')}
+    ${MATCH_W.map(([k, g], i) => { const cx = 103 + 198 * i; return `${planet(k, cx, 158, 48)}<text class="pnm" x="${cx}" y="238">${k}</text><text class="pg pk" x="${cx}" y="263">g = ${g} m/s²</text>`; }).join('')}
+    <g class="after fade" opacity="0">${MATCH_W.map((w, i) => tx(103 + 198 * i, 100, 'Mass 10 kg', 'mid gr sm')).join('')}</g>`;
+
+const SAT_NEP = `<svg viewBox="0 0 250 330" width="250" height="330">${planet('Saturn', 125, 82, 52)}<text class="pnm" x="125" y="170" style="font-size:24px">Saturn</text><text class="pg pk" x="125" y="196" style="font-size:23px">g = 10.4 m/s²</text>
+    ${planet('Neptune', 125, 248, 22)}<text class="pnm" x="125" y="296" style="font-size:24px">Neptune</text><text class="pg pk" x="125" y="321" style="font-size:23px">g = 11.2 m/s²</text></svg>`;
+
+const QS = [
+    { id: 'mw-quick-mass-or-weight', kind: 'quick', title: 'Mass or weight?', sc: 'SC16', prompt: 'Decide whether each card describes mass or weight.',
+      ask: 'Is this mass or weight?', items: QUICK_MW,
+      choices: [{ k: 'm', t: 'Mass', s: 'kilograms (kg)', ic: IC.kg }, { k: 'w', t: 'Weight', s: 'newtons (N)', ic: IC.N }],
+      instr: 'Tap <b>Mass</b> or <b>Weight</b> for each card.',
+      msg: 'Mass is the amount of matter in kilograms. Weight is the pull of gravity in newtons.' },
+
+    { id: 'mw-cloze-definitions', kind: 'cloze', title: 'What do they mean?', sc: 'SC16', prompt: 'Drag a word into each gap to complete the definitions.',
+      rows: [
+        { pic: PIC.mass, text: '<b>Mass</b> is the amount of {matter} in an object, measured in {kilograms}.' },
+        { pic: PIC.weight, text: '<b>Weight</b> is the {force} of gravity on an object, measured in {newtons}.' },
+        { pic: PIC.travel, text: 'On Mars, an object’s mass {stays the same} but its weight {gets smaller}.' }],
+      bank: ['matter', 'force', 'kilograms', 'newtons', 'stays the same', 'gets smaller', 'gets bigger', 'metres'],
+      hints: ['Mass is how much stuff, or matter, an object is made of.', 'Mass is measured in grams or kilograms.', 'Weight is a pull, and a pull is a type of force.',
+              'Forces, like weight, are measured in newtons.', 'The amount of matter doesn’t change when an object travels.', 'Gravity on Mars is weaker than on Earth, so the pull is smaller.'],
+      msg: 'Mass is matter, in kilograms. Weight is a force, in newtons, and it changes when gravity changes.' },
+
+    { id: 'mw-sort-astronaut-mars', kind: 'sort', title: 'Off to Mars', sc: 'SC16', prompt: 'An astronaut flies from Earth to Mars. Sort what changes and what stays the same.',
+      bins: [['s', 'Stays the same', 'On Earth and on Mars'], ['c', 'Changes on Mars', 'Different from on Earth']],
+      items: [
+        ['Her mass', 's', 'Mass is the amount of matter in her body. Travelling doesn’t change that.'],
+        ['Her weight', 'c', 'Weight is the pull of gravity on her, and gravity on Mars is weaker.'],
+        ['Matter in her helmet', 's', 'Her helmet is made of the same matter on any planet.'],
+        ['Gravity’s pull on her helmet', 'c', 'Mars pulls on her helmet less hard than Earth does.'],
+        ['Spring scale reading for her bag', 'c', 'A spring scale measures the pull of gravity in newtons, so it reads less on Mars.'],
+        ['Kilograms of food she packed', 's', 'Kilograms measure mass, which stays the same on Mars.'],
+        ['Pull of her toolbox on her hands', 'c', 'Her toolbox pulls down because of gravity, which is weaker on Mars.']],
+      msg: 'Mass stays the same everywhere. Anything caused by gravity’s pull changes on Mars.' },
+
+    { id: 'mw-calc-paint-mars', kind: 'calc', scaf: true, title: 'Paint on Mars', sc: 'SC16, SC17', prompt: 'A 1 kg tin of paint is sent to Mars. Fill in the working to find its weight there.',
+      scene: `${GND.Mars(470, 262)}${badge('Mars', 3.8)}${TIN(235, 262)}${mtag(365, 180, '1 kg')}`,
+      m: 1, g: 3.8, ans: 3.8, unit: 'N',
+      hm: v => near(v, 3.8) ? 'That is the gravity. The mass is on the tag next to the tin.' : 'The mass is on the tag next to the tin.',
+      hg: v => near(v, 9.8) ? 'That is Earth’s gravity. Use the gravity on Mars, shown in the top corner.' : 'Use the gravity on Mars, shown in the top corner.',
+      diag: v => diagW(v, 1, 3.8, 'Mars'),
+      fx: g => growArrow(g, 235, 264, DIR.d, 56, { label: 'Weight = 3.8 N' }),
+      msg: '1 kg × 3.8 m/s² = 3.8 N. The tin weighs much less on Mars than the 9.8 N it weighs on Earth.' },
+
+    { id: 'mw-calc-dumbbell-earth', kind: 'calc', title: 'Gym dumbbell', sc: 'SC16', prompt: 'A 5 kg dumbbell rests on a gym floor on Earth. What is its weight?',
+      scene: `${GND.Earth(470, 262)}${badge('Earth', 9.8)}${DUMBBELL(235, 262)}${mtag(235, 140, '5 kg')}`,
+      ans: 49, unit: 'N', diag: v => diagW(v, 5, 9.8, 'Earth'), unitHint: UNIT_N,
+      fx: g => growArrow(g, 235, 228, DIR.d, 70, { label: 'Weight = 49 N', ly: 290 }),
+      msg: '5 kg × 9.8 m/s² = 49 N. On Earth, every kilogram weighs 9.8 N.' },
+
+    { id: 'mw-calc-camera-jupiter', kind: 'calc', title: 'Camera on Jupiter', sc: 'SC17', prompt: 'If a 2 kg camera could be weighed on Jupiter, what would its weight be?',
+      scene: `${planet('Jupiter', 235, 500, 280)}${badge('Jupiter', 24.8)}${CAMERA(235, 136)}${mtag(372, 92, '2 kg')}`,
+      ans: 49.6, unit: 'N', diag: v => diagW(v, 2, 24.8, 'Jupiter'), unitHint: UNIT_N,
+      fx: g => growArrow(g, 235, 180, DIR.d, 62, { label: 'Weight = 49.6 N' }),
+      msg: '2 kg × 24.8 m/s² = 49.6 N. On Jupiter, the small camera weighs about as much as the 5 kg dumbbell does on Earth.' },
+
+    { id: 'mw-calc-rover-moon', kind: 'calc', title: 'Moon rover', sc: 'SC16', prompt: 'A 12 kg rover drives across the Moon. What is its mass on the Moon?',
+      scene: `${GND.Moon(470, 250)}${badge('Moon', 1.6)}${rover(220, 250, 1.35)}${mtag(370, 120, '12 kg')}`,
+      ans: 12, unit: 'kg', unitHint: UNIT_KG,
+      diag: v => near(v, 19.2) ? 'That is the rover’s weight on the Moon. The question asks for its mass.' : near(v, 12 / 1.6) || near(v, 12 * 9.8) ? 'Mass doesn’t depend on gravity, so there is nothing to calculate. Look at the rover’s tag.' : 'Mass is the amount of matter, and it doesn’t change on the Moon. Look at the rover’s tag.',
+      fx: (g, svg) => { svg.querySelector('.mtag').classList.add('ok'); g.innerHTML = tx(235, 300, 'Still 12 kg on the Moon', 'mid pk', 'font-size:26px'); },
+      msg: 'Mass doesn’t change with gravity. The rover is still 12 kg, even though its weight on the Moon is only 19.2 N.' },
+
+    { id: 'mw-quick-more-or-less', kind: 'quick', title: 'More or less?', sc: 'SC17', prompt: 'A robot visits each world. Will it weigh more or less there than on Earth?',
+      ask: 'Compared with Earth, the robot weighs', items: QUICK_PL, card: PLANET_CARD,
+      choices: [{ k: 'more', t: 'More', s: 'than on Earth', ic: IC.more }, { k: 'less', t: 'Less', s: 'than on Earth', ic: IC.less }],
+      instr: 'Compare each gravity value with Earth’s, then tap <b>More</b> or <b>Less</b>.',
+      msg: 'Stronger gravity means more weight. The robot’s mass is the same on every world.' },
+
+    { id: 'mw-predict-spring-mars', kind: 'predict', scene: 'spring', title: 'Flour on Mars', sc: 'SC17', prompt: 'The same 2 kg bag of flour is hung from a spring scale on Mars. What happens?',
+      opts: [
+        { t: 'The spring stretches more than on Earth', hint: 'Mars has weaker gravity (3.8 m/s²), so it pulls the bag less hard than Earth does.' },
+        { t: 'The spring stretches less than on Earth', hint: '' },
+        { t: 'It stretches the same, because the mass is the same', hint: 'The mass is the same, but the spring measures the pull of gravity, which is weaker on Mars.' },
+        { t: 'The spring doesn’t stretch at all', hint: 'Mars still has gravity. It pulls on the bag, just less hard than Earth does.' }],
+      answer: 1, msg: 'Weaker gravity pulls less, so the weight drops to 7.6 N. The bag’s mass is still 2 kg.' },
+
+    { id: 'mw-match-rover-tour', kind: 'match', title: 'Rover tour', sc: 'SC17', prompt: 'Drag the rover’s weight on each world into the box below it.',
+      scene: MATCH_SCENE, worlds: MATCH_W, tiles: ['16 N', '38 N', '98 N', '248 N', '10 N', '10 kg'],
+      msg: 'Same mass, different weights. The stronger the gravity, the bigger the weight.' },
+
+    { id: 'mw-claim-saturn', kind: 'mcside', title: 'Chloe’s claim', sc: 'SC17', prompt: 'Chloe is comparing two planets. Is she right?',
+      pic: SAT_NEP, quote: '“Saturn is much bigger than Neptune, so I would weigh more on Saturn.”',
+      opts: [
+        { t: 'Yes. Bigger planets always have stronger gravity.', hint: 'Size alone doesn’t decide gravity. Compare the gravity values under each planet.' },
+        { t: 'Yes. She would have more mass on Saturn.', hint: 'Her mass is the same on every planet. Only her weight changes.' },
+        { t: 'No. Neptune’s gravity is stronger, so she would weigh more there.', hint: '' },
+        { t: 'No. She would weigh the same on both, because her mass doesn’t change.', hint: 'Her mass stays the same, but weight also depends on gravity, which is different on each planet.' }],
+      answer: 2, msg: 'Weight depends on gravity, not size. Neptune (11.2 m/s²) pulls harder than Saturn (10.4 m/s²).' },
+
+    { id: 'mw-predict-balance-moon', kind: 'predict', scene: 'balance', title: 'Balance on the Moon', sc: 'SC16', prompt: 'On Earth, a rock balances a 2 kg mass. The balance is taken to the Moon. What happens?',
+      opts: [
+        { t: 'It stays level', hint: '' },
+        { t: 'The rock’s side goes down', hint: 'Gravity is weaker on the Moon for the rock and the 2 kg mass. Neither side gets an advantage.' },
+        { t: 'The 2 kg side goes down', hint: 'Gravity is weaker on the Moon for the 2 kg mass and the rock. Neither side gets an advantage.' },
+        { t: 'Both pans float upwards', hint: 'The Moon still has gravity. It pulls both pans down, just less hard.' }],
+      answer: 0, msg: 'Gravity drops by the same amount on both sides, so they still balance. A balance compares masses, which don’t change.' },
+
+    { id: 'mw-mystery-world', kind: 'mcworld', title: 'Mystery world', sc: 'SC17', prompt: 'A 4 kg crate reads 14.8 N on a spring scale. Which world is it on?',
+      opts: [
+        { k: 'Mars', hint: 'On Mars it would read 4 × 3.8 = 15.2 N. Close, but not 14.8 N.' },
+        { k: 'Mercury', hint: '' },
+        { k: 'Venus', hint: 'On Venus it would read 4 × 8.9 = 35.6 N.' },
+        { k: 'Moon', hint: 'On the Moon it would read 4 × 1.6 = 6.4 N.' }],
+      answer: 1, msg: '4 kg × 3.7 m/s² = 14.8 N, so the crate is on Mercury.' },
+
+    { id: 'mw-calc-suitcase-mass', kind: 'calc', rev: true, title: 'Heavy suitcase', sc: 'SC16', prompt: 'A suitcase hanging from a luggage scale on Earth reads 196 N. What is its mass?',
+      scene: `${badge('Earth', 9.8)}${sscale('ssC', 300, 26, .8, SUITCASE, true)}`,
+      init: svg => setSS(svg.querySelector('.ssC'), 60, '196 N'),
+      ans: 20, unit: 'kg', unitHint: UNIT_KG,
+      diag: v => near(v, 196 * 9.8) ? 'You multiplied. To find mass, divide the weight by gravity.' : near(v, 196) ? 'That is the weight. Divide it by gravity to find the mass.' : near(v, 9.8 / 196) ? 'Divide the weight by gravity, not the other way around.' : 'Use mass = weight ÷ gravity: 196 ÷ 9.8.',
+      fx: g => { g.innerHTML = mtag(410, 262, '20 kg', 'ok'); },
+      msg: '196 N ÷ 9.8 m/s² = 20 kg. The scale shows weight, but you can use it to work out mass.' },
+
+    { id: 'mw-cloze-moonwalk', kind: 'cloze', title: 'Moonwalk', sc: 'SC16, SC17', prompt: 'Drag a word into each gap to explain the astronaut’s jump.',
+      rows: [
+        { pic: PIC.stand, text: 'Gravity on the Moon is {weaker} than on Earth. A 70 kg astronaut still has a mass of {70 kg} there.' },
+        { pic: PIC.jump, text: 'Her weight is {smaller}, so the same push lets her jump {higher}.' }],
+      bank: ['weaker', 'stronger', '70 kg', '11 kg', 'smaller', 'larger', 'higher', 'lower'],
+      hints: ['The Moon’s gravity is 1.6 m/s², compared with 9.8 m/s² on Earth.', 'Mass is the amount of matter in her body. It doesn’t change on the Moon.',
+              'Weight depends on gravity. Weaker gravity means a smaller weight.', 'With less weight pulling her down, the same push sends her further up.'],
+      msg: 'Her mass stays at 70 kg, but weaker gravity means less weight, so every jump goes higher.' }
+];
+const TOTAL = QS.length;
+const CHIP = { quick: 'Quick fire', cloze: 'Fill the gaps', sort: 'Drag and drop', calc: 'Calculate', predict: 'Predict', match: 'Drag and match', mcside: 'Multiple choice', mcworld: 'Calculate and choose' };
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+/* frozen-id check: warns in the console if an id is missing or duplicated */
+(function validate() {
+    const seen = new Set();
+    QS.forEach((q, i) => {
+        if (!q.id || !/^[a-z0-9-]+$/.test(q.id)) console.warn(`Question ${i + 1} needs a lowercase id.`);
+        if (seen.has(q.id)) console.warn(`Duplicate id: ${q.id}`);
+        seen.add(q.id);
+    });
+})();
+
+/* ========================== Buckles (localStorage) ======================= */
+/* Same storage and rules as the other checking for understanding pages: one shared
+   'buckles-shared' record, keys namespaced by page, one buckle per question, awarded
+   the first time the question is answered correctly and never again. */
+const PAGE_ID = 'mass-weight-cfu';
+QS.forEach(q => { q.buckles = 1; });
+const Buckles = {
+    key: 'buckles-shared',
+    posKey: 'pos-' + PAGE_ID,
+    ns(id) { return PAGE_ID + ':' + id; },
+    load() { try { return JSON.parse(localStorage.getItem(this.key)) || {}; } catch (e) { return {}; } },
+    save(d) { try { localStorage.setItem(this.key, JSON.stringify(d)); } catch (e) {} },
+    isDone(id) { return !!this.load()[this.ns(id)]; },
+    award(id, n) { const d = this.load(); const k = this.ns(id); if (!d[k]) { d[k] = n; this.save(d); } },
+    total() { return Object.values(this.load()).reduce((a, b) => a + b, 0); },
+    setPos(i) { try { localStorage.setItem(this.posKey, String(i)); } catch (e) {} },
+    getPos() { try { const v = parseInt(localStorage.getItem(this.posKey), 10); return isNaN(v) ? 0 : v; } catch (e) { return 0; } }
+};
+function refreshCount() { $('#buckleCount').textContent = Buckles.total(); }
+function celebrate(n) {
+    const a = $('#award');
+    $('#awardText').textContent = '+' + n + ' Buckle' + (n > 1 ? 's' : '') + '!';
+    a.classList.remove('hide'); a.classList.add('show');
+    burstConfetti();
+    setTimeout(() => { a.classList.remove('show'); a.classList.add('hide'); setTimeout(() => a.classList.remove('hide'), 360); }, 1100);
+}
+function burstConfetti() {
+    const canvas = document.createElement('canvas');
+    canvas.className = 'confetti-canvas';
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d'), dpr = window.devicePixelRatio || 1;
+    canvas.width = innerWidth * dpr; canvas.height = innerHeight * dpr; ctx.scale(dpr, dpr);
+    const colors = ['#ea008a', '#1b1f45', '#f7a8d4', '#c3c6d0'], cx = innerWidth / 2, cy = innerHeight / 2, parts = [];
+    for (let i = 0; i < 150; i++) {
+        const angle = Math.random() * Math.PI * 2, speed = 4 + Math.random() * 10;
+        parts.push({ x: cx, y: cy, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed - 4, size: 5 + Math.random() * 7,
+            color: colors[Math.floor(Math.random() * colors.length)], rot: Math.random() * Math.PI, vrot: (Math.random() - .5) * .3, life: 0 });
+    }
+    const gravity = 0.22, drag = 0.992; let frame = 0;
+    (function tick() {
+        frame++;
+        ctx.clearRect(0, 0, innerWidth, innerHeight);
+        parts.forEach(p => {
+            p.vx *= drag; p.vy = p.vy * drag + gravity; p.x += p.vx; p.y += p.vy; p.rot += p.vrot; p.life++;
+            ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.globalAlpha = Math.max(0, 1 - p.life / 95);
+            ctx.fillStyle = p.color; ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6); ctx.restore();
+        });
+        if (frame < 95) requestAnimationFrame(tick); else canvas.remove();
+    })();
+}
+
+/* ---------- flow ---------- */
+let qi = 0, firstTry = [], anyWrong = false, mode = 'check', cur = null;
+function render() {
+    runId++;
+    content.innerHTML = ''; anyWrong = false; mode = 'check';
+    const q = QS[qi];
+    counter.innerHTML = `Question <b>${qi + 1}</b> / ${TOTAL}`;
+    Buckles.setPos(qi);
+    progress.style.width = (qi / TOTAL * 100) + '%';
+    const wrap = el('div', 'q');
+    wrap.appendChild(el('div', 'qhead', `<div class="qtitle">${q.title}</div><div class="tchip">${q.chip || CHIP[q.kind]}</div><div class="sctag">${q.sc}</div>`));
+    wrap.appendChild(el('div', 'prompt', q.prompt));
+    const body = el('div', 'body'); wrap.appendChild(body); content.appendChild(wrap);
+    cur = KINDS[q.kind](q, body);
+    say(Buckles.isDone(q.id) ? `${cur.instr} You’ve already earned this buckle.` : cur.instr);
+    btn.hidden = !!cur.noBtn; btn.textContent = 'Check';
+    refresh();
+    if (window.Calc) { Calc.refresh(); Calc.moved(); }
+}
+function refresh() { if (mode === 'check') btn.disabled = !cur.ready(); if (window.Calc) Calc.refresh(); }
+function check() {
+    const r = cur.check(), q = QS[qi];
+    if (!r.ok) { anyWrong = true; say(`<b class="no">Not quite.</b> ${r.hint}`); refresh(); return; }
+    if (!anyWrong) firstTry[qi] = true;
+    say(`<b>Correct.</b> ${q.msg}`);
+    if (!Buckles.isDone(q.id)) { Buckles.award(q.id, q.buckles); refreshCount(); celebrate(q.buckles); }
+    mode = 'next'; btn.hidden = false; btn.disabled = false; btn.textContent = qi === TOTAL - 1 ? 'Finish' : 'Next';
+    btn.classList.remove('pop-in'); void btn.offsetWidth; btn.classList.add('pop-in');
+    if (cur.done) cur.done();
+}
+btn.onclick = () => {
+    if (btn.disabled) return;
+    if (mode === 'check') check();
+    else if (qi === TOTAL - 1) finish();
+    else { qi++; render(); }
+};
+function finish() {
+    runId++;
+    content.innerHTML = '';
+    btn.hidden = true;
+    counter.innerHTML = '<b>Complete</b>';
+    progress.style.width = '100%';
+    Buckles.setPos(TOTAL);
+    const n = firstTry.filter(Boolean).length, earned = QS.filter(q => Buckles.isDone(q.id)).length;
+    say('Take a screenshot of this screen and paste it into Stile as evidence of your work.');
+    const c = el('div', 'center');
+    const dots = QS.map((_, i) => `<span class="${firstTry[i] ? 'y' : ''}">${i + 1}</span>`).join('');
+    const card = el('div', 'scorecard pop-in', `<img src="buckle.svg" alt="" class="done-buckle" onerror="this.style.display='none'"><div class="big">${earned} / ${TOTAL}</div><div class="dlbl">Buckles earned</div>
+        <div class="dlbl sub">Correct on the first try: ${n} / ${TOTAL}</div><div class="dots">${dots}</div>`);
+    const again = el('button', 'again', 'Start again');
+    again.onclick = () => { qi = 0; firstTry = []; Buckles.setPos(0); render(); };
+    c.append(card, again); content.appendChild(c);
+    if (window.Calc) Calc.refresh();
+}
+
+/* ---------- multiple choice core ---------- */
+function mcCore(els, q, extra = {}) {
+    let sel = null;
+    els.forEach((b, i) => b.onclick = () => {
+        if (mode !== 'check' || b.disabled || b.classList.contains('wrong')) return;
+        els.forEach(x => x.classList.remove('sel')); b.classList.add('sel'); sel = i; refresh();
+    });
+    return {
+        instr: extra.instr || 'Choose an answer, then press <b>Check</b>.',
+        ready: () => sel !== null,
+        check() {
+            const b = els[sel];
+            b.classList.remove('sel');
+            if (sel === q.answer) { b.classList.add('right'); els.forEach(x => x.disabled = true); return { ok: true }; }
+            b.classList.add('wrong'); b.disabled = true;
+            const h = q.opts[sel].hint; sel = null; return { ok: false, hint: h };
+        },
+        done: extra.done
+    };
+}
+const L = 'ABCD';
+function sceneWrap(inner, W = 806, H = 336) {
+    const wrap = el('div', 'bwrap'); wrap.style.width = W + 'px'; wrap.style.height = H + 'px';
+    wrap.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${inner}</svg>`;
+    return wrap;
+}
+const num = s => parseFloat(String(s).replace(',', '.').replace(/[^0-9.\-]/g, ''));
+
+const KINDS = {
+    /* one card at a time: tap a choice, cards advance on a correct answer */
+    quick(q, body) {
+        const items = shuffle(q.items), n = items.length;
+        const wrap = el('div', 'qf'), left = el('div', 'qwrap'), stack = el('div', 'qstack');
+        const pips = el('div', 'pips', items.map(() => '<i></i>').join('') + '<span class="dlbl pn"></span>');
+        left.append(stack, pips);
+        const ch = el('div', 'qchoices');
+        const bts = q.choices.map(c => { const b = el('button', 'qbtn', `${c.ic || ''}<span>${c.t}${c.s ? `<small>${c.s}</small>` : ''}</span>`); b.dataset.k = c.k; ch.appendChild(b); return b; });
+        wrap.append(left, ch); body.appendChild(wrap);
+        let i = 0, busy = false, done = false, card = null;
+        const setEx = s => { exEl.innerHTML = ''; exEl.appendChild(el('span', '', '')).textContent = s; };
+    const show = () => {
+            const it = items[i];
+            card = el('div', 'qc', `<div class="dlbl ask">${q.ask}</div>` + (q.card ? q.card(it) : it.big ? `<div class="big">${it.t}</div>` : `<div class="txt">${it.t}</div>`));
+            stack.appendChild(card);
+            pips.querySelectorAll('i').forEach((p, j) => { p.classList.toggle('on', j === i); p.classList.toggle('ok', j < i); });
+            pips.querySelector('.pn').textContent = `Card ${i + 1} of ${n}`;
+            bts.forEach(b => { b.classList.remove('right', 'wrong'); b.disabled = false; });
+        };
+        show();
+        bts.forEach(b => b.onclick = () => {
+            if (busy || done || mode !== 'check') return;
+            const it = items[i];
+            if (b.dataset.k === it.a) {
+                busy = true; b.classList.add('right'); bts.forEach(x => x.disabled = true);
+                card.insertAdjacentHTML('beforeend', `<div class="stamp">${q.choices.find(c => c.k === it.a).t}</div>`);
+                say(`<b>Correct.</b> ${it.why}`);
+                const id = runId;
+                setTimeout(() => {
+                    if (id !== runId) return;
+                    i++;
+                    if (i < n) { const old = card; old.classList.add('out'); setTimeout(() => old.remove(), 340); show(); busy = false; if (document.activeElement && document.activeElement.classList.contains('qbtn')) bts[0].focus(); }
+                    else { done = true; pips.querySelectorAll('i').forEach(p => { p.classList.remove('on'); p.classList.add('ok'); }); check(); }
+                }, 1500);
+            } else {
+                anyWrong = true;
+                b.classList.remove('wrong'); void b.offsetWidth; b.classList.add('wrong');
+                say(`<b class="no">Not quite.</b> ${it.hint}`);
+            }
+        });
+        return { instr: q.instr, noBtn: true, ready: () => done, check: () => ({ ok: true }) };
+    },
+
+    /* type a number (and pick a unit), with the formula always on show */
+    calc(q, body) {
+        const wrap = sceneWrap(`${q.scene}<g class="fx"></g>`, 470, 330), svg = wrap.querySelector('svg');
+        if (q.init) q.init(svg);
+        const inp = (k, w, lbl) => `<input class="num-in${w ? ' wide' : ''}" data-k="${k}" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" aria-label="${lbl}">`;
+        const col = el('div', 'ccol', fcard(q.rev) + (q.scaf
+            ? `<div class="dlbl">Fill in the working</div><div class="arow"><span class="vr">W</span><span class="op">=</span>${inp('m', 0, 'Mass')}<span class="un">kg</span><span class="op">×</span>${inp('g', 0, 'Gravity')}<span class="un">m/s²</span><span class="op">=</span>${inp('w', 0, 'Weight')}<span class="un">N</span></div>`
+            : `<div class="dlbl">Your answer</div><div class="arow"><span class="vr">${q.unit === 'N' ? 'Weight' : 'Mass'}</span><span class="op">=</span>${inp('a', 1, 'Answer')}<div class="units" role="group" aria-label="Unit"><button class="ub" data-u="N">N</button><button class="ub" data-u="kg">kg</button></div></div>`));
+        body.append(wrap, col);
+        const ins = [...col.querySelectorAll('.num-in')], ubs = [...col.querySelectorAll('.ub')], units = col.querySelector('.units');
+        let unit = null;
+        const pickU = u => { unit = u; ubs.forEach(b => b.classList.toggle('sel', b.dataset.u === u)); if (units) units.classList.remove('wrong'); refresh(); };
+        ubs.forEach(b => b.onclick = () => { if (mode === 'check' && !b.disabled) pickU(b.dataset.u); });
+        ins.forEach(i => {
+            i.addEventListener('input', () => {
+                i.classList.remove('wrong');
+                if (units) { const v = i.value.toLowerCase(); if (/kg/.test(v)) pickU('kg'); else if (/n\s*$/.test(v)) pickU('N'); }
+                refresh();
+            });
+            i.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); if (!btn.disabled) btn.click(); } });
+        });
+        const mark = (i, ok) => { i.classList.remove('wrong'); void i.offsetWidth; if (ok) { i.classList.add('right'); i.disabled = true; } else i.classList.add('wrong'); };
+        return {
+            instr: q.scaf ? 'Use the picture to fill in each box, then press <b>Check</b>.' : 'Type your answer, choose a unit, then press <b>Check</b>. Press <b>Open calculator</b> if you need it.',
+            ready: () => ins.every(i => i.value.trim() !== '' && !isNaN(num(i.value))) && (q.scaf || !!unit),
+            check() {
+                if (q.scaf) {
+                    const want = { m: [q.m, q.hm], g: [q.g, q.hg], w: [q.ans, q.diag] };
+                    let hint = null, bad = 0;
+                    ins.forEach(i => { if (i.disabled) return; const v = num(i.value), [x, h] = want[i.dataset.k], ok = near(v, x); mark(i, ok); if (!ok) { bad++; if (!hint) hint = h(v); } });
+                    return bad ? { ok: false, hint: (bad > 1 ? `${bad} boxes need changing. ` : '') + hint } : { ok: true };
+                }
+                const i = ins[0], v = num(i.value);
+                if (!near(v, q.ans)) { mark(i, false); return { ok: false, hint: q.diag(v) }; }
+                if (!i.disabled) mark(i, true);
+                if (unit !== q.unit) { units.classList.remove('wrong'); void units.offsetWidth; units.classList.add('wrong'); return { ok: false, hint: q.unitHint }; }
+                units.classList.add('right'); ubs.forEach(b => b.disabled = true);
+                return { ok: true };
+            },
+            done() { ins.forEach(i => { i.disabled = true; i.classList.add('right'); }); q.fx(svg.querySelector('.fx'), svg); }
+        };
+    },
+
+    predict(q, body) {
+        body.classList.add('pred');
+        const sc = el('div', 'scene');
+        sc.innerHTML = `<svg viewBox="0 0 740 330" width="734" height="327"></svg>`;
+        const rp = el('button', 'replay', `${replayIcon}<span>Replay</span>`); sc.appendChild(rp);
+        const g = el('div', 'opts');
+        const els = q.opts.map((o, i) => { const b = el('button', 'opt', `<span class="l">${L[i]}</span><span>${o.t}</span>`); g.appendChild(b); return b; });
+        body.append(sc, g);
+        const S = SCENES[q.scene](sc.querySelector('svg'));
+        let solved = false;
+        const go = () => { runId++; S.run(solved); };
+        rp.onclick = go;
+        go();
+        return mcCore(els, q, { instr: 'Watch, then choose what happens and press <b>Check</b>.', done: () => { solved = true; runId++; S.run(true, S.introDone); } });
+    },
+
+    mcside(q, body) {
+        const side = el('div', 'scene', q.pic);
+        const col = el('div', 'col'); col.style.flex = '1';
+        col.appendChild(el('div', 'quote', q.quote));
+        const g = el('div', 'opts');
+        const els = q.opts.map((o, i) => { const b = el('button', 'opt', `<span class="l">${L[i]}</span><span>${o.t}</span>`); g.appendChild(b); return b; });
+        col.appendChild(g); body.append(side, col);
+        return mcCore(els, q);
+    },
+
+    /* spring scale on an unknown world, choose the world */
+    mcworld(q, body) {
+        const wrap = sceneWrap(`${badge('Mystery', '?', 14, 12, 'Planet ?')}${sscale('ssX', 292, 24, .85, CRATE, true)}`, 380, 330);
+        setSS(wrap.querySelector('.ssX'), 52, '14.8 N');
+        const col = el('div', 'wcol', fcard(false, true));
+        const g = el('div', 'wgrid');
+        const els = q.opts.map((o, i) => {
+            const b = el('button', 'pcard', `<span class="l">${L[i]}</span><svg viewBox="0 0 120 112" width="120" height="112">${planet(o.k, 60, 56, 42)}</svg><span><span class="nm">${o.k === 'Moon' ? 'The Moon' : o.k}</span><br><span class="gv">g = ${WORLD[o.k]} m/s²</span></span>`);
+            g.appendChild(b); return b;
+        });
+        col.appendChild(g); body.append(wrap, col);
+        return mcCore(els, q);
+    },
+
+    /* drag a weight tile under each world */
+    match(q, body) {
+        const wrap = sceneWrap(q.scene), svg = wrap.querySelector('svg');
+        const side = el('div', 'bside', fcard(false, true) + '<div class="dlbl">Weights</div>');
+        const pool = el('div', 'pool'); side.appendChild(pool);
+        body.append(wrap, side);
+        const zones = q.worlds.map(([k, g, ans], i) => {
+            const d = el('div', 'slot'), cx = 103 + 198 * i;
+            Object.assign(d.style, { width: '150px', left: (cx - 75) + 'px', top: '276px' });
+            d.tabIndex = 0; d.setAttribute('aria-label', `Weight on ${k}`);
+            wrap.appendChild(d);
+            return { el: d, box: d, cap: 1, ans, k, g, onPut: () => d.classList.add('filled'), onTake: () => d.classList.remove('filled') };
+        });
+        const D = dnd({ el: pool, box: pool, cap: Infinity, pool: true }, zones, () => { zones.forEach(z => z.el.classList.remove('wrong')); refresh(); });
+        shuffle(q.tiles).forEach(t => pool.appendChild(D.tile(t)));
+        return {
+            instr: 'Drag a weight under each world (or tap a weight, then a box), then press <b>Check</b>.',
+            ready: () => zones.every(z => z.box.querySelector('.tile')),
+            check() {
+                let hint = null, bad = 0;
+                zones.forEach(z => {
+                    const t = z.box.querySelector('.tile'), v = t.dataset.v; z.el.classList.remove('wrong');
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (v === z.ans) { t.classList.add('right'); z.locked = true; return; }
+                    bad++; t.classList.add('wrong'); z.el.classList.add('wrong');
+                    if (!hint) hint = v === '10 kg' ? 'That is the rover’s mass, which is the same everywhere. Each box needs a weight in newtons.'
+                        : v === '10 N' ? 'Multiply the mass by gravity. On every one of these worlds, 10 kg weighs more than 10 N.'
+                        : `On ${z.k === 'Moon' ? 'the Moon' : z.k}, the weight is 10 kg × ${z.g} m/s².`;
+                });
+                return bad ? { ok: false, hint: (bad > 1 ? `${bad} boxes need changing. ` : '') + hint } : { ok: true };
+            },
+            done() { svg.querySelector('.after').setAttribute('opacity', 1); }
+        };
+    },
+
+    /* fill the gaps from a word bank */
+    cloze(q, body) {
+        body.style.flexDirection = 'column'; body.style.alignItems = 'stretch';
+        const wrap = el('div', 'cz'), zones = [];
+        q.rows.forEach(r => {
+            const row = el('div', 'crow'); row.insertAdjacentHTML('beforeend', r.pic);
+            const p = el('div', 'ctext');
+            p.innerHTML = r.text.replace(/\{([^}]+)\}/g, (_, w) => `<span class="cslot" tabindex="0" data-a="${w}"></span>`);
+            row.appendChild(p); wrap.appendChild(row);
+        });
+        const pool = el('div', 'pool'); wrap.appendChild(pool); body.appendChild(wrap);
+        wrap.querySelectorAll('.cslot').forEach(s => zones.push({ el: s, box: s, cap: 1, ans: s.dataset.a, onPut: () => s.classList.add('filled'), onTake: () => s.classList.remove('filled') }));
+        const D = dnd({ el: pool, box: pool, cap: Infinity, pool: true }, zones, () => { zones.forEach(z => z.el.classList.remove('wrong')); refresh(); });
+        shuffle(q.bank).forEach(w => pool.appendChild(D.tile(w)));
+        return {
+            instr: 'Drag a word into each gap (or tap a word, then a gap), then press <b>Check</b>.',
+            ready: () => zones.every(z => z.box.querySelector('.tile')),
+            check() {
+                let hint = null, bad = 0;
+                zones.forEach((z, i) => {
+                    const t = z.box.querySelector('.tile'); t.classList.remove('wrong'); void t.offsetWidth;
+                    if (t.dataset.v === z.ans) { t.classList.add('right'); z.locked = true; }
+                    else { bad++; t.classList.add('wrong'); z.el.classList.add('wrong'); if (!hint) hint = q.hints[i]; }
+                });
+                return bad ? { ok: false, hint: (bad > 1 ? `${bad} gaps need changing. ` : '') + hint } : { ok: true };
+            }
+        };
+    },
+
+    sort(q, body) {
+        const wrap = el('div', 'sort');
+        const mk = (cls, h, sub) => { const b = el('div', 'bin ' + cls, `<h3>${h}</h3><div class="sub">${sub}</div><div class="area"></div>`); b.tabIndex = 0; return b; };
+        const [b1, b2] = q.bins;
+        const bc = mk('', b1[1], b1[2]), bn = mk('pk', b2[1], b2[2]);
+        const pool = el('div', 'pool');
+        wrap.append(bc, pool, bn); body.appendChild(wrap);
+        const zones = [{ el: bc, box: bc.querySelector('.area'), cap: Infinity, key: b1[0] }, { el: bn, box: bn.querySelector('.area'), cap: Infinity, key: b2[0] }];
+        const D = dnd({ el: pool, box: pool, cap: Infinity, pool: true }, zones, () => refresh());
+        shuffle(q.items).forEach(([t, k, h]) => { const tl = D.tile(t); tl.classList.add('sm'); tl.k = k; tl.h = h; pool.appendChild(tl); });
+        return {
+            instr: 'Drag each tile into a group (or tap a tile, then a group), then press <b>Check</b>.',
+            ready: () => !pool.querySelector('.tile'),
+            check() {
+                const wrong = [];
+                zones.forEach(z => z.box.querySelectorAll('.tile').forEach(t => {
+                    t.classList.remove('wrong'); void t.offsetWidth;
+                    if (t.k === z.key) t.classList.add('right'); else { t.classList.add('wrong'); wrong.push(t.h); }
+                }));
+                return wrong.length ? { ok: false, hint: (wrong.length > 1 ? `${wrong.length} tiles need moving. ` : '') + wrong[0] } : { ok: true };
+            }
+        };
+    }
+};
+
+/* ---------- drag and drop (drag, or tap a tile then tap a target) ---------- */
+function dnd(pool, zones, onChange) {
+    let sel = null;
+    const all = () => [pool, ...zones];
+    const zoneOf = t => all().find(z => z.box.contains(t));
+    const armAll = on => zones.forEach(z => z.el.classList.toggle('armed', on && !z.locked));
+    const deselect = () => { if (sel) sel.classList.remove('sel'); sel = null; armAll(false); };
+    function moveTo(t, z) {
+        const from = zoneOf(t);
+        t.style.transform = ''; t.classList.remove('wrong');
+        z.box.appendChild(t);
+        if (from && from !== z && from.onTake) from.onTake(t);
+        if (z.onPut) z.onPut(t);
+        deselect(); onChange();
+    }
+    function put(t, z) {
+        const from = zoneOf(t);
+        if (z.locked || from === z) { t.style.transform = ''; return; }
+        if (z.cap === 1) {
+            const ex = z.box.querySelector('.tile');
+            if (ex) { if (ex.classList.contains('right')) { t.style.transform = ''; return; } moveTo(ex, pool); }
+        }
+        moveTo(t, z);
+    }
+    const hit = (x, y) => all().find(z => { const r = z.el.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; });
+    all().forEach(z => {
+        const act = () => { if (sel && !z.locked) put(sel, z); };
+        z.el.addEventListener('click', act);
+        z.el.addEventListener('keydown', e => { if (e.target === z.el && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); act(); } });
+    });
+    function tile(text) {
+        const t = el('span', 'tile', text);
+        t.dataset.v = text;
+        t.tabIndex = 0; t.setAttribute('role', 'button');
+        const tap = () => {
+            if (t.classList.contains('right')) return;
+            t.style.transform = '';
+            const z = zoneOf(t);
+            if (z !== pool) { put(t, pool); return; }
+            if (sel === t) { deselect(); return; }
+            deselect(); sel = t; t.classList.add('sel'); armAll(true);
+        };
+        t.addEventListener('click', e => e.stopPropagation());
+        t.addEventListener('pointerdown', e => {
+            if (t.classList.contains('right') || e.button > 0) return;
+            e.preventDefault(); e.stopPropagation(); t.setPointerCapture(e.pointerId);
+            const sx = e.clientX, sy = e.clientY; let moved = false;
+            const move = ev => {
+                const dx = ev.clientX - sx, dy = ev.clientY - sy;
+                if (!moved && Math.hypot(dx, dy) > 6) { moved = true; t.classList.add('drag'); }
+                if (!moved) return;
+                t.style.transform = `translate(${dx / scaleK}px, ${dy / scaleK}px)`;
+                const h = hit(ev.clientX, ev.clientY);
+                all().forEach(z => z.el.classList.toggle('hover', z === h));
+            };
+            const up = ev => {
+                t.removeEventListener('pointermove', move); t.removeEventListener('pointerup', up); t.removeEventListener('pointercancel', up);
+                t.classList.remove('drag'); all().forEach(z => z.el.classList.remove('hover'));
+                if (!moved) { tap(); return; }
+                const h = hit(ev.clientX, ev.clientY);
+                if (h) put(t, h); else t.style.transform = '';
+            };
+            t.addEventListener('pointermove', move); t.addEventListener('pointerup', up); t.addEventListener('pointercancel', up);
+        });
+        t.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); tap(); } });
+        return t;
+    }
+    return { tile };
+}
+
+
+/* ---------- floating calculator ---------- */
+window.Calc = (() => {
+    const box = $('#calc'), bar = $('#calcBar'), keys = $('#calcKeys'), exEl = $('#calcEx'), rsEl = $('#calcRs'), ins = $('#calcIns');
+    const POS = 'calc-pos-' + PAGE_ID, W = 284;
+    const SYM = { '/': '÷', '*': '×', '-': '−', '+': '+' };
+    let toks = [], entry = '0', fresh = true, justEq = false, lastIn = null;
+    const LAYOUT = [['C', 'fn'], ['⌫', 'fn', 'Backspace'], ['÷', 'op', '/'], ['×', 'op', '*'], ['7'], ['8'], ['9'], ['−', 'op', '-'], ['4'], ['5'], ['6'], ['+', 'op', '+'],
+        ['1'], ['2'], ['3'], ['=', 'eq', '='], ['0', 'zero'], ['.']];
+    LAYOUT.forEach(([t, cls, k]) => {
+        const b = el('button', 'ck' + (cls ? ' ' + cls : ''), t);
+        b.dataset.k = k || t; b.setAttribute('aria-label', { '÷': 'Divide', '×': 'Multiply', '−': 'Subtract', '+': 'Add', '⌫': 'Delete', C: 'Clear', '=': 'Equals' }[t] || t);
+        b.addEventListener('mousedown', e => e.preventDefault());
+        b.onclick = () => press(b.dataset.k);
+        keys.appendChild(b);
+    });
+    const fmt = v => { if (!isFinite(v)) return 'Error'; const r = parseFloat(v.toPrecision(10)); return String(r); };
+    function evaluate(t) {
+        /* multiply and divide first, then add and subtract, left to right */
+        const a = [t[0]];
+        for (let i = 1; i < t.length; i += 2) {
+            const op = t[i], n = t[i + 1];
+            if (op === '*') a[a.length - 1] *= n; else if (op === '/') a[a.length - 1] /= n; else a.push(op, n);
+        }
+        let v = a[0];
+        for (let i = 1; i < a.length; i += 2) v = a[i] === '+' ? v + a[i + 1] : v - a[i + 1];
+        return v;
+    }
+    const setEx = s => { exEl.innerHTML = ''; exEl.appendChild(el('span', '', '')).textContent = s; };
+    const show = () => {
+        setEx(toks.map(x => typeof x === 'number' ? fmt(x) : ` ${SYM[x]} `).join('') || '\u00a0');
+        rsEl.textContent = entry;
+        refreshIns();
+    };
+    function press(k) {
+        if (entry === 'Error' && k !== 'C') { toks = []; entry = '0'; fresh = true; }
+        if (/^[0-9]$/.test(k)) {
+            if (justEq) { toks = []; justEq = false; }
+            if (fresh) { entry = k; fresh = false; } else if (entry.replace(/[^0-9]/g, '').length < 12) entry = entry === '0' ? k : entry + k;
+        } else if (k === '.') {
+            if (justEq) { toks = []; justEq = false; }
+            if (fresh) { entry = '0.'; fresh = false; } else if (!entry.includes('.')) entry += '.';
+        } else if (k === 'Backspace') {
+            if (justEq) { toks = []; justEq = false; }
+            else if (!fresh) { entry = entry.length > 1 ? entry.slice(0, -1) : '0'; if (entry === '0') fresh = true; }
+        } else if (k === 'C') { toks = []; entry = '0'; fresh = true; justEq = false; }
+        else if ('+-*/'.includes(k)) {
+            if (justEq) { toks = []; justEq = false; }
+            if (fresh && toks.length && typeof toks[toks.length - 1] === 'string') toks[toks.length - 1] = k;
+            else {
+                toks.push(parseFloat(entry));
+                /* running value: whole sum for + and −, just the current × ÷ chain for × and ÷ */
+                let from = 0; if ('*/'.includes(k)) for (let i = toks.length - 1; i > 0; i--) if (toks[i] === '+' || toks[i] === '-') { from = i + 1; break; }
+                entry = fmt(evaluate(toks.slice(from))); toks.push(k);
+            }
+            fresh = true;
+        } else if (k === '=') {
+            if (justEq || !toks.length) return show();
+            if (fresh && typeof toks[toks.length - 1] === 'string') toks.pop();
+            else toks.push(parseFloat(entry));
+            entry = fmt(evaluate(toks)); toks.push('=');
+            justEq = true; fresh = true;
+            setEx(toks.slice(0, -1).map(x => typeof x === 'number' ? fmt(x) : ` ${SYM[x]} `).join('') + ' =');
+            rsEl.textContent = entry; refreshIns(); return;
+        }
+        show();
+    }
+    /* keyboard, only while the calculator has focus */
+    const KEYMAP = { Enter: '=', '=': '=', Escape: 'C', Delete: 'C', x: '*', X: '*', ',': '.' };
+    box.addEventListener('keydown', e => {
+        if (e.target.tagName === 'BUTTON' && (e.key === 'Enter' || e.key === ' ')) return;
+        const k = KEYMAP[e.key] || e.key;
+        if (/^[0-9]$/.test(k) || ['+', '-', '*', '/', '.', '=', 'Backspace', 'C'].includes(k)) {
+            e.preventDefault(); press(k);
+            const b = keys.querySelector(`[data-k="${CSS.escape(k)}"]`); if (b) { b.classList.add('hit'); setTimeout(() => b.classList.remove('hit'), 120); }
+        }
+    });
+    /* put the result into the answer box the student last used (or the first empty one) */
+    document.addEventListener('focusin', e => { if (e.target.classList && e.target.classList.contains('num-in')) lastIn = e.target; });
+    const target = () => {
+        const open = [...document.querySelectorAll('.num-in')].filter(i => !i.disabled);
+        if (!open.length) return null;
+        return open.includes(lastIn) ? lastIn : open.find(i => !i.value.trim()) || open[0];
+    };
+    function refreshIns() { const any = document.querySelector('.num-in'); ins.hidden = !any; ins.disabled = !target() || entry === 'Error'; }
+    ins.onclick = () => {
+        const t = target(); if (!t) return;
+        t.value = entry; t.dispatchEvent(new Event('input', { bubbles: true })); t.focus();
+    };
+    /* position: dragged by the title bar, kept inside the page, remembered */
+    const clamp = (x, y) => [Math.max(0, Math.min(1280 - W, x)), Math.max(0, Math.min(720 - box.offsetHeight, y))];
+    const place = (x, y) => { [x, y] = clamp(x, y); box.style.left = x + 'px'; box.style.top = y + 'px'; return [x, y]; };
+    const load = () => { try { const p = JSON.parse(localStorage.getItem(POS)); if (p && isFinite(p.x) && isFinite(p.y)) return [p.x, p.y]; } catch (e) {} const sc = document.querySelector('#content .bwrap, #content .scene'), st = $('#stage').getBoundingClientRect();
+        if (sc) { const r = sc.getBoundingClientRect(); return [Math.max(10, (r.right - st.left) / scaleK - W - 12), (document.querySelector('#content .body').getBoundingClientRect().top - st.top) / scaleK - 4]; }
+        return [1280 - W - 40, 190]; };
+    const save = (x, y) => { try { localStorage.setItem(POS, JSON.stringify({ x, y })); } catch (e) {} };
+    bar.addEventListener('pointerdown', e => {
+        if (e.button > 0 || e.target.closest('.calc-x')) return;
+        e.preventDefault(); bar.setPointerCapture(e.pointerId); bar.classList.add('grab');
+        const sx = e.clientX, sy = e.clientY, x0 = box.offsetLeft, y0 = box.offsetTop;
+        const mv = ev => place(x0 + (ev.clientX - sx) / scaleK, y0 + (ev.clientY - sy) / scaleK);
+        const up = () => { bar.removeEventListener('pointermove', mv); bar.removeEventListener('pointerup', up); bar.removeEventListener('pointercancel', up); bar.classList.remove('grab'); save(box.offsetLeft, box.offsetTop); };
+        bar.addEventListener('pointermove', mv); bar.addEventListener('pointerup', up); bar.addEventListener('pointercancel', up);
+    });
+    /* the call-to-action buttons live in each formula card */
+    function syncCta() {
+        document.querySelectorAll('.calc-cta').forEach(b => {
+            const on = !box.hidden;
+            b.classList.toggle('on', on);
+            b.setAttribute('aria-expanded', String(on));
+            b.querySelector('.cl').innerHTML = on ? 'Close calculator<small>Hide it again</small>' : 'Open calculator<small>Do the sum here</small>';
+        });
+    }
+    function open() {
+        box.hidden = false; box.classList.remove('pop'); void box.offsetWidth; box.classList.add('pop');
+        place(...load()); syncCta(); refreshIns(); box.focus();
+    }
+    function close() { box.hidden = true; syncCta(); const c = document.querySelector('.calc-cta'); if (c) c.focus(); }
+    document.addEventListener('click', e => { if (e.target.closest('.calc-cta')) box.hidden ? open() : close(); });
+    $('#calcX').onclick = close;
+    show();
+    const hasSaved = () => { try { return !!localStorage.getItem(POS); } catch (e) { return false; } };
+    return {
+        refresh: () => { syncCta(); if (!box.hidden) refreshIns(); },
+        /* new question: if the student hasn't moved it yet, move it clear of the new layout */
+        moved: () => { if (!box.hidden && !hasSaved()) place(...load()); }
+    };
+})();
+
+/* ---------- scale to window ---------- */
+function fit() {
+    const st = $('#stage');
+    scaleK = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    st.style.transform = `scale(${scaleK})`;
+    st.style.margin = `${(720 * scaleK - 720) / 2}px ${(1280 * scaleK - 1280) / 2}px`;
+}
+window.addEventListener('resize', fit);
+window.addEventListener('storage', e => { if (e.key === 'buckles-shared') refreshCount(); });
+fit(); refreshCount();
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(() => {
+    fit(); refreshCount();
+    const pos = Buckles.getPos();
+    if (pos >= TOTAL) { qi = TOTAL - 1; finish(); } else { qi = Math.max(0, pos); render(); }
+});
+</script>
+</body>
+</html>
