@@ -1,0 +1,2463 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gravity</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231b1f45'/%3E%3Cpath d='M24 13L46 27L24 41Z' fill='%23fff'/%3E%3Crect x='12' y='50' width='40' height='5' rx='2.5' fill='%23fff' fill-opacity='.25'/%3E%3Crect x='12' y='50' width='26' height='5' rx='2.5' fill='%23ea008a'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --navy: #1b1f45;
+        --pink: #ea008a;
+        --white: #ffffff;
+        --off-white: #f5f5f5;
+        --light-grey: #e8e8e8;
+        --mid-grey: #9a9a9a;
+        --blank: #f0f3f6;
+        --ease: cubic-bezier(.2,.8,.2,1);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+        font-family: 'Barlow', Helvetica Neue, Helvetica, Arial, sans-serif;
+        margin: 0; background: #eaeaea; color: var(--navy);
+        display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden;
+    }
+    .viewport { flex: 1; width: 100%; display: flex; align-items: center; justify-content: center; min-height: 0; }
+    .stage {
+        width: 1280px; height: 720px; background: var(--white); border-top: 6px solid var(--navy);
+        position: relative; padding: 0; transform-origin: center center; flex-shrink: 0; overflow: hidden;
+    }
+    .ui-zoomer { position: absolute; left: 0; top: 0; width: 1280px; height: 714px; padding: 36px 64px 0 64px; transform-origin: 0 0; }
+    .ui-spot { position: absolute; left: 0; top: 0; width: 1280px; height: 714px; z-index: 6; pointer-events: none; opacity: 0; transition: opacity .35s var(--ease); }
+    .ui-spot.on { opacity: 1; }
+    .top { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 4px solid var(--navy); padding-bottom: 12px; }
+    .sheet-title { font-family: 'Barlow Condensed', sans-serif; font-size: 44px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.01em; margin: 0; line-height: 1; }
+    .sheet-title span { color: var(--pink); }
+    .counter { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: 0.08em; color: var(--mid-grey); }
+    .counter b { color: var(--navy); }
+    .content { position: absolute; left: 64px; right: 64px; top: 130px; bottom: 110px; }
+    .caption {
+        position: absolute; left: 64px; right: 64px; bottom: 30px;
+        font-size: 27px; font-weight: 500; line-height: 1.35;
+        display: flex; align-items: center; gap: 16px; min-height: 60px;
+    }
+    .caption::before { content: ''; width: 10px; height: 10px; background: var(--pink); flex-shrink: 0; }
+    .caption b { font-weight: 800; color: var(--pink); }
+    .caption.in { animation: capIn .45s var(--ease); }
+    @keyframes capIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .progress { position: absolute; left: 0; bottom: 0; height: 6px; background: var(--pink); width: 0; }
+
+    .hide { opacity: 0; transform: translateY(14px); }
+    .rev { transition: opacity .45s var(--ease), transform .45s var(--ease), background-color .35s, color .35s, border-color .35s; }
+    .center { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+    .hint { margin-top: 22px; font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid-grey); }
+    .dlbl { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid-grey); }
+
+    /* ---------- gravity deck ---------- */
+    .gv-q { font-size: 30px; font-weight: 700; line-height: 1.25; }
+    .gv-q b { color: var(--pink); font-weight: 800; }
+    .gv-sub { font-size: 23px; font-weight: 600; line-height: 1.3; color: var(--navy); }
+    .gv-sub b { color: var(--pink); font-weight: 800; }
+    .gv-row { display: flex; align-items: center; justify-content: space-between; gap: 40px; height: 100%; }
+    .gv-stack { display: flex; flex-direction: column; gap: 18px; }
+    .gv-svg { display: block; overflow: visible; flex-shrink: 0; }
+    .gv-svg text { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; fill: var(--navy); }
+    .gv-svg .gv-t { font-size: 22px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .gv-svg .gv-ts { font-size: 18px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .gv-svg .gv-tg { fill: var(--mid-grey); }
+    .gv-svg .gv-tp { fill: var(--pink); }
+    .gv-svg .gv-tw { fill: #fff; }
+    .gv-svg .gv-ln { stroke: var(--navy); stroke-width: 3; fill: none; }
+    .gv-svg .gv-dash { stroke: #c3c6d0; stroke-width: 2.5; stroke-dasharray: 6 8; fill: none; }
+    .gv-svg .gv-pdash { stroke: var(--pink); stroke-width: 3; stroke-dasharray: 8 8; fill: none; }
+    .gv-arr { color: var(--navy); }
+    .gv-arr.gv-pk { color: var(--pink); }
+    .gv-arr line { stroke: currentColor; stroke-width: 6; stroke-linecap: round; }
+    .gv-arr path { fill: currentColor; }
+    .gv-fade { opacity: 0; transition: opacity .6s var(--ease); }
+    .gv-fade.on { opacity: 1; }
+    .gv-click { cursor: pointer; }
+
+    /* option cards (finger vote and hinge questions) */
+    .gv-opts { display: grid; gap: 14px; }
+    .gv-opt { display: flex; align-items: center; gap: 18px; border: 3px solid var(--navy); border-radius: 8px; padding: 14px 20px; font-size: 24px; font-weight: 600; line-height: 1.25; min-height: 78px; }
+    .gv-opt .gv-on { flex-shrink: 0; width: 42px; height: 42px; border-radius: 6px; background: var(--navy); color: #fff; display: flex; align-items: center; justify-content: center;
+        font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 900; transition: background-color .35s; }
+    .gv-opt.gv-ok { border-color: var(--pink); background: var(--pink); color: #fff; }
+    .gv-opt.gv-ok .gv-on { background: #fff; color: var(--pink); }
+    .gv-opt.gv-no { opacity: .3; }
+
+    /* steps (think, pair, share) */
+    .gv-steps { display: flex; gap: 14px; }
+    .gv-step { white-space: nowrap; display: flex; align-items: center; gap: 12px; border: 3px solid var(--navy); border-radius: 8px; padding: 10px 18px; }
+    .gv-step .gv-sn { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em; }
+    .gv-step .gv-st { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mid-grey); }
+    .gv-step.gv-pkb { border-color: var(--pink); }
+    .gv-step.gv-pkb .gv-sn { color: var(--pink); }
+
+    /* chips and cards */
+    .gv-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+    .gv-chip { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; padding: 8px 16px; border-radius: 6px; border: 3px solid var(--navy); }
+    .gv-chip.gv-pkf { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .gv-card { border: 3px solid var(--navy); border-radius: 8px; padding: 16px 22px; }
+    .gv-card.gv-pkb { border-color: var(--pink); }
+    .gv-card h3 { margin: 0 0 6px; font-family: 'Barlow Condensed', sans-serif; font-size: 30px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1.05; }
+    .gv-card.gv-pkb h3 { color: var(--pink); }
+    .gv-card p { margin: 0; font-size: 22px; font-weight: 600; line-height: 1.3; }
+    .gv-card p b { color: var(--pink); font-weight: 800; }
+    .gv-bar { border-left: 8px solid var(--pink); padding: 4px 0 4px 20px; font-size: 25px; font-weight: 600; line-height: 1.3; }
+    .gv-bar b { color: var(--pink); font-weight: 800; }
+    .gv-bar.gv-nvb { border-left-color: var(--navy); }
+
+    /* title */
+    .gv-hook { font-family: 'Barlow Condensed', sans-serif; font-size: 84px; font-weight: 900; text-transform: uppercase; line-height: .95; letter-spacing: 0.01em; }
+    .gv-hook span { color: var(--pink); }
+
+    /* success criteria */
+    .gv-sclist { display: flex; flex-direction: column; gap: 22px; width: 1000px; }
+    .gv-sc { display: flex; align-items: center; gap: 28px; border: 3px solid var(--navy); border-radius: 8px; padding: 18px 26px; }
+    .gv-sc .gv-scn { flex-shrink: 0; font-family: 'Barlow Condensed', sans-serif; font-size: 44px; font-weight: 900; color: var(--pink); width: 110px; }
+    .gv-sc .gv-sct { font-size: 28px; font-weight: 600; line-height: 1.3; }
+    .gv-sc .gv-sct b { font-weight: 800; }
+    .gv-sc .gv-scs { margin-top: 4px; font-size: 21px; font-weight: 600; color: var(--mid-grey); }
+
+    /* tides */
+    .gv-tides { display: flex; gap: 48px; }
+    .gv-tpan { width: 552px; border: 3px solid var(--navy); border-radius: 8px; overflow: hidden; }
+    .gv-tpan svg { display: block; }
+    .gv-tname { display: flex; align-items: center; justify-content: center; height: 54px; margin: 0 16px; border-top: 3px dashed #c3c6d0;
+        font-family: 'Barlow Condensed', sans-serif; font-size: 34px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em; color: var(--pink); }
+    .gv-tname.gv-full { border-top-style: solid; border-top-color: var(--navy); }
+    .gv-tblank { display: inline-block; width: 220px; height: 34px; border: 3px dashed #c3c6d0; border-radius: 6px; }
+    .gv-tx { margin: 0 18px 14px; font-size: 20px; font-weight: 600; line-height: 1.3; min-height: 52px; }
+    .gv-tx b { color: var(--pink); font-weight: 800; }
+    .gv-water { fill: #cfe3f5; stroke: #0a7bd6; stroke-width: 2.5; }
+    .gv-sun { transition: opacity .6s var(--ease); }
+    .gv-sun.gv-dim { opacity: .2; }
+
+    /* tables */
+    .gv-table { display: grid; grid-template-columns: 300px 420px 420px; border: 3px solid var(--navy); border-radius: 8px; overflow: hidden; }
+    .gv-table > div { padding: 18px 24px; font-size: 26px; font-weight: 600; line-height: 1.25; border-top: 2px solid var(--light-grey); }
+    .gv-table .gv-th { font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em; background: var(--navy); color: #fff; border-top: none; }
+    .gv-table .gv-th.gv-pkh { background: var(--pink); }
+    .gv-table .gv-tp { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mid-grey); }
+    .gv-table .gv-tw { color: var(--pink); font-weight: 700; }
+
+    /* mass or weight rows */
+    .gv-mw { display: flex; flex-direction: column; gap: 10px; width: 1060px; }
+    .gv-mwr { display: flex; align-items: center; gap: 20px; border: 3px solid var(--navy); border-radius: 8px; padding: 10px 18px; min-height: 64px; }
+    .gv-mwr .gv-on { flex-shrink: 0; width: 40px; height: 40px; border-radius: 6px; background: var(--navy); color: #fff; display: flex; align-items: center; justify-content: center;
+        font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 900; }
+    .gv-mwr .gv-mws { flex: 1; font-size: 25px; font-weight: 600; }
+    .gv-ans { flex-shrink: 0; width: 140px; text-align: center; font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em;
+        padding: 6px 0; border-radius: 6px; color: #fff; background: var(--navy); }
+    .gv-ans.gv-aw { background: var(--pink); }
+
+    /* readouts */
+    .gv-read { border: 3px solid var(--navy); border-radius: 8px; padding: 12px 24px; }
+    .gv-read.gv-pkb { border-color: var(--pink); }
+    .gv-read .gv-rl { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid-grey); }
+    .gv-read .gv-rv { font-family: 'Barlow Condensed', sans-serif; font-size: 64px; font-weight: 900; line-height: 1.05; font-variant-numeric: tabular-nums; }
+    .gv-read.gv-pkb .gv-rv { color: var(--pink); }
+    .gv-read .gv-rd { font-size: 21px; font-weight: 600; }
+    .gv-read.gv-flash { animation: gvFlash .9s var(--ease); }
+    @keyframes gvFlash { 0% { box-shadow: 0 0 0 0 rgba(27,31,69,.45); } 100% { box-shadow: 0 0 0 18px rgba(27,31,69,0); } }
+    .gv-loc { font-family: 'Barlow Condensed', sans-serif; font-size: 46px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1; }
+    .gv-loc span { color: var(--pink); }
+
+    /* in-slide buttons */
+    .gv-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+    .gv-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+        background: #fff; color: var(--navy); border: 3px solid var(--navy); border-radius: 6px; padding: 6px 16px; cursor: pointer; }
+    .gv-btn.on { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .gv-btn:focus-visible { outline: 3px solid var(--pink); outline-offset: 2px; }
+    .gv-vid { display: inline-flex; align-items: center; gap: 14px; text-decoration: none; background: var(--pink); color: #fff; border-radius: 8px; padding: 12px 22px 12px 16px;
+        font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.1; }
+    .gv-vid svg { width: 38px; height: 38px; flex-shrink: 0; }
+    .gv-vid:focus-visible { outline: 3px solid var(--navy); outline-offset: 3px; }
+
+    /* bar chart */
+    .gv-bars rect.gv-b { fill: var(--navy); transition: opacity .4s; }
+    .gv-bars rect.gv-b.gv-be { fill: var(--pink); }
+    .gv-bars .gv-dim { opacity: .2; transition: opacity .4s; }
+    .gv-bars g.gv-pg { transition: opacity .4s; }
+
+    /* levers */
+    .gv-lvrs { display: flex; gap: 36px; }
+    .gv-lvr { width: 360px; }
+    .gv-lvh { display: flex; align-items: center; justify-content: space-between; height: 46px; border-bottom: 3px solid var(--navy); margin-bottom: 8px; }
+    .gv-lvl { font-family: 'Barlow Condensed', sans-serif; font-size: 34px; font-weight: 900; }
+    .gv-lvh .gv-ans { width: auto; padding: 6px 14px; font-size: 22px; }
+
+    /* controls */
+    .controls { position: relative; z-index: 25; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px 24px; padding: 12px 20px 16px; width: 100%; font-family: 'Barlow Condensed', sans-serif; }
+    .grp { display: flex; align-items: center; gap: 8px; }
+    .controls [hidden] { display: none !important; }
+    .controls button {
+        font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; line-height: 1.2;
+        display: inline-flex; align-items: center; gap: 8px; background: var(--white); color: var(--navy); border: none; border-radius: 6px; padding: 9px 13px; cursor: pointer;
+    }
+    .controls button:focus-visible { outline: 3px solid var(--pink); outline-offset: 2px; }
+    .controls button.on { background: var(--pink); color: var(--white); }
+    .controls button.ui-pri { background: var(--navy); color: var(--white); }
+    .controls button.ui-fs { background: var(--pink); color: var(--white); }
+    .controls button.ui-fs.ui-isfs { background: var(--white); color: var(--navy); }
+    .controls button.ui-fs.ui-nudge { animation: nudge 1.6s ease-out 1s 4; }
+    @keyframes nudge { 0% { box-shadow: 0 0 0 0 rgba(234,0,138,.55); } 70%, 100% { box-shadow: 0 0 0 14px rgba(234,0,138,0); } }
+    .controls svg.ui-ic { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .controls svg.ui-chev { width: 13px; height: 13px; stroke-width: 3; opacity: .6; transition: transform .2s var(--ease); }
+    .ui-menu.ui-open > .ui-mt svg.ui-chev { transform: rotate(180deg); }
+    .ui-mt .ui-pdot { width: 11px; height: 11px; border-radius: 50%; box-shadow: 0 0 0 2px var(--white); }
+    .controls .dots { display: flex; gap: 8px; margin: 0 8px 0 12px; }
+    .controls .dots button { width: 14px; height: 14px; padding: 0; border-radius: 50%; background: #c9ccd6; }
+    .controls .dots button.cur { background: var(--pink); }
+    .steplbl { font-size: 18px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mid-grey); margin-left: 6px; min-width: 110px; }
+    .controls kbd { margin-left: 2px; }
+
+    /* menus */
+    .ui-menu { position: relative; }
+    .ui-pop { display: none; position: absolute; left: 0; bottom: calc(100% + 10px); min-width: 260px; flex-direction: column; gap: 2px; padding: 4px 8px 8px;
+        background: var(--white); border-top: 6px solid var(--navy); border-radius: 10px; box-shadow: 0 10px 30px rgba(27,31,69,.25), 0 0 0 1px rgba(27,31,69,.08); }
+    .ui-menu.ui-r .ui-pop { left: auto; right: 0; }
+    .ui-menu.ui-open .ui-pop { display: flex; animation: popIn .18s var(--ease); }
+    @keyframes popIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    .ui-ph { font-size: 15px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mid-grey); padding: 10px 10px 6px; }
+    .ui-pop .ui-mi { width: 100%; padding: 9px 10px; background: transparent; white-space: nowrap; }
+    .ui-pop .ui-mi:hover { background: var(--off-white); }
+    .ui-pop .ui-mi kbd { margin-left: auto; padding-left: 5px; }
+    .ui-pop .ui-mi .ui-ind { width: 14px; height: 14px; border: 2.5px solid var(--navy); border-radius: 3px; flex-shrink: 0; margin-right: 4px; }
+    .ui-pop .ui-mi .ui-ind.ui-no { border-color: transparent; }
+    .ui-pop .ui-mi.on { background: transparent; color: var(--pink); }
+    .ui-pop .ui-mi.on:hover { background: var(--off-white); }
+    .ui-pop .ui-mi.on .ui-ind { background: var(--pink); border-color: var(--pink); }
+    .ui-pop .ui-mi:disabled { opacity: .35; cursor: default; background: transparent; }
+    .ui-pop .ui-mi.ui-eng .ui-ind { border: none; border-radius: 50%; }
+    .ui-pop .ui-mi.ui-eng .ui-ind.ui-pk { background: var(--pink); }
+    .ui-pop .ui-mi.ui-eng .ui-ind.ui-nv { background: var(--navy); }
+    .ui-pop .ui-swrow { display: flex; gap: 8px; padding: 4px 10px 10px 38px; }
+    .ui-pop .swatch { width: 26px; height: 26px; padding: 0; border-radius: 50%; border: 3px solid var(--white); box-shadow: 0 0 0 1px #c9ccd6; }
+    .ui-pop .swatch.cur { box-shadow: 0 0 0 3px var(--navy); }
+    .ui-pop .ui-div { height: 1.5px; background: var(--light-grey); margin: 4px 6px; }
+
+
+
+    /* highlighter and whiteboard surfaces */
+    .ui-hlc { position: absolute; inset: 0; width: 1280px; height: 720px; pointer-events: none; z-index: 4; mix-blend-mode: multiply; }
+    .ui-wboard { display: none; position: absolute; left: 0; top: 0; width: 1280px; height: 714px; background: var(--white); z-index: 3; }
+    body.ui-wb .ui-wboard { display: block; }
+    .ui-wbl { position: absolute; right: 64px; top: 40px; font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mid-grey); }
+    .ui-wbl b { color: var(--navy); }
+    .ui-wbg { display: none; }
+    body.ui-wb .ui-wbg { display: flex; }
+    body.ui-wb .grp.ui-nav { display: none; }
+    .ui-wbtag { font-size: 18px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--white); background: var(--pink); border-radius: 6px; padding: 9px 13px; line-height: 1.2; }
+    .controls button:disabled { opacity: .35; cursor: default; }
+    #ovbtn { padding: 9px 11px; }
+
+    /* overlays */
+    .ui-ovw[hidden], .ui-keys[hidden], .ui-blk[hidden] { display: none !important; }
+    .ui-ovw { position: fixed; inset: 0; z-index: 45; background: rgba(27,31,69,.96); overflow-y: auto; padding: 40px 48px 60px; opacity: 0; transition: opacity .2s; }
+    .ui-ovw.on, .ui-keys.on, .ui-blk.on { opacity: 1; }
+    .ui-ovh { display: flex; justify-content: space-between; align-items: flex-end; max-width: 1296px; margin: 0 auto 28px; padding-bottom: 12px; border-bottom: 4px solid var(--white); color: var(--white); }
+    .ui-ovh h2 { margin: 0; font-family: 'Barlow Condensed', sans-serif; font-size: 44px; font-weight: 900; text-transform: uppercase; line-height: 1; }
+    .ui-ovh h2 span { color: var(--pink); }
+    .ui-ovh .ui-hint, .ui-blk .ui-bh { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.6); }
+    .ui-ovh kbd { display: inline-block; padding: 0 6px; border: 1.5px solid currentColor; border-radius: 4px; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; line-height: 17px; }
+    .ui-ovg { display: grid; grid-template-columns: repeat(auto-fill, 300px); gap: 30px 24px; justify-content: center; max-width: 1296px; margin: 0 auto; }
+    .ui-ovc { background: none; border: none; padding: 0; margin: 0; cursor: pointer; text-align: left; color: var(--white); font-family: 'Barlow Condensed', sans-serif; }
+    .ui-ovc:focus-visible { outline: none; }
+    .ui-ovc .ui-thw { position: relative; width: 300px; height: 168.75px; overflow: hidden; border-radius: 6px; background: var(--white); transition: box-shadow .15s, transform .15s var(--ease); }
+    .ui-ovc:hover .ui-thw, .ui-ovc:focus-visible .ui-thw { box-shadow: 0 0 0 3px var(--white); transform: translateY(-3px); }
+    .ui-ovc.cur .ui-thw { box-shadow: 0 0 0 4px var(--pink); }
+    .ui-ovc .ui-thw .stage { color: var(--navy); position: absolute; left: 0; top: 0; margin: 0; transform: scale(.234375); transform-origin: 0 0; pointer-events: none; }
+    .ui-ovc .ui-thw *, .ui-ovc .ui-thw *::before { animation: none !important; transition: none !important; }
+    .ui-ovc .ui-lb { display: flex; gap: 10px; margin-top: 10px; font-size: 19px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; line-height: 1.15; }
+    .ui-ovc .ui-lb .ui-n { color: var(--pink); min-width: 18px; }
+    .ui-ovc .ui-lb .ui-t span { color: var(--pink); }
+
+    .ui-keys { position: fixed; inset: 0; z-index: 45; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(27,31,69,.55); opacity: 0; transition: opacity .2s; }
+    .ui-kcard { width: min(1080px, 100%); max-height: 100%; overflow: auto; background: var(--white); border-top: 6px solid var(--navy); border-radius: 10px; padding: 22px 36px 30px;
+        box-shadow: 0 10px 30px rgba(27,31,69,.25); color: var(--navy); font-family: 'Barlow Condensed', sans-serif; }
+    .ui-kh { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; margin-bottom: 20px; border-bottom: 4px solid var(--navy); }
+    .ui-kh h2 { margin: 0; font-size: 38px; font-weight: 900; text-transform: uppercase; line-height: 1; }
+    .ui-kh h2 span { color: var(--pink); }
+    .ui-kh button { width: 36px; height: 36px; border: none; background: none; border-radius: 6px; cursor: pointer; color: var(--navy); display: flex; align-items: center; justify-content: center; }
+    .ui-kh button:hover { background: var(--light-grey); }
+    .ui-kh svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; }
+    .ui-kgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px 40px; }
+    .ui-kgrp h3 { margin: 0 0 6px; font-size: 16px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--pink); }
+    .ui-krow { display: flex; align-items: center; gap: 12px; padding: 6px 0; border-bottom: 1.5px solid var(--light-grey); font-family: 'Barlow', Helvetica Neue, Helvetica, Arial, sans-serif; font-size: 17px; font-weight: 600; }
+    .ui-krow .ui-ks { display: flex; align-items: center; gap: 4px; min-width: 128px; flex-shrink: 0; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 800; color: var(--mid-grey); }
+    .ui-krow kbd { display: inline-block; min-width: 28px; padding: 1px 7px; border: 2px solid var(--navy); border-radius: 5px; text-align: center; color: var(--navy);
+        font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 800; letter-spacing: .04em; line-height: 18px; }
+
+    .ui-blk { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; background: var(--navy); cursor: pointer; opacity: 0; transition: opacity .3s; }
+    .ui-blk .ui-msg { display: flex; align-items: center; color: var(--white); font-family: 'Barlow Condensed', sans-serif; font-size: clamp(48px, 8vw, 150px); font-weight: 900; text-transform: uppercase; letter-spacing: .01em; line-height: 1; }
+    .ui-blk .ui-msg::before { content: ''; width: .2em; height: .2em; margin-right: .35em; background: var(--pink); flex-shrink: 0; }
+    .ui-blk .ui-msg span { color: var(--pink); }
+    .ui-blk .ui-bh { position: absolute; bottom: 28px; color: rgba(255,255,255,.28); }
+
+
+    /* pasted images */
+    .ui-ilayer { position: absolute; left: 0; top: 0; width: 1280px; height: 714px; z-index: 4; pointer-events: none; }
+    .ui-img { position: absolute; pointer-events: auto; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+    .ui-img img { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; -webkit-user-drag: none; }
+    .ui-img.ui-dragging { cursor: grabbing; }
+    .ui-img.ui-sel { outline: 3px solid var(--pink); outline-offset: 3px; }
+    .ui-img.ui-in { animation: fbIn .45s var(--ease); }
+    .ui-imx { position: absolute; top: -16px; right: -16px; width: 30px; height: 30px; padding: 0; border-radius: 50%; border: 2.5px solid var(--navy); background: var(--white);
+        display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transition: opacity .15s; }
+    .ui-imx svg { width: 14px; height: 14px; fill: none; stroke: var(--navy); stroke-width: 3; stroke-linecap: round; }
+    .ui-imr { position: absolute; right: -11px; bottom: -11px; width: 20px; height: 20px; border-radius: 4px; border: 3px solid var(--pink); background: var(--white); cursor: nwse-resize; opacity: 0; transition: opacity .15s; }
+    .ui-img:hover .ui-imx, .ui-img.ui-sel .ui-imx, .ui-img:hover .ui-imr, .ui-img.ui-sel .ui-imr { opacity: 1; }
+    .ui-drop { position: absolute; inset: 0; z-index: 7; pointer-events: none; opacity: 0; transition: opacity .15s; box-shadow: inset 0 0 0 6px var(--pink); background: rgba(234,0,138,.06); }
+    .ui-drop.on { opacity: 1; }
+    /* floating text boxes */
+    .ui-tbox { position: absolute; pointer-events: auto; max-width: 560px; padding: 12px 20px; border-radius: 8px; border: 3px solid var(--navy);
+        background: var(--white); color: var(--navy); cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; box-shadow: 0 6px 18px rgba(27,31,69,.14); }
+    .ui-tbox.ui-nv { background: var(--navy); color: var(--white); }
+    .ui-tbox.ui-pk { background: var(--pink); border-color: var(--pink); color: var(--white); }
+    .ui-tbox.ui-dragging { cursor: grabbing; box-shadow: 0 12px 28px rgba(27,31,69,.24); }
+    .ui-tbox.ui-in { animation: fbIn .45s var(--ease); }
+    .ui-tbt { font-family: 'Barlow', Helvetica Neue, Helvetica, Arial, sans-serif; font-weight: 600; line-height: 1.25; letter-spacing: 0.005em;
+        white-space: pre-wrap; overflow-wrap: break-word; outline: none; min-width: 2ch; }
+    .ui-tbt:empty::before { content: attr(data-ph); opacity: .45; }
+    .ui-tbox.ui-editing { cursor: text; outline: 3px dashed var(--pink); outline-offset: 6px; }
+    .ui-tbox.ui-pk.ui-editing { outline-color: var(--navy); }
+    .ui-tbox.ui-editing .ui-tbt { user-select: text; -webkit-user-select: text; cursor: text; }
+    .ui-tbbar { position: absolute; top: -17px; right: -13px; display: flex; gap: 5px; opacity: 0; transition: opacity .15s; }
+    .ui-tbox:hover .ui-tbbar, .ui-tbox.ui-editing .ui-tbbar { opacity: 1; }
+    .ui-tbb { width: 28px; height: 28px; padding: 0; border-radius: 50%; border: 2.5px solid var(--navy); background: var(--white); color: var(--navy); cursor: pointer;
+        display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 900; line-height: 1; }
+    .ui-tbb svg { width: 14px; height: 14px; fill: none; stroke: var(--navy); stroke-width: 3; stroke-linecap: round; }
+    .ui-tbb.ui-sty span { width: 14px; height: 14px; border-radius: 50%; background: linear-gradient(135deg, var(--navy) 50%, var(--pink) 50%); }
+
+    /* header CFU badge and success criteria tags */
+    .ui-topr { display: flex; align-items: baseline; gap: 20px; }
+    .ui-cfu, .ui-sctags { margin: -14px 0; }
+    .ui-sctags { display: flex; gap: 8px; }
+    .ui-sctags span { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; line-height: 1;
+        padding: 9px 12px 8px; border-radius: 6px; box-shadow: inset 0 0 0 3px var(--navy); color: var(--navy); }
+    .ui-cfu { display: none; align-items: center; gap: 9px; height: 46px; padding: 0 18px; border-radius: 23px; color: var(--white); white-space: nowrap; user-select: none;
+        font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+    .ui-cfu.ui-pk { display: flex; background: var(--pink); }
+    .ui-cfu.ui-nv { display: flex; background: var(--navy); }
+    .ui-cfu.ui-click { cursor: pointer; }
+    .ui-cfu.ui-click:hover { filter: brightness(1.12); }
+    .ui-cfu:focus-visible { outline: 3px solid var(--pink); outline-offset: 3px; }
+    .ui-cfu.ui-pk:focus-visible { outline-color: var(--navy); }
+    .ui-cfu svg { width: 24px; height: 24px; fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .ui-cfu .ui-ar { opacity: .75; width: 20px; }
+    .ui-cfu .ui-ct { display: inline-flex; align-items: center; gap: 5px; margin-left: 4px; padding: 3px 10px 3px 7px; border-radius: 14px; background: rgba(255,255,255,.22); font-variant-numeric: tabular-nums; }
+    .ui-cfu .ui-ct svg { width: 18px; height: 18px; }
+    .ui-cfu.ui-cfuin { animation: uiCfuIn .6s var(--ease); }
+    @keyframes uiCfuIn { 0% { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.08); opacity: 1; } 100% { transform: none; } }
+
+    /* floating engagement badges */
+    .ui-blayer { position: absolute; left: 0; top: 0; width: 1280px; height: 714px; z-index: 8; pointer-events: none; }
+    .ui-fb { position: absolute; display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 22px; border-radius: 28px; color: var(--white);
+        font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap;
+        pointer-events: auto; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; box-shadow: 0 6px 18px rgba(27,31,69,.18); }
+    .ui-fb.ui-pk { background: var(--pink); }
+    .ui-fb.ui-nv { background: var(--navy); }
+    .ui-fb.ui-dragging { cursor: grabbing; box-shadow: 0 12px 28px rgba(27,31,69,.28); }
+    .ui-fb svg { width: 28px; height: 28px; fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .ui-fb .ui-ar { opacity: .75; width: 22px; }
+    .ui-fb.ui-big { height: 78px; border-radius: 39px; padding: 0 32px; gap: 14px; font-size: 34px; }
+    .ui-fb.ui-big svg { width: 40px; height: 40px; }
+    .ui-fb.ui-big .ui-ar { width: 30px; }
+    .ui-fb .ui-x { position: absolute; top: -9px; right: -9px; width: 28px; height: 28px; padding: 0; border-radius: 50%; border: 2.5px solid var(--navy); background: var(--white);
+        display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transition: opacity .15s; }
+    .ui-fb .ui-x svg { width: 14px; height: 14px; stroke: var(--navy); stroke-width: 3; }
+    .ui-fb:hover .ui-x, .ui-fb .ui-x:focus-visible { opacity: 1; }
+    .ui-fb.ui-in { animation: fbIn .55s var(--ease); }
+    @keyframes fbIn { 0% { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.08); opacity: 1; } 100% { transform: none; } }
+    .ink { position: absolute; inset: 0; width: 1280px; height: 720px; pointer-events: none; z-index: 5; touch-action: none; }
+    .ink.active { pointer-events: auto; cursor: crosshair; }
+    .stage.instant *, .stage.instant *::before { transition: none !important; animation: none !important; }
+
+    .controls kbd, .showui kbd { display: inline-block; margin-left: 7px; padding: 0 5px; min-width: 18px; text-align: center; border: 1.5px solid currentColor; border-radius: 4px;
+        font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 800; letter-spacing: 0.04em; line-height: 16px; opacity: .6; vertical-align: 1px; }
+
+    /* floating timer */
+    .ftimer { position: fixed; z-index: 20; left: 24px; top: 24px; width: 250px; background: #fff; border-top: 6px solid var(--navy); border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(27,31,69,.25), 0 0 0 1px rgba(27,31,69,.08); padding: 0 16px 16px; font-family: 'Barlow Condensed', sans-serif; color: var(--navy); user-select: none; }
+    .ftimer[hidden] { display: none; }
+    .fth { display: flex; justify-content: space-between; align-items: center; height: 40px; cursor: grab; touch-action: none; }
+    .fth:active { cursor: grabbing; }
+    .fth span { font-size: 16px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mid-grey); }
+    .fth button { width: 30px; height: 30px; border: none; background: none; color: var(--navy); cursor: pointer; border-radius: 6px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+    .fth button:hover { background: var(--light-grey); }
+    .fth svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; }
+    .ftring { position: relative; width: 150px; height: 150px; margin: 2px auto 12px; }
+    .ftring svg { width: 100%; height: 100%; transform: rotate(-90deg); display: block; }
+    .ftring .tb { fill: none; stroke: var(--light-grey); stroke-width: 8; }
+    .ftring .tf { fill: none; stroke: var(--pink); stroke-width: 8; stroke-dasharray: 1; stroke-dashoffset: 0; transition: stroke-dashoffset .25s linear; }
+    .ftv { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 46px; font-weight: 900; font-variant-numeric: tabular-nums; }
+    .ftimer.done .ftring { animation: ftflash .6s ease-in-out 6 alternate; }
+    .ftimer.done .ftv { color: var(--pink); }
+    @keyframes ftflash { to { transform: scale(1.06); opacity: .55; } }
+    .ftrow { display: flex; gap: 6px; justify-content: center; margin-top: 6px; }
+    .ftrow button { flex: 1; font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; border: 2px solid var(--navy);
+        background: #fff; color: var(--navy); border-radius: 6px; padding: 6px 0; cursor: pointer; }
+    .ftrow button.pri { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .ftrow button:focus-visible, .fth button:focus-visible { outline: 3px solid var(--pink); outline-offset: 2px; }
+    .ftimer.big { width: 400px; }
+    .ftimer.big .ftring { width: 280px; height: 280px; }
+    .ftimer.big .ftv { font-size: 88px; }
+    .ftimer.big .ftrow button { font-size: 19px; padding: 8px 0; }
+
+    /* tools, hide UI, export */
+    .ink.erase { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30'%3E%3Ccircle cx='15' cy='15' r='13' fill='white' fill-opacity='.55' stroke='%231b1f45' stroke-width='2'/%3E%3C/svg%3E") 15 15, cell; }
+    .ui-ztip { position: fixed; z-index: 22; left: 50%; top: 16px; transform: translate(-50%, -8px); display: flex; align-items: center; gap: 16px;
+        background: var(--navy); color: var(--white); border-radius: 22px; padding: 8px 18px; pointer-events: none; opacity: 0;
+        font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap;
+        transition: opacity .25s var(--ease), transform .25s var(--ease); }
+    .ui-ztip.on { opacity: 1; transform: translate(-50%, 0); }
+    .ui-ztip kbd { display: inline-block; margin-right: 6px; padding: 0 5px; min-width: 18px; text-align: center; border: 1.5px solid currentColor; border-radius: 4px;
+        font-family: 'Barlow Condensed', sans-serif; font-size: 13px; line-height: 16px; vertical-align: 1px; opacity: .8; }
+    .ui-ztip .ui-lv { color: var(--pink); font-variant-numeric: tabular-nums; }
+    .ui-ztip .ui-dim { opacity: .6; }
+    body.noui .controls { display: none; }
+    body.nosubs .caption { visibility: hidden; }
+    .showui {
+        display: none; position: fixed; right: 14px; bottom: 14px; z-index: 10;
+        font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+        background: var(--navy); color: var(--white); border: none; border-radius: 6px; padding: 8px 14px; cursor: pointer;
+        opacity: 0; transition: opacity .2s;
+    }
+    body.noui .showui { display: block; }
+    .showui:hover, .showui:focus-visible { opacity: 1; }
+    #print { display: none; }
+    @media print {
+        @page { size: 1280px 720px; margin: 0; }
+        * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        html, body { height: auto; overflow: visible; display: block; margin: 0; background: #fff; }
+        body > .viewport, body > .controls, .showui, .ftimer { display: none !important; }
+        #print { display: block; }
+        #print .stage { transform: none !important; margin: 0 !important; break-after: page; page-break-after: always; }
+        #print .stage:last-child { break-after: auto; page-break-after: auto; }
+        #print *, #print *::before { animation: none !important; transition: none !important; }
+        #print .ui-zoomer { transform: none !important; }
+        #print .ui-spot { display: none !important; }
+        #print .ui-fb .ui-x, #print .ui-tbbar { display: none !important; }
+        #print .ui-tbox { outline: none !important; }
+        #print .ui-tbt:empty::before { content: none; }
+        #print .ui-imx, #print .ui-imr { display: none !important; }
+        #print .ui-img { outline: none !important; animation: none !important; }
+        #print .ui-hlc { mix-blend-mode: multiply; }
+    }
+
+</style>
+</head>
+<body>
+
+<div class="viewport">
+    <div class="stage" id="stage">
+        <div class="ui-zoomer" id="zoomer">
+        <div class="top">
+            <div><h1 class="sheet-title" id="title"></h1></div>
+            <div class="ui-topr"><div class="ui-sctags" id="ui-sctags"></div><div class="ui-cfu" id="ui-cfu" role="button"></div><div class="counter" id="counter"></div></div>
+        </div>
+        <div class="content" id="content"></div>
+        <div class="caption" id="caption"></div>
+        <div class="progress" id="progress"></div>
+        <div class="ui-wboard" id="wboard"><div class="ui-wbl" id="wbl"></div></div>
+        <div class="ui-ilayer" id="ilayer"></div>
+        <canvas class="ui-hlc hlmain" id="hl" width="2560" height="1440"></canvas>
+        <canvas class="ui-hlc hllive" id="hllive" width="2560" height="1440"></canvas>
+        <canvas class="ink" id="ink" width="2560" height="1440"></canvas>
+        </div>
+        <div class="ui-spot" id="spot"></div>
+        <div class="ui-blayer" id="blayer"></div>
+    </div>
+</div>
+
+<div class="controls">
+    <div class="grp ui-nav">
+        <div class="ui-menu" id="playmenu">
+            <button class="ui-mt" title="Playback" aria-haspopup="true" aria-expanded="false"><svg class="ui-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z"/></svg><span>Playback</span><svg class="ui-ic ui-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
+            <div class="ui-pop">
+                <div class="ui-ph">Playback</div>
+                <button class="ui-mi" id="back"><span class="ui-ind ui-no"></span><span class="bl">Previous</span><kbd>&larr;</kbd></button>
+                <button class="ui-mi" id="next"><span class="ui-ind ui-no"></span><span class="bl">Next</span><kbd>&rarr;</kbd></button>
+                <button class="ui-mi" id="replay"><span class="ui-ind ui-no"></span><span class="bl">Replay</span><kbd>R</kbd></button>
+                <div class="ui-div"></div>
+                <button class="ui-mi tg" id="auto" aria-pressed="false"><span class="ui-ind"></span><span class="bl">Autoplay</span><kbd>Space</kbd></button>
+            </div>
+        </div>
+        <button id="ovbtn" aria-label="Slide overview" title="Slide overview (G)"><svg class="ui-ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4" width="7.5" height="7" rx="1"/><rect x="13" y="4" width="7.5" height="7" rx="1"/><rect x="3.5" y="13" width="7.5" height="7" rx="1"/><rect x="13" y="13" width="7.5" height="7" rx="1"/></svg></button>
+        <div class="dots" id="dots"></div>
+        <span class="steplbl" id="steplbl"></span>
+    </div>
+    <div class="grp ui-wbg">
+        <button id="wbprev" aria-label="Previous page" title="Previous page (&larr;)"><svg class="ui-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+        <span class="steplbl" id="wbpg">Page 1 of 1</span>
+        <button id="wbnext" aria-label="Next page" title="Next page (&rarr;)"><svg class="ui-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+        <button id="wbnew"><svg class="ui-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>New page</span><kbd>N</kbd></button>
+        <button id="wbpdf"><svg class="ui-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span>Export PDF</span></button>
+    </div>
+    <div class="grp">
+        <div class="ui-menu" id="drawmenu">
+            <button class="ui-mt" title="Draw" aria-haspopup="true" aria-expanded="false"><svg class="ui-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1.2-4.8L16 4.4l3.6 3.6L8.8 18.8z"/><path d="M13.6 6.8l3.6 3.6"/></svg><span>Draw</span><span class="ui-pdot" id="pdot" style="background:#ea008a"></span><svg class="ui-ic ui-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
+            <div class="ui-pop">
+                <div class="ui-ph">Draw</div>
+                <button class="ui-mi tg" id="pen" aria-pressed="false"><span class="ui-ind"></span><span class="bl">Pen</span><kbd>P</kbd></button>
+                <button class="ui-mi tg" id="hlbtn" aria-pressed="false"><span class="ui-ind"></span><span class="bl">Highlighter</span><kbd>Y</kbd></button>
+                <div class="ui-swrow"><button class="swatch cur" data-c="#ea008a" style="background:#ea008a" aria-label="Pink pen"></button><button class="swatch" data-c="#1b1f45" style="background:#1b1f45" aria-label="Navy pen"></button><button class="swatch" data-c="#111111" style="background:#111111" aria-label="Black pen"></button><button class="swatch" data-c="#0a7bd6" style="background:#0a7bd6" aria-label="Blue pen"></button><button class="swatch" data-c="#12a150" style="background:#12a150" aria-label="Green pen"></button><button class="swatch" data-c="#f28c00" style="background:#f28c00" aria-label="Orange pen"></button><button class="swatch" data-c="#ffd60a" style="background:#ffd60a" aria-label="Yellow"></button></div>
+                <button class="ui-mi tg" id="eraser" aria-pressed="false"><span class="ui-ind"></span><span class="bl">Eraser</span><kbd>E</kbd></button>
+                <button class="ui-mi" id="textbtn"><span class="ui-ind ui-no"></span><span class="bl">Text box</span><kbd>B</kbd></button>
+                <button class="ui-mi" id="imgbtn"><span class="ui-ind ui-no"></span><span class="bl">Image</span><kbd>Ctrl+V</kbd></button>
+                <div class="ui-div"></div>
+                <button class="ui-mi" id="clear"><span class="ui-ind ui-no"></span><span class="bl">Clear ink</span><kbd>C</kbd></button>
+            </div>
+        </div>
+        <div class="ui-menu" id="focusmenu">
+            <button class="ui-mt" title="Focus" aria-haspopup="true" aria-expanded="false"><svg class="ui-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg><span>Focus</span><svg class="ui-ic ui-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
+            <div class="ui-pop">
+                <div class="ui-ph">Focus</div>
+                <button class="ui-mi tg" id="zoombtn" aria-pressed="false"><span class="ui-ind"></span><span class="bl">Zoom</span><kbd>Z</kbd></button>
+                <button class="ui-mi tg" id="lockbtn" aria-pressed="false" disabled><span class="ui-ind"></span><span class="bl">Lock zoom</span><kbd>L</kbd></button>
+                <div class="ui-div"></div>
+                <button class="ui-mi tg" id="spotbtn" aria-pressed="false"><span class="ui-ind"></span><span class="bl">Spotlight</span><kbd>H</kbd></button>
+                <button class="ui-mi" id="blkbtn"><span class="ui-ind ui-no"></span><span class="bl">Blackout</span><kbd>K</kbd></button>
+            </div>
+        </div>
+        <div class="ui-menu" id="engmenu">
+            <button class="ui-mt" title="Engagement methods (M)" aria-haspopup="true" aria-expanded="false"><svg class="ui-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 4h12v8H8l-4 3v-3H2z"/><path d="M17 8h5v8h-2v3l-3-3h-6v-2"/></svg><span>Engage</span><svg class="ui-ic ui-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
+            <div class="ui-pop">
+                <div class="ui-ph">Engagement method</div>
+                <button class="ui-mi ui-eng" data-k="tt"><span class="ui-ind ui-pk"></span><span>Turn &amp; talk</span><kbd>1</kbd></button>
+                <button class="ui-mi ui-eng" data-k="cc"><span class="ui-ind ui-pk"></span><span>Turn &amp; talk + cold call</span><kbd>2</kbd></button>
+                <button class="ui-mi ui-eng" data-k="sj"><span class="ui-ind ui-nv"></span><span>Stop &amp; jot</span><kbd>3</kbd></button>
+                <button class="ui-mi ui-eng" data-k="fv"><span class="ui-ind ui-nv"></span><span>Finger vote</span><kbd>4</kbd></button>
+                <button class="ui-mi ui-eng" data-k="vs"><span class="ui-ind ui-pk"></span><span>Volunteer to share</span><kbd>5</kbd></button>
+                <div class="ui-div"></div>
+                <button class="ui-mi" id="engclear"><span class="ui-ind ui-no"></span><span class="bl">Clear from slide</span></button>
+            </div>
+        </div>
+        <button id="timerbtn" aria-pressed="false" title="Timer (T)"><svg class="ui-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 10v3.5l2.5 2M9.5 2.5h5"/></svg><span>Timer</span></button>
+        <button id="wbbtn" aria-pressed="false" title="Whiteboard (W)"><svg class="ui-ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20l4-4 4 4"/></svg><span>Whiteboard</span></button>
+    </div>
+    <div class="grp">
+        <div class="ui-menu ui-r" id="moremenu">
+            <button class="ui-mt" title="More" aria-haspopup="true" aria-expanded="false"><svg class="ui-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h.01M12 12h.01M19 12h.01" stroke-width="4"/></svg><span>More</span><svg class="ui-ic ui-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
+            <div class="ui-pop">
+                <div class="ui-ph">More</div>
+                <button class="ui-mi tg on" id="subs" aria-pressed="true"><span class="ui-ind"></span><span class="bl">Subtitles</span><kbd>S</kbd></button>
+                <button class="ui-mi" id="pdf"><span class="ui-ind ui-no"></span><span class="bl">Export PDF</span></button>
+                <div class="ui-div"></div>
+                <button class="ui-mi" id="keysbtn"><span class="ui-ind ui-no"></span><span class="bl">Keyboard shortcuts</span><kbd>?</kbd></button>
+            </div>
+        </div>
+        <button class="ui-fs" id="fsbtn" title="Fullscreen (F)"><svg class="ui-ic" viewBox="0 0 24 24" aria-hidden="true"><path id="fsic" d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg><span class="bl">Fullscreen</span></button>
+        <button class="ui-pri" id="hideui" title="Hide UI (U)"><svg class="ui-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10 10 0 0 1 12 5c5 0 9 4.5 10 7a12.5 12.5 0 0 1-3 4.2M6.6 6.6C4.3 8 2.7 10.2 2 12c1 2.5 5 7 10 7a9.8 9.8 0 0 0 4.4-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg><span>Hide UI</span></button>
+    </div>
+</div>
+<button class="showui" id="showui">Show UI<kbd>U</kbd></button>
+<div class="ftimer" id="ftimer" hidden role="dialog" aria-label="Timer">
+    <div class="fth" id="fth"><span>Timer</span><div>
+        <button id="ftsize" aria-label="Toggle timer size"><svg viewBox="0 0 24 24"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
+        <button id="ftclose" aria-label="Close timer"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div></div>
+    <div class="ftring"><svg viewBox="0 0 100 100"><circle class="tb" cx="50" cy="50" r="44"/><circle class="tf" id="ftf" cx="50" cy="50" r="44" pathLength="1"/></svg><div class="ftv" id="ftv">1:00</div></div>
+    <div class="ftrow"><button data-set="30">0:30</button><button data-set="60">1:00</button><button data-set="120">2:00</button><button data-set="180">3:00</button><button data-set="300">5:00</button></div>
+    <div class="ftrow"><button data-adj="-30">&minus;30s</button><button data-adj="30">+30s</button><button data-adj="60">+1 min</button></div>
+    <div class="ftrow"><button class="pri" id="ftstart">Start</button><button id="ftreset">Reset</button></div>
+</div>
+<div class="ui-ztip" id="ztip" aria-live="polite"></div>
+<div class="ui-ovw" id="ovw" hidden role="dialog" aria-label="Slide overview">
+    <div class="ui-ovh"><h2>Slide <span>overview</span></h2><div class="ui-hint"><kbd>G</kbd> or <kbd>Esc</kbd> to close</div></div>
+    <div class="ui-ovg" id="ovg"></div>
+</div>
+<div class="ui-keys" id="keys" hidden role="dialog" aria-label="Keyboard shortcuts">
+    <div class="ui-kcard">
+        <div class="ui-kh"><h2>Keyboard <span>shortcuts</span></h2><button id="keysclose" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+        <div class="ui-kgrid" id="kgrid"></div>
+    </div>
+</div>
+<div class="ui-blk" id="blk" hidden role="dialog" aria-label="Blackout">
+    <div class="ui-msg">Eyes on me,&nbsp;<span>please</span></div>
+    <div class="ui-bh">Click or press K to return</div>
+</div>
+<div id="print"></div>
+<input type="file" id="imgfile" accept="image/*" multiple hidden>
+
+<script>
+const $ = s => document.querySelector(s);
+const content = $('#content'), caption = $('#caption'), titleEl = $('#title'), counter = $('#counter'), progress = $('#progress');
+let timers = [], events = [], beats = [], idx = 0, beat = 0, autoplay = false;
+let segFrom = 0, segTo = 0, segStart = 0;
+let ptimers = [], cleanups = [];
+const stage = document.getElementById('stage');
+
+function at(ms, fn) { events.push({ t: ms, fn, done: false }); }
+function beatAt(ms, html) { beats.push(ms); at(ms, () => say(html)); }
+function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
+function show(e) { e.classList.remove('hide'); }
+function say(html) { caption.innerHTML = '<span>' + html + '</span>'; caption.classList.remove('in'); void caption.offsetWidth; caption.classList.add('in'); }
+function stopInteractive() { ptimers.forEach(clearTimeout); ptimers = []; cleanups.forEach(f => f()); cleanups = []; }
+
+/* ---------- gravity helpers ---------- */
+const easeIn = t => t * t, easeOut = t => 1 - (1 - t) * (1 - t);
+const easeIO = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+const easeSpring = t => t >= 1 ? 1 : 1 - Math.exp(-6 * t) * Math.cos(11 * t);
+function anim(ms, f, ease) {
+    const e = ease || (t => t);
+    if (exporting || stage.classList.contains('instant')) { f(1); return; }
+    let raf = 0; const st = performance.now();
+    const step = n => { const p = Math.max(0, Math.min(1, (n - st) / ms)); f(p >= 1 ? 1 : e(p)); if (p < 1) raf = requestAnimationFrame(step); };
+    raf = requestAnimationFrame(step);
+    cleanups.push(() => cancelAnimationFrame(raf));
+}
+const f1 = v => (+v).toFixed(1);
+function arrowInner(x1, y1, x2, y2, h = 18) {
+    const a = Math.atan2(y2 - y1, x2 - x1), L = Math.hypot(x2 - x1, y2 - y1), hh = Math.min(h, L * 0.75);
+    if (L < 0.5) return '';
+    const bx = x2 - Math.cos(a) * hh, by = y2 - Math.sin(a) * hh, px = -Math.sin(a) * hh * 0.6, py = Math.cos(a) * hh * 0.6;
+    return `<line x1="${f1(x1)}" y1="${f1(y1)}" x2="${f1(bx)}" y2="${f1(by)}"/><path d="M${f1(x2)} ${f1(y2)} L${f1(bx + px)} ${f1(by + py)} L${f1(bx - px)} ${f1(by - py)} Z"/>`;
+}
+const arrowSVG = (cls, x1, y1, x2, y2, h) => `<g class="gv-arr ${cls}">${arrowInner(x1, y1, x2, y2, h)}</g>`;
+function setArrow(g, x1, y1, x2, y2, h) { g.innerHTML = arrowInner(x1, y1, x2, y2, h); }
+function optGrid(list, cols, w) {
+    const g = el('div', 'gv-opts'); g.style.gridTemplateColumns = `repeat(${cols}, 1fr)`; if (w) g.style.width = w + 'px';
+    g.items = list.map((t, i) => { const o = el('div', 'gv-opt rev hide', `<span class="gv-on">${i + 1}</span><span>${t}</span>`); g.appendChild(o); return o; });
+    return g;
+}
+function markRight(items, k) { items.forEach((o, i) => o.classList.add(i === k ? 'gv-ok' : 'gv-no')); }
+function steps(list) {
+    const s = el('div', 'gv-steps');
+    s.items = list.map(([n, t], i) => { const x = el('div', 'gv-step rev hide' + (i === list.length - 1 ? ' gv-pkb' : ''), `<span class="gv-sn">${n}</span>${t ? `<span class="gv-st">${t}</span>` : ''}`); s.appendChild(x); return x; });
+    return s;
+}
+const reveal = (list, start, gap = 160) => list.forEach((e, i) => at(start + i * gap, () => show(e)));
+const svgWrap = (w, h, inner, cls = '') => `<svg class="gv-svg ${cls}" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true">${inner}</svg>`;
+const TILT = 23.5, ST = Math.sin(TILT * Math.PI / 180), CT = Math.cos(TILT * Math.PI / 180);
+function apple(x, y, r = 22) {
+    return `<g transform="translate(${x} ${y})"><path d="M0 ${-r * .85} C ${-r * .2} ${-r * 1.15}, ${-r * .25} ${-r * 1.35}, ${-r * .05} ${-r * 1.5}" stroke="#1b1f45" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <path d="M${r * .05} ${-r * 1.2} C ${r * .5} ${-r * 1.55}, ${r * .95} ${-r * 1.3}, ${r * 1.05} ${-r * 1.05} C ${r * .6} ${-r * .85}, ${r * .25} ${-r * .95}, ${r * .05} ${-r * 1.2} Z" fill="#1b1f45"/>
+        <path d="M0 ${-r * .7} C ${r * .55} ${-r * 1.15}, ${r * 1.1} ${-r * .7}, ${r} 0 C ${r * .95} ${r * .7}, ${r * .45} ${r * 1.05}, 0 ${r * .85} C ${-r * .45} ${r * 1.05}, ${-r * .95} ${r * .7}, ${-r} 0 C ${-r * 1.1} ${-r * .7}, ${-r * .55} ${-r * 1.15}, 0 ${-r * .7} Z" fill="#ea008a"/>
+        <ellipse cx="${-r * .45}" cy="${-r * .25}" rx="${r * .14}" ry="${r * .26}" fill="#fff" opacity=".55" transform="rotate(20 ${-r * .45} ${-r * .25})"/></g>`;
+}
+function feather(s = 1) {
+    return `<g transform="scale(${s}) rotate(-22)"><path d="M0 -52 C 22 -36, 24 8, 6 44 L 0 50 L -6 44 C -24 8, -22 -36, 0 -52 Z" fill="#fff" stroke="#1b1f45" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M0 -46 L0 64" stroke="#1b1f45" stroke-width="3" stroke-linecap="round"/>
+        <path d="M0 -26 L14 -34 M0 -10 L17 -18 M0 6 L16 -2 M0 22 L11 14 M0 -26 L-14 -34 M0 -10 L-17 -18 M0 6 L-16 -2 M0 22 L-11 14" stroke="#c3c6d0" stroke-width="2" stroke-linecap="round"/></g>`;
+}
+function bowlingBall(r) {
+    return `<circle r="${r}" fill="#1b1f45"/><circle cx="${-r * .3}" cy="${-r * .38}" r="${r * .12}" fill="#fff"/><circle cx="${r * .05}" cy="${-r * .5}" r="${r * .12}" fill="#fff"/><circle cx="${-r * .05}" cy="${-r * .1}" r="${r * .14}" fill="#fff"/>`;
+}
+function person(x, y, s = 1, cls = '') {
+    return `<g class="${cls}" transform="translate(${x} ${y}) scale(${s})" stroke="#1b1f45" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <circle cx="0" cy="-92" r="14" fill="#1b1f45" stroke="none"/><path d="M0 -74 L0 -30 M0 -64 L-22 -40 M0 -64 L22 -40 M0 -30 L-16 0 M0 -30 L16 0"/></g>`;
+}
+
+/* seasons: one Earth at a solstice position, axis tilted to the right */
+function seasonEarth(cx, cy, R, sunRight, letter, showAngle) {
+    const night = `M${cx} ${cy - R} A${R} ${R} 0 0 ${sunRight ? 0 : 1} ${cx} ${cy + R} Z`;
+    const south = `M${cx - R} ${cy} A${R} ${R} 0 0 0 ${cx + R} ${cy} Z`;
+    const ax = R + 36, tx = cx + ax * ST, ty = cy - ax * CT, bx = cx - ax * ST, by = cy + ax * CT;
+    let rays = '';
+    [-34, 0, 34].forEach(dy => {
+        const ex = Math.sqrt(R * R - dy * dy);
+        rays += sunRight ? `<line class="gv-pdash${dy ? '' : ' gv-mid'}" x1="508" y1="${cy + dy}" x2="${f1(cx + ex + 6)}" y2="${cy + dy}"/>`
+            : `<line class="gv-pdash${dy ? '' : ' gv-mid'}" x1="644" y1="${cy + dy}" x2="${f1(cx - ex - 6)}" y2="${cy + dy}"/>`;
+    });
+    const eqx = R * CT, eqy = R * ST;
+    const eqLbl = sunRight ? `<text class="gv-ts" x="${f1(cx - eqx - 12)}" y="${f1(cy - eqy + 6)}" text-anchor="end" style="fill:#ea008a">Equator</text>`
+        : `<text class="gv-ts" x="${f1(cx + eqx + 14)}" y="${f1(cy + eqy - 6)}" text-anchor="start" style="fill:#ea008a">Equator</text>`;
+    const arcR = R + 22;
+    const ang = showAngle ? `<g><line class="gv-dash" x1="${cx}" y1="${cy - R - 4}" x2="${cx}" y2="${cy - R - 44}"/>
+        <path d="M${cx} ${cy - arcR} A${arcR} ${arcR} 0 0 1 ${f1(cx + arcR * ST)} ${f1(cy - arcR * CT)}" fill="none" stroke="#1b1f45" stroke-width="2.5"/>
+        <text class="gv-ts" x="${cx - 8}" y="${cy - R - 26}" text-anchor="end">23.5°</text></g>` : '';
+    const side = sunRight ? -1 : 1, bxL = cx + side * (R + 56);
+    return `<g class="gv-rays">${rays}</g>
+        <circle cx="${cx}" cy="${cy}" r="${R}" fill="#fff"/>
+        <path class="gv-fade gv-south" d="${south}" fill="#ea008a" fill-opacity=".38" transform="rotate(${TILT} ${cx} ${cy})"/>
+        <path d="${night}" fill="#1b1f45" fill-opacity=".72"/>
+        <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#1b1f45" stroke-width="4"/>
+        <ellipse cx="${cx}" cy="${cy}" rx="${R}" ry="${R * 0.14}" fill="none" stroke="#ea008a" stroke-width="3" transform="rotate(${TILT} ${cx} ${cy})"/>
+        <line x1="${f1(bx)}" y1="${f1(by)}" x2="${f1(tx)}" y2="${f1(ty)}" stroke="#1b1f45" stroke-width="4" stroke-linecap="round"/>
+        <text class="gv-t" x="${f1(cx + (ax + 16) * ST)}" y="${f1(cy - (ax + 16) * CT)}" text-anchor="middle">N</text>
+        <text class="gv-t" x="${f1(cx - (ax + 16) * ST)}" y="${f1(cy + (ax + 16) * CT + 16)}" text-anchor="middle">S</text>
+        ${ang}${eqLbl}
+        <text class="gv-ts" x="${cx}" y="${cy - R - 66}" text-anchor="middle">Northern hemisphere</text>
+        <text class="gv-ts" x="${cx}" y="${cy + R + 82}" text-anchor="middle">Southern hemisphere</text>
+        <circle cx="${bxL}" cy="${cy - R - 8}" r="22" fill="#1b1f45"/><text class="gv-t gv-tw" x="${bxL}" y="${cy - R}" text-anchor="middle" style="font-size:26px">${letter}</text>
+        <g class="gv-fade gv-season"><rect x="${bxL - 64}" y="${cy + 44}" width="128" height="44" rx="6" fill="#ea008a"/>
+        <text class="gv-t gv-tw" x="${bxL}" y="${cy + 74}" text-anchor="middle" style="font-size:26px">${sunRight ? 'Winter' : 'Summer'}</text></g>
+        <circle class="gv-fade gv-sub" cx="${sunRight ? cx + R : cx - R}" cy="${cy}" r="9" fill="#ea008a" stroke="#fff" stroke-width="3"/>`;
+}
+
+const PLANETS = [
+    { n: 'Mercury', r: 2440, g: 3.7, pc: 38, c: '#d6d7dc' }, { n: 'Venus', r: 6052, g: 8.9, pc: 90, c: '#ecdfc2' },
+    { n: 'Earth', r: 6371, g: 9.8, pc: 100, c: '#cfe3f5' }, { n: 'Mars', r: 3390, g: 3.7, pc: 38, c: '#f0cbb9' },
+    { n: 'Jupiter', r: 69911, g: 24.8, pc: 253, c: '#ecd9c3' }, { n: 'Saturn', r: 58232, g: 10.4, pc: 106, c: '#f0e5c6' },
+    { n: 'Uranus', r: 25362, g: 8.7, pc: 89, c: '#cdeef0' }, { n: 'Neptune', r: 24622, g: 11.2, pc: 114, c: '#c9d7f5' }
+];
+
+/* levers: arms measured from the fulcrum, effort arm on level 1, resistance arm on level 2 */
+function leverSVG(d) {
+    const by = 130, eL = Math.abs(d.e - d.f), rL = Math.abs(d.l - d.f), effLong = eL > rL;
+    const dim = (x1, x2, y, col, lbl, long) => {
+        const a = Math.min(x1, x2), b = Math.max(x1, x2), m = (a + b) / 2, lw = lbl.length * 6.6 + 4;
+        return `<line class="gv-dash" x1="${x1}" y1="${by + 8}" x2="${x1}" y2="${y + 10}"/><line class="gv-dash" x1="${x2}" y1="${by + 8}" x2="${x2}" y2="${y + 10}"/>
+            <line x1="${a}" y1="${y}" x2="${b}" y2="${y}" stroke="${col}" stroke-width="4"/>
+            <line x1="${a}" y1="${y - 9}" x2="${a}" y2="${y + 9}" stroke="${col}" stroke-width="4"/><line x1="${b}" y1="${y - 9}" x2="${b}" y2="${y + 9}" stroke="${col}" stroke-width="4"/>
+            <text class="gv-ts" x="${m}" y="${y + 26}" text-anchor="middle" style="fill:${col}">${lbl}</text>
+            ${long ? `<g class="gv-fade gv-long"><rect x="${m + lw + 8}" y="${y + 9}" width="84" height="24" rx="4" fill="#ea008a"/><text class="gv-ts gv-tw" x="${m + lw + 50}" y="${y + 27}" text-anchor="middle" style="font-size:16px">Longer</text></g>` : ''}`;
+    };
+    const eff = d.below ? arrowSVG('gv-pk', d.e, 182, d.e, 142, 16) + `<text class="gv-ts gv-tp" x="${d.e + 14}" y="176">Effort</text>`
+        : d.up ? arrowSVG('gv-pk', d.e, 122, d.e, 62, 18) + `<text class="gv-ts gv-tp" x="${d.e - 12}" y="${d.e > 300 ? 52 : 80}" text-anchor="${d.e > 300 ? 'middle' : 'end'}">Effort</text>`
+        : arrowSVG('gv-pk', d.e, 62, d.e, 122, 18) + `<text class="gv-ts gv-tp" x="${d.e}" y="52" text-anchor="middle">Effort</text>`;
+    return `<path d="M${d.f} ${by + 7} L${d.f - 20} ${by + 44} L${d.f + 20} ${by + 44} Z" fill="#1b1f45"/>
+        <line x1="${d.f - 34}" y1="${by + 46}" x2="${d.f + 34}" y2="${by + 46}" stroke="#1b1f45" stroke-width="4" stroke-linecap="round"/>
+        <rect x="20" y="${by - 6}" width="320" height="13" rx="3" fill="#1b1f45"/>
+        <rect x="${d.l - 30}" y="${by - 52}" width="60" height="46" rx="4" fill="#e3e6ee" stroke="#1b1f45" stroke-width="3"/>
+        <text class="gv-ts" x="${d.l}" y="${by - 23}" text-anchor="middle">Load</text>
+        ${eff}
+        ${dim(d.f, d.e, 204, '#ea008a', 'Effort arm', effLong)}${dim(d.f, d.l, 262, '#1b1f45', 'Resistance arm', !effLong)}`;
+}
+
+/* tides: one panel */
+const TIDE = { spring: [89, 51], neap: [63, 77], mspring: [83, 57], mneap: [57, 83] };
+function tidePanel(type) {
+    const W = 552, H = 270, cy = 135, ex = 296, mo = 112;
+    const moon = type === 'spring' ? [ex + mo, cy] : [ex, cy - mo];
+    const mlab = type === 'spring' ? `<text class="gv-ts" x="${moon[0]}" y="${cy + 46}" text-anchor="middle">Moon</text>`
+        : `<text class="gv-ts" x="${ex + 28}" y="${cy - mo + 7}">Moon</text>`;
+    const [rx, ry] = TIDE[type];
+    const extra = type === 'spring'
+        ? `<line class="gv-pdash gv-fade gv-al" x1="80" y1="${cy}" x2="${W - 20}" y2="${cy}"/>`
+        : `<g class="gv-fade gv-al"><line class="gv-pdash" x1="80" y1="${cy}" x2="${ex - 46}" y2="${cy}"/><line class="gv-pdash" x1="${ex}" y1="${cy - 46}" x2="${ex}" y2="${cy - mo + 20}"/>
+            <path d="M${ex - 64} ${cy} L${ex - 64} ${cy - 64} L${ex} ${cy - 64}" fill="none" stroke="#ea008a" stroke-width="3"/></g>`;
+    const p = el('div', 'gv-tpan rev hide');
+    p.innerHTML = svgWrap(W, H, `
+        <g class="gv-sun"><circle cx="0" cy="${cy}" r="96" fill="#ea008a" opacity=".15"/><circle cx="0" cy="${cy}" r="76" fill="#ea008a"/>
+        <text class="gv-t gv-tw" x="38" y="${cy + 8}" text-anchor="middle">Sun</text></g>
+        <circle class="gv-dash" cx="${ex}" cy="${cy}" r="${mo}"/>
+        ${type === 'spring' ? extra : ''}
+        <ellipse class="gv-water" cx="${ex}" cy="${cy}" rx="${rx}" ry="${ry}"/>
+        <circle cx="${ex}" cy="${cy}" r="44" fill="#1b1f45"/><text class="gv-ts gv-tw" x="${ex}" y="${cy + 6}" text-anchor="middle">Earth</text>
+        ${type === 'neap' ? extra : ''}
+        <circle cx="${moon[0]}" cy="${moon[1]}" r="16" fill="#e3e6ee" stroke="#1b1f45" stroke-width="3"/>${mlab}`) +
+        `<div class="gv-tname"><span class="gv-tblank"></span></div><div class="gv-tx rev hide"></div>`;
+    p.water = p.querySelector('.gv-water'); p.sun = p.querySelector('.gv-sun'); p.al = p.querySelector('.gv-al');
+    p.nameEl = p.querySelector('.gv-tname'); p.tx = p.querySelector('.gv-tx');
+    p.setName = n => { p.nameEl.innerHTML = n; p.nameEl.classList.add('gv-full'); };
+    p.cur = [rx, ry];
+    p.morph = (to, ms = 1400) => { const from = p.cur.slice(); p.cur = to.slice(); anim(ms, k => { p.water.setAttribute('rx', f1(from[0] + (to[0] - from[0]) * k)); p.water.setAttribute('ry', f1(from[1] + (to[1] - from[1]) * k)); }, easeIO); };
+    return p;
+}
+
+/* ---------- scenes ---------- */
+const scenes = [
+{
+    title: 'Introducing <span>gravity</span>',
+    dur: 15000,
+    run() {
+        const row = el('div', 'gv-row');
+        const pic = el('div', 'gv-click', svgWrap(640, 474, `
+            <circle cx="215" cy="150" r="120" fill="#e8ebf2"/><circle cx="330" cy="120" r="95" fill="#e8ebf2"/><circle cx="120" cy="190" r="80" fill="#e8ebf2"/>
+            <path d="M205 452 L205 250 Q205 200 250 180 L470 120" fill="none" stroke="#1b1f45" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M205 300 Q170 250 140 240" fill="none" stroke="#1b1f45" stroke-width="14" stroke-linecap="round"/>
+            <line x1="40" y1="454" x2="620" y2="454" stroke="#1b1f45" stroke-width="5" stroke-linecap="round"/>
+            <line class="gv-dash gv-fade gv-path" x1="440" y1="170" x2="440" y2="420"/>
+            <g class="gv-fade gv-garr">${arrowSVG('gv-pk', 520, 200, 520, 380, 22)}<text class="gv-t gv-tp" x="540" y="296">Gravity</text></g>
+            <g class="gv-ap" transform="translate(0 0)">${apple(440, 160, 26)}</g>`));
+        const txt = el('div', 'gv-stack rev hide', `<div class="gv-hook" style="font-size:104px">Gravity</div>`);
+        txt.style.width = '440px';
+        row.append(pic, txt); content.appendChild(row);
+        const ap = pic.querySelector('.gv-ap');
+        const drop = () => { ap.setAttribute('transform', 'translate(0 0)'); anim(800, p => ap.setAttribute('transform', `translate(0 ${f1(p * 268)})`), easeIn); };
+        pic.onclick = drop;
+        beatAt(0, 'When you let go of something, it falls. It never floats away.');
+        at(600, () => show(txt));
+        at(1600, drop);
+        beatAt(4500, 'The invisible force that pulls it down is called <b>gravity</b>.');
+        at(5000, () => { pic.querySelector('.gv-path').classList.add('on'); pic.querySelector('.gv-garr').classList.add('on'); });
+        at(5600, drop);
+        beatAt(9500, 'In this lesson, we will explore what gravity is, how it affects <b>mass</b> and <b>weight</b>, and how it changes from planet to planet.');
+    }
+},
+{
+    title: 'Recall: <span>seasons</span>',
+    cfu: 'fv', time: 60, sc: ['Recall'],
+    dur: 31000,
+    run() {
+        const c = el('div', 'gv-stack');
+        const q = el('div', 'gv-q rev hide', 'Which season is the <b>southern hemisphere</b> having at <b>A</b> and at <b>B</b>?');
+        const fv = el('div', 'gv-steps rev hide', ['Summer', 'Autumn', 'Winter', 'Spring'].map((t, i) => `<div class="gv-step"><span class="gv-sn">${i + 1}</span><span class="gv-st" style="color:#1b1f45">${t}</span></div>`).join(''));
+        const fig = el('div', 'rev hide', svgWrap(1152, 366, `
+            <ellipse class="gv-dash" cx="576" cy="190" rx="326" ry="58"/>
+            <circle cx="576" cy="190" r="84" fill="#ea008a" opacity=".15"/><circle cx="576" cy="190" r="64" fill="#ea008a"/>
+            <text class="gv-t gv-tw" x="576" y="198" text-anchor="middle">Sun</text>
+            ${seasonEarth(250, 190, 80, true, 'A', true)}
+            ${seasonEarth(902, 190, 80, false, 'B', false)}`));
+        c.style.gap = '14px';
+        c.append(q, fv, fig); content.appendChild(c);
+        const svg = fig.querySelector('svg'), seas = svg.querySelectorAll('.gv-season'), south = svg.querySelectorAll('.gv-south'), subs = svg.querySelectorAll('.gv-sub');
+        beatAt(0, 'Spaced recall. This diagram shows the Earth at two points in its orbit around the Sun.');
+        at(400, () => show(fig)); at(900, () => show(q));
+        beatAt(4500, 'Earth’s axis is tilted at <b>23.5 degrees</b>, and it always points the same way in space.');
+        beatAt(9500, 'Which season is the <b>southern hemisphere</b> having at A, and at B? Show your answer with your fingers.');
+        at(10000, () => show(fv));
+        beatAt(15000, 'At <b>A</b>, the southern hemisphere is tilted away from the Sun. It is <b>winter</b>, around June.');
+        at(15500, () => { south[0].classList.add('on'); seas[0].classList.add('on'); });
+        beatAt(20500, 'At <b>B</b>, the southern hemisphere is tilted towards the Sun. It is <b>summer</b>, around December.');
+        at(21000, () => { south[1].classList.add('on'); seas[1].classList.add('on'); });
+        beatAt(26000, 'The hemisphere tilted towards the Sun gets the most direct sunlight and the longest days.');
+        at(26500, () => subs.forEach(s => s.classList.add('on')));
+    }
+},
+{
+    title: 'Recall: <span>tides</span>',
+    cfu: 'cc', time: 60, sc: ['Recall'],
+    dur: 19500,
+    run() {
+        const c = el('div', 'gv-stack');
+        const q = el('div', 'gv-q rev hide', 'Name each type of <b>tide</b> shown below.');
+        const t = el('div', 'gv-tides');
+        const A = tidePanel('spring'), B = tidePanel('neap');
+        A.tx.remove(); B.tx.remove();
+        t.append(A, B); c.append(q, t); content.appendChild(c);
+        beatAt(0, 'Spaced recall. Each diagram shows the Sun, the Earth and the Moon. The blue shape is Earth’s oceans.');
+        at(400, () => show(A)); at(700, () => show(B)); at(1200, () => show(q));
+        beatAt(5000, 'Each alignment produces a different type of tide. What is the name of each one?');
+        beatAt(10000, 'When the Sun, Earth and Moon are in a line, we get a <b>spring tide</b>.');
+        at(10500, () => A.setName('Spring tide'));
+        beatAt(14500, 'When the Moon is at a right angle to the Sun, we get a <b>neap tide</b>.');
+        at(15000, () => B.setName('Neap tide'));
+    }
+},
+{
+    title: 'Explaining <span>tides</span>',
+    cfu: 'sj', time: 180, sc: ['Recall'],
+    dur: 32000,
+    run() {
+        const c = el('div', 'gv-stack');
+        c.style.gap = '14px';
+        const q = el('div', 'gv-q rev hide', 'Explain <b>why</b> each alignment produces the tides it does.');
+        const t = el('div', 'gv-tides');
+        const A = tidePanel('spring'), B = tidePanel('neap');
+        A.setName('Spring tide'); B.setName('Neap tide');
+        A.tx.innerHTML = 'Sun and Moon pull <b>in a line</b>, so their pulls <b>add together</b>. Very high and very low tides.';
+        B.tx.innerHTML = 'Sun pulls at a <b>right angle</b> to the Moon, so their pulls <b>partly cancel</b>. Small difference between tides.';
+        t.append(A, B); c.append(q, t); content.appendChild(c);
+        beatAt(0, 'Now explain <b>why</b> each alignment produces the tides it does. Write a short response for each.');
+        at(400, () => show(A)); at(700, () => show(B)); at(1200, () => show(q));
+        beatAt(6000, 'The Moon’s gravity pulls on Earth’s oceans, making the water bulge out in line with the Moon.');
+        at(6500, () => { A.sun.classList.add('gv-dim'); B.sun.classList.add('gv-dim'); A.morph(TIDE.mspring); B.morph(TIDE.mneap); });
+        beatAt(12500, 'In a spring tide, the Sun is <b>in line</b> with the Moon. Their pulls <b>add together</b>, so the bulges grow. High tides are higher and low tides are lower.');
+        at(13000, () => { A.sun.classList.remove('gv-dim'); A.al.classList.add('on'); A.morph(TIDE.spring); });
+        at(14600, () => show(A.tx));
+        beatAt(20500, 'In a neap tide, the Sun pulls at a <b>right angle</b> to the Moon. Their pulls <b>partly cancel</b>, so the bulges shrink and there is little difference between high and low tide.');
+        at(21000, () => { B.sun.classList.remove('gv-dim'); B.al.classList.add('on'); B.morph(TIDE.neap); });
+        at(22600, () => show(B.tx));
+        beatAt(28000, 'Check your response. Did you explain how the Sun and Moon’s pulls combine in each case?');
+    }
+},
+{
+    title: 'Recall: <span>levers</span>',
+    cfu: 'fv', time: 60, sc: ['Recall'],
+    dur: 31500,
+    run() {
+        const c = el('div', 'gv-stack'); c.style.gap = '14px';
+        const q = el('div', 'gv-q rev hide', 'Is each lever a <b>force multiplier</b> or a <b>speed multiplier</b>?');
+        const fv = el('div', 'gv-steps rev hide', ['Force multiplier', 'Speed multiplier'].map((t, i) => `<div class="gv-step"><span class="gv-sn">${i + 1}</span><span class="gv-st" style="color:#1b1f45">${t}</span></div>`).join(''));
+        const row = el('div', 'gv-lvrs');
+        const data = [{ f: 230, e: 40, l: 320, up: false, force: true }, { f: 40, e: 140, l: 320, up: true, below: true, force: false }, { f: 40, e: 330, l: 130, up: true, force: true }];
+        const cols = data.map((d, i) => {
+            const col = el('div', 'gv-lvr rev hide');
+            const head = el('div', 'gv-lvh', `<span class="gv-lvl">${String.fromCharCode(65 + i)}</span>`);
+            const pill = el('span', 'gv-ans rev hide' + (d.force ? ' gv-aw' : ''), d.force ? 'Force multiplier' : 'Speed multiplier');
+            head.appendChild(pill);
+            col.append(head, el('div', '', svgWrap(360, 300, leverSVG(d))));
+            col.pill = pill; col.long = col.querySelector('.gv-long');
+            row.appendChild(col); return col;
+        });
+        c.append(q, fv, row); content.appendChild(c);
+        beatAt(0, 'Spaced recall. Each lever has its <b>effort arm</b> and <b>resistance arm</b> drawn and labelled.');
+        at(400, () => show(q)); reveal(cols, 800, 300);
+        beatAt(5500, 'Compare the two arms on each lever. Is it a force multiplier or a speed multiplier? Show 1 finger for force, or 2 for speed.');
+        at(6000, () => show(fv));
+        beatAt(12000, '<b>A</b>: the effort arm is longer than the resistance arm, so it is a <b>force multiplier</b>.');
+        at(12500, () => { show(cols[0].pill); cols[0].long.classList.add('on'); });
+        beatAt(17000, '<b>B</b>: the resistance arm is longer, so it is a <b>speed multiplier</b>.');
+        at(17500, () => { show(cols[1].pill); cols[1].long.classList.add('on'); });
+        beatAt(22000, '<b>C</b>: the effort arm is longer, so it is a <b>force multiplier</b>, even though the fulcrum is at the end.');
+        at(22500, () => { show(cols[2].pill); cols[2].long.classList.add('on'); });
+        beatAt(27000, 'Remember: a longer <b>effort arm</b> means a force multiplier. A longer <b>resistance arm</b> means a speed multiplier.');
+    }
+},
+{
+    title: 'Success <span>criteria</span>',
+    sc: ['SC15', 'SC16', 'SC17'],
+    dur: 14500,
+    run() {
+        const c = el('div', 'center');
+        const l = el('div', 'gv-sclist');
+        const data = [
+            ['SC15', 'I can explain why objects <b>fall</b> due to gravitational force.'],
+            ['SC16', 'I can explain the difference between <b>mass</b> and <b>weight</b>.'],
+            ['SC17', 'I can compare the effect of gravity on objects on the Earth’s surface and on <b>other planets</b>.']
+        ];
+        const rows = data.map(([n, t]) => { const r = el('div', 'gv-sc rev hide', `<div class="gv-scn">${n}</div><div class="gv-sct">${t}</div>`); l.appendChild(r); return r; });
+        c.appendChild(l); content.appendChild(c);
+        beatAt(0, 'Here are our success criteria for this topic.');
+        at(400, () => show(rows[0]));
+        beatAt(3000, 'First, you will be able to explain why objects <b>fall</b>.');
+        beatAt(6500, 'Next, you will explain the difference between <b>mass</b> and <b>weight</b>.');
+        at(7000, () => show(rows[1]));
+        beatAt(10000, 'Finally, you will compare gravity on <b>Earth</b> with gravity on <b>other planets</b>.');
+        at(10500, () => show(rows[2]));
+    }
+},
+{
+    title: 'Recall: <span>planets</span>',
+    cfu: 'cc', time: 60, sc: ['SC17'],
+    dur: 26000,
+    run() {
+        const c = el('div', 'gv-stack');
+        c.style.gap = '26px';
+        const qs = el('div', 'gv-steps');
+        const qi = ['Which planet has the largest gravity?', 'Which has the smallest?', 'What causes the difference?'].map((t, i) => {
+            const s = el('div', 'gv-step rev hide', `<span class="gv-sn">${i + 1}</span><span style="font-size:22px;font-weight:600;white-space:normal">${t}</span>`); s.style.flex = '1'; qs.appendChild(s); return s;
+        });
+        const k = 0.0013; let x = 20, inner = '';
+        const slots = PLANETS.map(p => { const r = p.r * k, w = p.n === 'Saturn' ? r * 3 + 30 : Math.max(100, r * 2 + 40); const cx = x + w / 2; x += w; return { ...p, R: r, cx }; });
+        const off = (1152 - x) / 2 + 10;
+        slots.forEach((p, i) => {
+            const cx = p.cx + off, cy = 150, hl = p.n === 'Earth';
+            const ring = p.n === 'Saturn' ? `<ellipse cx="${f1(cx)}" cy="${cy}" rx="${f1(p.R * 1.5)}" ry="${f1(p.R * .32)}" fill="none" stroke="#1b1f45" stroke-width="3" transform="rotate(-12 ${f1(cx)} ${cy})"/>` : '';
+            inner += `<g class="gv-pg" data-i="${i}">${ring}<circle cx="${f1(cx)}" cy="${cy}" r="${f1(Math.max(p.R, 3.5))}" fill="${p.c}" stroke="${hl ? '#ea008a' : '#1b1f45'}" stroke-width="3"/>
+                <text class="gv-t${hl ? ' gv-tp' : ''}" x="${f1(cx)}" y="292" style="font-size:20px" text-anchor="middle">${p.n}</text>
+                <text class="gv-t gv-tp gv-fade gv-val" x="${f1(cx)}" y="324" text-anchor="middle" style="font-size:24px">${p.g}</text></g>`;
+        });
+        const fig = el('div', 'rev hide', svgWrap(1152, 340, inner + '<text class="gv-ts gv-tg" x="1140" y="18" text-anchor="end">Sizes to scale</text>', 'gv-bars'));
+        c.append(qs, fig); content.appendChild(c);
+        const groups = fig.querySelectorAll('.gv-pg'), vals = fig.querySelectorAll('.gv-val');
+        const focus = list => groups.forEach((g, i) => g.classList.toggle('gv-dim', !list.includes(i)));
+        beatAt(0, 'Recall from our unit on planets: different planets have different gravity.');
+        at(400, () => show(fig)); reveal(qi, 800, 250);
+        beatAt(4500, 'Which planet has the <b>largest</b> gravity? Which has the <b>smallest</b>? And what causes them to be different?');
+        beatAt(11000, '<b>Jupiter</b> has the largest gravity, at 24.8 metres per second squared.');
+        at(11500, () => { focus([4]); vals[4].classList.add('on'); });
+        beatAt(15500, '<b>Mercury</b> has the smallest, at 3.7. Mars is almost the same.');
+        at(16000, () => { focus([0, 3]); vals[0].classList.add('on'); vals[3].classList.add('on'); });
+        beatAt(20000, 'The main cause is <b>mass</b>. Planets with more mass pull more strongly. But size matters too, as we will see later.');
+        at(20500, () => { focus([0, 1, 2, 3, 4, 5, 6, 7]); vals.forEach(v => v.classList.add('on')); });
+    }
+},
+{
+    title: 'What is <span>gravity</span>?',
+    sc: ['SC15'],
+    dur: 25500,
+    run() {
+        const row = el('div', 'gv-row');
+        const txt = el('div', 'gv-stack'); txt.style.width = '410px';
+        const t1 = el('div', 'gv-bar rev hide', 'Gravity is an <b>attractive force</b> between any two objects that have mass.');
+        const t2 = el('div', 'gv-bar rev hide', 'It is a <b>non-contact force</b>. The objects do not need to touch.');
+        const t3 = el('div', 'gv-bar gv-nvb rev hide', '<b>More mass</b> means a stronger pull.');
+        const t4 = el('div', 'gv-bar gv-nvb rev hide', '<b>Further apart</b> means a weaker pull.');
+        txt.append(t1, t2, t3, t4);
+        const fig = el('div', 'rev hide', svgWrap(700, 420, `
+            <line class="gv-dash" x1="20" y1="200" x2="690" y2="200"/>
+            <circle class="gv-A" cx="110" cy="200" r="46" fill="#1b1f45"/>
+            <circle class="gv-B" cx="470" cy="200" r="46" fill="#1b1f45"/>
+            <g class="gv-arr gv-pk gv-aA"></g><g class="gv-arr gv-pk gv-aB"></g>
+            <g class="gv-fade gv-nc"><rect class="gv-ncr" x="170" y="236" width="240" height="40" rx="6" fill="#ea008a"/><text class="gv-ts gv-tw gv-nct" x="290" y="263" text-anchor="middle">No contact needed</text></g>
+            <g class="gv-dim-l"><line class="gv-dl" x1="110" y1="320" x2="470" y2="320" stroke="#1b1f45" stroke-width="3"/>
+            <line class="gv-d1" x1="110" y1="306" x2="110" y2="334" stroke="#1b1f45" stroke-width="3"/><line class="gv-d2" x1="470" y1="306" x2="470" y2="334" stroke="#1b1f45" stroke-width="3"/>
+            <text class="gv-ts gv-dt" x="290" y="360" text-anchor="middle">Distance</text></g>
+            <text class="gv-t gv-mA" x="110" y="120" text-anchor="middle">Mass</text><text class="gv-t gv-mB" x="470" y="120" text-anchor="middle">Mass</text>`));
+        row.append(txt, fig); content.appendChild(row);
+        const s = fig.querySelector('svg'), A = s.querySelector('.gv-A'), B = s.querySelector('.gv-B'), aA = s.querySelector('.gv-aA'), aB = s.querySelector('.gv-aB');
+        const st = { m: 1, x: 470 };
+        const draw = () => {
+            const rB = 46 * Math.cbrt(st.m), d = st.x - 110, L = 55 * st.m * Math.pow(360 / d, 2);
+            B.setAttribute('cx', f1(st.x)); B.setAttribute('r', f1(rB));
+            setArrow(aA, 166, 200, 166 + L, 200, 20); setArrow(aB, st.x - rB - 10, 200, st.x - rB - 10 - L, 200, 20);
+            s.querySelector('.gv-dl').setAttribute('x2', f1(st.x)); s.querySelector('.gv-d2').setAttribute('x1', f1(st.x)); s.querySelector('.gv-d2').setAttribute('x2', f1(st.x));
+            s.querySelector('.gv-dt').setAttribute('x', f1((110 + st.x) / 2)); s.querySelector('.gv-mB').setAttribute('x', f1(st.x));
+            s.querySelector('.gv-mB').setAttribute('y', f1(200 - rB - 22));
+            s.querySelector('.gv-mB').textContent = st.m > 1.01 ? 'More mass' : 'Mass';
+        };
+        draw();
+        beatAt(0, 'Gravity is an <b>attractive force</b> between any two objects that have mass. Each object pulls the other towards it.');
+        at(400, () => show(fig)); at(800, () => show(t1));
+        beatAt(5500, 'It is a <b>non-contact force</b>. The objects do not need to touch for gravity to act.');
+        at(6000, () => { show(t2); s.querySelector('.gv-nc').classList.add('on'); });
+        beatAt(11000, 'If one object has <b>more mass</b>, the pull between them gets stronger.');
+        at(11500, () => { show(t3); anim(1400, p => { st.m = 1 + p; draw(); }, easeIO); });
+        beatAt(16500, 'If the objects move <b>further apart</b>, the pull gets weaker.');
+        at(17000, () => { show(t4); anim(1600, p => { st.x = 470 + 160 * p; draw(); }, easeIO); });
+        beatAt(21500, 'Earth has an enormous mass, so its gravity pulls everything near it towards it.');
+    }
+},
+{
+    title: 'Whose <span>gravity</span>?',
+    cfu: 'tt', time: 180, sc: ['SC15'],
+    dur: 22000,
+    run() {
+        const c = el('div', 'center');
+        c.style.gap = '28px';
+        const q = el('div', 'gv-q rev hide', 'Earth’s gravity pulls on us. What <b>other objects’</b> gravity affects us?');
+        q.style.fontSize = '36px'; q.style.textAlign = 'center'; q.style.maxWidth = '900px';
+        const s = steps([['Think', '1 minute'], ['Pair', '2 minutes'], ['Share', 'Your best example']]);
+        const g = el('div', 'gv-steps');
+        const data = [['The Moon', 'Pulls on Earth’s oceans, causing <b>tides</b>.'], ['The Sun', 'Keeps Earth, and us, in <b>orbit</b> around it.'],
+            ['Each other', 'Every object with mass pulls on you, even a friend, but <b>far too weakly</b> to feel.']];
+        const cards = data.map(([h, p], i) => { const k = el('div', 'gv-card rev hide' + (i === 2 ? ' gv-pkb' : ''), `<h3>${h}</h3><p>${p}</p>`); k.style.width = '340px'; g.appendChild(k); return k; });
+        c.append(q, s, g); content.appendChild(c);
+        beatAt(0, 'We know Earth’s gravity pulls on us. What <b>other objects’</b> gravity affects us?');
+        at(400, () => show(q));
+        beatAt(4500, 'Think on your own for 1 minute. Then pair with a partner for 2 minutes, and be ready to share your best example.');
+        reveal(s.items, 5000, 300);
+        beatAt(11000, 'Here are some ideas. The <b>Moon</b> causes tides, and the <b>Sun</b> keeps Earth in orbit.');
+        at(11500, () => show(cards[0])); at(11900, () => show(cards[1]));
+        beatAt(16500, 'Every object with mass pulls on every other object, but small objects pull far too weakly for us to notice.');
+        at(17000, () => show(cards[2]));
+    }
+},
+{
+    title: 'Check: <span>buildings</span>',
+    cfu: 'fv', time: 30, sc: ['SC15'],
+    dur: 23000,
+    run() {
+        const row = el('div', 'gv-row');
+        const left = el('div', 'gv-stack'); left.style.width = '720px';
+        const q = el('div', 'gv-q rev hide', 'If gravity pulls everything together, why don’t we get pulled towards <b>buildings</b>?');
+        const o = optGrid(['Buildings do not have gravity.', 'A building’s pull is far too small compared with Earth’s.', 'Gravity only works on objects that are touching.', 'Gravity only ever pulls things downwards.'], 2);
+        left.append(q, o);
+        let win = '';
+        for (let r = 0; r < 9; r++) for (let k = 0; k < 3; k++) win += `<rect x="${222 + k * 34}" y="${70 + r * 34}" width="20" height="20" fill="#e3e6ee"/>`;
+        const fig = el('div', 'rev hide', svgWrap(380, 470, `
+            <rect x="0" y="420" width="380" height="50" fill="#e8ebf2"/><line x1="0" y1="420" x2="380" y2="420" stroke="#1b1f45" stroke-width="4"/>
+            <rect x="204" y="50" width="140" height="370" fill="#fff" stroke="#1b1f45" stroke-width="4"/>${win}
+            ${person(110, 420, 1)}
+            <g class="gv-fade gv-ea">${arrowSVG('gv-pk', 70, 360, 70, 462, 20)}<text class="gv-ts gv-tp" x="60" y="300" text-anchor="middle">Earth’s</text><text class="gv-ts gv-tp" x="60" y="320" text-anchor="middle">pull</text></g>
+            <g class="gv-fade gv-ba"><circle cx="134" cy="372" r="2.5" fill="#ea008a"/><line x1="133" y1="368" x2="100" y2="226" stroke="#9a9a9a" stroke-width="2"/>
+            <rect x="-6" y="170" width="202" height="56" rx="6" fill="#fff" stroke="#ea008a" stroke-width="3"/>
+            <text class="gv-ts" x="95" y="194" text-anchor="middle">Building’s pull:</text><text class="gv-ts gv-tp" x="95" y="216" text-anchor="middle">too small to see</text></g>`));
+        row.append(left, fig); content.appendChild(row);
+        const s = fig.querySelector('svg');
+        beatAt(0, 'If gravity pulls everything together, why don’t we get pulled towards buildings? Vote with your fingers.');
+        at(400, () => show(q)); reveal(o.items, 800, 200); at(1200, () => show(fig));
+        beatAt(8000, 'The answer is <b>2</b>. Buildings do have gravity, but their pull is far too small to notice.');
+        at(8500, () => markRight(o.items, 1));
+        beatAt(13000, 'Earth has vastly more mass than any building, so its pull on you is <b>hundreds of thousands</b> of times stronger.');
+        at(13500, () => { s.querySelector('.gv-ea').classList.add('on'); s.querySelector('.gv-ba').classList.add('on'); });
+        beatAt(18500, 'Gravity also pulls in every direction, not only down. It always pulls objects <b>towards each other</b>.');
+    }
+},
+{
+    title: 'Why do objects <span>fall</span>?',
+    sc: ['SC15'],
+    dur: 20500,
+    run() {
+        const row = el('div', 'gv-row');
+        const txt = el('div', 'gv-stack'); txt.style.width = '420px';
+        const t1 = el('div', 'gv-bar rev hide', 'Objects fall because <b>gravity</b> pulls them towards the <b>centre of the Earth</b>.');
+        const t2 = el('div', 'gv-bar gv-nvb rev hide', '“Down” always means <b>towards Earth’s centre</b>, wherever you are.');
+        const t3 = el('div', 'hint rev hide', 'Click the Earth to drop them again');
+        txt.append(t1, t2, t3);
+        const R = 130, C = [350, 238];
+        const pts = [{ a: -105, l: 'London' }, { a: 62, l: 'Brisbane' }, { a: 170 }, { a: -22 }];
+        let inner = `<circle cx="${C[0]}" cy="${C[1]}" r="${R}" fill="#e8ebf2" stroke="#1b1f45" stroke-width="4"/>
+            <path d="M${C[0] - R} ${C[1]} H${C[0] + R}" stroke="#c3c6d0" stroke-width="2" fill="none"/><ellipse cx="${C[0]}" cy="${C[1]}" rx="${R * .45}" ry="${R}" fill="none" stroke="#c3c6d0" stroke-width="2"/>`;
+        pts.forEach((p, i) => {
+            const a = p.a * Math.PI / 180, ux = Math.cos(a), uy = Math.sin(a), s0 = R + 96;
+            p.ux = ux; p.uy = uy;
+            const lx = C[0] + ux * (s0 + 30), ly = C[1] + uy * (s0 + 30);
+            inner += `<g class="gv-fade gv-pt${i}"><line class="gv-pdash" x1="${f1(C[0] + ux * s0)}" y1="${f1(C[1] + uy * s0)}" x2="${C[0]}" y2="${C[1]}"/>
+                ${p.l ? `<text class="gv-t" x="${f1(lx + (ux < 0 ? -6 : 6))}" y="${f1(ly + 8)}" text-anchor="${ux < 0 ? 'end' : 'start'}">${p.l}</text>` : ''}
+                <g class="gv-obj"><circle cx="0" cy="0" r="13" fill="#ea008a"/></g></g>`;
+        });
+        inner += `<circle cx="${C[0]}" cy="${C[1]}" r="9" fill="#ea008a" stroke="#fff" stroke-width="3"/>
+            <text class="gv-ts" x="${C[0]}" y="${C[1] + 36}" text-anchor="middle">Centre of the Earth</text>`;
+        const fig = el('div', 'rev hide gv-click', svgWrap(700, 474, inner));
+        row.append(txt, fig); content.appendChild(row);
+        const s = fig.querySelector('svg');
+        const objs = pts.map((p, i) => s.querySelector('.gv-pt' + i + ' .gv-obj'));
+        const place = (i, d) => objs[i].setAttribute('transform', `translate(${f1(C[0] + pts[i].ux * d)} ${f1(C[1] + pts[i].uy * d)})`);
+        pts.forEach((p, i) => place(i, R + 96));
+        const fall = list => list.forEach(i => { place(i, R + 96); anim(900, p => place(i, R + 96 - p * 83), easeIn); });
+        fig.onclick = () => fall([0, 1, 2, 3].filter(i => s.querySelector('.gv-pt' + i).classList.contains('on')));
+        beatAt(0, 'So why do objects fall? Gravity is a pulling force, and it pulls objects towards the <b>centre of the Earth</b>.');
+        at(400, () => { show(fig); show(t1); s.querySelector('.gv-pt0').classList.add('on'); });
+        at(1400, () => fall([0]));
+        beatAt(6000, 'That means “down” always points towards Earth’s centre, wherever you are on the planet.');
+        at(6500, () => { show(t2); [1, 2, 3].forEach(i => s.querySelector('.gv-pt' + i).classList.add('on')); });
+        at(7300, () => fall([0, 1, 2, 3]));
+        beatAt(12000, 'Someone in Brisbane and someone in London both feel pulled down, even though their “downs” point in different directions.');
+        beatAt(17000, 'Nobody falls off the bottom of the Earth, because gravity pulls everyone towards its centre.');
+        at(17500, () => show(t3));
+    }
+},
+{
+    title: 'Explain <span>falling</span>',
+    cfu: 'sj', time: 120, sc: ['SC15'],
+    dur: 22000,
+    run() {
+        const row = el('div', 'gv-row');
+        row.style.alignItems = 'flex-start';
+        const left = el('div', 'gv-stack'); left.style.width = '520px';
+        const q = el('div', 'gv-q rev hide', 'Explain why an apple <b>falls to the ground</b> when it comes off a tree.');
+        const wl = el('div', 'dlbl rev hide', 'Try to use these words');
+        const chips = el('div', 'gv-chips rev hide', ['Gravity', 'Force', 'Mass', 'Non-contact', 'Centre of the Earth'].map(w => `<span class="gv-chip">${w}</span>`).join(''));
+        const pic = el('div', 'rev hide', svgWrap(520, 170, `<path d="M20 30 L300 30" stroke="#1b1f45" stroke-width="14" stroke-linecap="round"/>${apple(240, 70, 20)}
+            <line class="gv-dash" x1="240" y1="98" x2="240" y2="150"/>${arrowSVG('gv-pk', 290, 70, 290, 150, 18)}<line x1="20" y1="158" x2="500" y2="158" stroke="#1b1f45" stroke-width="4"/>`));
+        left.append(q, wl, chips, pic);
+        const right = el('div', 'gv-stack'); right.style.width = '560px';
+        const ans = el('div', 'gv-card gv-pkb rev hide', `<h3>A model answer</h3><p>The apple and the Earth both have <b>mass</b>, so there is an attractive <b>gravitational force</b> between them. Gravity is a <b>non-contact</b> force that pulls the apple towards the <b>centre of the Earth</b>, so it falls down.</p>`);
+        const chk = el('div', 'gv-card rev hide', `<h3>Check your answer</h3><p>Did you name <b>gravity</b> as a force?<br>Did you say it acts <b>without contact</b>?<br>Did you give the direction: <b>towards Earth’s centre</b>?</p>`);
+        right.append(ans, chk);
+        row.append(left, right); content.appendChild(row);
+        beatAt(0, 'Stop and jot. Explain why an apple falls to the ground when it comes off a tree.');
+        at(400, () => show(q)); at(800, () => show(pic));
+        beatAt(4000, 'Try to use the words in the word bank in your answer.');
+        at(4400, () => show(wl)); at(4700, () => show(chips));
+        beatAt(9500, 'Here is a model answer. Compare it with yours.');
+        at(10000, () => show(ans));
+        beatAt(15500, 'Use these checks to improve your answer. Add anything you missed.');
+        at(16000, () => show(chk));
+    }
+},
+{
+    title: 'Mass vs <span>weight</span>',
+    sc: ['SC16'],
+    dur: 27000,
+    run() {
+        const row = el('div', 'gv-row');
+        const fig = el('div', 'rev hide', svgWrap(480, 474, `
+            <g class="gv-fade gv-gE on"><path d="M-40 474 L-40 440 Q240 404 520 440 L520 474 Z" fill="#cfe3f5" stroke="#1b1f45" stroke-width="4"/></g>
+            <g class="gv-fade gv-gM"><path d="M-40 474 L-40 440 Q240 404 520 440 L520 474 Z" fill="#e3e6ee" stroke="#1b1f45" stroke-width="4"/>
+                <ellipse cx="110" cy="444" rx="22" ry="5" fill="#c3c6d0"/><ellipse cx="400" cy="440" rx="30" ry="6" fill="#c3c6d0"/></g>
+            <line x1="80" y1="428" x2="80" y2="30" stroke="#1b1f45" stroke-width="10" stroke-linecap="round"/>
+            <line x1="70" y1="30" x2="300" y2="30" stroke="#1b1f45" stroke-width="10" stroke-linecap="round"/>
+            <line x1="260" y1="30" x2="260" y2="52" stroke="#1b1f45" stroke-width="4"/>
+            <rect x="238" y="46" width="44" height="164" rx="8" fill="#fff" stroke="#1b1f45" stroke-width="4"/>
+            ${Array.from({ length: 11 }, (_, n) => `<line x1="238" x2="${n % 2 ? 248 : 254}" y1="${60 + 13 * n}" y2="${60 + 13 * n}" stroke="#1b1f45" stroke-width="2.5"/>${n % 2 ? '' : `<text class="gv-ts" x="228" y="${66 + 13 * n}" text-anchor="end">${n}</text>`}`).join('')}
+            <text class="gv-ts" x="196" y="66" text-anchor="end">N</text>
+            <polyline class="gv-spr" fill="none" stroke="#1b1f45" stroke-width="3" stroke-linejoin="round"/>
+            <line class="gv-rod" x1="260" x2="260" stroke="#1b1f45" stroke-width="4"/>
+            <line class="gv-ptr" x1="246" x2="282" stroke="#ea008a" stroke-width="5" stroke-linecap="round"/>
+            <g class="gv-blk"><rect x="-36" y="0" width="72" height="72" rx="6" fill="#1b1f45"/><text class="gv-t gv-tw" x="0" y="46" text-anchor="middle" style="font-size:26px">1 kg</text></g>
+            <g class="gv-fade gv-wa"><g class="gv-arr gv-pk gv-wag"></g><text class="gv-ts gv-tp gv-wat" x="352">Weight</text></g>`));
+        const right = el('div', 'gv-stack'); right.style.width = '560px';
+        const loc = el('div', 'gv-loc rev hide', 'On <span>Earth</span>');
+        const rm = el('div', 'gv-read rev hide', '<div class="gv-rl">Mass</div><div class="gv-rv">1 kg</div><div class="gv-rd">The amount of matter in an object</div>');
+        const rw = el('div', 'gv-read gv-pkb rev hide', '<div class="gv-rl">Weight</div><div class="gv-rv">9.8 N</div><div class="gv-rd">The force of gravity on an object</div>');
+        const btns = el('div', 'gv-btns rev hide');
+        const bE = el('button', 'gv-btn on', 'Earth'), bM = el('button', 'gv-btn', 'Moon');
+        btns.append(bE, bM);
+        right.append(loc, rm, rw, btns);
+        row.append(fig, right); content.appendChild(row);
+        const s = fig.querySelector('svg'), spr = s.querySelector('.gv-spr'), rod = s.querySelector('.gv-rod'), ptr = s.querySelector('.gv-ptr'), blk = s.querySelector('.gv-blk'), wag = s.querySelector('.gv-wag'), wat = s.querySelector('.gv-wat');
+        const wv = rw.querySelector('.gv-rv');
+        let W = 9.8, onMoon = false;
+        const draw = w => {
+            const py = 60 + 13 * w, coils = 10, top = 50, bot = py - 3; let pts = `260,${top}`;
+            for (let i = 1; i < coils * 2; i++) pts += ` ${i % 2 ? 248 : 272},${f1(top + (bot - top) * i / (coils * 2))}`;
+            pts += ` 260,${f1(bot)}`;
+            spr.setAttribute('points', pts);
+            ptr.setAttribute('y1', f1(py)); ptr.setAttribute('y2', f1(py));
+            rod.setAttribute('y1', f1(py)); rod.setAttribute('y2', f1(py + 150));
+            blk.setAttribute('transform', `translate(260 ${f1(py + 150)})`);
+            const ay = py + 150 + 36; setArrow(wag, 330, ay, 330, ay + w * 5, 18); wat.setAttribute('y', f1(ay + w * 2.5 + 7));
+        };
+        draw(W);
+        const go = moon => {
+            if (moon === onMoon) return;
+            onMoon = moon;
+            bE.classList.toggle('on', !moon); bM.classList.toggle('on', moon);
+            s.querySelector('.gv-gE').classList.toggle('on', !moon); s.querySelector('.gv-gM').classList.toggle('on', moon);
+            loc.innerHTML = moon ? 'On the <span>Moon</span>' : 'On <span>Earth</span>';
+            const from = W, to = moon ? 1.6 : 9.8;
+            anim(1800, p => { W = from + (to - from) * p; draw(W); }, easeSpring);
+            anim(900, p => { wv.textContent = f1(from + (to - from) * p) + ' N'; }, easeOut);
+            rm.classList.remove('gv-flash'); void rm.offsetWidth; rm.classList.add('gv-flash');
+        };
+        bE.onclick = () => { go(false); bE.blur(); }; bM.onclick = () => { go(true); bM.blur(); };
+        beatAt(0, '<b>Mass</b> is the amount of matter in an object. It is measured in grams or kilograms.');
+        at(400, () => show(fig)); at(800, () => show(loc)); at(1100, () => show(rm));
+        beatAt(5000, '<b>Weight</b> is the force of gravity pulling on an object. Like all forces, it is measured in newtons (N).');
+        at(5500, () => { show(rw); s.querySelector('.gv-wa').classList.add('on'); });
+        beatAt(10500, 'A spring scale measures weight. On Earth, this 1 kg mass weighs <b>9.8 N</b>. Now take it to the Moon, where gravity is weaker.');
+        at(11000, () => show(btns));
+        at(12600, () => go(true));
+        beatAt(17000, 'On the Moon it weighs only <b>1.6 N</b>. But its mass is still <b>1 kg</b>: it has exactly the same amount of matter.');
+        beatAt(22000, 'Mass stays the same everywhere. Weight changes, because it depends on <b>gravity</b>.');
+    }
+},
+{
+    title: 'Mass vs weight: <span>compared</span>',
+    sc: ['SC16'],
+    dur: 19500,
+    run() {
+        const c = el('div', 'center');
+        const tb = el('div', 'gv-table');
+        const cells = [];
+        const add = (h, cls) => { const d = el('div', cls + ' rev hide', h); tb.appendChild(d); cells.push(d); return d; };
+        const head = [add('Property', 'gv-th'), add('Mass', 'gv-th'), add('Weight', 'gv-th gv-pkh')];
+        const rows = [['What it measures', 'The amount of matter in an object', 'The force of gravity on an object'],
+            ['Units', 'Kilograms (kg)', 'Newtons (N)'],
+            ['Changes with gravity?', 'No, it is always the same', 'Yes, it changes with gravity'],
+            ['Measured with', 'A balance', 'A spring scale']].map(r => [add(r[0], 'gv-tp'), add(r[1], ''), add(r[2], 'gv-tw')]);
+        c.appendChild(tb); content.appendChild(c);
+        beatAt(0, 'Let’s compare mass and weight side by side. You may like to copy this table into your notes.');
+        reveal(head, 400, 150);
+        beatAt(3500, 'Mass measures the <b>amount of matter</b>. Weight is the <b>force of gravity</b> on that matter.');
+        reveal(rows[0], 4000, 250);
+        beatAt(8000, 'Mass is measured in <b>kilograms</b>. Weight is a force, so it is measured in <b>newtons</b>.');
+        reveal(rows[1], 8500, 250);
+        beatAt(12000, 'Mass never changes with gravity. Weight <b>does</b>.');
+        reveal(rows[2], 12500, 250);
+        beatAt(15500, 'A balance compares masses. A spring scale measures the pull of gravity, which is weight.');
+        reveal(rows[3], 16000, 250);
+    }
+},
+{
+    title: 'Mass or <span>weight</span>?',
+    cfu: 'fv', time: 30, sc: ['SC16'],
+    dur: 33000,
+    run() {
+        const c = el('div', 'center'); c.style.gap = '18px';
+        const q = el('div', 'gv-q rev hide', 'Show <b>1 finger</b> for mass or <b>2 fingers</b> for weight.');
+        const box = el('div', 'gv-mw');
+        const data = [['Measured in newtons', 1], ['Stays the same wherever you go in the universe', 0], ['Would be smaller on the Moon', 1], ['The amount of matter in your body', 0], ['Your bathroom scales show 45 kg', 0]];
+        const rows = data.map(([t, w], i) => {
+            const r = el('div', 'gv-mwr rev hide', `<span class="gv-on">${String.fromCharCode(65 + i)}</span><span class="gv-mws">${t}</span>`);
+            const a = el('span', 'gv-ans rev hide' + (w ? ' gv-aw' : ''), w ? 'Weight' : 'Mass');
+            r.appendChild(a); r.ans = a; box.appendChild(r); return r;
+        });
+        c.append(q, box); content.appendChild(c);
+        const why = ['<b>A: weight.</b> Weight is a force, and forces are measured in newtons.', '<b>B: mass.</b> The amount of matter in an object does not change when it moves.',
+            '<b>C: weight.</b> The Moon’s gravity is weaker, so the pull on you is smaller.', '<b>D: mass.</b> Mass is the amount of matter.',
+            '<b>E: mass.</b> Kilograms are a unit of mass. A scientist would say your weight is about 440 N.'];
+        beatAt(0, 'Read each statement. Is it describing mass or weight? Show 1 finger for mass, or 2 fingers for weight.');
+        at(400, () => show(q)); reveal(rows, 800, 220);
+        why.forEach((w, i) => { beatAt(6000 + i * 5000, w); at(6400 + i * 5000, () => show(rows[i].ans)); });
+    }
+},
+{
+    title: 'Measuring <span>gravity</span>',
+    sc: ['SC17'],
+    dur: 24000,
+    run() {
+        const row = el('div', 'gv-row');
+        const yAt = t => 34 + 42 * t * t;
+        let ghosts = '';
+        [0, 1, 2, 3].forEach(t => {
+            ghosts += `<g class="gv-fade gv-gh${t}"><circle cx="90" cy="${yAt(t)}" r="16" fill="none" stroke="#ea008a" stroke-width="3" stroke-dasharray="5 5"/>
+                <line class="gv-dash" x1="112" y1="${yAt(t)}" x2="140" y2="${yAt(t)}"/>
+                <text class="gv-t" x="150" y="${yAt(t) + 8}">${t} s</text><text class="gv-t gv-tp" x="214" y="${yAt(t) + 8}">${f1(9.8 * t)} m/s</text></g>`;
+        });
+        const fig = el('div', 'rev hide gv-click', svgWrap(330, 474, `
+            <text class="gv-ts gv-tg" x="150" y="12">Time</text><text class="gv-ts gv-tg" x="214" y="12">Speed</text>
+            <line x1="20" y1="434" x2="320" y2="434" stroke="#1b1f45" stroke-width="5" stroke-linecap="round"/>
+            ${ghosts}<circle class="gv-ball" cx="90" cy="34" r="16" fill="#ea008a"/>`));
+        const right = el('div', 'gv-stack'); right.style.width = '700px';
+        const t1 = el('div', 'gv-bar rev hide', 'Gravity is measured as an <b>acceleration</b>: how quickly a falling object speeds up.');
+        const rd = el('div', 'gv-read gv-pkb rev hide', '<div class="gv-rl">Speed of the falling ball</div><div class="gv-rv">0.0 m/s</div>');
+        const card = el('div', 'gv-card rev hide', '<h3>Gravity on Earth: 9.8 m/s²</h3><p>A falling object speeds up by <b>9.8 metres per second</b>, every second it falls.</p>');
+        const note = el('div', 'hint rev hide', 'Air resistance ignored. Click the ball to drop it again.');
+        note.style.marginTop = '0';
+        right.append(t1, rd, card, note);
+        row.append(fig, right); content.appendChild(row);
+        const s = fig.querySelector('svg'), ball = s.querySelector('.gv-ball'), rv = rd.querySelector('.gv-rv');
+        const gh = [0, 1, 2, 3].map(t => s.querySelector('.gv-gh' + t));
+        const drop = () => {
+            gh.forEach(g => g.classList.remove('on'));
+            anim(3000, p => {
+                const t = 3 * p; ball.setAttribute('cy', f1(yAt(t))); rv.textContent = f1(9.8 * t) + ' m/s';
+                gh.forEach((g, i) => { if (t >= i - 0.001) g.classList.add('on'); });
+            });
+        };
+        fig.onclick = drop;
+        beatAt(0, 'Scientists measure the strength of gravity as an <b>acceleration</b>. That means how quickly a falling object speeds up.');
+        at(400, () => show(fig)); at(800, () => show(t1));
+        beatAt(5500, 'Watch the speed of the ball. Every second it falls, it speeds up by another <b>9.8 metres per second</b>.');
+        at(6000, () => show(rd)); at(6800, drop);
+        beatAt(13000, 'So we say gravity on Earth is <b>9.8 metres per second squared</b>, written 9.8 m/s².');
+        at(13500, () => show(card));
+        beatAt(18500, 'Notice the gaps between the circles get bigger. The ball travels further each second, because it keeps speeding up.');
+        at(19000, () => show(note));
+    }
+},
+{
+    title: 'Gravity on <span>other planets</span>',
+    sc: ['SC17'],
+    dur: 23000,
+    run() {
+        const base = 392, k = 12, x0 = 140, slot = 125;
+        let inner = `<line x1="110" y1="74" x2="110" y2="${base}" stroke="#1b1f45" stroke-width="3"/><line x1="110" y1="${base}" x2="1140" y2="${base}" stroke="#1b1f45" stroke-width="4"/>
+            <text class="gv-ts gv-tg" x="110" y="52" text-anchor="middle">Gravity (m/s²)</text>
+            <text class="gv-ts gv-tg" x="94" y="${base + 58}" text-anchor="end">Vs Earth</text>`;
+        [0, 5, 10, 15, 20, 25].forEach(v => { inner += `<line x1="102" x2="110" y1="${base - v * k}" y2="${base - v * k}" stroke="#1b1f45" stroke-width="2.5"/><text class="gv-ts" x="94" y="${base - v * k + 6}" text-anchor="end">${v}</text>`; });
+        PLANETS.forEach((p, i) => {
+            const x = x0 + i * slot + (slot - 76) / 2, cx = x + 38, e = p.n === 'Earth';
+            inner += `<g class="gv-pg"><rect class="gv-b${e ? ' gv-be' : ''}" x="${x}" y="${base}" width="76" height="0"/>
+                <text class="gv-t gv-bv${e ? ' gv-tp' : ''}" x="${cx}" y="${base - 12}" text-anchor="middle" style="font-size:26px;opacity:0">${p.g}</text>
+                <text class="gv-t${e ? ' gv-tp' : ''}" x="${cx}" y="${base + 30}" text-anchor="middle">${p.n}</text>
+                <text class="gv-t gv-tg" x="${cx}" y="${base + 58}" text-anchor="middle" style="font-size:22px">${p.pc}%</text></g>`;
+        });
+        inner += `<g class="gv-fade gv-el"><line class="gv-pdash" x1="110" x2="1140" y1="${base - 9.8 * k}" y2="${base - 9.8 * k}"/>
+            <rect x="122" y="${base - 9.8 * k - 40}" width="116" height="30" rx="5" fill="#ea008a"/><text class="gv-ts gv-tw" x="180" y="${base - 9.8 * k - 19}" text-anchor="middle">Earth: 9.8</text></g>`;
+        const fig = el('div', '', svgWrap(1152, 474, inner, 'gv-bars'));
+        content.appendChild(fig);
+        const s = fig.querySelector('svg'), bars = s.querySelectorAll('.gv-b'), bv = s.querySelectorAll('.gv-bv'), gs = s.querySelectorAll('.gv-pg');
+        const focus = list => gs.forEach((g, i) => g.classList.toggle('gv-dim', !!list && !list.includes(i)));
+        const grow = i => anim(900, p => { const h = PLANETS[i].g * k * p; bars[i].setAttribute('y', f1(base - h)); bars[i].setAttribute('height', f1(h)); bv[i].setAttribute('y', f1(base - h - 12)); bv[i].style.opacity = p; }, easeOut);
+        beatAt(0, 'Every planet has a different strength of gravity, measured in metres per second squared.');
+        PLANETS.forEach((p, i) => at(500 + i * 220, () => grow(i)));
+        beatAt(6000, 'The dashed line shows Earth. Bars above the line have stronger gravity than Earth. Bars below it are weaker.');
+        at(6500, () => s.querySelector('.gv-el').classList.add('on'));
+        beatAt(11500, 'Jupiter, the planet with the most mass, has about <b>two and a half times</b> Earth’s gravity.');
+        at(12000, () => focus([2, 4]));
+        beatAt(16500, 'On Mercury and Mars, gravity is <b>less than half</b> as strong as on Earth.');
+        at(17000, () => focus([0, 2, 3]));
+        at(21500, () => focus(null));
+    }
+},
+{
+    title: 'Think: <span>Uranus</span>',
+    cfu: 'tt', time: 120, sc: ['SC17'],
+    dur: 25000,
+    run() {
+        const row = el('div', 'gv-row');
+        const left = el('div', 'gv-stack'); left.style.width = '470px';
+        const q = el('div', 'gv-q rev hide', 'Uranus is much <b>bigger</b> than Earth. Why does it have <b>less</b> gravity at its surface?');
+        const a1 = el('div', 'gv-bar gv-nvb rev hide', 'Uranus has about <b>15 times</b> Earth’s mass. On its own, that would mean stronger gravity.');
+        const a2 = el('div', 'gv-bar rev hide', 'But its surface is about <b>4 times further</b> from its centre. Further away means a weaker pull.');
+        const a3 = el('div', 'gv-bar gv-nvb rev hide', 'It is mostly <b>gas and ice</b>, so its mass is very spread out.');
+        left.append(q, a1, a2, a3);
+        const fig = el('div', 'rev hide', svgWrap(600, 474, `
+            <circle cx="90" cy="300" r="30" fill="#cfe3f5" stroke="#1b1f45" stroke-width="4"/>
+            <circle cx="400" cy="250" r="120" fill="#cdeef0" stroke="#1b1f45" stroke-width="4"/>
+            <text class="gv-t" x="90" y="370" text-anchor="middle">Earth</text><text class="gv-t" x="400" y="410" text-anchor="middle">Uranus</text>
+            <text class="gv-ts gv-tp" x="90" y="398" text-anchor="middle">9.8 m/s²</text><text class="gv-ts gv-tp" x="400" y="438" text-anchor="middle">8.7 m/s²</text>
+            <g class="gv-fade gv-ms"><text class="gv-ts" x="90" y="246" text-anchor="middle">Mass 1×</text><text class="gv-ts" x="400" y="110" text-anchor="middle">Mass about 15×</text></g>
+            <g class="gv-fade gv-rd"><line class="gv-pdash" x1="90" y1="270" x2="90" y2="300"/><circle cx="90" cy="270" r="6" fill="#ea008a"/><circle cx="90" cy="300" r="4" fill="#1b1f45"/>
+                <line class="gv-pdash" x1="400" y1="130" x2="400" y2="250"/><circle cx="400" cy="130" r="6" fill="#ea008a"/><circle cx="400" cy="250" r="5" fill="#1b1f45"/>
+                <text class="gv-t gv-tp" x="128" y="292">1×</text><text class="gv-t gv-tp" x="414" y="200">4× further</text></g>`));
+        row.append(left, fig); content.appendChild(row);
+        const s = fig.querySelector('svg');
+        beatAt(0, 'Here are Earth and Uranus, drawn to scale. Uranus is much bigger, yet its gravity is weaker. Why?');
+        at(400, () => show(fig)); at(800, () => show(q));
+        beatAt(5000, 'Turn and talk with a partner. Use what you know about mass and distance.');
+        beatAt(11000, 'Uranus has about <b>15 times</b> more mass than Earth, which on its own would make its gravity stronger.');
+        at(11500, () => { show(a1); s.querySelector('.gv-ms').classList.add('on'); });
+        beatAt(16000, 'But standing on its surface, you are about <b>4 times further</b> from its centre. The further away you are, the weaker the pull.');
+        at(16500, () => { show(a2); s.querySelector('.gv-rd').classList.add('on'); });
+        beatAt(21000, 'Uranus is mostly gas and ice, so its mass is spread out. Together, these effects give it slightly weaker surface gravity than Earth.');
+        at(21500, () => show(a3));
+    }
+},
+{
+    title: 'Same mass, <span>different weight</span>',
+    sc: ['SC16', 'SC17'],
+    dur: 23000,
+    run() {
+        const c = el('div', 'gv-stack'); c.style.gap = '16px';
+        const btns = el('div', 'gv-btns rev hide');
+        const bs = PLANETS.map((p, i) => { const b = el('button', 'gv-btn', p.n); b.onclick = () => { pick(i); b.blur(); }; btns.appendChild(b); return b; });
+        const row = el('div', 'gv-row'); row.style.height = 'auto';
+        const fig = el('div', 'rev hide', svgWrap(520, 390, `
+            <path class="gv-surf" d="M-40 390 L-40 236 Q260 196 560 236 L560 390 Z" fill="#cfe3f5" stroke="#1b1f45" stroke-width="4" style="transition:fill .5s"/>
+            <text class="gv-t gv-pn" x="260" y="300" text-anchor="middle" style="font-size:30px">Earth</text>
+            ${person(160, 214, 1.5)}
+            <rect x="196" y="76" width="84" height="34" rx="6" fill="#1b1f45"/><text class="gv-ts gv-tw" x="238" y="100" text-anchor="middle">50 kg</text>
+            <g class="gv-arr gv-pk gv-wa"></g><text class="gv-ts gv-tp gv-wt" x="356">Weight</text>`));
+        const right = el('div', 'gv-stack'); right.style.width = '560px';
+        const rm = el('div', 'gv-read rev hide', '<div class="gv-rl">Mass</div><div class="gv-rv">50 kg</div><div class="gv-rd">The same on every planet</div>');
+        const rw = el('div', 'gv-read gv-pkb rev hide', '<div class="gv-rl">Weight</div><div class="gv-rv">490 N</div><div class="gv-rd gv-calc">50 × 9.8 = 490 N</div>');
+        right.append(rm, rw);
+        row.append(fig, right); c.append(btns, row); content.appendChild(c);
+        const s = fig.querySelector('svg'), wa = s.querySelector('.gv-wa'), wt = s.querySelector('.gv-wt'), wv = rw.querySelector('.gv-rv'), calc = rw.querySelector('.gv-calc');
+        let W = 490, cur = -1;
+        const draw = w => { setArrow(wa, 336, 120, 336, 120 + w * 0.13, 20); wt.setAttribute('y', f1(132 + w * 0.065)); };
+        const pick = i => {
+            if (i === cur) return; cur = i;
+            const p = PLANETS[i], to = Math.round(50 * p.g), from = W;
+            bs.forEach((b, j) => b.classList.toggle('on', j === i));
+            s.querySelector('.gv-surf').setAttribute('fill', p.c); s.querySelector('.gv-pn').textContent = p.n;
+            calc.textContent = `50 × ${p.g} = ${to} N`;
+            anim(900, k => { W = from + (to - from) * k; draw(W); wv.textContent = Math.round(W) + ' N'; }, easeOut);
+            rm.classList.remove('gv-flash'); void rm.offsetWidth; rm.classList.add('gv-flash');
+        };
+        draw(W); bs[2].classList.add('on'); cur = 2;
+        beatAt(0, 'A student has a mass of <b>50 kg</b>. To find her weight, multiply her mass by the planet’s gravity.');
+        at(400, () => show(fig)); at(800, () => show(rm)); at(1100, () => show(rw));
+        beatAt(5000, 'On Earth, her weight is 50 × 9.8, which is <b>490 newtons</b>.');
+        beatAt(9500, 'On Mars, her mass is still 50 kg, but her weight drops to <b>185 newtons</b>.');
+        at(10000, () => { show(btns); pick(3); });
+        beatAt(14000, 'On Jupiter, she would weigh <b>1240 newtons</b>, more than two and a half times her weight on Earth.');
+        at(14500, () => pick(4));
+        beatAt(18500, 'Click any planet to compare. Her mass never changes. Only her weight does.');
+    }
+},
+{
+    title: 'Check: <span>off to Mars</span>',
+    cfu: 'fv', time: 30, sc: ['SC16', 'SC17'],
+    dur: 19500,
+    run() {
+        const c = el('div', 'gv-stack'); c.style.gap = '20px';
+        const q = el('div', 'gv-q rev hide', 'An astronaut with a mass of <b>80 kg</b> travels from Earth to Mars. What happens?');
+        const o = optGrid(['Her mass and weight both decrease.', 'Her mass stays the same. Her weight decreases.', 'Her mass decreases. Her weight stays the same.', 'Her mass and weight both stay the same.'], 2);
+        const ex = el('div', 'gv-steps rev hide', `<div class="gv-step"><span class="gv-sn">Earth</span><span class="gv-st">Mass 80 kg, weight 784 N</span></div>
+            <div class="gv-step gv-pkb"><span class="gv-sn">Mars</span><span class="gv-st">Mass 80 kg, weight 296 N</span></div>`);
+        c.append(q, o, ex); content.appendChild(c);
+        beatAt(0, 'An astronaut with a mass of 80 kg travels from Earth to Mars. What happens to her mass and weight? Vote with your fingers.');
+        at(400, () => show(q)); reveal(o.items, 800, 200);
+        beatAt(8500, 'The answer is <b>2</b>. She is made of the same amount of matter, so her mass stays at <b>80 kg</b>.');
+        at(9000, () => markRight(o.items, 1));
+        beatAt(14000, 'Mars has weaker gravity, so her weight drops from <b>784 N</b> to <b>296 N</b>.');
+        at(14500, () => show(ex));
+    }
+},
+{
+    title: 'Air <span>resistance</span>',
+    cfu: 'fv', time: 30, sc: ['SC15'],
+    dur: 28000,
+    run() {
+        const row = el('div', 'gv-row');
+        const left = el('div', 'gv-stack'); left.style.width = '470px';
+        const q = el('div', 'gv-q rev hide', 'A bowling ball and a feather are dropped at the same time. Which <b>lands first</b>?');
+        const o = optGrid(['The bowling ball', 'The feather', 'They land together'], 1);
+        o.items.forEach(x => { x.style.minHeight = '62px'; x.style.padding = '10px 18px'; });
+        const db = el('button', 'gv-btn rev hide', 'Drop them');
+        db.style.alignSelf = 'flex-start';
+        left.append(q, o, db);
+        const fig = el('div', 'rev hide', svgWrap(640, 474, `
+            <line x1="40" y1="440" x2="620" y2="440" stroke="#1b1f45" stroke-width="5" stroke-linecap="round"/>
+            <text class="gv-t" x="180" y="470" text-anchor="middle">Bowling ball</text><text class="gv-t" x="460" y="470" text-anchor="middle">Feather</text>
+            <g class="gv-bb">${bowlingBall(34)}</g><g class="gv-ft">${feather(1)}</g>
+            <g class="gv-fade gv-fa">${arrowSVG('gv-pk', 180, 250, 180, 372, 20)}${arrowSVG('', 180, 170, 180, 146, 16)}
+                <text class="gv-ts gv-tp" x="198" y="330">Weight</text><text class="gv-ts" x="222" y="168">Air resistance</text>
+                ${arrowSVG('gv-pk', 460, 272, 460, 306, 16)}${arrowSVG('', 460, 148, 460, 118, 16)}
+                <text class="gv-ts gv-tp" x="478" y="300">Weight</text><text class="gv-ts" x="478" y="130">Air resistance</text></g>`));
+        row.append(left, fig); content.appendChild(row);
+        const s = fig.querySelector('svg'), bb = s.querySelector('.gv-bb'), ft = s.querySelector('.gv-ft'), fa = s.querySelector('.gv-fa');
+        const setB = y => bb.setAttribute('transform', `translate(180 ${f1(y)})`);
+        const setF = (y, sw) => ft.setAttribute('transform', `translate(${f1(460 + 34 * sw)} ${f1(y)}) rotate(${f1(-26 * sw)})`);
+        const B0 = 86, F0 = 62, BE = 406, FE = 382;
+        setB(B0); setF(F0, 0);
+        const drop = () => {
+            fa.classList.remove('on');
+            setB(B0); setF(F0, 0);
+            anim(1000, p => setB(B0 + (BE - B0) * p), easeIn);
+            anim(5200, p => setF(F0 + (FE - F0) * p, Math.sin(p * Math.PI * 5) * (1 - p * .6)));
+        };
+        db.onclick = () => { drop(); db.blur(); };
+        beatAt(0, 'A bowling ball and a feather are dropped at the same time. Which lands first? Vote with your fingers.');
+        at(400, () => show(fig)); at(800, () => show(q)); reveal(o.items, 1200, 200);
+        beatAt(6500, 'Let’s drop them and see.');
+        at(7000, () => show(db)); at(7300, drop);
+        beatAt(13500, 'The bowling ball lands first. Falling objects push through air, and the air pushes back. This force is called <b>air resistance</b>.');
+        at(14000, () => markRight(o.items, 0));
+        beatAt(19500, 'The feather is light and spread out, so air resistance almost cancels its weight. The ball is heavy and compact, so air barely slows it.');
+        at(20000, () => { setB(210); setF(210, 0); fa.classList.add('on'); });
+    }
+},
+{
+    title: 'In a <span>vacuum</span>',
+    cfu: 'tt', time: 60, sc: ['SC15'],
+    dur: 12000,
+    run() {
+        const c = el('div', 'center'); c.style.gap = '40px';
+        const q = el('div', 'gv-q rev hide', 'What happens to a bowling ball and a feather when there is <b>no air</b>?');
+        q.style.fontSize = '36px'; q.style.textAlign = 'center'; q.style.maxWidth = '900px';
+        const vid = el('a', 'gv-vid rev hide', `<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="#fff"/><path d="M16 12 L29 20 L16 28 Z" fill="#ea008a"/></svg><span>Watch: bowling ball vs feather in a vacuum</span>`);
+        vid.href = 'https://www.youtube.com/watch?v=E43-CfukEgs'; vid.target = '_blank'; vid.rel = 'noopener';
+        vid.style.fontSize = '36px'; vid.style.padding = '20px 34px 20px 24px';
+        vid.querySelector('svg').style.width = vid.querySelector('svg').style.height = '56px';
+        c.append(q, vid); content.appendChild(c);
+        beatAt(0, 'What happens to a bowling ball and a feather when there is no air? Predict with a partner, then watch the video.');
+        at(400, () => show(q)); at(800, () => show(vid));
+        beatAt(6000, 'Without air, there is no air resistance, so gravity speeds up both objects at the <b>same rate</b>.');
+    }
+},
+{
+    title: 'Think, pair, <span>share</span>',
+    cfu: 'tt', time: 180, sc: ['SC15'],
+    dur: 25000,
+    run() {
+        const row = el('div', 'gv-row');
+        const left = el('div', 'gv-stack'); left.style.width = '560px';
+        const q = el('div', 'gv-q rev hide', 'If you had to jump out of a plane, what could you do to <b>slow your fall</b>? Be creative!');
+        const s = steps([['Think', '1 min'], ['Pair', '2 min'], ['Share', 'Best idea']]);
+        const ideas = el('div', 'gv-chips rev hide', ['Open a parachute', 'Spread out your arms and legs', 'Wear a wingsuit'].map(w => `<span class="gv-chip">${w}</span>`).join('') + '<span class="gv-chip gv-pkf">More surface area, more air resistance</span>');
+        left.append(q, s, ideas);
+        const fig = el('div', 'rev hide', svgWrap(480, 474, `
+            <g class="gv-chute" style="transform-origin:240px 250px;transform:scale(0)">
+                <path d="M120 186 Q240 50 360 186 Q330 174 300 186 Q270 174 240 186 Q210 174 180 186 Q150 174 120 186 Z" fill="#ea008a"/>
+                <path d="M122 186 L228 282 M180 186 L232 282 M300 186 L248 282 M358 186 L252 282" stroke="#1b1f45" stroke-width="2" fill="none"/></g>
+            <g stroke="#1b1f45" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none">
+                <path d="M240 292 L240 336 M240 300 L198 274 M240 300 L282 274 M240 336 L210 372 M240 336 L270 372"/></g>
+            <circle cx="240" cy="276" r="15" fill="#1b1f45"/>
+            <g class="gv-arr gv-air"></g><text class="gv-ts gv-at" x="258">Air resistance</text>
+            ${arrowSVG('gv-pk', 240, 380, 240, 470, 20)}<text class="gv-ts gv-tp" x="258" y="440">Weight</text>`));
+        row.append(left, fig); content.appendChild(row);
+        const sv = fig.querySelector('svg'), air = sv.querySelector('.gv-air'), at_ = sv.querySelector('.gv-at'), chute = sv.querySelector('.gv-chute');
+        const drawAir = p => { const y0 = 254 + (110 - 254) * p, L = 22 + 68 * p; setArrow(air, 240, y0, 240, y0 - L, 18); at_.setAttribute('y', f1(y0 - L / 2 + 6)); };
+        drawAir(0);
+        beatAt(0, 'Think, pair, share. If you had to jump out of a plane, what could you do to slow your fall? Be creative!');
+        at(400, () => show(fig)); at(800, () => show(q));
+        beatAt(5000, 'Think on your own for 1 minute. Then pair with a partner for 2 minutes, and share your best idea.');
+        reveal(s.items, 5500, 300);
+        beatAt(11500, 'Right now, her weight is much bigger than the air resistance on her, so she keeps speeding up.');
+        beatAt(16000, 'Opening a parachute gives a huge surface area. Air resistance grows until it <b>balances her weight</b>, and she falls at a slow, steady speed.');
+        at(16500, () => anim(1600, p => { chute.style.transform = `scale(${f1(p)})`; drawAir(p); }, easeOut));
+        beatAt(21000, 'Anything that increases your <b>surface area</b> increases air resistance and slows your fall.');
+        at(21500, () => show(ideas));
+    }
+},
+{
+    title: '<span>Summary</span>',
+    sc: ['SC15', 'SC16', 'SC17'],
+    dur: 18000,
+    run() {
+        const c = el('div', 'center');
+        const l = el('div', 'gv-sclist'); l.style.gap = '18px'; l.style.width = '1100px';
+        const data = [
+            ['SC15', 'Objects fall because <b>gravity</b>, a non-contact pulling force, draws them towards the <b>centre of the Earth</b>. Air resistance can slow a fall.'],
+            ['SC16', '<b>Mass</b> is the amount of matter (kg) and never changes. <b>Weight</b> is the force of gravity on an object (N) and changes with gravity.'],
+            ['SC17', 'Each planet’s gravity depends on its <b>mass</b> and <b>size</b>. The same object weighs more on Jupiter and less on Mars than on Earth.']
+        ];
+        const rows = data.map(([n, t]) => { const r = el('div', 'gv-sc rev hide', `<div class="gv-scn">${n}</div><div class="gv-sct">${t}</div>`); l.appendChild(r); return r; });
+        c.appendChild(l); content.appendChild(c);
+        beatAt(0, 'Objects fall because <b>gravity</b> pulls them towards the centre of the Earth, and air resistance can slow them down.');
+        at(400, () => show(rows[0]));
+        beatAt(5000, '<b>Mass</b> is the amount of matter and stays the same. <b>Weight</b> is the force of gravity and changes from place to place.');
+        at(5400, () => show(rows[1]));
+        beatAt(10000, 'Each planet’s gravity depends on its mass and size, so the same object has a different weight on each planet.');
+        at(10400, () => show(rows[2]));
+    }
+}
+];
+
+/* ---------- player ---------- */
+const dots = $('#dots');
+scenes.forEach((_, i) => { const d = el('button'); d.setAttribute('aria-label', 'Scene ' + (i + 1)); d.onclick = () => go(i); dots.appendChild(d); });
+
+const stepLbl = $('#steplbl');
+const dur = () => scenes[idx].dur;
+const beatEnd = b => (b + 1 < beats.length ? beats[b + 1] : dur());
+function label() { stepLbl.textContent = `Step ${beat + 1} of ${beats.length}`; }
+
+function build(i) {
+    clearTimers();
+    stopInteractive();
+    const ni = Math.max(0, Math.min(scenes.length - 1, i));
+    if (ni !== idx) { saveInk(); idx = ni; loadInk(); zoomReset(); renderBadges(); }
+    events = []; beats = [];
+    const sc = scenes[idx];
+    content.innerHTML = ''; caption.innerHTML = '';
+    titleEl.innerHTML = sc.title;
+    counter.innerHTML = `<b>${idx + 1}</b> / ${scenes.length}`;
+    uiSetCfu(sc.cfu, sc.time); uiSetSC(sc.sc);
+    [...dots.children].forEach((d, j) => d.classList.toggle('cur', j === idx));
+    sc.run();
+    beats = [...new Set(beats)].sort((a, b) => a - b);
+}
+
+function jumpTo(to) {
+    stage.classList.add('instant');
+    events.filter(e => !e.done && e.t < to).sort((a, b) => a.t - b.t).forEach(e => { e.done = true; e.fn(); });
+    void stage.offsetWidth;
+    requestAnimationFrame(() => requestAnimationFrame(() => stage.classList.remove('instant')));
+}
+
+function setProgress(from, to) {
+    progress.style.transition = 'none';
+    progress.style.width = (from / dur() * 100) + '%';
+    void progress.offsetWidth;
+    progress.style.transition = `width ${Math.max(0, to - from)}ms linear`;
+    progress.style.width = (to / dur() * 100) + '%';
+}
+
+function play(from, to, onEnd) {
+    clearTimers();
+    segFrom = from; segTo = to; segStart = performance.now();
+    events.filter(e => !e.done && e.t >= from && e.t < to)
+        .forEach(e => timers.push(setTimeout(() => { e.done = true; e.fn(); }, e.t - from)));
+    beats.forEach((bt, k) => { if (bt > from && bt < to) timers.push(setTimeout(() => { beat = k; label(); }, bt - from)); });
+    if (onEnd) timers.push(setTimeout(onEnd, to - from));
+    setProgress(from, to);
+}
+
+function now() { return Math.min(segTo, segFrom + performance.now() - segStart); }
+
+function startBeat(b) {
+    beat = b; label();
+    jumpTo(beats[b]);
+    if (autoplay) play(beats[b], dur(), () => { if (idx < scenes.length - 1) go(idx + 1); });
+    else play(beats[b], beatEnd(b));
+}
+
+function go(i, b = 0) {
+    build(i);
+    startBeat(b === 'last' ? beats.length - 1 : b);
+}
+
+function next() {
+    if (autoplay) { if (idx < scenes.length - 1) go(idx + 1); return; }
+    clearTimers();
+    if (beat < beats.length - 1) { jumpTo(beatEnd(beat)); startBeat(beat + 1); }
+    else if (idx < scenes.length - 1) go(idx + 1);
+    else { jumpTo(dur()); setProgress(dur(), dur()); }
+}
+
+function back() {
+    if (autoplay) { go(idx - 1); return; }
+    if (beat > 0) go(idx, beat - 1);
+    else if (idx > 0) go(idx - 1, 'last');
+    else go(0);
+}
+
+function toggleAuto() {
+    autoplay = !autoplay;
+    autoBtn.classList.toggle('on', autoplay); autoBtn.setAttribute('aria-pressed', autoplay);
+    const cur = now();
+    clearTimers();
+    if (autoplay) {
+        play(cur, dur(), () => { if (idx < scenes.length - 1) go(idx + 1); });
+    } else {
+        let b = 0; beats.forEach((bt, k) => { if (bt <= cur) b = k; });
+        beat = b; label();
+        jumpTo(beatEnd(b));
+        setProgress(beatEnd(b), beatEnd(b));
+    }
+}
+
+const autoBtn = $('#auto');
+$('#next').onclick = next;
+$('#back').onclick = back;
+$('#replay').onclick = () => { zoomReset(); go(idx); };
+autoBtn.onclick = toggleAuto;
+const typing = e => e.target && (e.target.tagName === 'INPUT' || e.target.isContentEditable);
+document.addEventListener('keydown', e => {
+    if (typing(e) || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (wbOpen) {
+        if (e.key === 'ArrowRight') wbGo(wbPage + 1);
+        if (e.key === 'ArrowLeft') wbGo(wbPage - 1);
+        if (e.key === 'n' || e.key === 'N') wbNew();
+        if (e.key === ' ') e.preventDefault();
+        return;
+    }
+    if (e.key === 'ArrowRight') next();
+    if (e.key === 'ArrowLeft') back();
+    if (e.key === 'r' || e.key === 'R') { zoomReset(); go(idx); }
+    if (e.key === ' ') { e.preventDefault(); toggleAuto(); }
+});
+
+/* ---------- pen, highlighter and eraser ---------- */
+const ink = $('#ink'), ctx = ink.getContext('2d'), hlc = $('#hl'), hctx = hlc.getContext('2d'), livec = $('#hllive'), lctx = livec.getContext('2d');
+const penBtn = $('#pen'), hlBtn = $('#hlbtn'), eraserBtn = $('#eraser');
+let tool = null, penColour = '#ea008a', hlColour = '#ffd60a', drawing = false, inkMarked = false, hlMarked = false, scaleK = 1, exporting = false;
+const HL_ALPHA = 0.42, HL_W = 26;
+const inkOps = {}, inkRedo = {};
+const isTyping = e => e.target && (e.target.tagName === 'INPUT' || e.target.isContentEditable);
+[ctx, hctx, lctx].forEach(c => { c.scale(2, 2); c.lineCap = 'round'; c.lineJoin = 'round'; });
+let wbOpen = false, wbPage = 0, wbPages = 1;
+const curKey = () => wbOpen ? 'wb' + wbPage : idx;
+const opsOf = k => (inkOps[k] = inkOps[k] || []), redoOf = k => (inkRedo[k] = inkRedo[k] || []);
+let curStroke = null;
+
+function setTool(t) {
+    tool = t;
+    ink.classList.toggle('active', !!t);
+    ink.classList.toggle('erase', t === 'eraser');
+    [[penBtn, 'pen'], [hlBtn, 'hl'], [eraserBtn, 'eraser']].forEach(([b, n]) => { b.classList.toggle('on', t === n); b.setAttribute('aria-pressed', t === n); });
+    syncSwatches(); syncMenus();
+}
+function syncSwatches() {
+    const c = tool === 'hl' ? hlColour : penColour;
+    document.querySelectorAll('.swatch').forEach(x => x.classList.toggle('cur', x.dataset.c === c));
+}
+const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+const targetsOf = op => op.t === 'eraser' ? [ctx, hctx] : op.t === 'hl' ? [hctx] : [ctx];
+function brush(c, op) {
+    const er = op.t === 'eraser';
+    c.globalCompositeOperation = er ? 'destination-out' : 'source-over';
+    c.globalAlpha = op.t === 'hl' ? HL_ALPHA : 1;
+    c.strokeStyle = c.fillStyle = er ? '#000' : op.c;
+    c.lineWidth = op.w;
+}
+function unbrush(c) { c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1; }
+function dotOn(c, op) { const p = op.pts[0]; c.beginPath(); c.arc(p.x, p.y, op.w / 2, 0, Math.PI * 2); c.fill(); }
+function segOn(c, op, i) {
+    const P = op.pts, a = P[i - 1], m0 = i > 1 ? mid(P[i - 2], a) : a, m1 = mid(a, P[i]);
+    c.beginPath(); c.moveTo(m0.x, m0.y); c.quadraticCurveTo(a.x, a.y, m1.x, m1.y); c.stroke();
+}
+function tailOn(c, op) {
+    const P = op.pts, n = P.length; if (n < 2) return;
+    const m = mid(P[n - 2], P[n - 1]);
+    c.beginPath(); c.moveTo(m.x, m.y); c.lineTo(P[n - 1].x, P[n - 1].y); c.stroke();
+}
+function pathOn(c, op) {
+    const P = op.pts;
+    if (P.length < 2) { dotOn(c, op); return; }
+    c.beginPath(); c.moveTo(P[0].x, P[0].y);
+    for (let i = 1; i < P.length; i++) { const m = mid(P[i - 1], P[i]); c.quadraticCurveTo(P[i - 1].x, P[i - 1].y, m.x, m.y); }
+    c.lineTo(P[P.length - 1].x, P[P.length - 1].y); c.stroke();
+}
+function redrawInk() {
+    [ctx, hctx, lctx].forEach(c => { unbrush(c); c.clearRect(0, 0, 1280, 720); });
+    let mi = false, mh = false;
+    opsOf(curKey()).forEach(op => {
+        if (op.t === 'clear') { ctx.clearRect(0, 0, 1280, 720); hctx.clearRect(0, 0, 1280, 720); mi = mh = false; return; }
+        targetsOf(op).forEach(c => { brush(c, op); pathOn(c, op); unbrush(c); });
+        if (op.t === 'pen') mi = true;
+        if (op.t === 'hl') mh = true;
+    });
+    inkMarked = mi; hlMarked = mh;
+}
+function commit(op) { opsOf(curKey()).push(op); redoOf(curKey()).length = 0; }
+function clearInk() { if (!inkMarked && !hlMarked) return; commit({ t: 'clear' }); redrawInk(); }
+function saveInk() {}
+function loadInk() { redrawInk(); }
+function undoInk() { if (drawing) return; const o = opsOf(curKey()); if (!o.length) return; redoOf(curKey()).push(o.pop()); redrawInk(); }
+function redoInk() { if (drawing) return; const r = redoOf(curKey()); if (!r.length) return; opsOf(curKey()).push(r.pop()); redrawInk(); }
+function liveHL() { lctx.clearRect(0, 0, 1280, 720); brush(lctx, curStroke); pathOn(lctx, curStroke); unbrush(lctx); }
+function pt(e) { const r = ink.getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * 1280, y: (e.clientY - r.top) / r.height * 720 }; }
+ink.addEventListener('pointerdown', e => {
+    if (!tool) return;
+    drawing = true; ink.setPointerCapture(e.pointerId);
+    const w = tool === 'eraser' ? 26 / (scaleK * Z.z) : tool === 'hl' ? HL_W : 5;
+    curStroke = { t: tool, c: tool === 'hl' ? hlColour : penColour, w, pts: [pt(e)] };
+    if (tool === 'hl') { liveHL(); hlMarked = true; return; }
+    targetsOf(curStroke).forEach(c => { brush(c, curStroke); dotOn(c, curStroke); unbrush(c); });
+    if (tool === 'pen') inkMarked = true;
+});
+ink.addEventListener('pointermove', e => {
+    if (!drawing) return;
+    curStroke.pts.push(pt(e));
+    if (curStroke.t === 'hl') { liveHL(); return; }
+    targetsOf(curStroke).forEach(c => { brush(c, curStroke); segOn(c, curStroke, curStroke.pts.length - 1); unbrush(c); });
+});
+['pointerup', 'pointercancel'].forEach(t => ink.addEventListener(t, () => {
+    if (!drawing) return;
+    if (curStroke.t === 'hl') { lctx.clearRect(0, 0, 1280, 720); brush(hctx, curStroke); pathOn(hctx, curStroke); unbrush(hctx); }
+    else targetsOf(curStroke).forEach(c => { brush(c, curStroke); tailOn(c, curStroke); unbrush(c); });
+    commit(curStroke); curStroke = null; drawing = false;
+}));
+penBtn.onclick = () => setTool(tool === 'pen' ? null : 'pen');
+hlBtn.onclick = () => setTool(tool === 'hl' ? null : 'hl');
+eraserBtn.onclick = () => setTool(tool === 'eraser' ? null : 'eraser');
+$('#clear').onclick = clearInk;
+document.querySelectorAll('.swatch').forEach(b => b.onclick = () => {
+    if (tool === 'hl') hlColour = b.dataset.c; else { penColour = b.dataset.c; setTool('pen'); }
+    syncSwatches(); syncMenus();
+});
+
+/* ---------- hide UI ---------- */
+function setUI(hidden) { document.body.classList.toggle('noui', hidden); if (document.activeElement) document.activeElement.blur(); fit(); }
+$('#hideui').onclick = () => setUI(true);
+$('#showui').onclick = () => setUI(false);
+
+/* ---------- subtitles ---------- */
+const subsBtn = $('#subs');
+function toggleSubs() {
+    const off = document.body.classList.toggle('nosubs');
+    subsBtn.classList.toggle('on', !off);
+    subsBtn.setAttribute('aria-pressed', !off);
+    subsBtn.blur();
+}
+subsBtn.onclick = toggleSubs;
+
+
+/* ---------- floating timer ---------- */
+const ftEl = $('#ftimer'), ftV = $('#ftv'), ftF = $('#ftf'), ftStart = $('#ftstart'), ftBtn = $('#timerbtn');
+const FT = { total: 60, left: 60, iv: null, end: 0 };
+const ftFmt = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+function ftDraw() { ftV.textContent = ftFmt(Math.ceil(FT.left)); ftF.style.strokeDashoffset = (1 - FT.left / FT.total).toFixed(4); }
+function ftStop() { clearInterval(FT.iv); FT.iv = null; ftStart.textContent = 'Start'; }
+function ftBeep() {
+    try {
+        const ac = new (window.AudioContext || window.webkitAudioContext)();
+        [0, .35, .7].forEach(t => { const o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = 880; o.connect(g); g.connect(ac.destination);
+            g.gain.setValueAtTime(.0001, ac.currentTime + t); g.gain.exponentialRampToValueAtTime(.25, ac.currentTime + t + .02); g.gain.exponentialRampToValueAtTime(.0001, ac.currentTime + t + .25);
+            o.start(ac.currentTime + t); o.stop(ac.currentTime + t + .3); });
+    } catch (e) {}
+}
+function ftTick() {
+    FT.left = Math.max(0, (FT.end - performance.now()) / 1000);
+    ftDraw();
+    if (FT.left <= 0) { ftStop(); ftEl.classList.add('done'); ftBeep(); }
+}
+function ftSet(sec) { ftStop(); ftEl.classList.remove('done'); FT.total = FT.left = sec; ftDraw(); }
+function ftToggleRun() {
+    if (FT.iv) { ftTick(); ftStop(); return; }
+    if (FT.left <= 0) ftSet(FT.total);
+    ftEl.classList.remove('done');
+    FT.end = performance.now() + FT.left * 1000;
+    FT.iv = setInterval(ftTick, 200); ftStart.textContent = 'Pause';
+}
+function ftAdj(d) {
+    const nl = Math.max(10, Math.round(FT.left) + d);
+    const diff = nl - FT.left;
+    FT.left = nl; FT.total = Math.max(nl, FT.total + d, 10);
+    if (FT.iv) FT.end += diff * 1000;
+    ftEl.classList.remove('done'); ftDraw();
+}
+function ftShow(on) {
+    ftEl.hidden = !on; ftBtn.setAttribute('aria-pressed', on); ftBtn.classList.toggle('on', on);
+    if (!on) ftStop();
+}
+ftEl.querySelectorAll('[data-set]').forEach(b => b.onclick = () => ftSet(+b.dataset.set));
+ftEl.querySelectorAll('[data-adj]').forEach(b => b.onclick = () => ftAdj(+b.dataset.adj));
+ftStart.onclick = ftToggleRun;
+$('#ftreset').onclick = () => ftSet(FT.total);
+$('#ftclose').onclick = () => ftShow(false);
+$('#ftsize').onclick = () => { ftEl.classList.toggle('big'); ftClamp(); };
+ftBtn.onclick = () => ftShow(ftEl.hidden);
+ftEl.addEventListener('click', e => { if (e.target.closest('button')) e.target.closest('button').blur(); });
+function ftClamp() {
+    const r = ftEl.getBoundingClientRect();
+    ftEl.style.left = Math.max(0, Math.min(window.innerWidth - r.width, r.left)) + 'px';
+    ftEl.style.top = Math.max(0, Math.min(window.innerHeight - r.height, r.top)) + 'px';
+}
+(() => {
+    const h = $('#fth'); let dx = 0, dy = 0, drag = false;
+    h.addEventListener('pointerdown', e => { if (e.target.closest('button')) return; drag = true; const r = ftEl.getBoundingClientRect(); dx = e.clientX - r.left; dy = e.clientY - r.top; h.setPointerCapture(e.pointerId); });
+    h.addEventListener('pointermove', e => { if (!drag) return; ftEl.style.left = (e.clientX - dx) + 'px'; ftEl.style.top = (e.clientY - dy) + 'px'; ftClamp(); });
+    ['pointerup', 'pointercancel'].forEach(t => h.addEventListener(t, () => drag = false));
+    window.addEventListener('resize', () => { if (!ftEl.hidden) ftClamp(); });
+})();
+ftDraw();
+
+
+/* ---------- zoom, lock and spotlight ---------- */
+const zoomer = $('#zoomer'), spotEl = $('#spot'), zoomBtn = $('#zoombtn'), lockBtn = $('#lockbtn'), spotBtn = $('#spotbtn');
+const ZW = 1280, ZH = 714;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const mouse = { x: ZW / 2, y: ZH / 2 };
+const Z = { on: false, locked: false, level: 2, z: 1, x: ZW / 2, y: ZH / 2, lx: 0, ly: 0 };
+const SP = { on: false, r: 150, cr: 150, x: ZW / 2, y: ZH / 2 };
+let zraf = 0, zlast = 0;
+
+function applyZoom() {
+    if (Z.z <= 1.0005) zoomer.style.transform = '';
+    else zoomer.style.transform = `translate(${(Z.x * (1 - Z.z)).toFixed(2)}px, ${(Z.y * (1 - Z.z)).toFixed(2)}px) scale(${Z.z.toFixed(4)})`;
+}
+function applySpot() {
+    const r = SP.cr;
+    spotEl.style.background = `radial-gradient(circle at ${SP.x.toFixed(1)}px ${SP.y.toFixed(1)}px, rgba(27,31,69,0) ${(r - 26).toFixed(1)}px, rgba(27,31,69,.74) ${(r + 26).toFixed(1)}px)`;
+}
+function zoomFrame(n) {
+    const dt = zlast ? Math.min(64, n - zlast) : 16; zlast = n;
+    const a = 1 - Math.exp(-dt / 90), b = 1 - Math.exp(-dt / 45);
+    const tz = Z.on ? Z.level : 1, tx = Z.locked ? Z.lx : mouse.x, ty = Z.locked ? Z.ly : mouse.y;
+    Z.z += (tz - Z.z) * a; Z.x += (tx - Z.x) * a; Z.y += (ty - Z.y) * a;
+    const zDone = Math.abs(tz - Z.z) < 0.0008 && Math.abs(tx - Z.x) < 0.08 && Math.abs(ty - Z.y) < 0.08;
+    if (zDone) { Z.z = tz; Z.x = tx; Z.y = ty; }
+    applyZoom();
+    let sDone = true;
+    if (SP.on) {
+        SP.x += (mouse.x - SP.x) * b; SP.y += (mouse.y - SP.y) * b; SP.cr += (SP.r - SP.cr) * a;
+        sDone = Math.abs(mouse.x - SP.x) < 0.08 && Math.abs(mouse.y - SP.y) < 0.08 && Math.abs(SP.r - SP.cr) < 0.08;
+        if (sDone) { SP.x = mouse.x; SP.y = mouse.y; SP.cr = SP.r; }
+        applySpot();
+    }
+    if (zDone && sDone) { zraf = 0; zlast = 0; } else zraf = requestAnimationFrame(zoomFrame);
+}
+function kick() { if (!zraf) { zlast = 0; zraf = requestAnimationFrame(zoomFrame); } }
+
+function setZoom(on) {
+    Z.on = on;
+    if (!on) setLock(false);
+    zoomBtn.classList.toggle('on', on); zoomBtn.setAttribute('aria-pressed', on);
+    lockBtn.disabled = !on;
+    syncMenus(); syncTip();
+    kick();
+}
+function setLock(on) {
+    if (on && !Z.on) return;
+    Z.locked = on;
+    if (on) { Z.lx = Z.x; Z.ly = Z.y; }
+    lockBtn.classList.toggle('on', on); lockBtn.setAttribute('aria-pressed', on);
+    syncTip();
+    kick();
+}
+const ztip = $('#ztip');
+function syncTip() {
+    ztip.classList.toggle('on', Z.on);
+    if (!Z.on) return;
+    ztip.innerHTML = `<span class="ui-lv">${Z.level.toFixed(1)}&times;</span><span><kbd>Z</kbd>Zoom out</span><span><kbd>L</kbd>${Z.locked ? 'Unlock' : 'Lock'}</span><span class="ui-dim">Scroll to adjust</span>`;
+}
+function zoomReset() {
+    Z.on = false; setLock(false); setZoom(false);
+    Z.z = 1; Z.x = mouse.x; Z.y = mouse.y; applyZoom();
+}
+function setSpot(on) {
+    if (on && !SP.on) { SP.x = mouse.x; SP.y = mouse.y; SP.cr = SP.r; applySpot(); }
+    SP.on = on;
+    spotEl.classList.toggle('on', on);
+    spotBtn.classList.toggle('on', on); spotBtn.setAttribute('aria-pressed', on);
+    syncMenus();
+    kick();
+}
+
+window.addEventListener('pointermove', e => {
+    const r = stage.getBoundingClientRect(), k = r.width / 1280;
+    mouse.x = clamp((e.clientX - r.left) / k, 0, ZW);
+    mouse.y = clamp((e.clientY - r.top) / k - 6, 0, ZH);
+    if (Z.on || SP.on || Z.z > 1) kick();
+});
+window.addEventListener('wheel', e => {
+    if (!Z.on && !SP.on) return;
+    e.preventDefault();
+    const d = clamp(e.deltaY || e.deltaX, -200, 200);
+    if (SP.on && (e.shiftKey || !Z.on)) SP.r = clamp(SP.r * Math.exp(-d * 0.0015), 60, 420);
+    else { Z.level = clamp(Z.level * Math.exp(-d * 0.0015), 1.25, 5); syncTip(); }
+    kick();
+}, { passive: false });
+zoomBtn.onclick = () => { setZoom(!Z.on); zoomBtn.blur(); };
+lockBtn.onclick = () => { setLock(!Z.locked); lockBtn.blur(); };
+spotBtn.onclick = () => { setSpot(!SP.on); spotBtn.blur(); };
+
+
+/* ---------- engagement badges ---------- */
+const UI_ICON = {
+    talk: '<svg viewBox="0 0 24 24"><path d="M2 4h12v8H8l-4 3v-3H2z"/><path d="M17 8h5v8h-2v3l-3-3h-6v-2"/></svg>',
+    arrow: '<svg class="ui-ar" viewBox="0 0 24 24"><path d="M3 12h16M13 6l6 6-6 6"/></svg>',
+    person: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>',
+    pencil: '<svg viewBox="0 0 24 24"><path d="M4 20l1.2-4.8L16 4.4l3.6 3.6L8.8 18.8z"/><path d="M13.6 6.8l3.6 3.6"/></svg>',
+    vol: '<svg viewBox="0 0 24 24"><circle cx="8.5" cy="7.5" r="3.2"/><path d="M2.5 21c0-3.7 2.7-6.6 6-6.6 1.5 0 2.8.5 3.8 1.4"/><path d="M12.3 15.8L18 6"/><path d="M16.4 5.2l2.2-2.7 1.7 3.3"/></svg>',
+    hand: '<svg viewBox="0 0 24 24"><path d="M18 11V6a2 2 0 0 0-4 0"/><path d="M14 10V4a2 2 0 0 0-4 0v2"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.9-6-2.3l-3.6-3.6a2 2 0 0 1 2.8-2.8L7 15"/></svg>'
+};
+const ENGAGE = {
+    tt: { cls: 'ui-pk', html: `${UI_ICON.talk}<span>Turn &amp; talk</span>` },
+    cc: { cls: 'ui-pk', html: `${UI_ICON.talk}<span>Turn &amp; talk</span>${UI_ICON.arrow}${UI_ICON.person}<span>Cold call</span>` },
+    sj: { cls: 'ui-nv', html: `${UI_ICON.pencil}<span>Stop &amp; jot</span>` },
+    fv: { cls: 'ui-nv', html: `${UI_ICON.hand}<span>Finger vote</span>` },
+    vs: { cls: 'ui-pk', html: `${UI_ICON.vol}<span>Volunteer to share</span>` }
+};
+const ENG_KEYS = ['tt', 'cc', 'sj', 'fv', 'vs'];
+
+/* header CFU badge: set cfu (tt, cc, sj, fv or vs), time (seconds) and sc (['SC1']) on a scene */
+const uiCfu = $('#ui-cfu'), UI_CLOCK = '<svg viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 10v3.5l2.5 2M9.5 2.5h5"/></svg>';
+let uiCfuTime = 0;
+function uiSetCfu(k, t) {
+    uiCfu.className = 'ui-cfu'; uiCfu.innerHTML = ''; uiCfuTime = 0;
+    uiCfu.removeAttribute('title'); uiCfu.removeAttribute('aria-label'); uiCfu.removeAttribute('tabindex');
+    if (!k || !ENGAGE[k]) return;
+    void uiCfu.offsetWidth;
+    uiCfuTime = t || 0;
+    uiCfu.className = 'ui-cfu ' + ENGAGE[k].cls + ' ui-cfuin' + (uiCfuTime ? ' ui-click' : '');
+    uiCfu.innerHTML = ENGAGE[k].html + (uiCfuTime ? `<span class="ui-ct">${UI_CLOCK}${ftFmt(uiCfuTime)}</span>` : '');
+    if (uiCfuTime) { uiCfu.tabIndex = 0; uiCfu.title = 'Start a ' + ftFmt(uiCfuTime) + ' timer'; uiCfu.setAttribute('aria-label', 'Open timer at ' + ftFmt(uiCfuTime)); }
+}
+function uiSetSC(list) { $('#ui-sctags').innerHTML = (list || []).map(x => `<span>${x}</span>`).join(''); }
+function uiCfuOpen() { if (!uiCfuTime) return; ftSet(uiCfuTime); ftShow(true); uiCfu.blur(); }
+uiCfu.addEventListener('click', uiCfuOpen);
+uiCfu.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); uiCfuOpen(); } });
+const blayer = $('#blayer'), badgeStore = {};
+const sceneBadges = () => { const k = curKey(); return (badgeStore[k] = badgeStore[k] || []); };
+
+function placeBadge(b, e) {
+    b.x = clamp(b.x, 0, 1280 - e.offsetWidth); b.y = clamp(b.y, 0, 714 - e.offsetHeight);
+    e.style.left = b.x + 'px'; e.style.top = b.y + 'px';
+}
+function uiBadgeEl(b, animate) {
+    const e = el('div', 'ui-fb ' + ENGAGE[b.k].cls + (b.big ? ' ui-big' : '') + (animate ? ' ui-in' : ''), ENGAGE[b.k].html);
+    const x = el('button', 'ui-x', '<svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg>');
+    x.type = 'button'; x.setAttribute('aria-label', 'Remove badge');
+    e.appendChild(x);
+    e.style.left = b.x + 'px'; e.style.top = b.y + 'px';
+    x.addEventListener('pointerdown', ev => ev.stopPropagation());
+    x.onclick = () => { const arr = sceneBadges(), i = arr.indexOf(b); if (i > -1) arr.splice(i, 1); e.remove(); };
+    let drag = false, sx = 0, sy = 0, ox = 0, oy = 0, lastTap = 0, moved = false;
+    e.addEventListener('pointerdown', ev => {
+        if (ev.button !== 0) return;
+        ev.preventDefault();
+        drag = true; moved = false; sx = ev.clientX; sy = ev.clientY; ox = b.x; oy = b.y;
+        e.setPointerCapture(ev.pointerId); e.classList.add('ui-dragging'); e.classList.remove('ui-in');
+    });
+    e.addEventListener('pointermove', ev => {
+        if (!drag) return;
+        if (Math.abs(ev.clientX - sx) + Math.abs(ev.clientY - sy) > 4) moved = true;
+        b.x = ox + (ev.clientX - sx) / scaleK; b.y = oy + (ev.clientY - sy) / scaleK; placeBadge(b, e);
+    });
+    ['pointerup', 'pointercancel'].forEach(t => e.addEventListener(t, ev => {
+        if (!drag) return;
+        drag = false; e.classList.remove('ui-dragging');
+        if (t === 'pointerup' && !moved) {
+            const n = performance.now();
+            if (n - lastTap < 350) {
+                const cx = b.x + e.offsetWidth / 2, cy = b.y + e.offsetHeight / 2;
+                b.big = !b.big; e.classList.toggle('ui-big', b.big);
+                b.x = cx - e.offsetWidth / 2; b.y = cy - e.offsetHeight / 2; placeBadge(b, e);
+                lastTap = 0;
+            } else lastTap = n;
+        }
+    }));
+    return e;
+}
+function renderBadges() {
+    if (blayer.contains(document.activeElement)) document.activeElement.blur();
+    blayer.innerHTML = '';
+    (badgeStore[curKey()] || []).forEach(b => blayer.appendChild(uiBadgeEl(b)));
+    (textStore[curKey()] || []).forEach(t => blayer.appendChild(textEl(t)));
+    renderImages();
+}
+function addBadge(k) {
+    const arr = sceneBadges(), b = { k, x: 0, y: 0, big: false }, e = uiBadgeEl(b, true);
+    blayer.appendChild(e);
+    b.x = 1216 - e.offsetWidth; b.y = 146 + (arr.length % 6) * 72;
+    placeBadge(b, e); arr.push(b);
+}
+function clearBadges() { badgeStore[curKey()] = []; blayer.querySelectorAll('.ui-fb').forEach(n => n.remove()); }
+document.querySelectorAll('.ui-mi.ui-eng').forEach(b => b.onclick = () => addBadge(b.dataset.k));
+$('#engclear').onclick = clearBadges;
+
+
+/* ---------- floating text boxes ---------- */
+const textStore = {};
+const sceneTexts = () => { const k = curKey(); return (textStore[k] = textStore[k] || []); };
+const TB_STY = ['ui-wt', 'ui-nv', 'ui-pk'], TB_SZ = [24, 32, 44];
+function textEl(t, fresh) {
+    const e = el('div', 'ui-tbox ' + TB_STY[t.sty] + (fresh ? ' ui-in' : ''));
+    const body = el('div', 'ui-tbt'); body.textContent = t.text; body.dataset.ph = 'Type a prompt';
+    body.style.fontSize = TB_SZ[t.sz] + 'px';
+    const bar = el('div', 'ui-tbbar');
+    const bSty = el('button', 'ui-tbb ui-sty', '<span></span>'), bSz = el('button', 'ui-tbb', 'A'),
+          bX = el('button', 'ui-tbb', '<svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg>');
+    [[bSty, 'Change colour'], [bSz, 'Change text size'], [bX, 'Remove text box']].forEach(([b, l]) => { b.type = 'button'; b.setAttribute('aria-label', l); b.addEventListener('pointerdown', ev => { ev.stopPropagation(); ev.preventDefault(); }); });
+    bar.append(bSty, bSz, bX); e.append(body, bar);
+    e.style.left = t.x + 'px'; e.style.top = t.y + 'px';
+    const place = () => placeBadge(t, e);
+    const remove = () => { const arr = sceneTexts(), i = arr.indexOf(t); if (i > -1) arr.splice(i, 1); e.remove(); };
+    bSty.onclick = () => { e.classList.remove(TB_STY[t.sty]); t.sty = (t.sty + 1) % TB_STY.length; e.classList.add(TB_STY[t.sty]); };
+    bSz.onclick = () => { t.sz = (t.sz + 1) % TB_SZ.length; body.style.fontSize = TB_SZ[t.sz] + 'px'; place(); };
+    bX.onclick = remove;
+    const edit = () => {
+        e.classList.add('ui-editing');
+        try { body.contentEditable = 'plaintext-only'; } catch (err) { body.contentEditable = 'true'; }
+        if (body.contentEditable !== 'plaintext-only') body.contentEditable = 'true';
+        body.focus();
+        const r = document.createRange(); r.selectNodeContents(body); r.collapse(false);
+        const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+    };
+    const finish = () => {
+        if (!e.classList.contains('ui-editing')) return;
+        e.classList.remove('ui-editing'); body.contentEditable = 'false';
+        t.text = body.innerText.replace(/^\s+|\s+$/g, '');
+        if (!t.text) { remove(); return; }
+        body.textContent = t.text; place();
+    };
+    e.edit = edit;
+    body.addEventListener('blur', finish);
+    body.addEventListener('input', () => { t.text = body.innerText; place(); });
+    body.addEventListener('keydown', ev => {
+        if (ev.key === 'Escape' || (ev.key === 'Enter' && !ev.shiftKey)) { ev.preventDefault(); body.blur(); }
+    });
+    body.addEventListener('paste', ev => {
+        ev.preventDefault();
+        document.execCommand('insertText', false, (ev.clipboardData || window.clipboardData).getData('text/plain'));
+    });
+    let drag = false, sx = 0, sy = 0, ox = 0, oy = 0, lastTap = 0, moved = false;
+    e.addEventListener('pointerdown', ev => {
+        if (ev.button !== 0 || e.classList.contains('ui-editing')) return;
+        ev.preventDefault();
+        drag = true; moved = false; sx = ev.clientX; sy = ev.clientY; ox = t.x; oy = t.y;
+        e.setPointerCapture(ev.pointerId); e.classList.add('ui-dragging'); e.classList.remove('ui-in');
+    });
+    e.addEventListener('pointermove', ev => {
+        if (!drag) return;
+        if (Math.abs(ev.clientX - sx) + Math.abs(ev.clientY - sy) > 4) moved = true;
+        t.x = ox + (ev.clientX - sx) / scaleK; t.y = oy + (ev.clientY - sy) / scaleK; place();
+    });
+    ['pointerup', 'pointercancel'].forEach(type => e.addEventListener(type, () => {
+        if (!drag) return;
+        drag = false; e.classList.remove('ui-dragging');
+        if (type === 'pointerup' && !moved) {
+            const n = performance.now();
+            if (n - lastTap < 350) { lastTap = 0; edit(); } else lastTap = n;
+        }
+    }));
+    return e;
+}
+function addText(atMouse) {
+    const t = { text: '', x: 0, y: 0, sty: 0, sz: 1 }, e = textEl(t, true);
+    blayer.appendChild(e);
+    if (atMouse) { t.x = mouse.x; t.y = mouse.y; }
+    else { const n = sceneTexts().length % 5; t.x = 640 - e.offsetWidth / 2 + n * 24; t.y = 300 - e.offsetHeight / 2 + n * 24; }
+    placeBadge(t, e); sceneTexts().push(t);
+    e.edit();
+}
+$('#textbtn').onclick = () => addText(false);
+
+/* ---------- pasted images ---------- */
+const ilayer = $('#ilayer'), imgStore = {}, imgFile = $('#imgfile');
+const sceneImgs = () => { const k = curKey(); return (imgStore[k] = imgStore[k] || []); };
+let imgSel = null, ptrIn = false, ptrX = 0, ptrY = 0;
+const IMG_MAX = 1920;
+stage.addEventListener('pointerenter', () => ptrIn = true);
+stage.addEventListener('pointerleave', () => ptrIn = false);
+window.addEventListener('pointermove', e => { ptrX = e.clientX; ptrY = e.clientY; }, true);
+function layerPt(cx, cy) { const r = ilayer.getBoundingClientRect(); return { x: (cx - r.left) / r.width * 1280, y: (cy - r.top) / r.height * 714, k: r.width / 1280 }; }
+function selectImg(o) {
+    imgSel = o;
+    ilayer.querySelectorAll('.ui-img').forEach(n => n.classList.toggle('ui-sel', !!o && n.img === o));
+}
+function placeImg(o, e) {
+    o.w = clamp(o.w, 40, 1280); o.h = o.w / o.r;
+    if (o.h > 714) { o.h = 714; o.w = o.h * o.r; }
+    o.x = clamp(o.x, -o.w + 40, 1240); o.y = clamp(o.y, -o.h + 40, 674);
+    Object.assign(e.style, { left: o.x + 'px', top: o.y + 'px', width: o.w + 'px', height: o.h + 'px' });
+}
+function removeImg(o) {
+    const arr = sceneImgs(), i = arr.indexOf(o); if (i > -1) arr.splice(i, 1);
+    const n = [...ilayer.children].find(n => n.img === o); if (n) n.remove();
+    if (imgSel === o) imgSel = null;
+}
+function imgEl(o, fresh) {
+    const e = el('div', 'ui-img' + (fresh ? ' ui-in' : '') + (imgSel === o ? ' ui-sel' : ''));
+    e.img = o;
+    const im = el('img'); im.src = o.src; im.alt = ''; im.draggable = false;
+    const x = el('button', 'ui-imx', '<svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg>');
+    x.type = 'button'; x.setAttribute('aria-label', 'Remove image');
+    const rz = el('span', 'ui-imr'); rz.setAttribute('aria-hidden', 'true');
+    e.append(im, x, rz); placeImg(o, e);
+    x.addEventListener('pointerdown', ev => ev.stopPropagation());
+    x.onclick = () => removeImg(o);
+    let mode = null, sx = 0, sy = 0, ox = 0, oy = 0, ow = 0, k = 1;
+    const start = (ev, m) => {
+        if (ev.button !== 0) return;
+        ev.preventDefault(); ev.stopPropagation();
+        mode = m; sx = ev.clientX; sy = ev.clientY; ox = o.x; oy = o.y; ow = o.w; k = layerPt(0, 0).k;
+        e.setPointerCapture(ev.pointerId); e.classList.remove('ui-in');
+        if (m === 'move') e.classList.add('ui-dragging');
+        const arr = sceneImgs(), i = arr.indexOf(o);
+        if (i > -1 && i < arr.length - 1) { arr.splice(i, 1); arr.push(o); ilayer.appendChild(e); }
+        selectImg(o);
+    };
+    e.addEventListener('pointerdown', ev => start(ev, 'move'));
+    rz.addEventListener('pointerdown', ev => start(ev, 'size'));
+    e.addEventListener('pointermove', ev => {
+        if (!mode) return;
+        const dx = (ev.clientX - sx) / k, dy = (ev.clientY - sy) / k;
+        if (mode === 'move') { o.x = ox + dx; o.y = oy + dy; }
+        else o.w = Math.max(ow + dx, ow + dy * o.r);
+        placeImg(o, e);
+    });
+    ['pointerup', 'pointercancel'].forEach(t => e.addEventListener(t, () => { mode = null; e.classList.remove('ui-dragging'); }));
+    return e;
+}
+function renderImages() {
+    ilayer.innerHTML = '';
+    if (imgSel && !sceneImgs().includes(imgSel)) imgSel = null;
+    (imgStore[curKey()] || []).forEach(o => ilayer.appendChild(imgEl(o)));
+}
+function readImage(file) {
+    return new Promise((res, rej) => {
+        const url = URL.createObjectURL(file), im = new Image();
+        im.onload = () => {
+            const nw = im.naturalWidth, nh = im.naturalHeight, sc = Math.min(1, IMG_MAX / Math.max(nw, nh));
+            const cv = document.createElement('canvas');
+            cv.width = Math.max(1, Math.round(nw * sc)); cv.height = Math.max(1, Math.round(nh * sc));
+            cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height);
+            URL.revokeObjectURL(url);
+            const keepAlpha = /png|gif|webp|svg/.test(file.type);
+            res({ src: cv.toDataURL(keepAlpha ? 'image/png' : 'image/jpeg', .92), nw, nh });
+        };
+        im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Could not read image')); };
+        im.src = url;
+    });
+}
+async function addImages(files, at) {
+    const list = [...files].filter(f => f && f.type && f.type.startsWith('image/'));
+    for (let n = 0; n < list.length; n++) {
+        let d; try { d = await readImage(list[n]); } catch (err) { continue; }
+        const r = d.nw / d.nh, w = Math.min(560, 380 * r, d.nw), h = w / r;
+        const c = at || { x: 640, y: 357 }, off = n * 28 + (at ? 0 : (sceneImgs().length % 5) * 24);
+        const o = { src: d.src, r, w, h, x: c.x - w / 2 + off, y: c.y - h / 2 + off };
+        sceneImgs().push(o);
+        const e = imgEl(o, true); ilayer.appendChild(e); selectImg(o);
+    }
+}
+document.addEventListener('paste', e => {
+    if (isTyping(e) || modal) return;
+    const files = [...((e.clipboardData && e.clipboardData.items) || [])].filter(i => i.kind === 'file' && i.type.startsWith('image/')).map(i => i.getAsFile());
+    if (!files.length) return;
+    e.preventDefault();
+    closeMenus(); setTool(null);
+    addImages(files, ptrIn ? layerPt(ptrX, ptrY) : null);
+});
+const dropEl = el('div', 'ui-drop'); stage.appendChild(dropEl);
+const hasFiles = e => e.dataTransfer && [...e.dataTransfer.types].includes('Files');
+let dragDepth = 0;
+window.addEventListener('dragenter', e => { if (!hasFiles(e)) return; dragDepth++; dropEl.classList.add('on'); });
+window.addEventListener('dragleave', e => { if (!hasFiles(e)) return; if (--dragDepth <= 0) { dragDepth = 0; dropEl.classList.remove('on'); } });
+window.addEventListener('dragover', e => { if (hasFiles(e)) e.preventDefault(); });
+window.addEventListener('drop', e => {
+    if (!hasFiles(e)) return;
+    e.preventDefault(); dragDepth = 0; dropEl.classList.remove('on');
+    if (modal) return;
+    setTool(null);
+    addImages(e.dataTransfer.files, stage.contains(e.target) ? layerPt(e.clientX, e.clientY) : null);
+});
+$('#imgbtn').onclick = () => imgFile.click();
+imgFile.addEventListener('change', () => { addImages(imgFile.files); imgFile.value = ''; });
+document.addEventListener('pointerdown', e => { if (imgSel && !e.target.closest('.ui-img')) selectImg(null); });
+document.addEventListener('keydown', e => {
+    if (!imgSel || isTyping(e) || modal) return;
+    if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); removeImg(imgSel); }
+    if (e.key === 'Escape') selectImg(null);
+});
+
+/* ---------- menus ---------- */
+const menus = [...document.querySelectorAll('.ui-menu')], engMenu = $('#engmenu');
+function closeMenus(except) {
+    menus.forEach(m => { if (m !== except) { m.classList.remove('ui-open'); m.querySelector('.ui-mt').setAttribute('aria-expanded', 'false'); } });
+}
+function toggleMenu(m, force) {
+    const open = force !== undefined ? force : !m.classList.contains('ui-open');
+    closeMenus(m); m.classList.toggle('ui-open', open); m.querySelector('.ui-mt').setAttribute('aria-expanded', open);
+}
+menus.forEach(m => {
+    m.querySelector('.ui-mt').addEventListener('click', e => { toggleMenu(m); e.currentTarget.blur(); });
+    m.querySelector('.ui-pop').addEventListener('click', e => { const b = e.target.closest('button'); if (b && !b.disabled) { b.blur(); closeMenus(); } });
+});
+document.addEventListener('pointerdown', e => { if (!e.target.closest('.ui-menu')) closeMenus(); });
+function syncMenus() {
+    $('#drawmenu .ui-mt').classList.toggle('on', !!tool);
+    $('#focusmenu .ui-mt').classList.toggle('on', Z.on || SP.on);
+    $('#pdot').style.background = tool === 'hl' ? hlColour : penColour;
+}
+
+/* ---------- fullscreen ---------- */
+const fsBtn = $('#fsbtn'), fsIc = $('#fsic');
+const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
+function toggleFS() {
+    if (fsEl()) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); return; }
+    const r = document.documentElement, f = r.requestFullscreen || r.webkitRequestFullscreen;
+    if (!f) return;
+    const p = f.call(r); if (p && p.catch) p.catch(() => {});
+}
+function syncFS() {
+    const on = !!fsEl();
+    fsBtn.classList.toggle('ui-isfs', on); fsBtn.classList.remove('ui-nudge');
+    fsBtn.querySelector('.bl').textContent = on ? 'Exit fullscreen' : 'Fullscreen';
+    fsIc.setAttribute('d', on ? 'M9 4v5H4M15 4v5h5M20 15h-5v5M4 15h5v5' : 'M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5');
+    setUI(on);
+    requestAnimationFrame(fit);
+}
+['fullscreenchange', 'webkitfullscreenchange'].forEach(t => document.addEventListener(t, syncFS));
+if (!(document.fullscreenEnabled || document.webkitFullscreenEnabled)) fsBtn.hidden = true;
+else fsBtn.classList.add('ui-nudge');
+fsBtn.onclick = () => { toggleFS(); fsBtn.blur(); };
+
+/* ---------- whiteboard ---------- */
+const wbBtn = $('#wbbtn'), wbl = $('#wbl');
+let wbPausedAt = 0;
+function loadSurface() { redrawInk(); renderBadges(); }
+function syncWB() {
+    $('#wbpg').textContent = `Page ${wbPage + 1} of ${wbPages}`;
+    wbl.innerHTML = `Whiteboard&nbsp;&nbsp;<b>${wbPage + 1}</b> / ${wbPages}`;
+    $('#wbprev').disabled = wbPage === 0; $('#wbnext').disabled = wbPage >= wbPages - 1;
+    wbBtn.classList.toggle('on', wbOpen); wbBtn.setAttribute('aria-pressed', wbOpen);
+}
+function toggleWB() {
+    if (document.activeElement) document.activeElement.blur();
+    closeMenus(); zoomReset();
+    if (!wbOpen) {
+        wbPausedAt = now(); clearTimers(); setProgress(wbPausedAt, wbPausedAt);
+        wbOpen = true;
+    } else {
+        wbOpen = false;
+    }
+    document.body.classList.toggle('ui-wb', wbOpen);
+    loadSurface(); syncWB(); fit();
+    if (!wbOpen) {
+        if (autoplay) play(wbPausedAt, dur(), () => { if (idx < scenes.length - 1) go(idx + 1); });
+        else play(wbPausedAt, beatEnd(beat));
+    }
+}
+function wbGo(p) {
+    p = clamp(p, 0, wbPages - 1); if (p === wbPage) return;
+    if (document.activeElement) document.activeElement.blur();
+    zoomReset(); wbPage = p; loadSurface(); syncWB();
+}
+function wbNew() { wbPages++; wbGo(wbPages - 1); }
+wbBtn.onclick = () => { toggleWB(); wbBtn.blur(); };
+$('#wbprev').onclick = () => wbGo(wbPage - 1);
+$('#wbnext').onclick = () => wbGo(wbPage + 1);
+$('#wbnew').onclick = () => { wbNew(); $('#wbnew').blur(); };
+syncWB();
+
+/* ---------- overlays: overview, shortcuts, blackout ---------- */
+const modals = { ovw: $('#ovw'), keys: $('#keys'), blk: $('#blk') };
+let modal = null;
+function openModal(n) {
+    if (modal) closeModal();
+    closeMenus();
+    if (document.activeElement) document.activeElement.blur();
+    if (n === 'blk' && autoplay) toggleAuto();
+    if (n === 'ovw') renderOverview();
+    modal = n; modals[n].hidden = false;
+    requestAnimationFrame(() => requestAnimationFrame(() => modals[n].classList.add('on')));
+    if (n === 'ovw') { const c = modals.ovw.querySelector('.ui-ovc.cur'); if (c) c.scrollIntoView({ block: 'center' }); }
+}
+function closeModal() {
+    if (!modal) return;
+    const m = modals[modal]; m.classList.remove('on'); m.hidden = true; modal = null;
+}
+window.addEventListener('keydown', e => {
+    if (!modal || /^F\d+$/.test(e.key)) return;
+    const k = e.key.toLowerCase();
+    e.preventDefault(); e.stopImmediatePropagation();
+    if (k === 'escape' || (modal === 'blk' && k === 'k') || (modal === 'ovw' && k === 'g') || (modal === 'keys' && (k === '?' || k === '/'))) closeModal();
+}, true);
+modals.blk.onclick = closeModal;
+modals.keys.addEventListener('click', e => { if (!e.target.closest('.ui-kcard') || e.target.closest('#keysclose')) closeModal(); });
+modals.ovw.addEventListener('click', e => { if (!e.target.closest('.ui-ovc')) closeModal(); });
+$('#blkbtn').onclick = () => openModal('blk');
+$('#keysbtn').onclick = () => openModal('keys');
+$('#ovbtn').onclick = () => { openModal('ovw'); };
+
+const thumbs = [];
+function renderOverview() {
+    const g = $('#ovg'); g.innerHTML = '';
+    scenes.forEach((sc, i) => {
+        const c = el('button', 'ui-ovc' + (i === idx ? ' cur' : ''));
+        c.setAttribute('aria-label', 'Go to scene ' + (i + 1));
+        const w = el('div', 'ui-thw'); if (thumbs[i]) w.appendChild(thumbs[i].cloneNode(true));
+        c.append(w, el('div', 'ui-lb', `<span class="ui-n">${i + 1}</span><span class="ui-t">${sc.title}</span>`));
+        c.onclick = () => { closeModal(); if (i !== idx) go(i); };
+        g.appendChild(c);
+    });
+}
+
+const SHORTCUTS = [
+    ['Slides', [['&rarr;', 'Next'], ['&larr;', 'Previous'], ['R', 'Replay scene'], ['Space', 'Autoplay'], ['G', 'Slide overview']]],
+    ['Draw', [['P', 'Pen'], ['Y', 'Highlighter'], ['E', 'Eraser'], ['B', 'Text box'], ['C', 'Clear ink'], ['Ctrl|Z', 'Undo'], ['Ctrl|Shift|Z', 'Redo'], ['Ctrl|V', 'Paste image'], ['Del', 'Delete selected image']]],
+    ['Focus', [['Z', 'Zoom (scroll to adjust)'], ['L', 'Lock zoom'], ['H', 'Spotlight (scroll to resize)'], ['K', 'Blackout']]],
+    ['Engage', [['M', 'Engagement methods'], ['1|5', 'Choose a method'], ['T', 'Timer']]],
+    ['Whiteboard', [['W', 'Open or close'], ['&larr;|&rarr;', 'Change page'], ['N', 'New page']]],
+    ['View', [['F', 'Fullscreen'], ['U', 'Hide or show UI'], ['S', 'Subtitles'], ['?', 'Shortcuts'], ['Esc', 'Close or stop tool']]]
+];
+$('#kgrid').innerHTML = SHORTCUTS.map(([h, rows]) => `<div class="ui-kgrp"><h3>${h}</h3>${rows.map(([k, l]) => {
+    const keys = k === '1|5' ? '<kbd>1</kbd>to<kbd>5</kbd>' : k.split('|').map(x => `<kbd>${x}</kbd>`).join(k.includes('Ctrl') ? '+' : '');
+    return `<div class="ui-krow"><span class="ui-ks">${keys}</span><span>${l}</span></div>`;
+}).join('')}</div>`).join('');
+
+/* ---------- export PDF ---------- */
+const printBox = $('#print');
+let snapN = 0;
+function snapStage(boardOnly) {
+    stage.querySelectorAll('input').forEach(n => n.setAttribute('value', n.value));
+    const page = stage.cloneNode(true), imgs = [];
+    page.removeAttribute('id'); page.removeAttribute('style'); page.classList.remove('instant');
+    const sfx = '-s' + (++snapN), ren = {};
+    page.querySelectorAll('[id]').forEach(n => { if (n.closest('defs')) { ren[n.id] = n.id + sfx; n.id += sfx; } else n.removeAttribute('id'); });
+    if (Object.keys(ren).length) page.querySelectorAll('*').forEach(e => [...e.attributes].forEach(a => {
+        const v = a.value.replace(/url\(\s*['"]?#([^)'"\s]+)['"]?\s*\)/g, (m, k) => ren[k] ? `url(#${ren[k]})` : m).replace(/^#(.+)$/, (m, k) => ren[k] && /href$/.test(a.name) ? '#' + ren[k] : m);
+        if (v !== a.value) e.setAttribute(a.name, v);
+    }));
+    page.querySelectorAll('.ui-spot, canvas.hllive').forEach(n => n.remove());
+    [['canvas.ink', ink, inkMarked, 'ink'], ['canvas.hlmain', hlc, hlMarked, 'ui-hlc']].forEach(([sel, src, marked, cls]) => {
+        const cv = page.querySelector(sel); if (!cv) return;
+        if (marked) { const img = new Image(); img.className = cls; img.alt = ''; img.src = src.toDataURL(); cv.replaceWith(img); imgs.push(img); }
+        else cv.remove();
+    });
+    if (boardOnly) page.querySelectorAll('.top, .content, .caption, .progress').forEach(n => n.remove());
+    return { page, imgs };
+}
+function runScene(i) {
+    build(i);
+    events.slice().sort((a, b) => a.t - b.t).forEach(e => { if (!e.done) { e.done = true; e.fn(); } });
+    progress.style.transition = 'none'; progress.style.width = '100%';
+}
+function buildThumbs() {
+    exporting = true;
+    for (let i = 0; i < scenes.length; i++) {
+        runScene(i);
+        const { page } = snapStage(false);
+        page.querySelectorAll('canvas, img.ink, img.ui-hlc, .ui-blayer').forEach(n => n.remove());
+        thumbs[i] = page;
+    }
+    exporting = false;
+}
+async function exportPDF() {
+    if (document.activeElement) document.activeElement.blur();
+    zoomReset();
+    printBox.innerHTML = '';
+    const imgs = [];
+    if (wbOpen) {
+        const keep = wbPage;
+        for (let p = 0; p < wbPages; p++) {
+            wbPage = p; loadSurface(); syncWB();
+            const r = snapStage(true); imgs.push(...r.imgs); printBox.appendChild(r.page);
+        }
+        wbPage = keep; loadSurface(); syncWB();
+    } else {
+        const keepIdx = idx, keepBeat = beat;
+        exporting = true;
+        for (let i = 0; i < scenes.length; i++) {
+            runScene(i);
+            const r = snapStage(false); imgs.push(...r.imgs); printBox.appendChild(r.page);
+        }
+        exporting = false;
+        go(keepIdx, keepBeat);
+    }
+    await Promise.all([...imgs, ...printBox.querySelectorAll('img')].map(im => im.decode().catch(() => {})));
+    window.print();
+}
+$('#pdf').onclick = exportPDF;
+$('#wbpdf').onclick = () => { $('#wbpdf').blur(); exportPDF(); };
+window.addEventListener('afterprint', () => { printBox.innerHTML = ''; });
+
+document.addEventListener('keydown', e => {
+    if (isTyping(e)) return;
+    if (e.ctrlKey || e.metaKey) {
+        const k = e.key.toLowerCase();
+        if (k === 'z') { e.preventDefault(); e.shiftKey ? redoInk() : undoInk(); }
+        else if (k === 'y') { e.preventDefault(); redoInk(); }
+        return;
+    }
+    if (e.altKey) return;
+    if (e.key === 'p' || e.key === 'P') setTool(tool === 'pen' ? null : 'pen');
+    if (e.key === 'e' || e.key === 'E') setTool(tool === 'eraser' ? null : 'eraser');
+    if (e.key === 'c' || e.key === 'C') clearInk();
+    if (e.key === 's' || e.key === 'S') toggleSubs();
+    if (e.key === 't' || e.key === 'T') ftShow(ftEl.hidden);
+    if (e.key === 'u' || e.key === 'U') setUI(!document.body.classList.contains('noui'));
+    if (e.key === 'z' || e.key === 'Z') setZoom(!Z.on);
+    if (e.key === 'l' || e.key === 'L') setLock(!Z.locked);
+    if (e.key === 'h' || e.key === 'H') setSpot(!SP.on);
+    if (e.key === 'f' || e.key === 'F') toggleFS();
+    if (e.key === 'm' || e.key === 'M') toggleMenu(engMenu);
+    if (e.key === 'b' || e.key === 'B') { e.preventDefault(); closeMenus(); addText(true); }
+    if (e.key === 'y' || e.key === 'Y') setTool(tool === 'hl' ? null : 'hl');
+    if (e.key === 'w' || e.key === 'W') toggleWB();
+    if (e.key === 'k' || e.key === 'K') openModal('blk');
+    if ((e.key === 'g' || e.key === 'G') && !wbOpen) openModal('ovw');
+    if (e.key === '?' || e.key === '/') { e.preventDefault(); openModal('keys'); }
+    if (/^[1-5]$/.test(e.key) && engMenu.classList.contains('ui-open')) { addBadge(ENG_KEYS[+e.key - 1]); closeMenus(); }
+    if (e.key === 'Escape') closeMenus();
+    if (e.key === 'Escape') setTool(null);
+});
+
+const controlsEl = document.querySelector('.controls');
+function fit() {
+    const st = $('#stage'), noui = document.body.classList.contains('noui');
+    const vw = window.innerWidth - (noui ? 0 : 40), vh = window.innerHeight - (noui ? 0 : controlsEl.offsetHeight + 20);
+    const k = Math.min(vw / 1280, vh / 720);
+    scaleK = k;
+    st.style.transform = `scale(${k})`;
+    st.style.margin = `${(720 * k - 720) / 2}px ${(1280 * k - 1280) / 2}px`;
+}
+window.addEventListener('resize', fit);
+fit();
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { fit(); buildThumbs(); go(0); });
+</script>
+
+</body>
+</html>
